@@ -1,0 +1,41 @@
+{
+    "camera": {
+        "image": {},
+        "video": {}
+    },
+    "system": {
+        "information": {
+            "hardware": "v3.0.0",
+            "id": "sn-xxxxxxxx",
+            "location": "china",
+            "manufacturer": "cetc",
+            "model": "xx-xxx-xxx",
+            "name": "ipcam",
+            "onvif": "2.0.",
+            "software": "v2.0.0",
+            "uri": "http://192.168.1.88/onvif/device_service"
+        },
+        "network": {
+            "eth0": {
+                "ipv4": {
+                    "address": "192.168.1.22",
+                    "dhcp": false,
+                    "dns1": "192.168.0.3",
+                    "dns2": "8.8.8.8",
+                    "getway": "192.168.0.1",
+                    "mac": "11:22:33:44:55:66",
+                    "netamsk": "255.255.0.0"
+                },
+                "ipv6": {},
+                "name": "eht0"
+            },
+            "eth1": {},
+            "httpport": 80,
+            "ntp": "0.asia.pool.ntp.org",
+            "rtspport": 554
+        },
+        "time": {
+            "timezone": 8
+        }
+    }
+}
