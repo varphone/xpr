@@ -11,7 +11,7 @@ all: $(targets)
 
 $(targets): $(objects)
 	@echo "[ Building] $@"
-	@$(CC) $(LDFLAGS) $@.o -o $@
+	@$(CC) $@.o -o $@ $(LDFLAGS)
 
 %.o: %.c
 	@echo "[Compiling] $^"
