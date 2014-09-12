@@ -9,6 +9,7 @@ static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* ke
 {
 	const char *s = NULL;
 	int result = 0, len=0;	
+
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
 			*(int*)buffer = XPR_JSON_BooleanValue(json);
