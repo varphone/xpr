@@ -1,18 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <xpr/xpr_ups.h>
 
 #define MAX_KEY_LEN	 16
-#define CHECK_KVS(k,v,s) \
-		if(!k||!v||!s)\
-			return -1
-
-#define CHECK_KV(k,v) \
-		if(!k || !v)\
-			return -1
-
+ 
 static XPR_UPS_Entry* root = 0;
 static XPR_JSON*      root_json = 0;
 
@@ -22,7 +14,7 @@ static XPR_JSON*      root_json = 0;
 XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 {
 	int i=0, j=0, len=0, leaf=0, count=0;
-	char* saveptr, *s, *name ;
+	char* saveptr, *s, *name;
 	char* names[MAX_KEY_LEN];
 	XPR_JSON *child_json = 0;
 	XPR_JSON *parent_json = root_json;
@@ -58,20 +50,22 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 		name = strtok_r(NULL, "/", &saveptr);
 	}
 	count = i;
-	i = 0;
-	j = 0;
+	i = 0; 
 
 	while(p && i<count) {
 		// 只有是叶子节点的时候，也就是最后一层的时候，才会有多个名字存在需要遍历，其他情况不需要
-		if(leaf && i == count) {
-			name = (char*)p->names[j];
-			for(;name != 0; j++, name = (char*)p->names[j]) {
-				if(strcmp(names[i], name) ==0 && p->type != XPR_UPS_ENTRY_TYPE_DIR) {
-					free(s);
-					*json = child_json;
-					return p;
-				}
-			}
+		if(leaf && (i == count-1)) {
+            child_json  =  XPR_JSON_ObjectGet(parent_json, names[i]);
+            while(p) {
+			    for(j = 0, name = (char*)p->names[j]; name != 0; j++, name = (char*)p->names[j]) { 
+				    if(strcmp(names[i], name) ==0 && p->type != XPR_UPS_ENTRY_TYPE_DIR) {
+					    free(s);
+					    *json = child_json;
+					    return p;
+				    }
+			    }
+			    p = p->next; 
+            }
 			free(s);
 			return NULL;
 		}
@@ -107,7 +101,7 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer
 
 	if(!key || !buffer) 
 		return -1;
-
+	
 	if(type == XPR_UPS_ENTRY_TYPE_STRING && !size)
 		return -1;
 		
@@ -115,7 +109,7 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer
 	entry = XPR_UPS_FindEntry(key, &json);
 	if(!entry || !json) 
 		return -1;
-
+	
 	if(entry->get) 
 		return entry->get(entry, json, key, buffer, size);
 
@@ -183,10 +177,14 @@ extern XPR_UPS_Entry xpr_ups_driver_root;
 extern XPR_UPS_Entry xpr_ups_driver_system_network[];
 extern const int xpr_ups_driver_system_network_count;
 
+extern XPR_UPS_Entry xpr_ups_driver_system_information[];
+extern const int xpr_ups_driver_system_information_count;
+
 static void XPR_UPS_RegisterAll(void)
 {
 	XPR_UPS_Register(&xpr_ups_driver_root, 1);
 	XPR_UPS_Register(xpr_ups_driver_system_network,  xpr_ups_driver_system_network_count);
+    XPR_UPS_Register(xpr_ups_driver_system_information, xpr_ups_driver_system_information_count);
 	// register other....
 }
 
@@ -225,257 +223,63 @@ int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 
 int XPR_UPS_SetString(const char* key, const char* value, int size)
 {
-	CHECK_KV(key, value);
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-int XPR_UPS_SetStringVK(const char* value, int size, const char* key, ...)
-{
-	va_list ap;
-    char buffer[1024];
-
-	CHECK_KVS(key, value, size);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
-}
-
-
 int XPR_UPS_GetString(const char* key, char* value, int* size)
 {
-	CHECK_KVS(key, value, size);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
+
 }
-
-int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
-{
-	va_list ap;
-    char buffer[1024];
-
-	CHECK_KVS(key, value, size);
-	if(strlen(key) > 1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
-}
-
 
 int XPR_UPS_SetInteger(const char* key, int value)
 {
-	if(!key)
-		return -1;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
-}
-
-int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	if(!key)
-		return -1;
-
-	if(strlen(key)>1024)
-		return -1;
-
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
-	
 }
 
 int XPR_UPS_GetInteger(const char* key, int* value)
 {
-	CHECK_KV(key,value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT, value, 0);
-}
-
-int XPR_UPS_GetIntegerVK(int *value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	CHECK_KV(key,value);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT, value, 0);
 }
 
 int XPR_UPS_SetInt64(const char* key, int64_t value)
 {
-	if(!key)
-		return -1;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
-}
-
-int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-	if(!key)
-		return -1;
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return  XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
 }
 
 int XPR_UPS_GetInt64(const char* key, int64_t* value)
 {
-	CHECK_KV(key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
-}
-
-int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	CHECK_KV(key,value);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
 }
 
 int XPR_UPS_SetFloat(const char* key, float value)
 {
-	if(!key)
-		return -1;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
-}
-
-int XPR_UPS_SetFloatKV(const char* key, float value, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	if(!key)
-		return -1;
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
 int XPR_UPS_GetFloat(const char* key, float* value)
 {
-	CHECK_KV(key,value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
-}
-
-int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	CHECK_KV(key,value);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
-	
 }
 
 int XPR_UPS_SetDouble(const char* key, double value)
 {
-	if(!key)
-		return -1;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
-
-int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	if(!key)
-		return -1;
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
-}
-
 
 int XPR_UPS_GetDouble(const char* key, double* value)
 {
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
-int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	CHECK_KV(key,value);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
-}
-
 int XPR_UPS_SetBoolean(const char* key, int value)
 {
-	if(!key)
-		return -1;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
-}
-
-int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	if(!key)
-		return -1;
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-	return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
 int XPR_UPS_GetBoolean(const char* key, int* value)
 {
-	CHECK_KV(key,value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
-}
-
-int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
-{
-	va_list ap;
-	char buffer[1024];
-
-	CHECK_KV(key,value);
-	if(strlen(key)>1024)
-		return -1;
-	va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
 int XPR_UPS_Delete(const char* key)
