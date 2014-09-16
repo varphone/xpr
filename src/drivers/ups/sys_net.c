@@ -9,6 +9,7 @@ static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* ke
 {
 	const char *s = NULL;
 	int result = 0, len=0;	
+    //printf("network_get_ipv4....%s %s\n", key, buffer);
 
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
@@ -47,8 +48,9 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 	int result = -1;
 	int ipv4[4];
 
-	if(sscanf(data, "%d.%d.%d.%d", &ipv4[0],&ipv4[1],&ipv4[2],&ipv4[3]) !=4)
-		return -1;
+    //printf("network_set_ipv4....%s %s\n", key, data);
+	//if(sscanf(data, "%d.%d.%d.%d", &ipv4[0],&ipv4[1],&ipv4[2],&ipv4[3]) !=4)
+	//	return -1;
 #if 0
 	char cmd[1024] = {0};
 	if(strcmp(s, "address") ==0)
@@ -78,6 +80,7 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 			result = XPR_JSON_RealSet(json, *(double*)data);
 			break;
 		case XPR_UPS_ENTRY_TYPE_STRING:
+            printf("js_json=%s data=%s\n",  XPR_JSON_DumpString(json), data);
 			result = XPR_JSON_StringSet(json, (char *)data);
 			break;
 		default:
@@ -96,14 +99,23 @@ static const char* xpr_ups_driver_sys_descs[] = { "system", 0};
 static const char* xpr_ups_driver_sys_net_names[] = { "network", 0};
 static const char* xpr_ups_driver_sys_net_descs[] = { "network", 0};
 
-static const char* xpr_ups_driver_sys_net_strings_names[] = {"ntp", 0};
-static const char* xpr_ups_driver_sys_net_strings_descs[] = {"ntp", 0};
+static const char* xpr_ups_driver_sys_net_ntp_names[] = {"ntp", 0};
+static const char* xpr_ups_driver_sys_net_ntp_descs[] = {"ntp", 0};
+
+static const char* xpr_ups_driver_sys_net_ntp_strings_names[] = {"serveradress", 0};
+static const char* xpr_ups_driver_sys_net_ntp_strings_descs[] = {"serveradress", 0};
+
+static const char* xpr_ups_driver_sys_net_ntp_bool_names[] = {"enable", 0};
+static const char* xpr_ups_driver_sys_net_ntp_bool_descs[] = {"enable", 0};
 
 static const char* xpr_ups_driver_sys_net_ints_namnes[] = {"httpport","rtspport", 0};
-static const char* xpr_ups_driver_sys_net_ints_descs[] = {"htt pport","rts pport", 0};
+static const char* xpr_ups_driver_sys_net_ints_descs[] =  {"http port","rtsp port", 0};
 
 static const char* xpr_ups_driver_sys_net_eth0_names[] = { "eth0", 0};
 static const char* xpr_ups_driver_sys_net_eth0_descs[] = { "network interface card 0", 0};
+
+static const char* xpr_ups_driver_sys_net_eth0_strings_names[] = { "name", "mac", 0};
+static const char* xpr_ups_driver_sys_net_eth0_strings_descs[] = { "ethernet name", "mac address", 0};
 
 static const char* xpr_ups_driver_sys_net_eth_ipv4_names[] = { "ipv4", 0};
 static const char* xpr_ups_driver_sys_net_eth_ipv4_descs[] = { "ipv4", 0};
@@ -111,8 +123,8 @@ static const char* xpr_ups_driver_sys_net_eth_ipv4_descs[] = { "ipv4", 0};
 static const char* xpr_ups_driver_sys_net_eth_ipv4_bool_names[] = {"dhcp", 0};
 static const char* xpr_ups_driver_sys_net_eth_ipv4_bool_descs[] = {"dhcp", 0};
 
-static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_names[] = { "address", "netmask", "gateway", "dns1", "dns2", "mac", 0};
-static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_descs[] = { "address", "netmask", "gateway", "dns1", "dns2" "mac", 0};
+static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_names[] = { "address", "netmask", "gateway", "dns1", "dns2", 0};
+static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_descs[] = { "address", "netmask", "gateway", "dns1", "dns2", 0};
 
 
 XPR_UPS_Entry xpr_ups_driver_system_network[] = {
@@ -125,7 +137,6 @@ XPR_UPS_Entry xpr_ups_driver_system_network[] = {
         0, 0, 0, 0,
         0, 0, 0
     },
-
     {
         xpr_ups_driver_sys_net_names,
         xpr_ups_driver_sys_net_descs,
@@ -135,23 +146,40 @@ XPR_UPS_Entry xpr_ups_driver_system_network[] = {
         0, 0, 0, 0,
         0, 0, 0
     },
-
-    {	// strings
-        xpr_ups_driver_sys_net_strings_names,
-        xpr_ups_driver_sys_net_strings_descs,
-        "ups/entry",
-        "/system/network/",
-        XPR_UPS_ENTRY_TYPE_STRING,
-        0, 0, network_common_get, 0,
-        0, 0, 0
-    },
-    {	// ints
+    {	
         xpr_ups_driver_sys_net_ints_namnes,
         xpr_ups_driver_sys_net_ints_descs,
         "ups/entry",
         "/system/network/",
         XPR_UPS_ENTRY_TYPE_INT,
-        0, 0, network_common_get, 0,
+        0, 0, network_common_get, network_set_ipv4,
+        0, 0, 0
+    },
+    {	
+        xpr_ups_driver_sys_net_ntp_names,
+        xpr_ups_driver_sys_net_ntp_descs,
+        "ups/dir",
+        "/system/network/",
+        XPR_UPS_ENTRY_TYPE_DIR,
+        0, 0, 0, 0,
+        0, 0, 0
+    },
+    {
+        xpr_ups_driver_sys_net_ntp_strings_names,
+        xpr_ups_driver_sys_net_ntp_strings_descs,
+        "ups/entry",
+        "/system/network/ntp/",
+        XPR_UPS_ENTRY_TYPE_STRING,
+        0, 0, network_common_get, network_set_ipv4,
+        0, 0, 0
+    },
+    {
+        xpr_ups_driver_sys_net_ntp_bool_names,
+        xpr_ups_driver_sys_net_ntp_bool_descs,
+        "ups/entry",
+        "/system/network/ntp/",
+        XPR_UPS_ENTRY_TYPE_BOOLEAN,
+        0, 0, network_common_get, network_set_ipv4,
         0, 0, 0
     },
     {
@@ -161,6 +189,15 @@ XPR_UPS_Entry xpr_ups_driver_system_network[] = {
         "/system/network/",
         XPR_UPS_ENTRY_TYPE_DIR,
         0, 0, 0, 0,
+        0, 0, 0
+    },
+    {
+        xpr_ups_driver_sys_net_eth0_strings_names,
+        xpr_ups_driver_sys_net_eth0_strings_descs,
+        "ups/entry",
+        "/system/network/eth0/",
+        XPR_UPS_ENTRY_TYPE_STRING,
+        0, 0, network_common_get, network_set_ipv4,
         0, 0, 0
     },
     {
@@ -178,7 +215,7 @@ XPR_UPS_Entry xpr_ups_driver_system_network[] = {
         "ups/entry",
         "/system/network/eth0/ipv4/",
         XPR_UPS_ENTRY_TYPE_BOOLEAN,
-        0, 0, network_common_get, 0,
+        0, 0, network_common_get, network_set_ipv4,
         0, 0, 0
     },
     {
