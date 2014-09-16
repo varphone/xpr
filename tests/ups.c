@@ -90,17 +90,32 @@ int test_ups_get_set_string()
 	return 0;
 }
 
+
+
+int test_ups_get_set_string2()
+{
+	char value[128]={0};
+	int size = sizeof(value);
+
+	int err = XPR_UPS_SetStringVK(("192.168.1.18"), strlen("192.168.1.18"), "/system/network/eth0/ipv4/%s", "address");
+	printf("err = %d\n",err);
+   // err = XPR_UPS_GetString("/system/network/eth0/ipv4/address", value, &size);
+	//printf("err = %d, value=%s\n",err, value);
+
+}
+
 int main(int argc, char* argv[])
 {
 	int result = 0;
 
 	result = XPR_UPS_Init();
 	if(result!=0) {
-		printf("XPR_UPS_Init failed\n");
+		printf("XPR_UPS_Init failed err = %d\n", result);
 		return 0;
 	}
 
-	test_ups_get_set_string();
+	//test_ups_get_set_string();
+//test_ups_get_set_string2();
 
 	XPR_UPS_Fini();
 	return 0;
