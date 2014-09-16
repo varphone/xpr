@@ -141,6 +141,7 @@ endif
 ifeq ($(XPR_UPS),1)
 libxpr_OBJS += \
 drivers/ups/root.o \
+drivers/ups/cam_img.o \
 drivers/ups/sys_info.o \
 drivers/ups/sys_net.o \
 xpr_ups.o
