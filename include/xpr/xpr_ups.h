@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "xpr_common.h"
 #include "xpr_json.h"
+#include "xpr_errno.h"
 
 /// @defgroup xprups 设定集操作库
 /// @brief     Universal Preference Settings Foundation library.
@@ -43,6 +44,7 @@ struct XPR_UPS_Entry;
 typedef struct XPR_UPS_Entry XPR_UPS_Entry;
 #endif // XPR_UPS_ENTRY_TYPE_DEFINED
 
+
 #ifndef XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 #define XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 enum XPR_UPS_EntryType {
@@ -79,6 +81,30 @@ struct XPR_UPS_Entry {
 };
 
 #define XPR_UPS_ENTRY_END   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+
+
+/// @brief Error code define
+/// 传进去的参数无效
+#define          XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_ILLEGAL_PARAM)
+/// 资源已存在
+#define XPR_ERR_UPS_EXIST            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_EXIST)
+/// 资源不存在
+#define XPR_ERR_UPS_UNEXIST          XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_UNEXIST)
+/// 指针为空
+#define XPR_ERR_UPS_NULL_PTR         XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_NULL_PTR)
+/// 系统未配置
+#define XPR_ERR_UPS_NOT_CONFIG       XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_NOT_CONFIG)
+/// 当前操作不支持
+#define XPR_ERR_UPS_NOT_SUPPORT      XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_NOT_SUPPORT)
+/// 不允许操作
+#define XPR_ERR_UPS_NOT_PERM         XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR,  EN_ERR_NOT_PERM)
+/// 内薰申请失败
+#define XPR_ERR_UPS_NOMEM            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_NOMEM)
+/// 缓冲区太小
+#define XPR_ERR_UPS_NOBUF            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR,  EN_ERR_NOBUF)
+///  UPS未初始化
+#define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR,  EN_ERR_SYS_NOTREADY)
+
 
 /// @brief 打开设定集
 /// @retval <=0 失败
@@ -126,7 +152,7 @@ int XPR_UPS_SetIntegerVK(int value, const char* key, ...);
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 int XPR_UPS_GetInteger(const char* key, int* value);
-int XPR_UPS_GetIntegerVK(const char* key, ...);
+int XPR_UPS_GetIntegerVK(int* value, const char* key, ...);
 
 /// @brief 设置 64 位整数型设定项值
 /// @param [in] token       已打开的设定实例
