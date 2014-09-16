@@ -3,21 +3,23 @@ AR			= $(CROSS_COMPILER_PREFIX)ar
 AS			= $(CROSS_COMPILER_PREFIX)as
 
 CFLAGS      = -O2 -g -Wall -D_BSD_SOURCE -D_GNU_SOURCE -DPIC -fPIC -I../include
-libxpr_OBJ  =
+libxpr_DEFS      =
+libxpr_OBJS      =
+libxpr_LDFLAGS  =
 
 include Modules.mk
 
-CFLAGS      += -DHAVE_STDINT_H=1
+CFLAGS      += -DHAVE_STDINT_H=1 $(libxpr_DEFS)
 
 all: libxpr.a libxpr.so local_install
 
-libxpr.a: $(libxpr_OBJ)
+libxpr.a: $(libxpr_OBJS)
 	@echo "[  Archive] $@"
 	@$(AR) crv $@ $^
 
-libxpr.so: $(libxpr_OBJ)
+libxpr.so: $(libxpr_OBJS)
 	@echo "[     Link] $@"
-	@$(CC) -shared -rdynamic $^ -o $@ -lpthread -ldl -Wl,--version-script=libxpr.sym
+	@$(CC) -shared -rdynamic $^ -o $@ $(libxpr_LDFLAGS) -lpthread -ldl -Wl,--version-script=libxpr.sym
 
 %.o: %.c
 	@echo "[Compiling] $^"
@@ -28,4 +30,4 @@ local_install: libxpr.a libxpr.so
 	@cp $^ ../lib/
 
 clean:
-	-rm $(libxpr_OBJ) libxpr.a libxpr.so
+	-rm $(libxpr_OBJS) libxpr.a libxpr.so

@@ -43,6 +43,9 @@ extern "C" {
 // Forwards
 struct XPR_AVFrame;
 
+/// @brief Type of AVFrame
+typedef struct XPR_AVFrame XPR_AVFrame;
+
 /// @brief AVFrame release callback routine
 /// @param [in] frame       AVFrame instance
 /// @return the reference count after decreased
@@ -64,8 +67,7 @@ struct XPR_AVFrame {
     void* opaque;               ///< For some private data of the user
     XPR_AVFrameReleaseCallback release;  ///< Release callback routine
 };
-/// @brief Type of AVFrame
-typedef struct XPR_AVFrame XPR_AVFrame;
+
 #endif // XPR_AVFRAME_TYPE_DEFINED
 
 /// @}

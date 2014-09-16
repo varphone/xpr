@@ -54,6 +54,7 @@ extern "C" {
 #define XPR_STREAMBLOCK_FLAG_TOP_FIELD_FIRST      0x2000      ///< 顶场在前
 #define XPR_STREAMBLOCK_FLAG_BOTTOM_FIELD_FIRST   0x4000      ///< 底场在先
 #define XPR_STREAMBLOCK_FLAG_EOF                  0x00010000     ///< End of frame (Bitmask)
+#define XPR_STREAMBLOCK_MAX_SIZE                  16777216
 
 // 前置声明
 /// 数据流输出的结构体
@@ -112,7 +113,7 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size);
 /// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，否则要释放资源必须调用 XPR_StreamBlockFree() 来完成
 /// @warning 此接口只能用于 XPR_StreamBlockAlloc() 分配出来的对象，切勿用于用户自定义分配的对象
 /// @sa XPR_StreamBlockFree(), XPR_StreamBlockRelease()
-XPR_StreamBlock* XPR_StreamBlockRealloc(size_t size);
+XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size);
 
 /// @brief 释放流数据块资源
 /// @param [in] blk     已分配到的数据块内存地址
