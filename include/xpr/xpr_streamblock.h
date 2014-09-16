@@ -189,6 +189,9 @@ uint32_t XPR_StreamBlockCodec(const XPR_StreamBlock* blk);
 /// @brief 获取数据块的标志值
 uint32_t XPR_StreamBlockFlags(const XPR_StreamBlock* blk);
 
+/// @brief 获取数据块的负载数据的音频数据样本数
+uint32_t XPR_StreamBlockSamples(const XPR_StreamBlock* blk);
+
 /// @brief 获取数据块的负载数据的轨道标识
 uint32_t XPR_StreamBlockTrack(const XPR_StreamBlock* blk);
 
@@ -203,7 +206,7 @@ int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk);
 
 /// @}
 ///
-
+   
 /// @}
 ///
 

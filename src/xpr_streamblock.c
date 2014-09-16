@@ -175,6 +175,11 @@ uint32_t XPR_StreamBlockFlags(const XPR_StreamBlock* blk)
     return blk->flags;
 }
 
+uint32_t XPR_StreamBlockSamples(const XPR_StreamBlock* blk)
+{
+    return blk->samples;
+}
+
 uint32_t XPR_StreamBlockTrack(const XPR_StreamBlock* blk)
 {
     return blk->track;
