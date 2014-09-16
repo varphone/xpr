@@ -42,22 +42,28 @@ dpu-defs-0 :=
 dpu-objs-0 :=
 dpu-defs-1 :=
 dpu-objs-1 :=
+dpu-cflags :=
+dpu-ldfalgs:=
 
-# add_dpu(Id,Switch?[0|1],Objects)
+# add_dpu(Id,Switch?[0|1],Objects,CFLAGS,LDFLAGS)
 define add_dpu
 $(eval XPR_DPU_DRIVER_$1 := $2)
 $(eval dpu-defs-$(XPR_DPU_DRIVER_$1) += -DXPR_DPU_DRIVER_$1=$(XPR_DPU_DRIVER_$1))
 $(eval dpu-objs-$(XPR_DPU_DRIVER_$1) += $(patsubst %,drivers/dpu/%,$3))
+$(eval dpu-cflags += $4)
+$(eval dpu-ldflags += $5)
 endef
 
 ifeq ($(XPR_DPU),1)
 $(eval $(call add_dpu,A2SVIDEO,0,a2svideo.o))
 $(eval $(call add_dpu,A5SVIDEO,0,a5svideo.o))
 $(eval $(call add_dpu,A5SYUV,0,a5syuv.o))
-$(eval $(call add_dpu,ALSAPCM,1,alsapcm.o))
+$(eval $(call add_dpu,ALSAPCM,1,alsapcm.o,,-lasound))
 $(eval $(call add_dpu,G711TEST,1,g711test.o))
 $(eval $(call add_dpu,MDSD,1,mdsd.o))
 $(eval $(call add_dpu,PCMTEST,1,pcmtest.o))
+libxpr_CFLAGS += $(dpu-cflags)
+libxpr_LDFLAGS += $(dpu-ldflags)
 libxpr_DEFS += $(dpu-defs-0) $(dpu-defs-1)
 libxpr_OBJS += $(dpu-objs-1) \
 xpr_dpu.o \
