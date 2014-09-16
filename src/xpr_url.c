@@ -106,12 +106,17 @@ void XPR_UrlDestroy(XPR_Url* url)
 static void ParseHostPart(XPR_Url* u, const char* s, int length)
 {
     int n = 0;
+    char ctmp = 0;
     char tmp[256] = {0};
     const char* p1 = 0;
     const char* p2 = 0;
     const char* ep = 0;
     if (length <= 0)
         length = strlen(s);
+    // Save and Change
+    ctmp = *(char*)(s+length);
+    *(char*)(s+length) = 0;
+    //
     ep = s + length;
     p1 = strnchr(s, '@', length);
     if (p1) {
@@ -159,6 +164,8 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         u->flags |= URL_HAVE_PROTOCOL_MAJOR;
     if (n > 1)
         u->flags |= URL_HAVE_PROTOCOL_MINOR;
+    // Restore
+    *(char*)(s+length) = ctmp;
 }
 
 XPR_Url* XPR_UrlParse(const char* url, int length)
