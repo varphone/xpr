@@ -96,10 +96,11 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 
 static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer, int* size)
 {	
+    //printf("XPR_UPS_GetData....%s %s\n", key, buffer);
 	XPR_JSON *json = NULL;
 	XPR_UPS_Entry *entry=NULL;
 
-	if(!key || !buffer) 
+	if(!key || !buffer)  
 		return -1;
 	
 	if(type == XPR_UPS_ENTRY_TYPE_STRING && !size)
@@ -107,8 +108,14 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer
 		
 
 	entry = XPR_UPS_FindEntry(key, &json);
+    if(!entry)
+        printf("XPR_UPS_GetData:: entry is null!\n");
+
+    if(!json)
+        printf("XPR_UPS_GetData:: json is null!\n");
+
 	if(!entry || !json) 
-		return -1;
+		return -1; 
 	
 	if(entry->get) 
 		return entry->get(entry, json, key, buffer, size);
@@ -118,6 +125,7 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer
 
 static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type, const void* data, int size)
 {	
+    //printf("XPR_UPS_SetData....%s %s\n", key, data);
 	XPR_JSON *json = NULL;
 	XPR_UPS_Entry *entry=NULL;
 
@@ -125,7 +133,14 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type, const void* 
 		return -1;
 
 	entry = XPR_UPS_FindEntry(key, &json);
-	if(!entry || !json)
+
+    if(!entry)
+        printf("XPR_UPS_SetData:: entry is null!\n");
+
+    if(!json)
+        printf("XPR_UPS_SetData:: json is null!\n");
+
+	if(!entry || !json) 
 		return -1;
 
 	if(entry->set) 
@@ -148,7 +163,7 @@ void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
     else {
 		entry = XPR_UPS_FindEntry(ent->root, &json);
 		if(!entry) {
-			printf("cant not find:%s\n",ent->root);
+			printf("current node is: %s, cant not find:%s\n",ent->names[0], ent->root); 
 			return;
 		}
 		if(!entry->subs) {
@@ -180,11 +195,15 @@ extern const int xpr_ups_driver_system_network_count;
 extern XPR_UPS_Entry xpr_ups_driver_system_information[];
 extern const int xpr_ups_driver_system_information_count;
 
+extern XPR_UPS_Entry xpr_ups_driver_camera_image[];
+extern const int xpr_ups_driver_camera_image_count;
+
 static void XPR_UPS_RegisterAll(void)
 {
 	XPR_UPS_Register(&xpr_ups_driver_root, 1);
 	XPR_UPS_Register(xpr_ups_driver_system_network,  xpr_ups_driver_system_network_count);
     XPR_UPS_Register(xpr_ups_driver_system_information, xpr_ups_driver_system_information_count);
+    XPR_UPS_Register(xpr_ups_driver_camera_image, xpr_ups_driver_camera_image_count);
 	// register other....
 }
 
@@ -228,8 +247,8 @@ int XPR_UPS_SetString(const char* key, const char* value, int size)
 
 int XPR_UPS_GetString(const char* key, char* value, int* size)
 {
+    //printf("XPR_UPS_GetString....%s %s\n", key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
-
 }
 
 int XPR_UPS_SetInteger(const char* key, int value)
