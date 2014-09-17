@@ -40,26 +40,30 @@ extern "C"
 
 #ifndef XPR_UPS_ENTRY_TYPE_DEFINED
 #define XPR_UPS_ENTRY_TYPE_DEFINED
-struct XPR_UPS_Entry;
-typedef struct XPR_UPS_Entry XPR_UPS_Entry;
+struct XPR_UPS_Entry; ///< XPR_UPS 前置声明
+typedef struct XPR_UPS_Entry XPR_UPS_Entry; ///< XPR_UPS 类型声明
 #endif // XPR_UPS_ENTRY_TYPE_DEFINED
 
 
 #ifndef XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 #define XPR_UPS_ENTRYTYPE_TYPE_DEFINED
+/// @brief XPR_UPS 条目类型
 enum XPR_UPS_EntryType {
-    XPR_UPS_ENTRY_TYPE_UNKNOWN,
-    XPR_UPS_ENTRY_TYPE_DIR,
-    XPR_UPS_ENTRY_TYPE_BOOLEAN,
-    XPR_UPS_ENTRY_TYPE_BLOB,
-    XPR_UPS_ENTRY_TYPE_INT,
-    XPR_UPS_ENTRY_TYPE_INT64,
-    XPR_UPS_ENTRY_TYPE_REAL,
-    XPR_UPS_ENTRY_TYPE_STRING,
+    XPR_UPS_ENTRY_TYPE_UNKNOWN, ///< 未知
+    XPR_UPS_ENTRY_TYPE_DIR,     ///< 目录
+    XPR_UPS_ENTRY_TYPE_BOOLEAN, ///< 布尔
+    XPR_UPS_ENTRY_TYPE_BLOB,    ///< 二进制数据
+    XPR_UPS_ENTRY_TYPE_INT,     ///< 整形
+    XPR_UPS_ENTRY_TYPE_INT64,   ///< 整形(64位)
+    XPR_UPS_ENTRY_TYPE_REAL,    ///< 实数
+    XPR_UPS_ENTRY_TYPE_STRING,  ///< 字符串
 };
-typedef enum XPR_UPS_EntryType XPR_UPS_EntryType;
+typedef enum XPR_UPS_EntryType XPR_UPS_EntryType; ///< XPR_UPS 条目类型
 #endif // XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 
+/// @brief 设定项初始化函数
+/// @param [in] ent     设定项指针
+/// @return see [#XPR_ErrorCode]
 typedef int (*XPR_UPS_Initlializer)(XPR_UPS_Entry* ent);
 typedef int (*XPR_UPS_Finalizer)(XPR_UPS_Entry* ent);
 typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size);
