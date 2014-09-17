@@ -1,6 +1,6 @@
 include Common.mk
 
-subdirs = src examples tests
+subdirs = src examples tests docs
 
 all: $(subdirs)
 	$(call make_subdir, $^)
