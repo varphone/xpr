@@ -87,11 +87,15 @@ struct XPR_UPS_Entry {
 #define XPR_UPS_ENTRY_END   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
+
+/// 调用成功
+#define XPR_ERR_UPS_SUCCESS          0
+ 
 /// @brief Error code define
 /// 传进去的参数无效
-#define          XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_ILLEGAL_PARAM)
+#define XPR_ERR_UPS_ILLEGAL_PARAM    XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_ILLEGAL_PARAM)
 /// 资源已存在
-#define XPR_ERR_UPS_EXIST            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_EXIST)
+#define XPR_ERR_UPS_EXISTED          XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_EXIST)
 /// 资源不存在
 #define XPR_ERR_UPS_UNEXIST          XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_UNEXIST)
 /// 指针为空
@@ -106,7 +110,7 @@ struct XPR_UPS_Entry {
 #define XPR_ERR_UPS_NOMEM            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR, EN_ERR_NOMEM)
 /// 缓冲区太小
 #define XPR_ERR_UPS_NOBUF            XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR,  EN_ERR_NOBUF)
-///  UPS未初始化
+/// UPS未初始化
 #define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_ID_UPS, EN_ERR_LEVEL_ERROR,  EN_ERR_SYS_NOTREADY)
 
 
