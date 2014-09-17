@@ -20,26 +20,28 @@ static XPR_JSON*      root_json = 0;
 //查找给定节点，成功返回节点指针，失败返回NULL.
 //需要注意的是传进来的key要注意末尾是不是有'/',
 //如/sysem/network/ /system/network是不一样的，前者表示目录，后者表示具体的项
-XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
+int XPR_UPS_FindEntry(const char* key, XPR_JSON** json, XPR_UPS_Entry **entry)
 {
 	int i=0, j=0, len=0, leaf=0, count=0;
-	char* saveptr, *s, *name ;
+	char* saveptr, *s, *name;
 	char* names[MAX_KEY_LEN];
 	XPR_JSON *child_json = 0;
 	XPR_JSON *parent_json = root_json;
 
 	*json = NULL;
+	*entry = NULL;
 	XPR_UPS_Entry* p = root;
 	if(strcmp(key, p->names[0]) ==0) {
 		*json = root_json;
-		return p;
+		*entry = p;
+		return XPR_ERR_UPS_SUCCESS;
 	}
 	len = strlen(key);
 	leaf = key[len - 1] == '/' ? 0 : 1 ;
 			
 	s = malloc(len+1);
 	if(!s) 
-		return NULL;
+		return XPR_ERR_UPS_NOMEM;
 	s[len] = '\0';
 	strcpy(s, key);
 
@@ -47,13 +49,13 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 	name = strtok_r(s, "/", &saveptr);	
 	if(!name) {
 		free(s);
-		return NULL;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	}
 	names[i++] = "/";
 	while(name) {
 		if(i>=MAX_KEY_LEN) {
 			free(s);
-			return NULL;
+			return XPR_ERR_UPS_ILLEGAL_PARAM;
 		}
 		names[i++] = name;
 		name = strtok_r(NULL, "/", &saveptr);
@@ -70,13 +72,14 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 					if(strcmp(names[i], name) ==0 && p->type != XPR_UPS_ENTRY_TYPE_DIR) {
 						free(s);
 						*json = child_json;
-						return p;
+						*entry = p;
+						return XPR_ERR_UPS_SUCCESS;
 					}
 				}
 				p = p->next;
 			}
 			free(s);
-			return NULL;
+			return XPR_ERR_UPS_UNEXIST;
 		}
 		// 树形的目录检索
 		else if(strcmp(names[i], p->names[0]) == 0) {
@@ -88,7 +91,8 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 			if(++i == count) {
 				free(s);
 				*json = child_json;
-				return p; 
+				*entry = p;
+				return XPR_ERR_UPS_SUCCESS; 
 			}
 			p = p->subs;
 		}
@@ -100,7 +104,7 @@ XPR_UPS_Entry *XPR_UPS_FindEntry(const char* key, XPR_JSON** json)
 	}
 
 	free(s);
-	return NULL;
+	return XPR_ERR_UPS_UNEXIST;
 }
 
 static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer, int* size)
@@ -109,20 +113,20 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type, void* buffer
 	XPR_UPS_Entry *entry=NULL;
 
 	if(!key || !buffer) 
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 
 	if(type == XPR_UPS_ENTRY_TYPE_STRING && !size)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 		
 
-	entry = XPR_UPS_FindEntry(key, &json);
-	if(!entry || !json) 
-		return -1;
+	int ret = XPR_UPS_FindEntry(key, &json, &entry);
+	if(XPR_ERR_UPS_SUCCESS != ret) 
+		return ret;
 
 	if(entry->get) 
 		return entry->get(entry, json, key, buffer, size);
 
-	return 0;
+	return XPR_ERR_UPS_SUCCESS;
 }
 
 static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type, const void* data, int size)
@@ -131,15 +135,15 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type, const void* 
 	XPR_UPS_Entry *entry=NULL;
 
 	if(!key || !data) 
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 
-	entry = XPR_UPS_FindEntry(key, &json);
-	if(!entry || !json)
-		return -1;
+	int ret = XPR_UPS_FindEntry(key, &json, &entry);
+	if(XPR_ERR_UPS_SUCCESS != ret) 
+		return ret;
 
 	if(entry->set) 
 		return entry->set(entry, json, key, data, size);
-	return 0;
+	return XPR_ERR_UPS_SUCCESS;
 }
 
 void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
@@ -155,8 +159,8 @@ void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
         root->prev = root->next = root->subs = 0;
     }
     else {
-		entry = XPR_UPS_FindEntry(ent->root, &json);
-		if(!entry) {
+		int ret = XPR_UPS_FindEntry(ent->root, &json, &entry);
+		if(XPR_ERR_UPS_SUCCESS != ret) {
 			printf("cant not find:%s\n",ent->root);
 			return;
 		}
@@ -208,7 +212,7 @@ int XPR_UPS_Init(void)
 		return XPR_ERR_UPS_UNEXIST;
 
     XPR_UPS_RegisterAll();
-    return 0;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 int XPR_UPS_Fini(void)
@@ -216,7 +220,7 @@ int XPR_UPS_Fini(void)
 	XPR_JSON_DumpFileName(root_json, "./configuration.json");
 	XPR_JSON_DecRef(root_json);
 	root_json=0;
-    return 0;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 /// @brief
@@ -225,13 +229,13 @@ int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
     int i = 0;
     for (; i<count; i++)
         XPR_UPS_RegisterSingle(&ents[i]);
-    return -1;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 /// @brief
 int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
-	return 0;
+	return XPR_ERR_UPS_SUCCESS;
 }
 
 int XPR_UPS_SetString(const char* key, const char* value, int size)
@@ -247,7 +251,7 @@ int XPR_UPS_SetStringVK(const char* value, int size, const char* key, ...)
 
 	CHECK_KVS(key, value, size);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -268,7 +272,7 @@ int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
 
 	CHECK_KVS(key, value, size);
 	if(strlen(key) > 1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -279,7 +283,7 @@ int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
 int XPR_UPS_SetInteger(const char* key, int value)
 {
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
 }
 
@@ -289,10 +293,10 @@ int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
 	char buffer[1024];
 
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
@@ -314,7 +318,7 @@ int XPR_UPS_GetIntegerVK(int *value, const char* key, ...)
 
 	CHECK_KV(key,value);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -333,9 +337,9 @@ int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
 	va_list ap;
 	char buffer[1024];
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -355,7 +359,7 @@ int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
 
 	CHECK_KV(key,value);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -365,7 +369,7 @@ int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
 int XPR_UPS_SetFloat(const char* key, float value)
 {
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
@@ -375,9 +379,9 @@ int XPR_UPS_SetFloatVK(float value, const char* key, ...)
 	char buffer[1024];
 
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, value);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -397,7 +401,7 @@ int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
 
 	CHECK_KV(key,value);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -408,7 +412,7 @@ int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
 int XPR_UPS_SetDouble(const char* key, double value)
 {
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
@@ -418,9 +422,9 @@ int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 	char buffer[1024];
 
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -431,7 +435,7 @@ int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 int XPR_UPS_GetDouble(const char* key, double* value)
 {
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
@@ -442,7 +446,7 @@ int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
 
 	CHECK_KV(key,value);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -452,7 +456,7 @@ int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
 int XPR_UPS_SetBoolean(const char* key, int value)
 {
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
@@ -462,9 +466,9 @@ int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
 	char buffer[1024];
 
 	if(!key)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -484,7 +488,7 @@ int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
 
 	CHECK_KV(key,value);
 	if(strlen(key)>1024)
-		return -1;
+		return XPR_ERR_UPS_ILLEGAL_PARAM;
 	va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -493,17 +497,17 @@ int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
 
 int XPR_UPS_Delete(const char* key)
 {
-    return 0;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 int XPR_UPS_Exists(const char* key)
 {
-    return 0;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 const char* XPR_UPS_FirstKey(void)
 {
-    return 0;
+    return XPR_ERR_UPS_SUCCESS;
 }
 
 const char* XPR_UPS_NextKey(const char* key)
