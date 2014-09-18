@@ -33,7 +33,8 @@ extern "C"
 /// @{
 ///
 
-#define XPR_UPS_VERSION  XPR_MakeVersion(1,0,0)
+#define XPR_UPS_MAX_KEY_LEN 1024    ///< 键最大长度
+#define XPR_UPS_VERSION     XPR_MakeVersion(1,0,0)
 
 /// @}
 ///
@@ -218,6 +219,28 @@ int XPR_UPS_SetBlobVK(XPR_UPS_Blob blob, const char* key, ...);
 /// @retval 见错误码表;
 int  XPR_UPS_GetBlob(const char* key, XPR_UPS_Blob* value);
 int  XPR_UPS_GetBlobVK(XPR_UPS_Blob* value, const char* key, ...);
+
+/// @brief 从存储文件或设备中读取对应数据
+/// @param [in] ent         要读取的设定项指针
+/// @param [in] json        要读取的设定项所对于的 JSON 对象
+/// @param [in] key         要读取的设定项的键值
+/// @param [in,out] buffer  用于接受读取到的数据的缓冲区
+/// @param [in,out] size    指示用于接受读取到的数据的缓冲区大小，返回实际读取到的字节数
+/// @retval XPR_ERR_OK  读取成功
+/// @retval Other       读取发生异常, 请查看 [#XPR_ErrorCode]
+int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
+                     void* buffer, int* size);
+
+/// @brief 将数据写入储文件或设备中
+/// @param [in] ent         要写入的设定项指针
+/// @param [in] json        要写入的设定项所对于的 JSON 对象
+/// @param [in] key         要写入的设定项的键值
+/// @param [in,out] data    用于写入的数据
+/// @param [in,out] size    用于写入的数据字节数
+/// @retval XPR_ERR_OK  写入成功
+/// @retval Other       写入发生异常, 请查看 [#XPR_ErrorCode]
+int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
+                      const void* data, int size);
 
 /// @brief 删除指定设定项
 /// @param [in] key         设定项名称
