@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
@@ -46,49 +47,53 @@ static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* ke
 static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size)
 {
 	int result = -1;
-	int ipv4[4];
+    int ipv4[4];
 
     //printf("network_set_ipv4....%s %s\n", key, data);
-	//if(sscanf(data, "%d.%d.%d.%d", &ipv4[0],&ipv4[1],&ipv4[2],&ipv4[3]) !=4)
-	//	return -1;
-#if 0
-	char cmd[1024] = {0};
-	if(strcmp(s, "address") ==0)
-		sprintf(cmd, "ifconfig eth0 %s", (char*)data);
-	else 
-		sprintf(cmd, "ifconfig eth0 %s %s", s, (char*)data);
-	
-	if(system(cmd)!=0)
-		return 0;
-#endif
 
+    int len = strlen(key);
+    if(key[len - 1] == '/')
+        return XPR_ERR_UPS_ILLEGAL_PARAM;
+    int i = len - 1;
+    while(key[i] != '/') {
+        --i;
+    }
+    char node[64] = {0};
+    int nodelen = len - 1 - i + 1;
+    if(nodelen > 64)
+        return XPR_ERR_UPS_ILLEGAL_PARAM;
+    strcpy_s(node, nodelen, key+i+1);
 
-	switch(ent->type) {
-		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-//			result = XPR_JSON_BooleanSet(js, *(int*)buffer);
-			break;
-		case XPR_UPS_ENTRY_TYPE_BLOB:
-			// not support yet...
-			break;
-		case XPR_UPS_ENTRY_TYPE_INT:
-			result = XPR_JSON_IntegerSet(json, *(int*)data);	
-			break;
-		case XPR_UPS_ENTRY_TYPE_INT64:
-			result = XPR_JSON_Integer64Set(json, *(int64_t*)data);
-			break;
-		case XPR_UPS_ENTRY_TYPE_REAL:
-			result = XPR_JSON_RealSet(json, *(double*)data);
-			break;
-		case XPR_UPS_ENTRY_TYPE_STRING:
-            printf("js_json=%s data=%s\n",  XPR_JSON_DumpString(json), data);
-			result = XPR_JSON_StringSet(json, (char *)data);
-			break;
-		default:
-			return -1;
-	}
+    //printf("network_set_ipv4 key is %s node is %s \n", key, node);
+
+    char cmd[128] = {0};
+    if(strcmp(node, "mac") == 0) {
+        snprintf(cmd, sizeof(cmd), "ifconfig eth1 hw ether %s", (char*)data);
+        result = system("ifconfig eth1 down");
+        result = system(cmd);
+        result = system("ifconfig eth1 up");
+    }
+    else if(strcmp(node, "address") == 0) {
+        if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
+            return XPR_ERR_UPS_ILLEGAL_PARAM;
+        snprintf(cmd, sizeof(cmd), "ifconfig eth1 %s", (char*)data);
+        result = system(cmd);
+    }
+    else if(strcmp(node, "netmask") == 0) {
+        snprintf(cmd, sizeof(cmd), "ifconfig eth1 netmask %s", (char*)data);
+        result = system(cmd);
+    }
+    else if(strcmp(node, "gateway") == 0) {
+        snprintf(cmd, sizeof(cmd), "route add default gw %s", (char*)data);
+        result = system(cmd);
+    }
+
+    if(-1 == result)
+        return XPR_ERR_UPS_NOT_SUPPORT;
+
+    return XPR_UPS_WriteData(ent, json, key, data, &size);
 	
-	// we need to save it to file....
-	return result ==0 ? 0 : -1;
+    // we need to save it to file....
 }
 /*
 	/system/network/eth0/ipv4/address
