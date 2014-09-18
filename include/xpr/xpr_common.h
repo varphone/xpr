@@ -33,6 +33,14 @@
 #  define offsetof(st, m) __builtin_offsetof(st, m) ///< 计算结构体成员偏移
 #endif
 
+#ifndef XPR_FALSE
+#  define XPR_FALSE 0 ///< 布尔假值
+#endif
+
+#ifndef XPR_TRUE
+#  define XPR_TRUE 1 ///< 布尔真值
+#endif
+
 // FourCC
 //==============================================================================
 /// @addtogroup xprcommon-avfourcc AV FourCC
