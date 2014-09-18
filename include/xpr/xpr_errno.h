@@ -40,7 +40,7 @@ typedef enum XPR_ErrorLevel
     XPR_ERR_LEVEL_CRIT,       ///< critical conditions
     XPR_ERR_LEVEL_ALERT,      ///< action must be taken immediately
     XPR_ERR_LEVEL_FATAL,      ///< just for compatibility with previous version
-    XPR_ERR_LEVEL_BUTT
+    XPR_ERR_LEVEL_BUTT        ///< butt
 } XPR_ErrorLevel;
 #endif // XPR_ERRORLEVEL_TYPE_DEFINED
 
@@ -48,8 +48,8 @@ typedef enum XPR_ErrorLevel
 #define XPR_MODULEID_TYPE_DEFINED
 /// @brief 模块编号
 typedef enum XPR_ModuleId {
-    XPR_MOD_ID_UPS      = 0,
-    XPR_MOD_ID_PLUGIN   = 1
+    XPR_MOD_ID_UPS      = 0, ///< UPS
+    XPR_MOD_ID_PLUGIN   = 1  ///< PLUGIN
 
 } XPR_ModuleId;
 #endif // XPR_MODULEID_TYPE_DEFINED
@@ -110,31 +110,36 @@ typedef enum XPR_ErrorCode {
 
 // Generic
 //==============================================================================
+/// @brief 发生错误
 #define XPR_ERR_ERROR       0xffffffff
+
+/// @brief 没有异常
 #define XPR_ERR_OK          0x00000000
+
+/// @brief 执行成功
 #define XPR_ERR_SUCCESS     0x00000000
 
 // UPS
 //==============================================================================
-/// 传进去的参数无效
+/// @brief 传进去的参数无效
 #define XPR_ERR_UPS_ILLEGAL_PARAM    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
-/// 资源已存在
+/// @brief 资源已存在
 #define XPR_ERR_UPS_EXISTED          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
-/// 资源不存在
+/// @brief 资源不存在
 #define XPR_ERR_UPS_UNEXIST          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
-/// 指针为空
+/// @brief 指针为空
 #define XPR_ERR_UPS_NULL_PTR         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
-/// 系统未配置
+/// @brief 系统未配置
 #define XPR_ERR_UPS_NOT_CONFIG       XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_CONFIG)
-/// 当前操作不支持
+/// @brief 当前操作不支持
 #define XPR_ERR_UPS_NOT_SUPPORT      XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
-/// 不允许操作
+/// @brief 不允许操作
 #define XPR_ERR_UPS_NOT_PERM         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOT_PERM)
-/// 内薰申请失败
+/// @brief 内薰申请失败
 #define XPR_ERR_UPS_NOMEM            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
-/// 缓冲区太小
+/// @brief 缓冲区太小
 #define XPR_ERR_UPS_NOBUF            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOBUF)
-/// UPS未初始化
+/// @brief UPS未初始化
 #define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_SYS_NOTREADY)
 
 #ifdef __cplusplus
