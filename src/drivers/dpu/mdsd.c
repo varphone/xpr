@@ -203,6 +203,7 @@ static int stop(XPR_DPU* ctx)
         free(dc->sums[1]);
         dc->sums[1] = 0;
     }
+    return result;
 }
 
 static int getStreamCodec(XPR_DPU* ctx, int streamId)
