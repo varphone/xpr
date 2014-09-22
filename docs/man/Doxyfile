@@ -662,20 +662,20 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../README.md \
-                         ../include/xpr/xpr_common.h \
-                         ../include/xpr/xpr_avframe.h \
-                         ../include/xpr/xpr_streamblock.h \
-                         ../include/xpr/xpr_base64.h \
-                         ../include/xpr/xpr_errno.h \
-                         ../include/xpr/xpr_json.h \
-                         ../include/xpr/xpr_dpu.h \
-                         ../include/xpr/xpr_ups.h \
-                         ../include/xpr/xpr_plugin.h \
-                         ../include/xpr/xpr_pluginpriv.h \
-                         ../include/xpr/xpr_fifo.h \
-                         ../include/xpr/xpr_thread.h \
-                         ../include/xpr/xpr_url.h
+INPUT                  = ../../README.md \
+                         ../../include/xpr/xpr_common.h \
+                         ../../include/xpr/xpr_avframe.h \
+                         ../../include/xpr/xpr_streamblock.h \
+                         ../../include/xpr/xpr_base64.h \
+                         ../../include/xpr/xpr_errno.h \
+                         ../../include/xpr/xpr_json.h \
+                         ../../include/xpr/xpr_dpu.h \
+                         ../../include/xpr/xpr_ups.h \
+                         ../../include/xpr/xpr_plugin.h \
+                         ../../include/xpr/xpr_pluginpriv.h \
+                         ../../include/xpr/xpr_fifo.h \
+                         ../../include/xpr/xpr_thread.h \
+                         ../../include/xpr/xpr_url.h
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -797,7 +797,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub 
 # and want reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = ../README.md
+USE_MDFILE_AS_MAINPAGE = ../../README.md
 
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
