@@ -42,3 +42,17 @@ XPR 环境构建命令
 - XPR_DPU_DRIVER_ALSAPCM = [0/1]
 - XPR_DPU_DRIVER_MDSD = [0/1]
 
+### 使用示例
+
+只编译 XPR 库
+
+    make BUILD_ALL=0 BUILD_SRC=1
+
+只编译帮助文档
+
+    make BUILD_ALL=0 BUILD_DOCS=1
+
+不集成 ALSAPCM DPU 驱动
+
+    make XPR_DPU_DRIVER_ALSAPCM=0
+
