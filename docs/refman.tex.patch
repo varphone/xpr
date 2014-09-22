@@ -1,0 +1,29 @@
+--- a/refman.tex	2014-09-19 14:20:11.629072297 +0800
++++ b/refman.tex	2014-09-19 14:21:41.764430367 +0800
+@@ -79,8 +79,8 @@
+ % Indices & bibliography
+ \usepackage{natbib}
+ \usepackage[titles]{tocloft}
+-\setcounter{tocdepth}{3}
+-\setcounter{secnumdepth}{5}
++\setcounter{tocdepth}{3}
++\setcounter{secnumdepth}{9}
+ \makeindex
+ 
+ % Hyperlinks (required, but should be loaded last)
+@@ -105,7 +105,9 @@
+ 
+ %===== C O N T E N T S =====
+ 
++\usepackage{CJKutf8}
+ \begin{document}
++\begin{CJK}{UTF8}{gbsn}
+ 
+ % Titlepage & ToC
+ \hypersetup{pageanchor=false}
+@@ -200,4 +202,5 @@
+ \addcontentsline{toc}{part}{索引}
+ \printindex
+ 
++\end{CJK}
+ \end{document}

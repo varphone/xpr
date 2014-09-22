@@ -1,10 +1,16 @@
-all: html
+all: prepare html pdf
 
-html:
+prepare:
 	doxygen Doxyfile
 
-clean:
-	-rm -rf html
+html:
 
-.PHONY: html
+pdf:
+	cd latex && patch -p1 < ../refman.tex.patch
+	make -C latex
+
+clean:
+	-rm -rf html latex
+
+.PHONY: prepare html pdf
 
