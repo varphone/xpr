@@ -1,41 +1,58 @@
 #ifndef XPR_PLUGIN_H
 #define XPR_PLUGIN_H
 
+/// @defgroup xprplugin 插件框架
+/// @brief 用于 XPR 的插件框架
+/// @{
+///
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef XPR_PLUGININITFUN_TYPE_DEFINED
 #define XPR_PLUGININITFUN_TYPE_DEFINED
+///
+/// 插件初始化函数
+///
 typedef void* (*XPR_PluginInitFun)(void);
 #endif // XPR_PLUGININITFUN_TYPE_DEFINED
 
 #ifndef XPR_PLUGINFINIFUN_TYPE_DEFINED
 #define XPR_PLUGINFINIFUN_TYPE_DEFINED
+///
+/// 插件释放函数
+///
 typedef int (*XPR_PluginFiniFun)(void*);
 #endif // XPR_PLUGINFINIFUN_TYPE_DEFINED
 
 #ifndef XPR_PLUGIN_TYPE_DEFINED
 #define XPR_PLUGIN_TYPE_DEFINED
+///
+/// 插件数据结构
+///
 struct XPR_Plugin {
-    const char* name;
-    const char* desc;
-    void* data;
-    unsigned int dataSize;
+    const char* name; ///< 插件名称
+    const char* desc; ///< 插件描述
+    void* data; ///< 插件专属数据指针
+    unsigned int dataSize; ///< 插件专属数据大小
 };
 typedef struct XPR_Plugin XPR_Plugin;
 #endif // XPR_PLUGIN_TYPE_DEFINED
 
 #ifndef XPR_PLUGINMODULE_TYPE_DEFINED
 #define XPR_PLUGINMODULE_TYPE_DEFINED
+///
+/// 插件模块数据结构
+///
 struct XPR_PluginModule {
-    const char* libName;
-    void* libHandle;
-    void* pluginHandle;
-    XPR_PluginInitFun init;
-    XPR_PluginFiniFun fini;
-    struct XPR_PluginModule* prev;
-    struct XPR_PluginModule* next;
+    const char* libName; ///< 插件模块的库名词
+    void* libHandle; ///< 插件模块的库句柄
+    void* pluginHandle; ///< 插件句柄
+    XPR_PluginInitFun init; ///< 插件初始化函数
+    XPR_PluginFiniFun fini; ///< 插件释放函数
+    struct XPR_PluginModule* prev; ///< 前一个节点
+    struct XPR_PluginModule* next; ///< 下一个节点
 };
 typedef struct XPR_PluginModule XPR_PluginModule;
 #endif // XPR_PLUGINMODULE_TYPE_DEFINED
@@ -99,6 +116,9 @@ int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data, int size
 #ifdef __cplusplus
 }
 #endif
+
+/// @}
+///
 
 #endif // XPR_PLUGIN_H
 

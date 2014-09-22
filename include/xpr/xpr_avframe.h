@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-/// @defgroup xpravframe Audio/Video raw data
-/// @brief     Audio/Video raw data library.
+/// @defgroup xpravframe 音视频原始数据
+/// @brief     音频及视频原始数据容器及相关操作接口
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.0.0
 /// @date      2013/12/1
@@ -12,38 +12,30 @@
 /// @{
 ///
 
-/// @defgroup xpravframe-changes Changes
-/// @{
+/// @page xpravframe-changes 变更日志
 ///
 /// @par 2013/12/1
 ///   - Initial version crated
 ///
-/// @}
 ///
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/// @addtogroup xpravframe-macros Macros
-/// @{
 ///
-
+/// 音视频数据平面最大数目
+///
 #define XPR_AVFRAME_PLANES   8
-
-/// @}
-///
-
-/// @addtogroup xpravframe-structs Structs
-/// @{
-///
 
 #ifndef XPR_AVFRAME_TYPE_DEFINED
 #define XPR_AVFRAME_TYPE_DEFINED
-// Forwards
+// 前置声明
 struct XPR_AVFrame;
 
-/// @brief Type of AVFrame
+///
+/// 音视频数据帧类型定义
+///
 typedef struct XPR_AVFrame XPR_AVFrame;
 
 /// @brief AVFrame release callback routine
@@ -51,7 +43,10 @@ typedef struct XPR_AVFrame XPR_AVFrame;
 /// @return the reference count after decreased
 typedef int (*XPR_AVFrameReleaseCallback)(XPR_AVFrame* frame);
 
-/// @brief This structure describes decoded (raw) audio or video data
+/// @brief 音视频数据帧
+///
+///   此结构用来描述音视频数据的各项属性
+///
 struct XPR_AVFrame {
     uint8_t* datas[XPR_AVFRAME_PLANES];         ///< Pointer to the picture/channel planes
     int pitches[XPR_AVFRAME_PLANES];            ///< For video, size in bytes of each picture line
@@ -70,16 +65,11 @@ struct XPR_AVFrame {
 
 #endif // XPR_AVFRAME_TYPE_DEFINED
 
-/// @}
-///
-
-/// @addtogroup xpravframe-enums Enums
-/// @{
-///
-
 #ifndef XPR_AVPIXELFORMAT_TYPE_DEFINED
 #define XPR_AVPIXELFORMAT_TYPE_DEFINED
-/// @brief Video Pixel Format
+///
+/// 视频像素格式
+///
 enum XPR_AVPixelFormat {
     XPR_AV_PIX_FMT_NONE = -1,
     XPR_AV_PIX_FMT_YUV420P,   ///< planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples)
@@ -206,13 +196,6 @@ enum XPR_AVPixelFormat {
 typedef enum XPR_AVPixelFormat XPR_AVPixelFormat;
 #endif // XPR_AVPIXELFORMAT_TYPE_DEFINED
 
-/// @}
-///
-
-/// @addtogroup xpravframe-funs Functions
-/// @{
-///
-
 /// @brief Create an new frame without data buffers
 /// @return the frame context, null on failure
 XPR_AVFrame* XPR_AVFrameNew(void);
@@ -281,15 +264,12 @@ int XPR_AVFrameRetain(XPR_AVFrame* frame);
 /// @note if reference counter == 0, the AVFrame will be destroy
 int XPR_AVFrameRelease(XPR_AVFrame* frame);
 
-/// @}
-///
-
-/// @}
-///
-
 #ifdef __cplusplus
 }
 #endif
+
+/// @}
+///
 
 #endif // XPR_AVFRAME_H
 

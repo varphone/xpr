@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-/// @defgroup xprstreamblock Stream Block Data
-/// @brief     Stream Block Data.
+/// @defgroup xprstreamblock 流式数据块
+/// @brief     各种流式数据的容器
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.0.0
 /// @date      2013/12/1
@@ -12,29 +12,16 @@
 /// @{
 ///
 
-/// @defgroup xprstreamblock-changes Changes
-/// @{
+/// @page xprstreamblock-changes 变更日志
 ///
 /// @par 2013/12/1
 ///   - Initial version crated
 ///
-/// @}
-///
-
-/// @addtogroup xprstreamblock-macros Macros
-/// @{
-///
-
-/// @}
 ///
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/// @addtogroup xprstreamblock-structs 数据结构
-/// @{
-///
 
 #ifndef XPR_STREAMBLOCK_TYPE_DEFINED
 #define XPR_STREAMBLOCK_TYPE_DEFINED
@@ -90,13 +77,6 @@ struct XPR_StreamBlock {
 };
 #pragma pack()
 #endif // XPR_STREAMBLOCK_TYPE_DEFINED
-
-/// @}
-///
-
-/// @addtogroup xprstreamblock-funs Functions
-/// @{
-///
 
 /// @brief 分配流数据块资源
 /// @param [in] size    数据块大小，以字节为单位
@@ -202,17 +182,14 @@ int64_t XPR_StreamBlockPTS(const XPR_StreamBlock* blk);
 int64_t XPR_StreamBlockDTS(const XPR_StreamBlock* blk);
 
 /// @brief 获取数据块的负载数据的内容持续时长
-int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk);
-
-/// @}
-///
-   
-/// @}
-///
+int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk);  
 
 #ifdef __cplusplus
 }
 #endif
+
+/// @}
+///
 
 #endif // XPR_STREAMBLOCK_H
 

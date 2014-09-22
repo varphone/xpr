@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-/// @defgroup xprerrno 错误代码
+/// @defgroup xprerrno 错误代码 
 /// @brief     错误代码定义
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.0.0
@@ -12,13 +12,10 @@
 /// @{
 ///
 
-/// @defgroup xprerrno-changes 变更日志
-/// @{
+/// @page xprerrno-changes 变更日志
 ///
 /// @par 1.0.0 (2012/12/20)
 ///   - 初始版本建立
-///
-/// @}
 ///
 
 #ifdef __cplusplus
@@ -29,9 +26,12 @@ extern "C" {
 
 #ifndef XPR_ERRORLEVEL_TYPE_DEFINED
 #define XPR_ERRORLEVEL_TYPE_DEFINED
+/// @ingroup xprerrno
 /// @brief 错误等级
-typedef enum XPR_ErrorLevel
-{
+///
+///   定义错误等级，值越大表示错误越致命
+///
+typedef enum XPR_ErrorLevel {
     XPR_ERR_LEVEL_DEBUG = 0,  ///< debug-level
     XPR_ERR_LEVEL_INFO,       ///< informational
     XPR_ERR_LEVEL_NOTICE,     ///< normal but significant condition
@@ -46,34 +46,34 @@ typedef enum XPR_ErrorLevel
 
 #ifndef XPR_MODULEID_TYPE_DEFINED
 #define XPR_MODULEID_TYPE_DEFINED
+/// @ingroup xprerrno
 /// @brief 模块编号
+///
+///   定义每个内置模块的编号
+///
 typedef enum XPR_ModuleId {
     XPR_MOD_ID_UPS      = 0, ///< UPS
     XPR_MOD_ID_PLUGIN   = 1  ///< PLUGIN
-
 } XPR_ModuleId;
 #endif // XPR_MODULEID_TYPE_DEFINED
 
 
+/// @ingroup xprerrno
 /// @brief 定义错误代码
 /// @param module       模块编号, see [#XPR_ModuleId]
 /// @param level        错误等级, see [#XPR_ErrorLevel]
 /// @param errid        错误代码, see [#XPR_ErrorCode]
-/// @par 错误代码格式
-/// @code
-/// +---+-----------+-------------+-----------+------------+
-/// | 1 |   APP_ID  |   MOD_ID    | ERR_LEVEL |   ERR_ID   |
-/// +---+-----------+-------------+-----------+------------+
-/// |   |   7bits   |    8bits    |   3bits   |   13bits   |
-/// +---+-----------+-------------+-----------+------------+
-/// @endcode
+/// @remark 错误代码格式
+///   1    |   APP_ID  |   MOD_ID    | ERR_LEVEL |   ERR_ID   
+///   -----|-----------|-------------|-----------|------------
+///   1bit |   7bits   |    8bits    |   3bits   |   13bits   
 ///
 #define XPR_DEF_ERR(module, level, errid) \
     ((int32_t)( (XPR_ERR_APPID) | ((module) << 16 ) | ((level)<<13) | (errid) ))
 
 #ifndef XPR_ERRORCODE_TYPE_DEFINED
-/// @internal
 #define XPR_ERRORCODE_TYPE_DEFINED
+/// @ingroup xprerrno
 /// @brief 错误代码
 ///
 ///   下面定义的为通用错误号，每个模块都有这些错误，具体的可以需要那些就定义那些
@@ -110,36 +110,71 @@ typedef enum XPR_ErrorCode {
 
 // Generic
 //==============================================================================
-/// @brief 发生错误
+///
+/// 发生错误
+///
 #define XPR_ERR_ERROR       0xffffffff
 
-/// @brief 没有异常
+///
+/// 没有异常
+///
 #define XPR_ERR_OK          0x00000000
 
-/// @brief 执行成功
+///
+/// 执行成功
+///
 #define XPR_ERR_SUCCESS     0x00000000
 
 // UPS
 //==============================================================================
-/// @brief 传进去的参数无效
+///
+/// 传进去的参数无效
+///
 #define XPR_ERR_UPS_ILLEGAL_PARAM    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
-/// @brief 资源已存在
+
+///
+/// 资源已存在
+///
 #define XPR_ERR_UPS_EXISTED          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
-/// @brief 资源不存在
+
+///
+/// 资源不存在
+///
 #define XPR_ERR_UPS_UNEXIST          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
-/// @brief 指针为空
+
+///
+/// 指针为空
+///
 #define XPR_ERR_UPS_NULL_PTR         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
-/// @brief 系统未配置
+
+///
+/// 系统未配置
+///
 #define XPR_ERR_UPS_NOT_CONFIG       XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_CONFIG)
-/// @brief 当前操作不支持
+
+///
+/// 当前操作不支持
+///
 #define XPR_ERR_UPS_NOT_SUPPORT      XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
-/// @brief 不允许操作
+
+///
+/// 不允许操作
+///
 #define XPR_ERR_UPS_NOT_PERM         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOT_PERM)
-/// @brief 内薰申请失败
+
+///
+/// 内薰申请失败
+///
 #define XPR_ERR_UPS_NOMEM            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
-/// @brief 缓冲区太小
+
+///
+/// 缓冲区太小
+///
 #define XPR_ERR_UPS_NOBUF            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOBUF)
-/// @brief UPS未初始化
+
+///
+/// UPS 未初始化
+///
 #define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_SYS_NOTREADY)
 
 #ifdef __cplusplus

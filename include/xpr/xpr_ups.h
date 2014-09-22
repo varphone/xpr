@@ -6,8 +6,8 @@
 #include "xpr_json.h"
 #include "xpr_errno.h"
 
-/// @defgroup xprups 设定集操作库
-/// @brief     Universal Preference Settings Foundation library.
+/// @defgroup xprups 通用参数设定
+/// @brief     采用 K/V 形式的通用参数设定操作接口集
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.0.0
 /// @date      2013/4/1
@@ -15,13 +15,11 @@
 /// @{
 ///
 
-/// @defgroup xprups-changes 变更日志
-/// @{
+/// @page xprups-changes 变更日志
 ///
 /// @par 1.0.0 (2012/12/20)
 ///   - 初始版本建立
 ///
-/// @}
 ///
 
 #ifdef __cplusplus
@@ -29,15 +27,8 @@ extern "C"
 {
 #endif
 
-/// @addtogroup xprups-macros 宏定义
-/// @{
-///
-
 #define XPR_UPS_MAX_KEY_LEN 1024    ///< 键最大长度
 #define XPR_UPS_VERSION     XPR_MakeVersion(1,0,0)
-
-/// @}
-///
 
 #ifndef XPR_UPS_ENTRY_TYPE_DEFINED
 #define XPR_UPS_ENTRY_TYPE_DEFINED
@@ -66,23 +57,48 @@ typedef enum XPR_UPS_EntryType XPR_UPS_EntryType; ///< XPR_UPS 条目类型
 /// @param [in] ent     设定项指针
 /// @return see [#XPR_ErrorCode]
 typedef int (*XPR_UPS_Initlializer)(XPR_UPS_Entry* ent);
+
+/// @brief 设定项释放函数
+/// @param [in] ent     设定项指针
+/// @return see [#XPR_ErrorCode]
 typedef int (*XPR_UPS_Finalizer)(XPR_UPS_Entry* ent);
+
+/// @brief 设定项数据获取函数
+/// @param [in] ent         设定项指针
+/// @param [in] json        设定项所对应的 JSON 对象
+/// @param [in] key         设定项的键值
+/// @param [in,out] buffer  用于接受获取到的数据的缓冲区
+/// @param [in,out] size    指示用于接受获取到的数据的缓冲区大小，返回实际获取到的字节数
+/// @retval XPR_ERR_OK  获取成功
+/// @retval Other       获取发生异常, 请查看 [#XPR_ErrorCode]
 typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size);
+
+/// @brief 设定项数据设定函数
+/// @param [in] ent         设定项指针
+/// @param [in] json        设定项所对于的 JSON 对象
+/// @param [in] key         设定项的键值
+/// @param [in,out] data    用于设定的数据
+/// @param [in,out] size    用于设定的数据字节数
+/// @retval XPR_ERR_OK  设定成功
+/// @retval Other       设定发生异常, 请查看 [#XPR_ErrorCode]
 typedef int (*XPR_UPS_Setter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size);
 
+///
+/// 设定项数据结构
+///
 struct XPR_UPS_Entry {
-    const char** names;
-    const char** descs;
-    const char* category;
-    const char* root;
-    XPR_UPS_EntryType type;
-    XPR_UPS_Initlializer init;
-    XPR_UPS_Finalizer fini;
-    XPR_UPS_Getter get;
-    XPR_UPS_Setter set;
-    XPR_UPS_Entry* prev;
-    XPR_UPS_Entry* next;
-    XPR_UPS_Entry* subs;
+    const char** names; ///< 设定项名称, 可包含多个, 最后一个必须以 NULL 作为结束
+    const char** descs; ///< 设定项描述, 可包含多个, 最后一个必须以 NULL 作为结束
+    const char* category; ///< 设定项所属类别
+    const char* root;   ///< 设定项所属目录
+    XPR_UPS_EntryType type; ///< 设定项所含数据的类型
+    XPR_UPS_Initlializer init; ///< 设定项初始化函数
+    XPR_UPS_Finalizer fini; ///< 设定项释放函数
+    XPR_UPS_Getter get; ///< 设定项数据获取函数
+    XPR_UPS_Setter set; ///< 设定项数据设定函数
+    XPR_UPS_Entry* prev; ///< 前一个节点
+    XPR_UPS_Entry* next; ///< 下一个节点
+    XPR_UPS_Entry* subs; ///< 首个子节点
 };
 
 #define XPR_UPS_ENTRY_END   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }

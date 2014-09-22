@@ -6,8 +6,11 @@
 #include "xpr_avframe.h"
 #include "xpr_streamblock.h"
 
-/// @defgroup xprdpu Data Process Unit
-/// @brief     Data Process Unit library.
+/// @defgroup xprdpu 数据处理单元
+/// @brief 数据处理单元
+///
+/// 处理或提供实时或非实时性各类数据, 如获取或播放音视频 ES 流, 获取系统各类报警事件等等
+///
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.0.0
 /// @date      2013/12/1
@@ -15,45 +18,25 @@
 /// @{
 ///
 
-/// @defgroup xprdpu-changes Changes
-/// @{
+/// @page xprdpu-changes 变更日志
 ///
 /// @par 2013/12/1
 ///   - Initial version crated
 ///
-/// @}
-///
-
-/// @addtogroup xprdpu-macros Macros
-/// @{
 ///
 
 #define XPR_DPU_CTS_UNITS      1000000
 #define XPR_DPU_MAX_CALLBACKS  16
 
-/// @}
-///
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/// @addtogroup xprdpu-structs Structs
-/// @{
-///
 
 // Forwards
 struct XPR_DPU;
 
 /// @brief Type of XPR_DPU
 typedef struct XPR_DPU XPR_DPU;
-
-/// @}
-///
-
-/// @addtogroup xprdpu-enums Enums
-/// @{
-///
 
 /// @brief Type of XPR_DPU events
 enum XPR_DPU_EventType {
@@ -63,13 +46,6 @@ enum XPR_DPU_EventType {
     XPR_DPU_EV_FMTCHGD,  ///< DPU data format changed
 };
 
-/// @}
-///
-
-/// @addtogroup xprdpu-lib Library relates
-/// @{
-///
-
 /// @brief Initialize the library
 /// @retval 0   success
 /// @retval -1  failure
@@ -78,13 +54,6 @@ int XPR_DPU_Init(void);
 /// @brief Finalize the library
 /// @return no value returns
 void XPR_DPU_Fini(void);
-
-/// @}
-///
-
-/// @addtogroup xprdpu-funs DPU relates
-/// @{
-///
 
 /// @brief Open a new data process unit
 /// @param [in] args        JSON string formated arguments
@@ -289,14 +258,11 @@ int XPR_DPU_DeliverEvent(XPR_DPU* ctx, int event, const void* eventData,
 
 int XPR_DPU_DeliverStreamBlock(XPR_DPU* ctx, const XPR_StreamBlock* block);
 
-/// @}
-///
-
-/// @}
-///
-
 #ifdef __cplusplus
 }
 #endif
+
+/// @}
+///
 
 #endif // XPR_DPU_H

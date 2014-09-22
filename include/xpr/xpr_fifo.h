@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+/// @defgroup xprfifo 先进先出队列
+/// @brief 通用先进先出队列操作接口
+/// @{
+///
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -88,6 +93,9 @@ int XPR_FifoIsFull(const XPR_Fifo* f);
 #ifdef __cplusplus
 }
 #endif
+
+/// @}
+///
 
 #endif // XPR_FIFO_H
 

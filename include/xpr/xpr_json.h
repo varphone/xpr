@@ -1,8 +1,8 @@
 ﻿#ifndef XPR_JSON_H
 #define XPR_JSON_H
 
-/// @defgroup xprdjsonc JSON 公共库(C)
-/// @brief     JavaScript Object Notation library.
+/// @defgroup xprdjsonc JSON
+/// @brief     采用 C 语言规范编写的一套接口, 用于操作基于 JavaScript 语言的轻量级的数据交换格式
 /// @author    Varphone Wong [varphone@163.com]
 /// @version   1.1.1
 /// @date      2013/7/30
@@ -15,8 +15,7 @@
 #include <stdio.h> // for FILE*;
 #include "xpr_common.h"
 
-/// @defgroup xprjsonc-changes 变更日志
-/// @{
+/// @page xprjsonc-changes 变更日志
 ///
 /// @par 1.1.1 (2013/7/30)
 ///   - 增加 XPR_JSON_RefCount() 用于获取被引用的数量
@@ -35,40 +34,35 @@
 /// @par 1.0 (2012/12/20)
 ///   - 初始本版建立
 ///
-/// @}
 ///
 
-/// @addtogroup xprjsonc-macros 宏定义
-/// @{
 ///
-
 /// 当前定义版本号
-#define XPR_JSON_VERSION XPR_MakeVersion(1,1,1)
-
-/// @}
 ///
+#define XPR_JSON_VERSION XPR_MakeVersion(1,1,1)
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/// @addtogroup xprjsonc-structs 数据结构
-/// @{
-///
-
 #ifndef XPR_JSON_TYPE_DEFINED
 #define XPR_JSON_TYPE_DEFINED
-struct XPR_JSON;                 ///< JSON 对象数据结构前置声明
-typedef struct XPR_JSON XPR_JSON; ///< JSON 对象数据类型声明
-#endif // XPR_JSON_TYPE_DEFINED
-
-/// @}
 ///
+/// JSON 对象数据结构前置声明
+///
+struct XPR_JSON;
+///
+/// JSON 对象数据类型声明
+///
+typedef struct XPR_JSON XPR_JSON;
+#endif // XPR_JSON_TYPE_DEFINED
 
 #ifndef XPR_JSON_TYPE_TYPE_DEFINED
 #define XPR_JSON_TYPE_TYPE_DEFINED
-/// @brief #XPR_JSON 类型
+///
+/// JSON 数据类型
+///
 typedef enum XPR_JSON_TYPE {
     XPR_JSON_UNDEFINED = -1,    ///< 未定义
     XPR_JSON_OBJECT = 0,     ///< 键值对
@@ -82,31 +76,20 @@ typedef enum XPR_JSON_TYPE {
 } XPR_JSON_TYPE;
 #endif // XPR_JSON_TYPE_TYPE_DEFINED
 
-/// @addtogroup xprjsonc-ver 版本信息
-/// @{
-///
-
 /// @brief 获取 XPR_JSON 库版本信息
 /// @return 包含版本信息的字符串
 const char* XPR_JSON_Version(void);
 
 /// @brief 获取 XPR_JSON 库版本号
 /// @return 返回整数形式的版本号数字
-/// @par 版本号说明
-///   数据位 | 说明
+/// @remark 版本号说明
+///   数据位  | 说明
 ///   -------|----------
 ///   31~24  | 主版本号
 ///   23~16  | 子版本号
 ///   15~00  | 修正版本号
 ///
 int XPR_JSON_VersionNumber(void);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-mm 内存管理
-/// @{
-///
 
 /// @brief 分配内存
 /// @param [in] size    分配的内存大小
@@ -121,13 +104,6 @@ void* XPR_JSON_Alloc(size_t size);
 /// @return 无返回值
 /// @note 线程安全
 void XPR_JSON_Free(void* ptr);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-ref 引用计数
-/// @{
-///
 
 /// @brief 增加引用
 ///        XPR_JSON 对象的资源管理采用引用计数方式来实现, 所有新对象创建的初始引用计数都为: 1
@@ -151,13 +127,6 @@ void XPR_JSON_DecRef(XPR_JSON* json);
 /// @retval 0   对象已经释放
 /// @retval >0  对象被引用的数量
 int XPR_JSON_RefCount(XPR_JSON* json);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-ser 序列化
-/// @{
-///
 
 /// @brief 将字符串类型的 JSON 文本转成 #XPR_JSON 类型
 /// @param [in] text    需要转换的值
@@ -192,13 +161,6 @@ int XPR_JSON_DumpFileName(XPR_JSON* json, const char* fileName);
 /// @retval -1  失败
 /// @warning 非线程安全
 int XPR_JSON_DumpFileStream(XPR_JSON* json, FILE* fileStream);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-typ 对象类型信息
-/// @{
-///
 
 /// @brief 获取 #XPR_JSON 对象的类型
 /// @param [in] json    #XPR_JSON 实例
@@ -261,13 +223,6 @@ int XPR_JSON_IsFalse(XPR_JSON* json);
 /// @retval -1  失败
 /// @note 线程安全
 int XPR_JSON_IsNull(XPR_JSON* json);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-obj 字典对象(Object)
-/// @{
-///
 
 /// @brief 创建一个 Object 对象
 /// @retval NULL    创建失败
@@ -380,13 +335,6 @@ int XPR_JSON_ObjectIterSet(XPR_JSON* json, void* iter, XPR_JSON* val);
 int XPR_JSON_ObjectIterSetNew(XPR_JSON* json, void* iter,
                               XPR_JSON* val);
 
-/// @}
-///
-
-/// @addtogroup xprjsonc-arr 数组对象(Array)
-/// @{
-///
-
 /// @brief 创建一个 Array 类型的 JSON 对象
 /// @retval NULL    创建失败
 /// @retval !NULL   #XPR_JSON 实例
@@ -473,13 +421,6 @@ int XPR_JSON_ArrayAppend(XPR_JSON* json, XPR_JSON* val);
 /// @warning 非线程安全
 int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val);
 
-/// @}
-///
-
-/// @addtogroup xprjsonc-str 字串对象(String)
-/// @{
-///
-
 /// @brief 创建一个 String 对象
 /// @param [in] val     对象的初始值
 /// @return #XPR_JSON 实例
@@ -503,13 +444,6 @@ int XPR_JSON_StringSet(XPR_JSON* json, const char* val);
 /// @warning 返回值指针所指向的内存资源会随着 json 对象释放而释放，因此如果需要长期保存返回值内容请保存副本而非保存指针引用
 /// @warning 非线程安全
 const char* XPR_JSON_StringValue(XPR_JSON* json);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-int 整数对象(Integer)
-/// @{
-///
 
 /// @brief 创建一个 Interger 对象
 /// @param [in] val     对象初始值
@@ -555,13 +489,6 @@ int XPR_JSON_IntegerValue(XPR_JSON* json);
 /// @warning 非线程安全
 int64_t XPR_JSON_Integer64Value(XPR_JSON* json);
 
-/// @}
-///
-
-/// @addtogroup xprjsonc-rea 实数对象(Real)
-/// @{
-///
-
 /// @brief 创建一个 Real 对象
 /// @param [in] val     对象的初始值
 /// @retval NULL    创建失败
@@ -583,13 +510,6 @@ int XPR_JSON_RealSet(XPR_JSON* json, double val);
 /// @sa XPR_JSON_Real(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 double XPR_JSON_RealValue(XPR_JSON* json);
-
-/// @}
-///
-
-/// @addtogroup xprjsonc-boo 布尔对象(Boolean)
-/// @{
-///
 
 /// @brief 创建一个 bool 值为真的对象
 /// @return #XPR_JSON 实例
@@ -633,13 +553,6 @@ XPR_JSON* XPR_JSON_Boolean(int val);
 /// @warning 非线程安全
 int XPR_JSON_BooleanValue(XPR_JSON* json);
 
-/// @}
-///
-
-/// @addtogroup xprjsonc-nul 空对象(Null)
-/// @{
-///
-
 /// @brief 创建一个空对象
 /// @retval NULL    创建失败
 /// @retval !NULL   #XPR_JSON 实例
@@ -652,9 +565,6 @@ XPR_JSON* XPR_JSON_Null(void);
 /// @sa XPR_JSON_Null(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 void* XPR_JSON_NullValue(XPR_JSON* json);
-
-/// @}
-///
 
 #ifdef __cplusplus
 }
