@@ -14,37 +14,39 @@ static int information_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char
 			s = XPR_JSON_StringValue(json);
 			len = strlen(s);
 			if(len >= *size) {
-				result =  -1;
+                result = XPR_ERR_BUF_FULL;
 				break;
 			}	
 			strcpy_s(buffer, *size, s);
 			*size = len;
 			break;
 		default:
-			return -1;
+            return XPR_ERR_UPS_ILLEGAL_PARAM;
 	}
 	return result;
 }
 
 static int information_common_set(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size)
 {
-	int result = -1;
+    int result = XPR_ERR_ERROR;
 
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_STRING:
 			result = XPR_JSON_StringSet(json, (char *)data);
 			break;
 		default:
-			return -1;
+            return XPR_ERR_UPS_ILLEGAL_PARAM;
 	}
 	
 	// we need to save it to file....
-	return result ==0 ? 0 : -1;
+    return result ==0 ? XPR_ERR_OK : XPR_ERR_ERROR;
 }
 
 /*
         /system/information/
 */
+static const char* xpr_ups_driver_sys_names[] = { "system", 0};
+static const char* xpr_ups_driver_sys_descs[] = { "system", 0};
 
 static const char* xpr_ups_driver_sys_info_names[] = { "information", 0};
 static const char* xpr_ups_driver_sys_info_descs[] = { "information", 0};
@@ -53,6 +55,16 @@ static const char* xpr_ups_driver_sys_info_strings_names[] = { "name", "location
 static const char* xpr_ups_driver_sys_info_strings_descs[] = { "name", "location", "manufacturer", "model", "serial-number", "internal-model", "hardware", "software", "onvif", "uri", "uuid", "id", 0};
 
 XPR_UPS_Entry xpr_ups_driver_system_information[] = {
+
+    {
+        xpr_ups_driver_sys_names,
+        xpr_ups_driver_sys_descs,
+        "ups/dir",
+        "/",
+        XPR_UPS_ENTRY_TYPE_DIR,
+        0, 0, 0, 0,
+        0, 0, 0
+    },
 
     {
         xpr_ups_driver_sys_info_names,

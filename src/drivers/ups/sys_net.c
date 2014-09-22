@@ -9,8 +9,7 @@
 static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size)
 {
 	const char *s = NULL;
-	int result = 0, len=0;	
-    //printf("network_get_ipv4....%s %s\n", key, buffer);
+    int result = 0, len=0;
 
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
@@ -32,14 +31,14 @@ static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* ke
 			s = XPR_JSON_StringValue(json);
 			len = strlen(s);
 			if(len >= *size) {
-				result =  -1;
+                result =  XPR_ERR_BUF_FULL;
 				break;
 			}	
 			strcpy_s(buffer, *size, s);
 			*size = len;
 			break;
 		default:
-			return -1;
+            return XPR_ERR_ILLEGAL_PARAM;
 	}
 	return result;
 }
@@ -48,8 +47,6 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 {
 	int result = -1;
     int ipv4[4];
-
-    //printf("network_set_ipv4....%s %s\n", key, data);
 
     int len = strlen(key);
     if(key[len - 1] == '/')
@@ -61,29 +58,27 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
     char node[64] = {0};
     int nodelen = len - 1 - i + 1;
     if(nodelen > 64)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     strcpy_s(node, nodelen, key+i+1);
 
-    //printf("network_set_ipv4 key is %s node is %s \n", key, node);
-
     char cmd[128] = {0};
-    if(strcmp(node, "mac") == 0) {
+    if(0 == strcmp(node, "mac")) {
         snprintf(cmd, sizeof(cmd), "ifconfig eth1 hw ether %s", (char*)data);
         result = system("ifconfig eth1 down");
         result = system(cmd);
         result = system("ifconfig eth1 up");
     }
-    else if(strcmp(node, "address") == 0) {
+    else if(0 == strcmp(node, "address")) {
         if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
             return XPR_ERR_UPS_ILLEGAL_PARAM;
         snprintf(cmd, sizeof(cmd), "ifconfig eth1 %s", (char*)data);
         result = system(cmd);
     }
-    else if(strcmp(node, "netmask") == 0) {
+    else if(0 == strcmp(node, "netmask")) {
         snprintf(cmd, sizeof(cmd), "ifconfig eth1 netmask %s", (char*)data);
         result = system(cmd);
     }
-    else if(strcmp(node, "gateway") == 0) {
+    else if(0 == strcmp(node, "gateway")) {
         snprintf(cmd, sizeof(cmd), "route add default gw %s", (char*)data);
         result = system(cmd);
     }
@@ -91,7 +86,7 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
     if(-1 == result)
         return XPR_ERR_UPS_NOT_SUPPORT;
 
-    return XPR_UPS_WriteData(ent, json, key, data, &size);
+    return XPR_UPS_WriteData(ent, json, key, data, size);
 	
     // we need to save it to file....
 }
