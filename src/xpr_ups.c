@@ -111,9 +111,9 @@ static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type,
     XPR_JSON* json = NULL;
     XPR_UPS_Entry* entry = NULL;
     if (!key || !buffer)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (type == XPR_UPS_ENTRY_TYPE_STRING && !size)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     ret = XPR_UPS_FindEntry(key, &json, &entry);
     if (XPR_ERR_SUCCESS != ret)
         return ret;
@@ -129,7 +129,7 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
     XPR_JSON* json = NULL;
     XPR_UPS_Entry* entry = NULL;
     if (!key || !data)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     ret = XPR_UPS_FindEntry(key, &json, &entry);
     if (XPR_ERR_SUCCESS != ret)
         return ret;
@@ -243,7 +243,7 @@ int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
     char buffer[1024];
     CHECK_KVS(key, value, size);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -264,7 +264,7 @@ int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
     char buffer[1024];
     CHECK_KVS(key, value, size);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -285,9 +285,9 @@ int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
     va_list ap;
     char buffer[1024];
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -306,7 +306,7 @@ int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
     char buffer[1024];
     CHECK_KV(key, value);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -316,7 +316,7 @@ int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
 int XPR_UPS_SetInt64(const char* key, int64_t value)
 {
     if (!key)
-        return -1;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
 }
 
@@ -325,9 +325,9 @@ int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
     va_list ap;
     char buffer[1024];
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -346,7 +346,7 @@ int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
     char buffer[1024];
     CHECK_KV(key, value);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -356,7 +356,7 @@ int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
 int XPR_UPS_SetFloat(const char* key, float value)
 {
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
@@ -365,9 +365,9 @@ int XPR_UPS_SetFloatVK(float value, const char* key, ...)
     va_list ap;
     char buffer[1024];
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -386,7 +386,7 @@ int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
     char buffer[1024];
     CHECK_KV(key, value);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -396,7 +396,7 @@ int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
 int XPR_UPS_SetDouble(const char* key, double value)
 {
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
@@ -405,9 +405,9 @@ int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
     va_list ap;
     char buffer[1024];
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -418,7 +418,7 @@ int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 int XPR_UPS_GetDouble(const char* key, double* value)
 {
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
@@ -428,7 +428,7 @@ int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
     char buffer[1024];
     CHECK_KV(key, value);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -447,9 +447,9 @@ int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
     va_list ap;
     char buffer[1024];
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -468,7 +468,7 @@ int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
     char buffer[1024];
     CHECK_KV(key, value);
     if (strlen(key) > 1024)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_BUF_FULL;
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
@@ -502,7 +502,7 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 			s = XPR_JSON_StringValue(json);
 			len = strlen(s);
 			if (len >= *size) {
-				result = XPR_ERR_UPS_NOMEM;
+                result = XPR_ERR_BUF_FULL;
 				break;
 			}	
 			strcpy_s(buffer, *size, s);
@@ -557,12 +557,12 @@ int XPR_UPS_Exists(const char* key)
 
 const char* XPR_UPS_FirstKey(void)
 {
-    return 0;
+    return XPR_ERR_OK;
 }
 
 const char* XPR_UPS_NextKey(const char* key)
 {
-    return 0;
+    return XPR_ERR_OK;
 }
 
 void XPR_UPS_BeginGroup(const char* group)
