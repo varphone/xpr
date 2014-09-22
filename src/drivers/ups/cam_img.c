@@ -9,7 +9,6 @@ static int camera_image_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 {
 	const char *s = NULL;
 	int result = 0, len=0;	
-    //printf("camera_image_get....%s %s\n", key, buffer);
 
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
@@ -48,8 +47,6 @@ static int camera_image_set(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 	int result = -1;
 	int ipv4[4];
 
-    //printf("network_set_ipv4....%s %s\n", key, data);
-
 	switch(ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
 //			result = XPR_JSON_BooleanSet(js, *(int*)buffer);
@@ -67,7 +64,6 @@ static int camera_image_set(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 			result = XPR_JSON_RealSet(json, *(double*)data);
 			break;
 		case XPR_UPS_ENTRY_TYPE_STRING:
-            printf("js_json=%s data=%s\n",  XPR_JSON_DumpString(json), data);
 			result = XPR_JSON_StringSet(json, (char *)data);
 			break;
 		default:

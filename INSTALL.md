@@ -15,6 +15,8 @@ XPR 环境构建命令
 - BUILD_TESTS = [0/1] 指定是否构建测试程序
 - BUILD_DOCS = [0/1] 指定是否构建帮助文档
 
+实际选项可参见 ./Makefile 文件中相关代码
+
 ### XPR_MODULE_OPTIONS
 
 - XPR_ALL = [0/1] 指定是否构建所有模块
@@ -35,12 +37,16 @@ XPR 环境构建命令
 - XPR_URL = [0/1]
 - XPR_UTILS = [0/1]
 
+实际选项可参见 ./src/Modules.mk 文件中相关代码
+
 ### XPR_MODULE_DRIVER_OPTIONS
 
 - XPR_DPU_DRIVER_A5SVIDEO = [0/1] 指定是否集成 A5SVIDEO 驱动
 - XPR_DPU_DRIVER_A5SYUV = [0/1] 指定是否集成 A5SYUV 驱动
 - XPR_DPU_DRIVER_ALSAPCM = [0/1]
 - XPR_DPU_DRIVER_MDSD = [0/1]
+
+实际选项可参见 ./src/Modules.mk 文件中相关代码
 
 ### 使用示例
 
