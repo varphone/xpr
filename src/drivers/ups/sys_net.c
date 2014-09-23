@@ -62,29 +62,36 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
     strcpy_s(node, nodelen, key+i+1);
 
     char cmd[128] = {0};
-    if(0 == strcmp(node, "mac")) {
-        snprintf(cmd, sizeof(cmd), "ifconfig eth1 hw ether %s", (char*)data);
-        result = system("ifconfig eth1 down");
-        result = system(cmd);
-        result = system("ifconfig eth1 up");
-    }
-    else if(0 == strcmp(node, "address")) {
-        if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
-            return XPR_ERR_UPS_ILLEGAL_PARAM;
-        snprintf(cmd, sizeof(cmd), "ifconfig eth1 %s", (char*)data);
-        result = system(cmd);
-    }
-    else if(0 == strcmp(node, "netmask")) {
-        snprintf(cmd, sizeof(cmd), "ifconfig eth1 netmask %s", (char*)data);
-        result = system(cmd);
-    }
-    else if(0 == strcmp(node, "gateway")) {
-        snprintf(cmd, sizeof(cmd), "route add default gw %s", (char*)data);
-        result = system(cmd);
-    }
 
-    if(-1 == result)
-        return XPR_ERR_UPS_NOT_SUPPORT;
+    if(ent->type == XPR_UPS_ENTRY_TYPE_STRING) {
+        if(0 == strcmp(node, "mac")) {
+            snprintf(cmd, sizeof(cmd), "ifconfig eth1 hw ether %s", (char*)data);
+            result = system("ifconfig eth1 down");
+            result = system(cmd);
+            result = system("ifconfig eth1 up");
+        }
+        else if(0 == strcmp(node, "address")) {
+            if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
+                return XPR_ERR_UPS_ILLEGAL_PARAM;
+            snprintf(cmd, sizeof(cmd), "ifconfig eth1 %s", (char*)data);
+            result = system(cmd);
+        }
+        else if(0 == strcmp(node, "netmask")) {
+            if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
+                return XPR_ERR_UPS_ILLEGAL_PARAM;
+            snprintf(cmd, sizeof(cmd), "ifconfig eth1 netmask %s", (char*)data);
+            result = system(cmd);
+        }
+        else if(0 == strcmp(node, "gateway")) {
+            if(sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2], &ipv4[3]) !=4)
+                return XPR_ERR_UPS_ILLEGAL_PARAM;
+            snprintf(cmd, sizeof(cmd), "route add default gw %s", (char*)data);
+            result = system(cmd);
+        }
+
+        if(-1 == result)
+            return XPR_ERR_UPS_NOT_SUPPORT;
+    }
 
     return XPR_UPS_WriteData(ent, json, key, data, size);
 	
@@ -102,8 +109,8 @@ static const char* xpr_ups_driver_sys_net_descs[] = { "network", 0};
 static const char* xpr_ups_driver_sys_net_ntp_names[] = {"ntp", 0};
 static const char* xpr_ups_driver_sys_net_ntp_descs[] = {"ntp", 0};
 
-static const char* xpr_ups_driver_sys_net_ntp_strings_names[] = {"serveradress", 0};
-static const char* xpr_ups_driver_sys_net_ntp_strings_descs[] = {"serveradress", 0};
+static const char* xpr_ups_driver_sys_net_ntp_strings_names[] = {"serveraddress", 0};
+static const char* xpr_ups_driver_sys_net_ntp_strings_descs[] = {"serveraddress", 0};
 
 static const char* xpr_ups_driver_sys_net_ntp_bool_names[] = {"enable", 0};
 static const char* xpr_ups_driver_sys_net_ntp_bool_descs[] = {"enable", 0};
