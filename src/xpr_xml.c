@@ -187,11 +187,11 @@ void XPR_XML_Dump(XPR_XML_Node* node)
         printf("<%s", vals[0]);
         DumpAttr(XPR_XML_GetAttr(node, NULL, 0));
         printf(">");
-            vals[1] = XPR_XML_GetContent(node, NULL, &len);
-            if (vals[1]) {
-                printf("%s", vals[1]);
-                XPR_XML_Release(vals[1]);
-            }
+        vals[1] = XPR_XML_GetContent(node, NULL, &len);
+        if (vals[1]) {
+            printf("%s", vals[1]);
+            XPR_XML_Release(vals[1]);
+        }
         if (XPR_XML_GetChildNB(node) > 0) {
             XPR_XML_Dump(XPR_XML_GetChild(node, NULL, 0));
             printf("\n");
