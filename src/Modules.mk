@@ -18,6 +18,7 @@ XPR_THREAD=$(XPR_ALL)
 XPR_UPS=$(XPR_ALL)
 XPR_URL=$(XPR_ALL)
 XPR_UTILS=$(XPR_ALL)
+XPR_XML=$(XPR_ALL)
 
 # Analog Data Channel
 ################################################################################
@@ -204,5 +205,16 @@ endif
 ################################################################################
 ifeq ($(XPR_UTILS),1)
 libxpr_OBJS += xpr_utils.o
+endif
+
+# XML
+################################################################################
+ifeq ($(XPR_XML),1)
+libxpr_OBJS += \
+deps/roxml/roxml.o \
+deps/roxml/roxml-internal.o \
+deps/roxml/roxml-parse-engine.o \
+deps/roxml/roxml-parser.o \
+xpr_xml.o
 endif
 

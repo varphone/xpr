@@ -14,8 +14,12 @@ extern "C" {
 
 #ifndef XPR_THREAD_TYPE_DEFINED
 #define XPR_THREAD_TYPE_DEFINED
+// 前置声明
 struct XPR_Thread;
-typedef struct XPR_Thread XPR_Thread; ///< XPR_Thread definition
+///
+/// 线程对象类型定义
+///
+typedef struct XPR_Thread XPR_Thread;
 #endif // XPR_THREAD_TYPE_DEFINED
 
 /// @brief 线程入口函数
@@ -54,17 +58,17 @@ int64_t XPR_ThreadGetId(XPR_Thread* thread);
 
 /// @brief 使当前线程进入睡眠状态
 /// @param [in] us          指定睡眠的时长，单位为 1/1000000 秒
-/// return 无
+/// @return 无
 void XPR_ThreadSleep(int64_t us);
 
 /// @brief 使线程进入睡眠状态
 /// @param [in] thread      线程对象
 /// @param [in] us          指定睡眠的时长，单位为 1/1000000 秒
-/// return 无
+/// @return 无
 void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t us);
 
 /// @brief 使当前线程交出 CPU 资源
-/// return 无
+/// @return 无
 void XPR_ThreadYield(void);
 
 /// @brief Set user data

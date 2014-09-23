@@ -2,9 +2,9 @@ include ../Common.mk
 
 CC      = $(CROSS_COMPILER_PREFIX)gcc
 CFLAGS  = -O2 -g -Wall -I../include
-LDFLAGS = -L../lib -lxpr -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/plugins
+LDFLAGS = -L../lib -lxpr -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
 
-targets = qsort realpath struct ups json
+targets = qsort realpath struct ups json xml
 objects = $(targets:%=%.o)
 
 all: $(targets)
