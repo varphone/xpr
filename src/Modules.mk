@@ -1,9 +1,11 @@
 # Builtin module(s)
 XPR_ALL=1
+XPR_ADC=$(XPR_ALL)
 XPR_AVFRAME=$(XPR_ALL)
 XPR_BASE64=$(XPR_ALL)
 XPR_DEVCAPS=$(XPR_ALL)
 XPR_DPU=$(XPR_ALL)
+XPR_DRM=$(XPR_ALL)
 XPR_FIFO=$(XPR_ALL)
 XPR_JSON=$(XPR_ALL)
 XPR_MD5=$(XPR_ALL)
@@ -16,6 +18,21 @@ XPR_THREAD=$(XPR_ALL)
 XPR_UPS=$(XPR_ALL)
 XPR_URL=$(XPR_ALL)
 XPR_UTILS=$(XPR_ALL)
+
+# Analog Data Channel
+################################################################################
+XPR_ADC_DRIVER_ALL=1
+XPR_ADC_DRIVER_A5S=0
+
+ifeq ($(XPR_ADC),1)
+ifeq ($(XPR_ADC_DRIVER_A5S),1)
+#libxpr_CFLAGS += -I${INSTALL_PREFIX}/usr/include/ambarella/a5s
+#libxpr_LDFLAGS += -I${INSTALL_PREFIX}/usr/lib/ambarella/a5s
+libxpr_DEFS += -DXPR_ADC_DRIVER_A5S=1
+libxpr_OBJS += drivers/adc/a5s.o
+endif
+libxpr_OBJS += xpr_adc.o
+endif
 
 # Audio and Video frame
 ################################################################################
@@ -69,6 +86,35 @@ libxpr_DEFS += $(dpu-defs-0) $(dpu-defs-1)
 libxpr_OBJS += $(dpu-objs-1) \
 xpr_dpu.o \
 xpr_dpu_options.o
+endif
+
+# Digital Rights Management
+################################################################################
+XPR_DRM_DRIVER_ALL=0
+XPR_DRM_DRIVER_ALPUC_016=$(XPR_DRM_DRIVER_ALL)
+XPR_DRM_DRIVER_DS18B20=$(XPR_DRM_DRIVER_ALL)
+XPR_DRM_DRIVER_RECONBALL=$(XPR_DRM_DRIVER_ALL)
+
+ifeq ($(XPR_DRM),1)
+ifeq ($(XPR_DRM_DRIVER_ALPUC_016),1)
+#libxpr_CFLAGS += 
+#libxpr_LDFLAGS += 
+libxpr_DEFS += -DXPR_DRM_DRIVER_ALPUC_016=1
+libxpr_OBJS += drivers/drm/alpuc-016.o
+endif
+ifeq ($(XPR_DRM_DRIVER_DS18B20),1)
+#libxpr_CFLAGS += 
+#libxpr_LDFLAGS += 
+libxpr_DEFS += -DXPR_DRM_DRIVER_DS18B20=1
+libxpr_OBJS += drivers/drm/ds18b20.o
+endif
+ifeq ($(XPR_DRM_DRIVER_RECONBALL),1)
+#libxpr_CFLAGS += 
+#libxpr_LDFLAGS += 
+libxpr_DEFS += -DXPR_DRM_DRIVER_RECONBALL=1
+libxpr_OBJS += drivers/drm/reconball.o
+endif
+libxpr_OBJS += xpr_drm.o
 endif
 
 # Fifo
