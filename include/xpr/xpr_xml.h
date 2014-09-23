@@ -20,7 +20,7 @@ extern "C" {
 ///     int len = 0;
 ///     XPR_XML_Node* root = XPR_XML_LoadDoc("doc.xml");
 ///     // 当不指定 buffer 参数时, XPR_XML_GetContent() 会返回动态分配的缓冲区
-///     printf("root content = '%s'\n", roxml_get_content(root, NULL, 0, &len));
+///     printf("root content = '%s'\n", XPR_XML_GetContent(root, NULL, 0, &len));
 ///
 ///     // 释放最后一次分配的缓冲区
 ///     XPR_XML_Release(XPR_XML_RELEASE_LAST);
