@@ -57,7 +57,9 @@
 #error "roxml-defines.h must be included after roxml-tune.h to be tuned."
 #endif
 
-#ifdef HAVE_CONFIG_H
+#ifdef WIN32
+#include "config_win32.h"
+#else
 #include "config.h"
 #endif
 

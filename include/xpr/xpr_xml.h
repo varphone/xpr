@@ -83,6 +83,7 @@ int XPR_XML_GetPiNB(XPR_XML_Node* node);
 
 char* XPR_XML_GetName(XPR_XML_Node* node, char* buffer, int size);
 char* XPR_XML_GetContent(XPR_XML_Node* node, char* buffer, int* size);
+void XPR_XML_SetContent(XPR_XML_Node* node, char* content);
 
 XPR_XML_Node* XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name, int nth);
 int XPR_XML_GetNodesNB(XPR_XML_Node* node, int type);

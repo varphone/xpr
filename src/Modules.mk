@@ -214,7 +214,6 @@ libxpr_OBJS += \
 deps/roxml/roxml.o \
 deps/roxml/roxml-internal.o \
 deps/roxml/roxml-parse-engine.o \
-deps/roxml/roxml-parser.o \
 xpr_xml.o
 endif
 

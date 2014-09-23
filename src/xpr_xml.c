@@ -97,6 +97,15 @@ char* XPR_XML_GetContent(XPR_XML_Node* node, char* buffer, int* size)
     return roxml_get_content((node_t*)node, buffer, *size, size);
 }
 
+void XPR_XML_SetContent(XPR_XML_Node* node, char* content)
+{
+    node_t* txt = roxml_get_txt((node_t*)node, 0);
+    if (txt != NULL) {
+        roxml_del_node(txt);
+    }
+    roxml_add_node((node_t*)node, 0, ROXML_TXT_NODE, NULL, content);
+}
+
 XPR_XML_Node*  XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name, int nth)
 {
     return (XPR_XML_Node*)roxml_get_nodes((node_t*)node, type, name, nth);
