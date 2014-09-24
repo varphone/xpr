@@ -9,11 +9,11 @@
 #define MAX_KEY_LEN  16
 #define CHECK_KVS(k,v,s) \
         if(!k||!v||!s)\
-            return -1
+            return XPR_ERR_UPS_NULL_PTR
 
 #define CHECK_KV(k,v) \
-        if(!k || !v)\
-            return -1
+        if(!k||!v)\
+            return XPR_ERR_UPS_NULL_PTR
 
 static XPR_UPS_Entry* root = 0;
 static XPR_JSON*      root_json = 0;
@@ -593,3 +593,7 @@ int XPR_UPS_Sync(void)
     return XPR_ERR_OK;
 }
 
+int XPR_UPS_DumpFile(void)
+{
+    return XPR_JSON_DumpFileName(root_json, "./configuration.json");
+}
