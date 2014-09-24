@@ -203,6 +203,7 @@ int XPR_UPS_Init(void)
     root_json = XPR_JSON_LoadFileName("./configuration.json");
     if (!root_json)
         return XPR_ERR_UPS_UNEXIST;
+    //printf("%s\n", XPR_JSON_DumpString(root_json));
     XPR_UPS_RegisterAll();
     return XPR_ERR_SUCCESS;
 }
@@ -276,7 +277,7 @@ int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
 int XPR_UPS_SetInteger(const char* key, int value)
 {
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
 }
 
@@ -438,7 +439,7 @@ int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
 int XPR_UPS_SetBoolean(const char* key, int value)
 {
     if (!key)
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
+        return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
@@ -520,14 +521,14 @@ int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 	int result = XPR_ERR_OK;
 
 	switch (ent->type) {
-		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-            //result = XPR_JSON_BooleanSet(js, *(int*)buffer);
+        case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+            result = XPR_JSON_IntegerSet(json, *(int*)data);//not support boolean set now 20140924
 			break;
 		case XPR_UPS_ENTRY_TYPE_BLOB:
 			// not support yet...
 			break;
-		case XPR_UPS_ENTRY_TYPE_INT:
-			result = XPR_JSON_IntegerSet(json, *(int*)data);	
+        case XPR_UPS_ENTRY_TYPE_INT:
+            result = XPR_JSON_IntegerSet(json, *(int*)data);
 			break;
 		case XPR_UPS_ENTRY_TYPE_INT64:
 			result = XPR_JSON_Integer64Set(json, *(int64_t*)data);
