@@ -485,7 +485,7 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 
 	switch (ent->type) {
 		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-			*(int*)buffer = XPR_JSON_BooleanValue(json);
+            *(int*)buffer = XPR_JSON_IntegerValue(json);//not support boolean set now 20140924
 			break;
 		case XPR_UPS_ENTRY_TYPE_BLOB:
 			// not support yet...
