@@ -258,6 +258,10 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
                       const void* data, int size);
 
+/// @brief 保存到文件
+/// @retval 见错误码表
+int XPR_UPS_DumpFile(void);
+
 /// @brief 删除指定设定项
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
