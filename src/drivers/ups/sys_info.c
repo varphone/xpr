@@ -27,19 +27,14 @@ static int information_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char
 }
 
 static int information_common_set(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size)
-{
-    int result = XPR_ERR_ERROR;
+{	
+    if(-1 == XPR_UPS_WriteData(ent, json, key, data, size))
+        return XPR_ERR_UPS_WRITE;
 
-	switch(ent->type) {
-		case XPR_UPS_ENTRY_TYPE_STRING:
-			result = XPR_JSON_StringSet(json, (char *)data);
-			break;
-		default:
-            return XPR_ERR_UPS_ILLEGAL_PARAM;
-	}
-	
-	// we need to save it to file....
-    return result ==0 ? XPR_ERR_OK : XPR_ERR_ERROR;
+    if(-1 == XPR_UPS_DumpFile())
+        return XPR_ERR_UPS_DUMP;
+
+    return XPR_ERR_OK;
 }
 
 /*

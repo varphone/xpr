@@ -93,8 +93,13 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
             return XPR_ERR_UPS_NOT_SUPPORT;
     }
 
-    return XPR_UPS_WriteData(ent, json, key, data, size);
+    if(-1 == XPR_UPS_WriteData(ent, json, key, data, size))
+        return XPR_ERR_UPS_WRITE;
+
+    if(-1 == XPR_UPS_DumpFile())
+        return XPR_ERR_UPS_DUMP;
 	
+    return XPR_ERR_OK;
     // we need to save it to file....
 }
 /*
