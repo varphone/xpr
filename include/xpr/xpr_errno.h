@@ -103,6 +103,9 @@ typedef enum XPR_ErrorCode {
     XPR_ERR_BADADDR       = 17, ///< 错误的地址, eg: used for copy_from_user & copy_to_user
     XPR_ERR_BUSY          = 18, ///< 资源正忙
 
+    XPR_ERR_DUMP          = 19, ///< 写入文件失败
+    XPR_ERR_WRITE         = 20, ///< 保存失败
+
     XPR_ERR_BUTT          = 63, ///< 保留错误好的最大码，所有模块必须大于此
 
 } XPR_ErrorCode;
@@ -176,6 +179,16 @@ typedef enum XPR_ErrorCode {
 /// UPS 未初始化
 ///
 #define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_SYS_NOTREADY)
+
+///
+/// UPS 写入文件失败
+///
+#define XPR_ERR_UPS_DUMP         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_DUMP)
+
+///
+/// UPS 保存失败
+///
+#define XPR_ERR_UPS_WRITE         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_WRITE)
 
 #ifdef __cplusplus
 }
