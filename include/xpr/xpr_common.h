@@ -73,6 +73,13 @@
 #  define AV_FOURCC_NULL XPR_MakeFourCC('N', 'U', 'L', 'L')
 #endif
 
+#ifndef AV_FOURCC_AAC
+///
+/// AAC audio codec
+///
+#  define AV_FOURCC_AAC XPR_MakeFourCC('m', 'p', '4', 'a')
+#endif
+
 #ifndef AV_FOURCC_G711A
 ///
 /// G711.A audio codec
