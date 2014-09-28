@@ -4,6 +4,7 @@
 ################################################################################
 XPR_ALL=1
 XPR_ADC=$(XPR_ALL)
+XPR_ARR=$(XPR_ALL)
 XPR_AVFRAME=$(XPR_ALL)
 XPR_BASE64=$(XPR_ALL)
 XPR_BITVECTOR=$(XPR_ALL)
@@ -12,6 +13,7 @@ XPR_DPU=$(XPR_ALL)
 XPR_DRM=$(XPR_ALL)
 XPR_FIFO=$(XPR_ALL)
 XPR_FILE=$(XPR_ALL)
+XPR_GPIO=$(XPR_ALL)
 XPR_H264=$(XPR_ALL)
 XPR_JSON=$(XPR_ALL)
 XPR_MD5=$(XPR_ALL)
@@ -36,10 +38,16 @@ ifeq ($(XPR_ADC),1)
 ifeq ($(XPR_ADC_DRIVER_A5S),1)
 #libxpr_CFLAGS += -I${INSTALL_PREFIX}/usr/include/ambarella/a5s
 #libxpr_LDFLAGS += -I${INSTALL_PREFIX}/usr/lib/ambarella/a5s
-libxpr_DEFS += -DXPR_ADC_DRIVER_A5S=1
+#libxpr_DEFS += -DXPR_ADC_DRIVER_A5S=1
 libxpr_SRCS += drivers/adc/a5s.c
 endif
 libxpr_SRCS += xpr_adc.c
+endif
+
+# Audio Resampler
+################################################################################
+ifeq ($(XPR_ARR),1)
+libxpr_SRCS += xpr_arr.c
 endif
 
 # Audio and Video frame
@@ -68,24 +76,24 @@ endif
 
 # Data Process Unit
 ################################################################################
-dpu-defs-  :=
-dpu-objs-  :=
-dpu-defs-0 :=
-dpu-srcs-0 :=
-dpu-defs-1 :=
-dpu-srcs-1 :=
-dpu-cflags :=
-dpu-ldfalgs:=
-dpu-libs   :=
+dpu-defs-     :=
+dpu-objs-     :=
+dpu-defs-0    :=
+dpu-srcs-0    :=
+dpu-defs-1    :=
+dpu-srcs-1    :=
+dpu-cflags-1  :=
+dpu-ldfalgs-1 :=
+dpu-libs-1    :=
 
 # add_dpu(Id,Switch?[0|1],Objects,CFLAGS,LDFLAGS,LIBS)
 define add_dpu
 $(eval XPR_DPU_DRIVER_$1 := $2)
-$(eval dpu-defs-$(XPR_DPU_DRIVER_$1) += -DXPR_DPU_DRIVER_$1=$(XPR_DPU_DRIVER_$1))
 $(eval dpu-srcs-$(XPR_DPU_DRIVER_$1) += $(patsubst %,drivers/dpu/%,$3))
-$(eval dpu-cflags += $4)
-$(eval dpu-ldflags += $5)
-$(eval dpu-libs += $6)
+#$(eval dpu-defs-$(XPR_DPU_DRIVER_$1) += -DXPR_DPU_DRIVER_$1=$(XPR_DPU_DRIVER_$1))
+$(eval dpu-cflags-$(XPR_DPU_DRIVER_$1) += $4)
+$(eval dpu-ldflags-$(XPR_DPU_DRIVER_$1) += $5)
+$(eval dpu-libs-$(XPR_DPU_DRIVER_$1) += $6)
 endef
 
 ifeq ($(XPR_DPU),1)
@@ -96,10 +104,10 @@ $(eval $(call add_dpu,ALSAPCM,1,alsapcm.c,,,-lasound))
 $(eval $(call add_dpu,G711TEST,1,g711test.c))
 $(eval $(call add_dpu,MDSD,1,mdsd.c))
 $(eval $(call add_dpu,PCMTEST,1,pcmtest.c))
-libxpr_CFLAGS += $(dpu-cflags)
-libxpr_LDFLAGS += $(dpu-ldflags)
-libxpr_LIBS += $(dpu-libs)
-libxpr_DEFS += $(dpu-defs-0) $(dpu-defs-1)
+libxpr_CFLAGS += $(dpu-cflags-1)
+libxpr_LDFLAGS += $(dpu-ldflags-1)
+libxpr_LIBS += $(dpu-libs-1)
+#libxpr_DEFS += $(dpu-defs-0) $(dpu-defs-1)
 libxpr_SRCS += $(dpu-srcs-1) \
 xpr_dpu.c \
 xpr_dpu_options.c
@@ -116,19 +124,19 @@ ifeq ($(XPR_DRM),1)
 ifeq ($(XPR_DRM_DRIVER_ALPUC_016),1)
 #libxpr_CFLAGS += 
 #libxpr_LDFLAGS += 
-libxpr_DEFS += -DXPR_DRM_DRIVER_ALPUC_016=1
+#libxpr_DEFS += -DXPR_DRM_DRIVER_ALPUC_016=1
 libxpr_SRCS += drivers/drm/alpuc-016.c
 endif
 ifeq ($(XPR_DRM_DRIVER_DS18B20),1)
 #libxpr_CFLAGS += 
 #libxpr_LDFLAGS += 
-libxpr_DEFS += -DXPR_DRM_DRIVER_DS18B20=1
+#libxpr_DEFS += -DXPR_DRM_DRIVER_DS18B20=1
 libxpr_SRCS += drivers/drm/ds18b20.c
 endif
 ifeq ($(XPR_DRM_DRIVER_RECONBALL),1)
 #libxpr_CFLAGS += 
 #libxpr_LDFLAGS += 
-libxpr_DEFS += -DXPR_DRM_DRIVER_RECONBALL=1
+#libxpr_DEFS += -DXPR_DRM_DRIVER_RECONBALL=1
 libxpr_SRCS += drivers/drm/reconball.c
 endif
 libxpr_SRCS += xpr_drm.c
@@ -146,6 +154,18 @@ ifeq ($(XPR_FILE),1)
 libxpr_SRCS += \
 xpr_file_unix.c \
 xpr_file.c
+endif
+
+# GPIO
+################################################################################
+XPR_GPIO_DRIVER_ALL=0
+XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
+
+ifeq ($(XPR_GPIO),1)
+ifeq ($(XPR_GPIO_DRIVER_A5S),1)
+libxpr_SRCS += drivers/gpio/a5s.c
+endif
+libxpr_SRCS += xpr_fifo.c
 endif
 
 # H264
@@ -205,7 +225,7 @@ endif
 # Sync
 ################################################################################
 ifeq ($(XPR_SYNC),1)
-libxpr_OBJS += xpr_sync.c xpr_sync_unix.c
+libxpr_SRCS += xpr_sync.c xpr_sync_unix.c
 endif
 
 # System relates
