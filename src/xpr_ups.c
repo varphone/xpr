@@ -542,7 +542,10 @@ int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
 		default:
 			return XPR_ERR_ERROR;
 	}
-	// TODO: save to file
+
+    if(XPR_ERR_OK == result)
+        result = XPR_UPS_Sync();
+
 	return result;
 }
 
@@ -590,11 +593,6 @@ int XPR_UPS_Pack(void)
 }
 
 int XPR_UPS_Sync(void)
-{
-    return XPR_ERR_OK;
-}
-
-int XPR_UPS_DumpFile(void)
 {
     return XPR_JSON_DumpFileName(root_json, "./configuration.json");
 }
