@@ -7,23 +7,6 @@
 
 static int information_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size)
 {
-//	const char *s = NULL;
-//	int result = 0, len=0;
-//	switch(ent->type) {
-//		case XPR_UPS_ENTRY_TYPE_STRING:
-//			s = XPR_JSON_StringValue(json);
-//			len = strlen(s);
-//			if(len >= *size) {
-//                result = XPR_ERR_BUF_FULL;
-//				break;
-//			}
-//			strcpy_s(buffer, *size, s);
-//			*size = len;
-//			break;
-//		default:
-//            return XPR_ERR_UPS_ILLEGAL_PARAM;
-//	}
-//	return result;
     return XPR_UPS_ReadData(ent, json, key, buffer, size);
 }
 
@@ -31,9 +14,6 @@ static int information_common_set(XPR_UPS_Entry* ent, XPR_JSON* json, const char
 {	
     if(-1 == XPR_UPS_WriteData(ent, json, key, data, size))
         return XPR_ERR_UPS_WRITE;
-
-    if(-1 == XPR_UPS_DumpFile())
-        return XPR_ERR_UPS_DUMP;
 
     return XPR_ERR_OK;
 }
