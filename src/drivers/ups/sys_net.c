@@ -9,39 +9,6 @@
 static int network_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size)
 {
     return XPR_UPS_ReadData(ent, json, key, buffer, size);
-//	const char *s = NULL;
-//    int result = 0, len=0;
-
-//	switch(ent->type) {
-//		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-//			*(int*)buffer = XPR_JSON_BooleanValue(json);
-//			break;
-//		case XPR_UPS_ENTRY_TYPE_BLOB:
-//			// not support yet...
-//			break;
-//		case XPR_UPS_ENTRY_TYPE_INT:
-//			*(int*)buffer = XPR_JSON_IntegerValue(json);
-//			break;
-//		case XPR_UPS_ENTRY_TYPE_INT64:
-//			*(int64_t*)buffer = XPR_JSON_Integer64Value(json);
-//			break;
-//		case XPR_UPS_ENTRY_TYPE_REAL:
-//			*(double*)buffer = XPR_JSON_RealValue(json);
-//			break;
-//		case XPR_UPS_ENTRY_TYPE_STRING:
-//			s = XPR_JSON_StringValue(json);
-//			len = strlen(s);
-//			if(len >= *size) {
-//                result =  XPR_ERR_BUF_FULL;
-//				break;
-//			}
-//			strcpy_s(buffer, *size, s);
-//			*size = len;
-//			break;
-//		default:
-//            return XPR_ERR_ILLEGAL_PARAM;
-//	}
-//	return result;
 }
 
 static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size)
@@ -63,8 +30,6 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
     strcpy_s(node, nodelen, key+i+1);
 
     char cmd[128] = {0};
-
-    printf("int data   *data = %d\n", *(int*)data);
 
     if(ent->type == XPR_UPS_ENTRY_TYPE_STRING) {
         if(0 == strcmp(node, "mac")) {
@@ -96,14 +61,8 @@ static int network_set_ipv4(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
             return XPR_ERR_UPS_NOT_SUPPORT;
     }
 
-//    if(ent->type == XPR_UPS_ENTRY_TYPE_BOOLEAN)
-//        printf("XPR_UPS_ENTRY_TYPE_BOOLEAN   *data = %d\n", *(int*)data);
-
     if(-1 == XPR_UPS_WriteData(ent, json, key, data, size))
         return XPR_ERR_UPS_WRITE;
-
-    if(-1 == XPR_UPS_DumpFile())
-        return XPR_ERR_UPS_DUMP;
 	
     return XPR_ERR_OK;
     // we need to save it to file....
@@ -143,7 +102,6 @@ static const char* xpr_ups_driver_sys_net_eth_ipv4_bool_descs[] = {"dhcp", 0};
 
 static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_names[] = { "address", "netmask", "gateway", "dns1", "dns2", 0};
 static const char* xpr_ups_driver_sys_net_eth_ipv4_strings_descs[] = { "address", "netmask", "gateway", "dns1", "dns2", 0};
-
 
 XPR_UPS_Entry xpr_ups_driver_system_network[] = {
     {
