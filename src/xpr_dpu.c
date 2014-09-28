@@ -32,27 +32,27 @@ void XPR_DPU_RegisterAll(void)
 
     initialized = 1;
 
-#if XPR_DPU_DRIVER_ALSAPCM
+#if HAVE_XPR_DPU_DRIVER_ALSAPCM
     extern XPR_DPU_Driver xpr_dpu_driver_alsapcm;
     XPR_DPU_Register(&xpr_dpu_driver_alsapcm);
 #endif
-#if XPR_DPU_DRIVER_A5SVIDEO
+#if HAVE_XPR_DPU_DRIVER_A5SVIDEO
     extern XPR_DPU_Driver xpr_dpu_driver_a5svideo;
     XPR_DPU_Register(&xpr_dpu_driver_a5svideo);
 #endif
-#if XPR_DPU_DRIVER_A5SYUV
+#if HAVE_XPR_DPU_DRIVER_A5SYUV
     extern XPR_DPU_Driver xpr_dpu_driver_a5syuv;
     XPR_DPU_Register(&xpr_dpu_driver_a5syuv);
 #endif
-#if XPR_DPU_DRIVER_G711TEST
+#if HAVE_XPR_DPU_DRIVER_G711TEST
     extern XPR_DPU_Driver xpr_dpu_driver_g711test;
     XPR_DPU_Register(&xpr_dpu_driver_g711test);
 #endif
-#if XPR_DPU_DRIVER_PCMTEST
+#if HAVE_XPR_DPU_DRIVER_PCMTEST
     extern XPR_DPU_Driver xpr_dpu_driver_pcmtest;
     XPR_DPU_Register(&xpr_dpu_driver_pcmtest);
 #endif
-#if XPR_DPU_DRIVER_MDSD
+#if HAVE_XPR_DPU_DRIVER_MDSD
     extern XPR_DPU_Driver xpr_dpu_driver_mdsd;
     XPR_DPU_Register(&xpr_dpu_driver_mdsd);
 #endif

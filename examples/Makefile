@@ -1,8 +1,11 @@
 include ../Common.mk
 
-CC      = $(CROSS_COMPILER_PREFIX)gcc
 CFLAGS  = -O2 -g -Wall -I../include
-LDFLAGS = -L../lib
+LDFLAGS = -L../lib -lxpr
+ifneq ($(TOOLSET_NAME),)
+CFLAGS  += -I../contrib/$(TOOLSET_NAME)/include
+LDFLAGS += -L../contrib/$(TOOLSET_NAME)/lib
+endif
 
 subdirs = plugins
 targets = plugin_framework
@@ -10,7 +13,7 @@ targets = plugin_framework
 all: $(targets) subs
 
 plugin_framework: plugin_framework.c
-	@$(CC) $(CFLAGS) -fPIC -rdynamic $^ $(LDFLAGS) -lxpr -o $@ -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
+	$(CC) $(CFLAGS) -fPIC -rdynamic $^ $(LDFLAGS) -lxpr -o $@ -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
 
 subs: $(subdirs)
 	$(call make_subdir, $^)

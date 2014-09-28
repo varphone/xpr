@@ -1,7 +1,7 @@
 define make_subdir
  @for d in $1; do \
   (make -C $$d $2) \
- done;
+ done
 endef
 
 define run_test

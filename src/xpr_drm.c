@@ -3,9 +3,9 @@
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_drm.h>
 
-#if !defined(XPR_DRM_DRIVER_ALPUC_016) && \
-    !defined(XPR_DRM_DRIVER_DS18B20) && \
-    !defined(XPR_DRM_DRIVER_RECONBALL)
+#if !defined(HAVE_XPR_DRM_DRIVER_ALPUC_016) && \
+    !defined(HAVE_XPR_DRM_DRIVER_DS18B20) && \
+    !defined(HAVE_XPR_DRM_DRIVER_RECONBALL)
 
 int XPR_DRM_Config(int request, const void* data, int size)
 {
@@ -47,5 +47,5 @@ int XPR_DRM_InstallSerial(const uint8_t* data, int length)
     return XPR_ERR_SUCCESS;
 }
 
-#endif // XPR_DRM_DRIVER_XXX
+#endif // HAVE_XPR_DRM_DRIVER_XXX
 
