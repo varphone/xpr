@@ -79,14 +79,17 @@ static const char* xpr_ups_driver_sys_net_descs[] = { "network", 0};
 static const char* xpr_ups_driver_sys_net_ntp_names[] = {"ntp", 0};
 static const char* xpr_ups_driver_sys_net_ntp_descs[] = {"ntp", 0};
 
-static const char* xpr_ups_driver_sys_net_ntp_strings_names[] = {"serveraddress", 0};
-static const char* xpr_ups_driver_sys_net_ntp_strings_descs[] = {"serveraddress", 0};
+static const char* xpr_ups_driver_sys_net_ntp_strings_names[] = {"server_address", 0};
+static const char* xpr_ups_driver_sys_net_ntp_strings_descs[] = {"server_address", 0};
 
-static const char* xpr_ups_driver_sys_net_ntp_bool_names[] = {"enable", 0};
-static const char* xpr_ups_driver_sys_net_ntp_bool_descs[] = {"enable", 0};
+static const char* xpr_ups_driver_sys_net_ntp_bool_names[] = {"enabled", 0};
+static const char* xpr_ups_driver_sys_net_ntp_bool_descs[] = {"enabled", 0};
 
-static const char* xpr_ups_driver_sys_net_ints_namnes[] = {"httpport","rtspport", 0};
-static const char* xpr_ups_driver_sys_net_ints_descs[] =  {"http port","rtsp port", 0};
+static const char* xpr_ups_driver_sys_net_ntp_ints_names[] = {"server_port", 0};
+static const char* xpr_ups_driver_sys_net_ntp_ints_descs[] = {"server_port", 0};
+
+static const char* xpr_ups_driver_sys_net_ints_namnes[] = {"http_port", "https_port", "rtsp_port", "http_enabled", "https_enabled", "rtsp_enabled", 0};
+static const char* xpr_ups_driver_sys_net_ints_descs[] =  {"http_port", "https_port", "rtsp_port", "http_enabled", "https_enabled", "rtsp_enabled", 0};
 
 static const char* xpr_ups_driver_sys_net_eth0_names[] = { "eth0", 0};
 static const char* xpr_ups_driver_sys_net_eth0_descs[] = { "network interface card 0", 0};
@@ -155,6 +158,15 @@ XPR_UPS_Entry xpr_ups_driver_system_network[] = {
         "ups/entry",
         "/system/network/ntp/",
         XPR_UPS_ENTRY_TYPE_BOOLEAN,
+        0, 0, network_common_get, network_set_ipv4,
+        0, 0, 0
+    },
+    {
+        xpr_ups_driver_sys_net_ntp_ints_names,
+        xpr_ups_driver_sys_net_ntp_ints_descs,
+        "ups/entry",
+        "/system/network/ntp/",
+        XPR_UPS_ENTRY_TYPE_INT,
         0, 0, network_common_get, network_set_ipv4,
         0, 0, 0
     },
