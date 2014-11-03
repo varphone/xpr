@@ -1,47 +1,228 @@
 {
     "camera": {
-        "image": {},
-        "video": {}
+        "audio": {
+            "decoder": {
+                "0": {
+                    "codec": "G.711"
+                },
+                "1": {
+                    "codec": "G.726"
+                }
+            },
+            "encoder": {
+                "0": {
+                    "codec": 1,
+                    "input": 1,
+                    "volume": 1
+                },
+                "1": {
+                    "codec": 1,
+                    "input": 0,
+                    "volume": 87
+                }
+            }
+        },
+        "event": {
+            "cover_detection": {
+                "enabled": 0,
+                "sensitive": 15
+            },
+            "motion_detection": {
+                "enabled": 0,
+   		"threshold": 1,
+                "scope": "1010111111111100010101010101011010110101010101010101111111111111111110101010101010101010001000000",
+                "sensitive": 2
+            }
+        },
+        "gis": {
+            "compass_enabled": 1,
+            "enabled": 1,
+            "gyro_enabled": 1,
+            "gyro_sensitive": 28,
+            "ldm_enabled": 1,
+            "synctime_enabled": 0,
+            "work_mode": 5
+        },
+        "image": {
+            "source": {
+                "0": {
+                    "anti_flicker": 0,
+                    "brightness": 33,
+                    "contrast": 63,
+                    "day_night_mode": 0,
+                    "defog_mode": 2,
+                    "exposure": {
+                        "max_gain": 42,
+                        "max_time": 25,
+                        "min_time": 500,
+                        "time": 2
+                    },
+                    "grayscale": 0,
+                    "iris_mode": 0,
+                    "metering_mode": 2,
+                    "mirror_mode": 0,
+                    "2d_noise_level": 0,
+                    "3d_noise_level": 0,
+                    "saturation": 39,
+                    "sharpness": 4,
+                    "wdr_level": 1,
+                    "white_blance_mode": 3
+                },
+                "1": {
+                    "anti_flicker": 0,
+                    "brightness": 50,
+                    "contrast": 50,
+                    "day_night_mode": 0,
+                    "defog_mode": 0,
+                    "exposure": {
+                        "max_gain": 42,
+                        "max_time": 25,
+                        "min_time": 500,
+                        "time": 42
+                    },
+                    "grayscale": 0,
+                    "iris_mode": 50,
+                    "metering_mode": 0,
+                    "mirror_mode": 0,
+                    "2d_noise_level": 0,
+                    "3d_noise_level": 0,
+                    "saturation": 50,
+                    "sharpness": 50,
+                    "wdr_level": 0,
+                    "white_blance_mode": 0
+                }
+            }
+        },
+        "osd": {
+            "ae_info_enabled": 0,
+            "date_type": 3,
+            "enabled": 0,
+            "gis_invalid_data_enabled": 1,
+            "gis_speed_unit": 1,
+            "gyro_enabled": 1,
+            "time_type": 2
+        },
+        "ptz": {
+            "address": 2,
+            "eptz": {
+                "control": 0,
+                "stop": 0,
+                "zoom": 1
+            },
+            "protocol": "Xiandian",
+            "speed": 27,
+	    "iris_enabled": 0,
+            "tptz": {
+                "control": 0,
+                "focus": 0,
+                "focus_mode": 1,
+                "stop": 0,
+                "zoom": 0
+            }
+        },
+        "rs232": {
+            "baud_rate": 9600,
+            "data_bits": 5,
+            "flow_control": 0,
+            "parity_check": 0,
+            "stop_bits": 0
+        },
+        "rs485": {
+            "baud_rate": 9600,
+            "data_bits": 5,
+            "flow_control": 0,
+            "parity_check": 0,
+            "stop_bits": 0
+        },
+        "video": {
+            "decoder": {
+                "0": {
+                    "codec": "h264"
+                },
+                "1": {
+                    "codec": "mjpeg"
+                }
+            },
+            "encoder": {
+                "0": {
+                    "aisle_mode": 1,
+                    "bitrate": 25,
+                    "codec": "MJPEG",
+                    "fps": 30,
+                    "frame_interval": 36,
+                    "gov_length": 87,
+                    "h264": {
+                        "quality": 55
+                    },
+                    "mjpeg": {
+                        "quality": 50
+                    },
+                    "resolution": "1280X720"
+                },
+                "1": {
+                    "aisle_mode": 26,
+                    "bitrate": 25,
+                    "codec": "MJPEG",
+                    "fps": 25,
+                    "frame_interval": 0,
+                    "gov_length": 0,
+                    "h264": {
+                        "quality": 8
+                    },
+                    "mjpeg": {
+                        "quality": 0
+                    },
+                    "resolution": "720X576"
+                }
+            }
+        }
     },
     "system": {
         "information": {
+            "firmware": "v3.0.0",
             "hardware": "v4.0.0",
             "id": "sn-00000000",
-            "internal-model": "HD-25440-20D112000",
+            "internal_model": "HD-25440-20D112000",
             "location": "USA",
             "manufacturer": "EA",
             "model": "00-000-000",
-            "name": "Best",
-            "onvif": "3.3",
-            "serial-number": "XXXX",
+            "name": "eth0",
+            "onvif_url": "http: //192.168.1.21/onvif/device_service",
+            "onvif_version": "3.3",
+            "serial_number": "XXXX",
             "software": "v3.0.0",
-            "uri": "http://192.168.1.21/onvif/device_service",
             "uuid": "BD4780B6-3136-4117-B365-000003BF3ACA"
         },
         "network": {
             "eth0": {
                 "ipv4": {
                     "address": "192.168.1.21",
-                    "dhcp": false,
+                    "dhcp": 0,
                     "dns1": "192.168.0.3",
                     "dns2": "192.168.0.4",
                     "gateway": "192.168.0.1",
                     "netmask": "255.255.0.0"
                 },
                 "ipv6": {},
-                "mac": "66:55:44:33:22:11",
+                "mac": "66: 55: 44: 33: 22: 11",
                 "name": "eth0"
             },
             "eth1": {},
-            "httpport": 80,
+            "http_enabled": 0,
+            "http_port": 888,
+            "https_enabled": 0,
+            "https_port": 443,
             "ntp": {
-                "enable": "false",
-                "serveradress": "0.japan.pool.ntp.org"
+                "enabled": 1,
+                "server_address": "0.japan.pool.ntp.org",
+                "server_port": 22
             },
-            "rtspport": 554
+            "rtsp_enabled": 0,
+            "rtsp_port": 554
         },
         "time": {
-            "timezone": 8
+            "date_time": "2014/10/14/11:18",
+            "time_zone": "8"
         }
     }
 }
