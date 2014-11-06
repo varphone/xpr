@@ -41,11 +41,19 @@ void XPR_Freev(void** vptr)
 
 char* XPR_StrDup(const char* str)
 {
+#if defined(_MSC_VER)
+    return _strdup(str);
+#else
     return strdup(str);
+#endif
 }
 
 wchar_t* XPR_StrDupW(const wchar_t* str)
 {
+#if defined(_MSC_VER)
+    return _wcsdup(str);
+#else
     return wcsdup(str);
+#endif
 }
 

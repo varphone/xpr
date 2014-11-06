@@ -1,4 +1,4 @@
-#ifndef XPR_AVFRAME_H
+﻿#ifndef XPR_AVFRAME_H
 #define XPR_AVFFAME_H
 
 #include <stdint.h>

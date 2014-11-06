@@ -1,4 +1,4 @@
-#ifndef XPR_BITVECTOR_H
+﻿#ifndef XPR_BITVECTOR_H
 #define XPR_BITVECTOR_H
 
 #ifdef __cplusplus

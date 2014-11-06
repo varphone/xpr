@@ -1,60 +1,60 @@
 ﻿#include <Windows.h>
 #include <intrin.h>
-#include "sync.h"
+#include <xpr/xpr_sync.h>
 
-void MutexInit(Mutex* mtx)
+void XPR_MutexInit(XPR_Mutex* mtx)
 {
     *(HANDLE*)mtx->dummy = CreateMutex(NULL, FALSE, NULL);
 }
 
-void MutexFini(Mutex* mtx)
+void XPR_MutexFini(XPR_Mutex* mtx)
 {
     (void)CloseHandle(*(HANDLE*)mtx->dummy);
 }
 
-void MutexLock(Mutex* mtx)
+void XPR_MutexLock(XPR_Mutex* mtx)
 {
     (void)WaitForSingleObject(*(HANDLE*)mtx->dummy, INFINITE);
 }
 
-void MutexUnlock(Mutex* mtx)
+void XPR_MutexUnlock(XPR_Mutex* mtx)
 {
     (void)ReleaseMutex(*(HANDLE*)mtx->dummy);
 }
 
-void RecursiveMutexInit(RecursiveMutex* mtx)
+void XPR_RecursiveMutexInit(XPR_RecursiveMutex* mtx)
 {
     (void)InitializeCriticalSectionAndSpinCount((CRITICAL_SECTION*)mtx->dummy, 1000);
 }
 
-void RecursiveMutexFini(RecursiveMutex* mtx)
+void XPR_RecursiveMutexFini(XPR_RecursiveMutex* mtx)
 {
     DeleteCriticalSection((CRITICAL_SECTION*)mtx->dummy);
 }
 
-void RecursiveMutexLock(RecursiveMutex* mtx)
+void XPR_RecursiveMutexLock(XPR_RecursiveMutex* mtx)
 {
     EnterCriticalSection((CRITICAL_SECTION*)mtx->dummy);
 }
 
-void RecursiveMutexUnlock(RecursiveMutex* mtx)
+void XPR_RecursiveMutexUnlock(XPR_RecursiveMutex* mtx)
 {
     LeaveCriticalSection((CRITICAL_SECTION*)mtx->dummy);
 }
 
-void SpinLockInit(SpinLock* s)
+void XPR_SpinLockInit(XPR_SpinLock* s)
 {
     if (s)
         *((int*)s->dummy) = 0;
 }
 
-void SpinLockFini(SpinLock* s)
+void XPR_SpinLockFini(XPR_SpinLock* s)
 {
     if (s)
         *((int*)s->dummy) = 0;
 }
 
-void SpinLockLock(SpinLock* s)
+void XPR_SpinLockLock(XPR_SpinLock* s)
 {
     int loops = 0;
     int missed = 0;
@@ -70,7 +70,7 @@ void SpinLockLock(SpinLock* s)
     }
 }
 
-void SpinLockUnlock(SpinLock* s)
+void XPR_SpinLockUnlock(XPR_SpinLock* s)
 {
     if (s)
         _InterlockedExchange((volatile long*)s->dummy, 0);

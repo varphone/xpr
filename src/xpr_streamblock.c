@@ -8,12 +8,13 @@
 
 XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 {
+    XPR_StreamBlock* blk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
         DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size, XPR_STREAM_BLOCK_MAX_SIZE);
         return 0;
     }
     size = XPR_AlignedUpTo(size, 256);
-    XPR_StreamBlock* blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk)+size);
+    blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk)+size);
     if (blk) {
         memset(blk, 0, sizeof(*blk));
         blk->buffer = (uint8_t*)blk + sizeof(*blk);
@@ -26,12 +27,13 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 
 XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
 {
+    XPR_StreamBlock* nblk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
         DBG(DBG_L2, "stream block is too large to realloc (%u > %u)", size, XPR_STREAM_BLOCK_MAX_SIZE);
         return blk;
     }
     size = XPR_AlignedUpTo(size, 256);
-    XPR_StreamBlock* nblk = (XPR_StreamBlock*)realloc(blk, sizeof(*nblk) + size);
+    nblk = (XPR_StreamBlock*)realloc(blk, sizeof(*nblk) + size);
     if (nblk) {
         nblk->buffer = (uint8_t*)nblk + sizeof(*nblk);
         nblk->bufferSize = (uint32_t)size;
@@ -57,13 +59,14 @@ void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
 
 XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size_t length)
 {
+    size_t space = 0;
     if (!blk || !data || !length)
         return blk;
     if (length > XPR_STREAMBLOCK_MAX_SIZE) {
         DBG(DBG_L2, "data block [%p, %u] is too large to append to [%p]", data, length, blk);
         return blk;
     }
-    size_t space = blk->bufferSize - blk->dataSize;
+    space = blk->bufferSize - blk->dataSize;
     if (space < length)
         blk = XPR_StreamBlockRealloc(blk, blk->bufferSize + (length - space));
     if (blk) {

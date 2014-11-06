@@ -1,4 +1,4 @@
-#ifndef XPR_STREAMBLOCK_H
+﻿#ifndef XPR_STREAMBLOCK_H
 #define XPR_STREAMBLOCK_H
 
 #include <stdint.h>

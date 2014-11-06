@@ -124,6 +124,12 @@ int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
     return 0;
 }
 
+// FIXME:
+uintptr_t XPR_FifoPeekAsAtomic(XPR_Fifo* f, int offset)
+{
+    return 0;
+}
+
 int XPR_FifoDrain(XPR_Fifo* f, int size)
 {
     if (!f || XPR_FifoIsEmpty(f))

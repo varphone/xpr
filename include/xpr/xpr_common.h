@@ -1,4 +1,4 @@
-#ifndef XPR_COMMON_H
+﻿#ifndef XPR_COMMON_H
 #define XPR_COMMON_H
 
 /// @defgroup xprcommon 通用定义
