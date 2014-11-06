@@ -165,7 +165,7 @@ ifeq ($(XPR_GPIO),1)
 ifeq ($(XPR_GPIO_DRIVER_A5S),1)
 libxpr_SRCS += drivers/gpio/a5s.c
 endif
-libxpr_SRCS += xpr_fifo.c
+libxpr_SRCS += xpr_gpio.c
 endif
 
 # H264

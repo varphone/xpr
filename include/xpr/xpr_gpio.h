@@ -1,7 +1,7 @@
 #ifndef XPR_GPIO_H
 #define XPR_GPIO_H
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -15,7 +15,7 @@ int XPR_GPIO_Init(void);
 
 int XPR_GPIO_Fini(void);
 
-int XPR_GPIO_Set(int port, int* value);
+int XPR_GPIO_Get(int port, int* value);
 
 int XPR_GPIO_Set(int port, int value);
 
@@ -23,7 +23,7 @@ int XPR_GPIO_GetMode(int port, int* mode);
 
 int XPR_GPIO_SetMode(int port, int mode);
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
