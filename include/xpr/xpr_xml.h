@@ -1,4 +1,4 @@
-#ifndef XPR_XML_H
+﻿#ifndef XPR_XML_H
 #define XPR_XML_H
 
 #ifdef __cplusplus
@@ -94,7 +94,9 @@ int XPR_XML_GetAttrNB(XPR_XML_Node* node);
 XPR_XML_Node* XPR_XML_GetText(XPR_XML_Node* node, int nth);
 int XPR_XML_GetTextNB(XPR_XML_Node* node);
 
-/// @brief 执行 XPath 操作
+///
+/// 执行 XPath 操作
+///
 /// @param [in] node        要执行操作的节点
 /// @param [in] path        XPath 表达式
 /// @param [in,out] nb      返回符合 XPath 表达式的节点数量
@@ -119,17 +121,23 @@ int XPR_XML_GetTextNB(XPR_XML_Node* node);
 ///
 XPR_XML_Node** XPR_XML_XPath(XPR_XML_Node* node, char* path, int* nb);
 
-/// @brief 获取节点类型
+///
+/// 获取节点类型
+///
 /// @param [in] node        要操作的节点
 /// @return 节点类型值 [#XPR_XML_NodeType]
 int XPR_XML_GetType(XPR_XML_Node* node);
 
-/// @brief 获取节点在所有兄弟节点中的索引
+///
+/// 获取节点在所有兄弟节点中的索引
+///
 /// @param [in] node        要操作的节点
 /// @return 返回范围为 1 ~ N 的索引值
 int XPR_XML_GetNodePosition(XPR_XML_Node* node);
 
-/// @brief 释放由 XPR_XML 分配的内存
+///
+/// 释放由 XPR_XML 分配的内存
+///
 /// @param [in] data        要释放的内存地址
 /// @return 无
 void XPR_XML_Release(void* data);
