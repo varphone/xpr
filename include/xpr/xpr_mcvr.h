@@ -7,7 +7,7 @@
 #include "xpr_streamblock.h"
 
 
-/// @defgroup xdmcvr 多通道视频渲染器库
+/// @defgroup xpr-mcvr 多通道视频渲染器库
 /// @brief Multiple Channel Video Renderer library.
 /// @author Shower Young [yfh@pingfon.com]
 /// @version 4.1.6
@@ -16,7 +16,7 @@
 /// @{
 ///
 
-/// @defgroup xdmcvr-changes 变更日志
+/// @defgroup xpr-mcvr-changes 变更日志
 /// @{
 ///
 /// @par 4.1.6 (2014/5/21)
@@ -65,7 +65,11 @@ extern "C"
 {
 #endif
 
-/// @addtogroup xdmcvr-enums 枚举类型
+#define XPR_MCVR_PORT(major, minor) (((major)<<16)|(minor))
+#define XPR_MCVR_PORT_MAJOR(port)   (((port)>>16) & 0xffff)
+#define XPR_MCVR_PORT_MINOR(port)   ((port) & 0xffff)
+
+/// @addtogroup xpr-mcvr-enums 枚举类型
 /// @{
 ///
 
@@ -198,7 +202,7 @@ typedef enum _OPTIMIZE_OPERATION_LEVEL{
 /// @}
 ///
 
-/// @addtogroup xdmcvr-init 库初始化
+/// @addtogroup xpr-mcvr-init 库初始化
 /// @{
 ///
 
@@ -220,7 +224,7 @@ XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
 /// @}
 ///
 
-/// @addtogroup xdmcvr-set-port 绑定、划分通道及摄像机属性
+/// @addtogroup xpr-mcvr-set-port 绑定、划分通道及摄像机属性
 /// @{
 ///
 
@@ -236,7 +240,7 @@ int XPR_MCVR_BindWindow(int port, void* hwnd, int rows, int cols);
 /// @}
 ///
 
-/// @addtogroup xdmcvr-ctrl 渲染控制
+/// @addtogroup xpr-mcvr-ctrl 渲染控制
 /// @{
 ///
 
@@ -338,7 +342,7 @@ int XPR_MCVR_SetRate(int port, float rate);
 /// @}
 ///
 
-/// @addtogroup xdmcvr-set-state 设置状态
+/// @addtogroup xpr-mcvr-set-state 设置状态
 /// @{
 ///
 
@@ -443,7 +447,7 @@ float XPR_MCVR_GetEffectF(int port, XPR_MCVR_EffectType effect);
 /// @}
 ///
 
-/// @addtogroup xdmcvr-events
+/// @addtogroup xpr-mcvr-events
 /// @{
 ///
 
@@ -510,7 +514,7 @@ int XPR_MCVR_DetachAllEvents(void);
 /// @}
 ///
 
-/// @addtogroup xdmcvr-error 错误信息
+/// @addtogroup xpr-mcvr-error 错误信息
 /// @{
 ///
 
