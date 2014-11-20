@@ -178,6 +178,27 @@
 #  define AV_FOURCC_XPMI XPR_MakeFourCC('X', 'P', 'M', 'I')
 #endif
 
+#ifndef AV_FOURCC_BMPI
+///
+/// BMP image data codec
+///
+#  define AV_FOURCC_BMPI XPR_MakeFourCC('B', 'M', 'P', 'I')
+#endif
+
+#ifndef AV_FOURCC_JPGI
+///
+/// JPEG image data codec
+///
+#  define AV_FOURCC_JPGI XPR_MakeFourCC('J', 'P', 'G', 'I')
+#endif
+
+#ifndef AV_FOURCC_PNGI
+///
+/// PNG image data codec
+///
+#  define AV_FOURCC_PNGI XPR_MakeFourCC('P', 'N', 'G', 'I')
+#endif
+
 /// @}
 ///
 
