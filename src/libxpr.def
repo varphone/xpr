@@ -51,6 +51,66 @@ EXPORTS
 	XPR_H264_ScanNALU
 	XPR_H264_SPS_Dump
 
+;;; XPR_JSON
+	XPR_JSON_Alloc
+	XPR_JSON_Free
+	XPR_JSON_IncRef
+	XPR_JSON_DecRef
+	XPR_JSON_RefCount
+	XPR_JSON_LoadString
+	XPR_JSON_LoadFileName
+	XPR_JSON_DumpString
+	XPR_JSON_DumpFileName
+	XPR_JSON_DumpFileStream
+	XPR_JSON_Typeof
+	XPR_JSON_IsObject
+	XPR_JSON_IsArray
+	XPR_JSON_IsString
+	XPR_JSON_IsInteger
+	XPR_JSON_IsReal
+	XPR_JSON_IsTrue
+	XPR_JSON_IsFalse
+	XPR_JSON_IsNull
+	XPR_JSON_Object
+	XPR_JSON_ObjectSet
+	XPR_JSON_ObjectSetNew
+	XPR_JSON_ObjectGet
+	XPR_JSON_ObjectSize
+	XPR_JSON_ObjectIter
+	XPR_JSON_ObjectIterAt
+	XPR_JSON_ObjectIterNext
+	XPR_JSON_ObjectIterKey
+	XPR_JSON_ObjectIterValue
+	XPR_JSON_ObjectIterSet
+	XPR_JSON_ObjectIterSetNew
+	XPR_JSON_Array
+	XPR_JSON_ArraySet
+	XPR_JSON_ArraySetNew
+	XPR_JSON_ArrayGet
+	XPR_JSON_ArraySize
+	XPR_JSON_ArrayAppend
+	XPR_JSON_ArrayAppendNew
+	XPR_JSON_String
+	XPR_JSON_StringSet
+	XPR_JSON_StringValue
+	XPR_JSON_Integer
+	XPR_JSON_Integer64
+	XPR_JSON_IntegerSet
+	XPR_JSON_Integer64Set
+	XPR_JSON_IntegerValue
+	XPR_JSON_Integer64Value
+	XPR_JSON_Real
+	XPR_JSON_RealSet
+	XPR_JSON_RealValue
+	XPR_JSON_True
+	XPR_JSON_TrueValue
+	XPR_JSON_False
+	XPR_JSON_FalseValue
+	XPR_JSON_Boolean
+	XPR_JSON_BooleanValue
+	XPR_JSON_Null
+	XPR_JSON_NullValue
+
 ;;; XPR_MEM
 	XPR_Alloc
 	XPR_Free
@@ -63,8 +123,14 @@ EXPORTS
 	XPR_MCDEC_Config
 	XPR_MCDEC_Init
 	XPR_MCDEC_Fini
+	XPR_MCDEC_PushAVFrame
 	XPR_MCDEC_PushData
+	XPR_MCDEC_PushStreamBlock
 	XPR_MCDEC_Reset
+	XPR_MCDEC_AddAVFrameHandler
+	XPR_MCDEC_AddStreamBlockHandler
+	XPR_MCDEC_SetParam
+	XPR_MCDEC_GetParam
 
 ;;; XPR_MCVR
 	XPR_MCVR_Init
@@ -102,6 +168,13 @@ EXPORTS
 	XPR_MCVR_GetErrorString
 	XPR_MCVR_GetErrorStringW
 
+;;; XPR_RTSP_IDD
+	XPR_RTSP_IDD_New
+	XPR_RTSP_IDD_Destroy
+	XPR_RTSP_IDD_PushData
+	XPR_RTSP_IDD_SetParam
+	XPR_RTSP_IDD_GetParam
+
 ;;; XPR_STREAMBLOCK
 	XPR_StreamBlockAlloc
 	XPR_StreamBlockRealloc
@@ -124,3 +197,94 @@ EXPORTS
 	XPR_StreamBlockPTS
 	XPR_StreamBlockDTS
 	XPR_StreamBlockDuration
+
+;;; XPR_SYNC
+	XPR_MutexInit
+	XPR_MutexFini
+	XPR_MutexLock
+	XPR_MutexUnlock
+	XPR_RecursiveMutexInit
+	XPR_RecursiveMutexFini
+	XPR_RecursiveMutexLock
+	XPR_RecursiveMutexUnlock
+	XPR_SpinLockInit
+	XPR_SpinLockFini
+	XPR_SpinLockLock
+	XPR_SpinLockUnlock
+
+;;; XPR_SYS
+	XPR_SYS_GetCTS
+
+;;; XPR_THREAD
+	XPR_ThreadCreate
+	XPR_ThreadDestroy
+	XPR_ThreadJoin
+	XPR_ThreadSleep
+	XPR_ThreadSleepEx
+	XPR_ThreadYield
+
+;;; XPR_URL
+	XPR_UrlParse
+	XPR_UrlDestroy
+	XPR_UrlGetProtocol
+	XPR_UrlGetProtocolMajor
+	XPR_UrlGetProtocolMinor
+	XPR_UrlGetUsername
+	XPR_UrlGetPassword
+	XPR_UrlGetHost
+	XPR_UrlGetPort
+	XPR_UrlGetPath
+	XPR_UrlGetRelPath
+	XPR_UrlGetQuery
+	XPR_UrlHaveProtocol
+	XPR_UrlHaveProtocolMajor
+	XPR_UrlHaveProtocolMinor
+	XPR_UrlHaveUsername
+	XPR_UrlHavePassword
+	XPR_UrlHaveHost
+	XPR_UrlHavePort
+	XPR_UrlHavePath
+	XPR_UrlHaveQuery
+	XPR_UrlReplaceProtocol
+	XPR_UrlReplaceUsername
+	XPR_UrlReplacePassword
+	XPR_UrlReplaceHost
+	XPR_UrlReplacePort
+	XPR_UrlReplacePath
+	XPR_UrlReplaceQuery
+	XPR_UrlGetFullString
+
+;;; XPR_XML
+	XPR_XML_LoadBuf
+	XPR_XML_LoadDoc
+	XPR_XML_LoadFd
+	XPR_XML_Close
+	XPR_XML_GetNextSibling
+	XPR_XML_GetPrevSibling
+	XPR_XML_GetParent
+	XPR_XML_GetRoot
+	XPR_XML_GetNS
+	XPR_XML_SetNS
+	XPR_XML_GetComment
+	XPR_XML_GetCommentNB
+	XPR_XML_GetChild
+	XPR_XML_GetChildNB
+	XPR_XML_GetPi
+	XPR_XML_GetPiNB
+	XPR_XML_GetName
+	XPR_XML_GetContent
+	XPR_XML_SetContent
+	XPR_XML_GetNodes
+	XPR_XML_GetNodesNB
+	XPR_XML_GetAttr
+	XPR_XML_GetAttrNB
+	XPR_XML_GetText
+	XPR_XML_GetTextNB
+	XPR_XML_XPath
+	XPR_XML_GetType
+	XPR_XML_GetNodePosition
+	XPR_XML_Release
+	XPR_XML_AddNode
+	XPR_XML_DelNode
+	XPR_XML_CommitChanges
+	XPR_XML_Dump
