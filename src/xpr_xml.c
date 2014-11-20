@@ -166,7 +166,7 @@ void XPR_XML_DelNode(XPR_XML_Node* node)
     roxml_del_node((node_t*)node);
 }
 
-int XMP_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer, int human)
+int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer, int human)
 {
     return roxml_commit_changes((node_t*)node, dest, buffer, human);
 }
