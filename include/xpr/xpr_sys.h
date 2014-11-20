@@ -12,6 +12,7 @@ void XPR_SYS_Reboot(void);
 int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid);
 int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid);
 int XPR_SYS_SetAudioClockFrequency(int freq);
+int64_t XPR_SYS_GetCTS(void);
 
 #ifdef __cplusplus
 }
