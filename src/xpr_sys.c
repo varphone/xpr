@@ -92,3 +92,27 @@ int XPR_SYS_SetAudioClockFrequency(int freq)
 }
 #endif
 
+#if defined(WIN32) || defined(WIN64)
+#include <Windows.h>
+typedef NTSTATUS (NTAPI *NtQueryPerformanceCounterProc)(PLARGE_INTEGER PerformanceCounter, PLARGE_INTEGER PerformanceFrequency);
+
+static NtQueryPerformanceCounterProc ntqpcp = 0;
+
+int64_t XPR_SYS_GetCTS(void)
+{
+    LARGE_INTEGER ticks;
+    LARGE_INTEGER freq;
+    if (!ntqpcp) {
+        ntqpcp = (NtQueryPerformanceCounterProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryPerformanceCounter");
+    }
+    if (ntqpcp) {
+        ntqpcp(&ticks, &freq);
+    }
+    else {
+        QueryPerformanceFrequency(&freq);
+        QueryPerformanceCounter(&ticks);
+    }
+
+    return ticks.QuadPart / (freq.QuadPart / 1000000);
+}
+#endif
