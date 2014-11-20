@@ -1,5 +1,6 @@
 ﻿#include <Windows.h>
 #include <intrin.h>
+#include <xpr/xpr_atomic.h>
 #include <xpr/xpr_sync.h>
 
 void XPR_MutexInit(XPR_Mutex* mtx)
@@ -42,16 +43,19 @@ void XPR_RecursiveMutexUnlock(XPR_RecursiveMutex* mtx)
     LeaveCriticalSection((CRITICAL_SECTION*)mtx->dummy);
 }
 
+#define XPR_SPIN_LOCK_VALUE     1
+#define XPR_SPIN_UNLOCK_VALUE   0
+
 void XPR_SpinLockInit(XPR_SpinLock* s)
 {
     if (s)
-        *((int*)s->dummy) = 0;
+        XPR_AtomicAssign((XPR_Atomic*)s->dummy, XPR_SPIN_UNLOCK_VALUE);
 }
 
 void XPR_SpinLockFini(XPR_SpinLock* s)
 {
     if (s)
-        *((int*)s->dummy) = 0;
+        XPR_AtomicAssign((XPR_Atomic*)s->dummy, XPR_SPIN_UNLOCK_VALUE);
 }
 
 void XPR_SpinLockLock(XPR_SpinLock* s)
@@ -59,7 +63,10 @@ void XPR_SpinLockLock(XPR_SpinLock* s)
     int loops = 0;
     int missed = 0;
     if (s) {
-        while (_InterlockedCompareExchange((volatile long*)s->dummy, 1, 0) != 0) {
+        while (XPR_AtomicCAS((XPR_Atomic*)s->dummy,
+                             XPR_SPIN_LOCK_VALUE,
+                             XPR_SPIN_UNLOCK_VALUE) != XPR_SPIN_UNLOCK_VALUE)
+        {
             while (loops++ < 500);
             loops = 0;
             if (missed++ > 5) {
@@ -73,6 +80,5 @@ void XPR_SpinLockLock(XPR_SpinLock* s)
 void XPR_SpinLockUnlock(XPR_SpinLock* s)
 {
     if (s)
-        _InterlockedExchange((volatile long*)s->dummy, 0);
+        XPR_AtomicAssign((XPR_Atomic*)s->dummy, XPR_SPIN_UNLOCK_VALUE);
 }
-
