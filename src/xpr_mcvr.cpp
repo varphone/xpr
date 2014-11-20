@@ -1,7 +1,7 @@
 ﻿#include <xpr/xpr_mem.h>
 #include <xpr/xpr_mcvr.h>
-#include "xpr_mcvr_d3drenderer.hpp"
-#include "xpr_mcvr_safefree.hpp"
+#include "drivers/mcvr/d3d9/d3drenderer.hpp"
+#include "drivers/mcvr/d3d9/safefree.hpp"
 
 XD::D3DRenderer * _mcvr_renderer = nullptr;
 XPR_MCVR_VideoRendererType _renderer_type = XPR_MCVR_VIDEO_RENDERER_DEFAULT;
