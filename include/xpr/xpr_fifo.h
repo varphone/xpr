@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-/// @defgroup xprfifo 先进先出队列
+/// @defgroup xpr-fifo 先进先出队列
 /// @brief 通用先进先出队列操作接口
 /// @{
 ///
@@ -16,7 +16,7 @@ extern "C" {
 #define XPR_FIFO_TYPE_DEFINED
 struct XPR_Fifo;
 typedef struct XPR_Fifo XPR_Fifo;
-#endif // FIFO_TYPE_DEFINED
+#endif // XPR_FIFO_TYPE_DEFINED
 
 /// @brief Create an fifo
 /// @param [in] elementSize     Size of the element hold in the fifo
