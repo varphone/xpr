@@ -39,6 +39,7 @@
 
 #if defined(_WIN32)
 /* For _getpid() */
+#include <Windows.h>
 #include <process.h>
 #endif
 

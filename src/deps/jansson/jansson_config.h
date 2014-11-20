@@ -22,9 +22,13 @@
    defined to `inline', otherwise empty. In C++, the inline is always
    supported. */
 #ifdef __cplusplus
-#define JSON_INLINE inline
+#ifdef _MSC_VER
+#define JSON_INLINE __inline
 #else
-#ifdef _MSCVER
+#define JSON_INLINE inline
+#endif
+#else
+#ifdef _MSC_VER
 #define JSON_INLINE __inline
 #else
 #define JSON_INLINE inline
