@@ -80,25 +80,32 @@ void SystemTimeInit(void)
 {
     char value[128] = {0}; 
     int size = sizeof(value); 
+    printf("value 0:%s\n",value);
     if (XPR_UPS_GetString("/system/time/time_zone", value, &size) != 0) {
         printf("get system time zone error!\n");
     } else {
         printf("system time zone = %s\n", value);
         sprintf(tmcf.zone_buffes, "%s", value); 
     }
-
+    printf("value 1111 size:%d\n",size);
+    memset(value,0,sizeof(value));
+    size = sizeof(value); 
+    printf("value 2 size:%d\n",size);
+    //char value_t[128] = {0}; 
+    //int size_n = sizeof(value_t); 
     if (XPR_UPS_GetString("/system/time/date_time", value, &size) != 0) {
         printf("get system date time error!\n");
     } else {
         printf("system date time = %s\n", value);
         sprintf(tmcf.time_buffes, "%s", value); 
     }
-
-    if (XPR_UPS_GetString("/system/network/ntp/server_address", value, &size) != 0) {
+    char value_s[128] = {0}; 
+    int size_s = sizeof(value_s); 
+    if (XPR_UPS_GetString("/system/network/ntp/server_address", value_s, &size_s) != 0) {
         printf("get system ntp address error!\n");
     } else {
-        printf("system ntp address = %s\n", value);
-        sprintf(tmcf.ntp_addr, "%s", value); 
+        printf("system ntp address = %s\n", value_s);
+        sprintf(tmcf.ntp_addr, "%s", value_s); 
     }
 
     int ivalue = 0;
@@ -108,12 +115,12 @@ void SystemTimeInit(void)
 		printf("ntp enabled = %d\n", ivalue);
         tmcf.time_type = ivalue;
     }
-
-    if (XPR_UPS_GetInteger("/system/network/ntp/ntpport", &ivalue) != 0) {
+    int tvalue = 0;
+    if (XPR_UPS_GetInteger("/system/network/ntp/server_port", &tvalue) != 0) {
         printf("get ntp port error!\n");
     } else {
-		printf("ntp port = %d\n", ivalue);
-        tmcf.ntpport = ivalue;
+		printf("ntp port = %d\n", tvalue);
+        tmcf.ntpport = tvalue;
     }
 }
 
