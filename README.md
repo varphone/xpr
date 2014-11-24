@@ -3,19 +3,19 @@ X Portable Runtime {#mainpage}
 
 ## Compoments
 
-* [AVFRAME](#AVFRAME)
-* [BASE64](#m_base64)
-* [DPU](#m_dpu)
-* [FIFO](#m_fifo)
-* [JSON](#m_json)
-* [MD5](#m_md5)
-* [PLUGIN](#m_plugin)
-* [SYNC](#m_sync)
-* [SYS](#m_sys)
-* [THREAD](#m_thread)
-* [UPS](#m_ups)
-* [URL](#m_url)
-* [UTILS](#m_utils)
+* [AVFRAME](#avframe)
+* [BASE64](#base64)
+* [DPU](#dpu)
+* [FIFO](#fifo)
+* [JSON](#json)
+* [MD5](#md5)
+* [PLUGIN](#plugin)
+* [SYNC](#sync)
+* [SYS](#sys)
+* [THREAD](#thread)
+* [UPS](#ups)
+* [URL](#url)
+* [UTILS](#utils)
 
 ### AVFRAME
 
