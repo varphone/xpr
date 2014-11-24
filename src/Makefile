@@ -60,6 +60,7 @@ $(config_VARS): $(config_FILE)
 
 local_install: libxpr.a libxpr.so
 	$(ECHO) "[  Install] Copy $^ to ../lib/"
+	@[ -d ../lib/ ] || mkdir ../lib
 	$(CP) $^ ../lib/
 
 clean:
