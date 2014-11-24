@@ -285,10 +285,17 @@ int PUT_PSIA_Streaming_channels_101(struct mg_connection* conn,
     else
         printf("set 0 resolution:%s ok!\n", streamchannels[0].videoResolution);
 
+    if (XPR_UPS_SetInteger("/camera/video/encoder/0/bitrate", streamchannels[0].constantBitRate) != 0)
+        printf("set 0 constantBitRate error!\n");
+    else
+        printf("set 0 constantBitRate:%d ok!\n", streamchannels[0].constantBitRate);
+
+
     if (XPR_UPS_SetInteger("/camera/video/encoder/0/fps", streamchannels[0].maxFrameRate) != 0)
         printf("set 0 fps error!\n");
     else
         printf("set 0 fps:%d ok!\n", streamchannels[0].maxFrameRate);
+
 
     if (strcmp(streamchannels[0].videoCodecType, "MJPEG") == 0) {
 	    if (XPR_UPS_SetInteger("/camera/video/encoder/0/mjpeg/quality", streamchannels[0].fixedQuality) != 0)
@@ -379,6 +386,11 @@ int PUT_PSIA_Streaming_channels_102(struct mg_connection* conn,
         printf("set 1 resolution error!\n");
     else
         printf("set 1 resolution:%s ok!\n", streamchannels[1].videoResolution);
+
+    if (XPR_UPS_SetInteger("/camera/video/encoder/0/bitrate", streamchannels[0].constantBitRate) != 0)
+        printf("set 0 constantBitRate error!\n");
+    else
+        printf("set 0 constantBitRate:%d ok!\n", streamchannels[0].constantBitRate);
 
     if (XPR_UPS_SetInteger("/camera/video/encoder/1/fps", streamchannels[1].maxFrameRate) != 0)
         printf("set 1 fps error!\n");
