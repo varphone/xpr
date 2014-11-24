@@ -15,7 +15,7 @@ include Modules.mk
 config_FILE = ../include/xpr/xpr_config.h
 config_VARS = $(sort $(foreach v,$(sort $(.VARIABLES)),$(filter XPR_%,$v)))
 
-CFLAGS      += -DHAVE_STDINT_H=1 $(libxpr_DEFS)
+CFLAGS      += -DHAVE_STDINT_H=1 -DHAVE_MP=1 $(libxpr_DEFS)
 CFLAGS      += -Wno-unused-function -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable
 CFLAGS      += -include $(config_FILE) $(libxpr_CFLAGS)
 ifneq ($(TOOLSET_NAME),)
