@@ -1,41 +1,46 @@
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_devcaps.h>
 
-struct XPR_DEVCAPS
+struct XPR_DevCaps
 {
     int version;
 };
 
-typedef struct XPR_DEVCAPS XPR_DEVCAPS;
+typedef struct XPR_DevCaps XPR_DevCaps;
 
-static XPR_DEVCAPS xprDevCaps = {0};
+static XPR_DevCaps xpr_devcaps = {0};
 
-int XPR_DEVCAPS_Init(void)
+int XPR_DevCapsInit(void)
 {
     return 0;
 }
 
-int XPR_DEVCAPS_Fini(void)
+int XPR_DevCapsFini(void)
 {
     return 0;
 }
 
-int XPR_DEVCAPS_GetInteger(int capId, int devId)
+int XPR_DevCapsGetInteger(int capId, int devId)
 {
     return 0;
 }
 
-const char* XPR_DEVCAPS_GetString(int capId, int devId)
+int64_t XPR_DevCapsGetInt64(int capId, int devId)
 {
     return 0;
 }
 
-const char** XPR_DEVCAPS_GetStrings(int capId, int devId)
+const char* XPR_DevCapsGetString(int capId, int devId)
 {
     return 0;
 }
 
-int XPR_DEVCAPS_GetVersion(void)
+const char** XPR_DevCapsGetStrings(int capId, int devId)
 {
-    return xprDevCaps.version;
+    return 0;
 }
 
+int XPR_DevCapsUpdate(const void* data, int size)
+{
+    return XPR_ERR_ERROR;
+}
