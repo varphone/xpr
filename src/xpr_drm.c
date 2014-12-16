@@ -17,8 +17,9 @@ int XPR_DRM_Init(void)
     return XPR_ERR_SUCCESS;
 }
 
-void XPR_DRM_Fini(void)
+int XPR_DRM_Fini(void)
 {
+    return XPR_ERR_SUCCESS;
 }
 
 int XPR_DRM_Verify(void)
