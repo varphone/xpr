@@ -1,4 +1,4 @@
-﻿#ifndef XPR_UTILS_H
+#ifndef XPR_UTILS_H
 #define XPR_UTILS_H
 
 #include <stdint.h>
@@ -80,7 +80,7 @@ int calc_lines(const char* s);
 const char* get_next_line(const char** sp);
 
 // H264 Utilities
-//=============================================================================
+//==============================================================================
 #define XPR_H264_NALU_AUD    0x09
 #define XPR_H264_NALU_SEI    0x06
 #define XPR_H264_NALU_SPS    0x07
@@ -103,7 +103,7 @@ int XPR_ScanH264Nalus(const uint8_t* data, unsigned int length,
                       XPR_H264NaluInfo nalus[], unsigned int maxNalus);
 
 // IntRange
-//=============================================================================
+//==============================================================================
 #ifndef XPR_INTRAGE_TYPE_DEFINED
 #define XPR_INTRAGE_TYPE_DEFINED
 struct XPR_IntRange {
@@ -116,6 +116,18 @@ typedef struct XPR_IntRange XPR_IntRange;
 XPR_IntRange XPR_IntRangeParse(const char* s);
 int XPR_IntRangePrint(XPR_IntRange rng, char* s);
 char* XPR_IntRangeToString(XPR_IntRange rng);
+
+// Rect
+//==============================================================================
+#ifndef XPR_RECT_TYEP_DEFINED
+#define XPR_RECT_TYEP_DEFINED
+typedef struct XPR_Rect {
+    int left;
+    int top;
+    int right;
+    int bottom;
+} XPR_Rect;
+#endif // XPR_RECT_TYEP_DEFINED
 
 #ifdef __cplusplus
 }
