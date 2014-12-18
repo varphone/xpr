@@ -1,6 +1,7 @@
 include ../Common.mk
+-include ../Config.mk
 
-CFLAGS          = -O2 -g -Wall -Werror -D_BSD_SOURCE -D_GNU_SOURCE -DPIC -fPIC -I../include
+CFLAGS          = $(BUILD_OPT_FLAGS) -D_BSD_SOURCE -D_GNU_SOURCE -DPIC -fPIC -I../include
 CXXFLAGS        =
 LDFLAGS         = -L../lib
 libxpr_DEFS     =
@@ -16,7 +17,6 @@ config_FILE = ../include/xpr/xpr_config.h
 config_VARS = $(sort $(foreach v,$(sort $(.VARIABLES)),$(filter XPR_%,$v)))
 
 CFLAGS      += -DHAVE_STDINT_H=1 -DHAVE_MP=1 $(libxpr_DEFS)
-CFLAGS      += -Wno-unused-function -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable
 CFLAGS      += -include $(config_FILE) $(libxpr_CFLAGS)
 ifneq ($(TOOLSET_NAME),)
 CFLAGS      += -I../contrib/$(TOOLSET_NAME)/include
@@ -25,7 +25,15 @@ endif
 CXXFLAGS    += $(CFLAGS) $(libxpr_CXXFLAGS)
 libxpr_LIBS += -lstdc++ -lpthread -ldl
 
-all: prepare libxpr.a libxpr.so local_install
+targets =
+ifeq ($(BUILD_STATIC),1)
+targets += libxpr.a
+endif
+ifeq ($(BUILD_SHARED),1)
+targets += libxpr.so
+endif
+
+all: prepare $(targets) local_install
 
 prepare: $(config_FILE) $(config_VARS)
 
@@ -58,13 +66,13 @@ $(config_VARS): $(config_FILE)
 	fi; \
 	echo "" >> $^; \
 
-local_install: libxpr.a libxpr.so
+local_install: $(targets)
 	$(ECHO) "[  Install] Copy $^ to ../lib/"
 	@[ -d ../lib/ ] || mkdir ../lib
 	$(CP) $^ ../lib/
 
 clean:
-	$(RM) $(libxpr_OBJS) libxpr.a libxpr.so
+	$(RM) $(libxpr_OBJS) $(targets)
 
 .PHONY: $(config_FILE)
 

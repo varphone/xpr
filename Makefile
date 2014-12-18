@@ -1,10 +1,5 @@
 include Common.mk
-
-BUILD_ALL=1
-BUILD_SRC=$(BUILD_ALL)
-BUILD_EXAMPLES=$(BUILD_ALL)
-BUILD_TESTS=$(BUILD_ALL)
-BUILD_DOCS=0
+-include Config.mk
 
 subdirs =
 
@@ -33,3 +28,6 @@ clean: $(subdirs)
 distclean: $(subdirs)
 	$(call make_subdir, $^, clean)
 	-rm lib/*
+
+install: $(subdirs)
+	$(call make_subdir, $^, install)

@@ -1,6 +1,6 @@
 define make_subdir
  @for d in $1; do \
-  (make -C $$d $2) \
+  (make -C $$d $2) || break; \
  done
 endef
 
@@ -39,5 +39,4 @@ LD      = $(VERBOSE)$(CROSS_COMPILER_PREFIX)gcc
 
 CP      = @cp
 ECHO    = @echo
-RM      = -rm
-
+RM      = -rm -f

@@ -1,25 +1,41 @@
 include ../Common.mk
+-include ../Config.mk
 
-CC      = $(CROSS_COMPILER_PREFIX)gcc
-CFLAGS  = -O2 -g -Wall -I../include
-LDFLAGS = -L../lib -lxpr -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
+CFLAGS  = $(BUILD_OPT_FLAGS) -I../include
+CXXFLAGS= $(CFLAGS)
+LDFLAGS = -L../lib -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
 
-targets = fifo qsort realpath struct ups json xml
+ifeq ($(BUILD_STATIC),1)
+LDFLAGS += -Wl,-Bstatic -lxpr -Wl,-Bdynamic -lpthread -ldl 
+endif
+
+ifeq ($(BUILD_SHARED),1)
+LDFLAGS += -Wl,-Bdynamic -lxpr -Wl,-Bdynamic
+endif
+
+targets = fifo json qsort realpath struct thread ups xml
 objects = $(targets:%=%.o)
 
 all: $(targets)
 
 $(targets): $(objects)
-	@echo "[ Building] $@"
-	@$(CC) $@.o -o $@ $(LDFLAGS)
+	$(ECHO) "[ Building] $@"
+	$(CC) $@.o -o $@ $(LDFLAGS)
 
 %.o: %.c
-	@echo "[Compiling] $^"
-	@$(CC) $(CFLAGS) -c $^
+	$(ECHO) "[Compiling] $^"
+	$(CC) $(CFLAGS) -c $^
+
+%.o: %.cpp
+	$(ECHO) "[Compiling] $^"
+	$(CXX) $(CXXFLAGS) -c $^
 
 clean:
-	-rm $(targets) $(objects)
+	$(RM) $(targets) $(objects)
+
+distclean: clean
 
 test: $(targets)
 	$(call run_test, $^)
 
+.PHONY: clean distclean install test
