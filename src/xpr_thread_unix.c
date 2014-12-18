@@ -6,7 +6,9 @@
 
 struct XPR_Thread {
     pthread_t handle;
-    XPR_ThreadStartRoutine routine;
+    XPR_ThreadStartRoutine startRoutine;
+    XPR_ThreadEndRoutine endRoutine;
+    unsigned int flags;
     void* opaque;
     void* userData;
 };
@@ -14,7 +16,10 @@ struct XPR_Thread {
 static void* XPR_ThreadRoutineWrapper(void *opaque)
 {
     XPR_Thread* thread = (XPR_Thread*)opaque;
-    return thread->routine(thread, thread->opaque);
+    void* result = thread->startRoutine(thread->opaque, thread);
+    if (thread->endRoutine)
+        thread->endRoutine(thread->opaque, thread);
+    return result;
 }
 
 XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackSize, void* opaque)
@@ -22,7 +27,30 @@ XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackS
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
         t->handle = 0;
-        t->routine = routine;
+        t->startRoutine = routine;
+        t->endRoutine = 0;
+        t->flags = 0;
+        t->opaque = opaque;
+        t->userData = 0;
+        if (pthread_create(&t->handle, 0, XPR_ThreadRoutineWrapper, t) < 0) {
+            free((void*)t);
+            t = 0;
+        }
+    }
+    return t;
+}
+
+XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
+                               XPR_ThreadEndRoutine endRoutine,
+                               unsigned int flags, unsigned int stackSize,
+                               void* opaque)
+{
+    XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
+    if (t) {
+        t->handle = 0;
+        t->startRoutine = startRoutine;
+        t->endRoutine = endRoutine;
+        t->flags = flags;
         t->opaque = opaque;
         t->userData = 0;
         if (pthread_create(&t->handle, 0, XPR_ThreadRoutineWrapper, t) < 0) {
@@ -75,4 +103,3 @@ void XPR_ThreadYield(void)
 {
     pthread_yield();
 }
-
