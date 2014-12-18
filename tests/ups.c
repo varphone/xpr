@@ -322,7 +322,7 @@ int test_ups_get_set_string2()
 	printf("err = %d\n",err);
    // err = XPR_UPS_GetString("/system/network/eth0/ipv4/address", value, &size);
 	//printf("err = %d, value=%s\n",err, value);
-
+    return 0;
 }
 
 int main(int argc, char* argv[])
