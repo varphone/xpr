@@ -16,7 +16,9 @@ struct XPR_Thread {
     HANDLE handle;
     HANDLE sleepEvent;
     unsigned id;
-    XPR_ThreadStartRoutine routine;
+    XPR_ThreadStartRoutine startRoutine;
+    XPR_ThreadEndRoutine endRoutine;
+    unsigned flags;
     void* opaque;
     void* userData;
     NtDelayExecutionProc NtDelayExecution;
@@ -28,11 +30,13 @@ static unsigned int __stdcall ThreadRoutineWrapper(void *opaque)
     XPR_Thread* thread = (XPR_Thread*)opaque;
     unsigned int result = 0;
     __try {
-        result = (unsigned int)thread->routine(thread, thread->opaque);
+        result = (unsigned int)thread->routine(thread->opaque, thread);
     }
     __except(0) {
         OutputDebugStringA("thread->routine raise an error\n");
     }
+    if (thread->endRoutine)
+        thread->endRoutine(thread->opaque, thread);
     return result;
 }
 
@@ -40,7 +44,33 @@ XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackS
 {
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
-        t->routine = routine;
+        t->startRoutine = routine;
+        t->endRoutine = 0;
+        t->flags = 0;
+        t->opaque = opaque;
+        t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper, t, 0, &t->id);
+        if (t->handle == INVALID_HANDLE_VALUE) {
+            free((void*)t);
+            t = 0;
+        }
+        t->userData = 0;
+        t->NtDelayExecution = (NtDelayExecutionProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtDelayExecution");
+        //t->sleepEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
+        //t->NtWaitForSingleObject = (NtWaitForSingleObjectProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWaitForSingleObject");
+    }
+    return t;
+}
+
+XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
+                               XPR_ThreadEndRoutine endRoutine,
+                               unsigned int flags, unsigned int stackSize,
+                               void* opaque)
+{
+    XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
+    if (t) {
+        t->startRoutine = startRoutine;
+        t->endRoutine = endRoutine;
+        t->flags = flags;
         t->opaque = opaque;
         t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper, t, 0, &t->id);
         if (t->handle == INVALID_HANDLE_VALUE) {

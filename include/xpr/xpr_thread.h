@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#define XPR_THREAD_FLAG_AUTO_DESTROY    0x0001
+
 #ifndef XPR_THREAD_TYPE_DEFINED
 #define XPR_THREAD_TYPE_DEFINED
 // 前置声明
@@ -26,14 +28,35 @@ typedef struct XPR_Thread XPR_Thread;
 /// @param [in] thread      线程对象
 /// @param [in] opaque      用户关联数据
 /// @return 线程结束时返回的数据
-typedef void* (*XPR_ThreadStartRoutine)(XPR_Thread* thread, void* opaque);
+typedef void* (*XPR_ThreadStartRoutine)(void* opaque, XPR_Thread* thread);
+
+/// @brief 线程结束函数
+/// @param [in] opaque      用户关联数据
+/// @param [in] thread      线程对象
+/// @return 无
+typedef void (*XPR_ThreadEndRoutine)(void* opaque, XPR_Thread* thread);
 
 /// @brief 创建一个新线程
 /// @param [in] routine     线程入口函数
 /// @param [in] stackSize   线程栈大小, 0 为系统默认值
 /// @param [in] opaque      用户关联数据
 /// @return 线程对象
-XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackSize, void* opaque);
+XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine,
+                             unsigned int stackSize, void* opaque);
+
+///
+/// 创建一个新线程
+///
+/// @param [in] startRoutine    线程入口函数
+/// @param [in] endRoutine      线程入口函数
+/// @param [in] flags           线程创建标志
+/// @param [in] stackSize       线程栈大小, 0 为系统默认值
+/// @param [in] opaque          用户关联数据
+/// @return 线程对象
+XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
+                               XPR_ThreadEndRoutine endRoutine,
+                               unsigned int flags, unsigned int stackSize,
+                               void* opaque);
 
 /// @brief 销毁一个线程
 /// @param [in] thread      线程对象
