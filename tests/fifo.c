@@ -8,7 +8,7 @@
 #include <xpr/xpr_utils.h>
 
 static XPR_Atomic testCounter = 0;
-static void* PutData(XPR_Thread* t, void* opaque)
+static void* PutData(void* opaque, XPR_Thread* t)
 {
     char* s = "ABCDEFGH";
     char* p = 0;
@@ -19,11 +19,12 @@ static void* PutData(XPR_Thread* t, void* opaque)
             XPR_Free(p);
         XPR_AtomicInc(&testCounter);
         if ((testCounter % 100000) == 0)
-            printf("Test %u00 KPP Passed\n", testCounter / 100000);
+            printf("Test %lu00 KPP Passed\n", testCounter / 100000);
     }
+    return NULL;
 }
 
-static void* GetData(XPR_Thread* t, void* opaque)
+static void* GetData(void* opaque, XPR_Thread* t)
 {
     char* s = "ABCDEFGH";
     char* p = 0;
@@ -36,6 +37,7 @@ static void* GetData(XPR_Thread* t, void* opaque)
             XPR_Free(p);
         }
     }
+    return NULL;
 }
 
 static void TestFifo(void)
