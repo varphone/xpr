@@ -13,8 +13,6 @@ void XPR_SYS_Reboot(void)
     printf("XPR_SYS_Reboot()\n");
 }
 
-#ifdef HAVE_SCHED_H
-#include <sched.h>
 #ifdef HAVE_PHTREAD_H
 #include <pthread.h>
 int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
@@ -45,6 +43,9 @@ int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
     return 0;
 }
 #endif
+
+#ifdef HAVE_SCHED_H
+#include <sched.h>
 int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
 {
     struct sched_param param;
@@ -114,5 +115,13 @@ int64_t XPR_SYS_GetCTS(void)
     }
 
     return ticks.QuadPart / (freq.QuadPart / 1000000);
+}
+#else
+#include <time.h>
+int64_t XPR_SYS_GetCTS(void)
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return (int64_t)tp.tv_sec * 1000000 + (int64_t)tp.tv_nsec / 1000;
 }
 #endif
