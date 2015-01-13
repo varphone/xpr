@@ -138,13 +138,15 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
     return XPR_ERR_SUCCESS;
 }
 
-void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
+int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
 {
     int ret = 0;
     XPR_JSON* json = NULL;
     XPR_UPS_Entry* entry = NULL;
     if (!ent)
-        return;
+        return XPR_ERR_NULL_PTR;
+    if (ent->prev != 0)
+        return XPR_ERR_SUCCESS;
     if (root == 0) {
         root = ent;
         root->prev = root->next = root->subs = 0;
@@ -153,7 +155,7 @@ void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
         ret = XPR_UPS_FindEntry(ent->root, &json, &entry);
         if (XPR_ERR_SUCCESS != ret) {
             printf("cant not find:%s\n", ent->root);
-            return;
+            return XPR_ERR_UPS_UNEXIST;
         }
         if (!entry->subs) {
             entry->subs = ent;
@@ -164,16 +166,19 @@ void XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
                 if (ent->type ==
                     XPR_UPS_ENTRY_TYPE_DIR  // 如果目录已存在则直接退出，不做挂载
                     && strcmp(entry->names[0], ent->names[0]) == 0)
-                    return;
+                    return XPR_ERR_SUCCESS;
                 if (!entry->next) {
                     entry->next = ent;
                     ent->prev = entry;
-                    return;
+                    ent->next = 0;
+                    ent->subs = 0;
+                    break;
                 }
                 entry = entry->next;
             }
         }
     }
+    return ent->init ? ent->init(ent) : XPR_ERR_SUCCESS;
 }
 
 extern XPR_UPS_Entry xpr_ups_driver_root;
@@ -193,13 +198,13 @@ static void XPR_UPS_RegisterAll(void)
                      xpr_ups_driver_system_network_count);
     XPR_UPS_Register(xpr_ups_driver_system_information,
                      xpr_ups_driver_system_information_count);
-    XPR_UPS_Register(xpr_ups_driver_camera_image,
-                     xpr_ups_driver_camera_image_count);
     // register other....
 }
 
 int XPR_UPS_Init(void)
 {
+    if (!root_json)
+        return XPR_ERR_SUCCESS;
     root_json = XPR_JSON_LoadFileName("./configuration.json");
     if (!root_json)
         return XPR_ERR_UPS_UNEXIST;
@@ -219,9 +224,11 @@ int XPR_UPS_Fini(void)
 /// @brief
 int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 {
-    int i = 0;
-    for (; i < count; i++)
-        XPR_UPS_RegisterSingle(&ents[i]);
+    int i = 0, result;
+    for (; i < count; i++) {
+        result = XPR_UPS_RegisterSingle(&ents[i]);
+        //printf("register ents[%d].root=%s result:%d\n", i, ents[i].root, result);
+    }
     return XPR_ERR_SUCCESS;
 }
 
@@ -476,77 +483,77 @@ int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
+int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
+                     const char* key,
                      void* buffer, int* size)
 {
     int len = 0;
-	int result = XPR_ERR_OK;
-	const char* s = NULL;
-
-	switch (ent->type) {
-		case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-            *(int*)buffer = XPR_JSON_IntegerValue(json);//not support boolean set now 20140924
-			break;
-		case XPR_UPS_ENTRY_TYPE_BLOB:
-			// not support yet...
-			break;
-		case XPR_UPS_ENTRY_TYPE_INT:
-			*(int*)buffer = XPR_JSON_IntegerValue(json);	
-			break;
-		case XPR_UPS_ENTRY_TYPE_INT64:
-			*(int64_t*)buffer = XPR_JSON_Integer64Value(json);
-			break;
-		case XPR_UPS_ENTRY_TYPE_REAL:
-			*(double*)buffer = XPR_JSON_RealValue(json);
-			break;
-		case XPR_UPS_ENTRY_TYPE_STRING:
-			s = XPR_JSON_StringValue(json);
-			len = strlen(s);
-			if (len >= *size) {
-                result = XPR_ERR_BUF_FULL;
-				break;
-			}	
-			strcpy_s(buffer, *size, s);
-			*size = len;
-			break;
-		default:
-			return XPR_ERR_ERROR;
-	}
-	return result;
+    int result = XPR_ERR_OK;
+    const char* s = NULL;
+    switch (ent->type) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        *(int*)buffer = XPR_JSON_IntegerValue(
+                            json);//not support boolean set now 20140924
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        // not support yet...
+        break;
+    case XPR_UPS_ENTRY_TYPE_INT:
+        *(int*)buffer = XPR_JSON_IntegerValue(json);
+        break;
+    case XPR_UPS_ENTRY_TYPE_INT64:
+        *(int64_t*)buffer = XPR_JSON_Integer64Value(json);
+        break;
+    case XPR_UPS_ENTRY_TYPE_REAL:
+        *(double*)buffer = XPR_JSON_RealValue(json);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        s = XPR_JSON_StringValue(json);
+        len = strlen(s);
+        if (len >= *size) {
+            result = XPR_ERR_BUF_FULL;
+            break;
+        }
+        strcpy_s(buffer, *size, s);
+        *size = len;
+        break;
+    default:
+        return XPR_ERR_ERROR;
+    }
+    return result;
 }
 
-int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key,
+int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
+                      const char* key,
                       const void* data, int size)
 {
-	int result = XPR_ERR_OK;
-
-	switch (ent->type) {
-        case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-            result = XPR_JSON_IntegerSet(json, *(int*)data);//not support boolean set now 20140924
-			break;
-		case XPR_UPS_ENTRY_TYPE_BLOB:
-			// not support yet...
-			break;
-        case XPR_UPS_ENTRY_TYPE_INT:
-            result = XPR_JSON_IntegerSet(json, *(int*)data);
-			break;
-		case XPR_UPS_ENTRY_TYPE_INT64:
-			result = XPR_JSON_Integer64Set(json, *(int64_t*)data);
-			break;
-		case XPR_UPS_ENTRY_TYPE_REAL:
-			result = XPR_JSON_RealSet(json, *(double*)data);
-			break;
-		case XPR_UPS_ENTRY_TYPE_STRING:
-			result = XPR_JSON_StringSet(json, (char *)data);
-			break;
-		default:
-			return XPR_ERR_ERROR;
-	}
-
-    if(XPR_ERR_OK == result)
+    int result = XPR_ERR_OK;
+    switch (ent->type) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        result = XPR_JSON_IntegerSet(json,
+                                     *(int*)data);//not support boolean set now 20140924
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        // not support yet...
+        break;
+    case XPR_UPS_ENTRY_TYPE_INT:
+        result = XPR_JSON_IntegerSet(json, *(int*)data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_INT64:
+        result = XPR_JSON_Integer64Set(json, *(int64_t*)data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_REAL:
+        result = XPR_JSON_RealSet(json, *(double*)data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        result = XPR_JSON_StringSet(json, (char*)data);
+        break;
+    default:
+        return XPR_ERR_ERROR;
+    }
+    if (XPR_ERR_OK == result)
         result = XPR_UPS_Sync();
-
-	return result;
+    return result;
 }
 
 int XPR_UPS_Delete(const char* key)
