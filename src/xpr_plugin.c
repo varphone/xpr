@@ -71,8 +71,13 @@ XPR_PluginModule* XPR_PluginLoad(const char* name)
         pm->next = 0;
         pm->init = dlsym(pm->libHandle, "XPR_PluginInit");
         pm->fini = dlsym(pm->libHandle, "XPR_PluginFini");
-        if (pm->init)
+        if (pm->init) {
             pm->pluginHandle = pm->init();
+            if(pm->pluginHandle ==NULL) {
+                fprintf(stderr, "load [%s] failed\n", name);
+                goto fail;
+            }
+        }
         HoldPluginModule(pm);
     }
     return pm;
