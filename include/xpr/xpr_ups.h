@@ -42,6 +42,7 @@ typedef struct XPR_UPS_Entry XPR_UPS_Entry; ///< XPR_UPS 类型声明
 /// @brief XPR_UPS 条目类型
 enum XPR_UPS_EntryType {
     XPR_UPS_ENTRY_TYPE_UNKNOWN, ///< 未知
+    XPR_UPS_ENTRY_TYPE_INIT,    ///< 初始化使用的特殊节点
     XPR_UPS_ENTRY_TYPE_DIR,     ///< 目录
     XPR_UPS_ENTRY_TYPE_BOOLEAN, ///< 布尔
     XPR_UPS_ENTRY_TYPE_BLOB,    ///< 二进制数据
