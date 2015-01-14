@@ -154,7 +154,7 @@ int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
     else {
         ret = XPR_UPS_FindEntry(ent->root, &json, &entry);
         if (XPR_ERR_SUCCESS != ret) {
-            printf("cant not find:%s\n", ent->root);
+            printf("ret = %X, cant not find:%s\n", ret, ent->root);
             return XPR_ERR_UPS_UNEXIST;
         }
         if (!entry->subs) {
@@ -203,7 +203,7 @@ static void XPR_UPS_RegisterAll(void)
 
 int XPR_UPS_Init(void)
 {
-    if (!root_json)
+    if (root_json)
         return XPR_ERR_SUCCESS;
     root_json = XPR_JSON_LoadFileName("./configuration.json");
     if (!root_json)
