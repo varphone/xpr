@@ -17,6 +17,9 @@
 
 /// @page xprjsonc-changes 变更日志
 ///
+/// @par 1.2.1 (2015/2/3)
+///   - 增加 XPR_JSON_Copy(), XPR_JSON_DeepCopy() 接口
+///
 /// @par 1.1.1 (2013/7/30)
 ///   - 增加 XPR_JSON_RefCount() 用于获取被引用的数量
 ///
@@ -39,7 +42,7 @@
 ///
 /// 当前定义版本号
 ///
-#define XPR_JSON_VERSION XPR_MakeVersion(1,1,1)
+#define XPR_JSON_VERSION XPR_MakeVersion(1,2,1)
 
 #ifdef __cplusplus
 extern "C"
@@ -565,6 +568,20 @@ XPR_JSON* XPR_JSON_Null(void);
 /// @sa XPR_JSON_Null(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 void* XPR_JSON_NullValue(XPR_JSON* json);
+
+///
+/// 复制一个 XPR_JSON 对象
+///
+/// @param [in] src   要复制的　#XPR_JSON 实例
+/// @return 返回新的 XPR_JSON 实例
+XPR_JSON* XPR_JSON_Copy(XPR_JSON* src);
+
+///
+/// 复制一个 XPR_JSON 对象及其所包含的子对象
+///
+/// @param [in] src   要复制的　#XPR_JSON 实例
+/// @return 返回新的 XPR_JSON 实例
+XPR_JSON* XPR_JSON_DeepCopy(XPR_JSON* src);
 
 #ifdef __cplusplus
 }

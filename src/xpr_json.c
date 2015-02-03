@@ -9,9 +9,9 @@ struct XPR_JSON {
 #  undef PACKAGE_VERSION
 #endif
 #if defined(_MSC_VER)
-#  define PACKAGE_VERSION "1.1.1 ("##__DATE__##" "##__TIME__##")"
+#  define PACKAGE_VERSION "1.2.1 ("##__DATE__##" "##__TIME__##")"
 #else
-#  define PACKAGE_VERSION "1.1.1 (" __DATE__ " " __TIME__ ")"
+#  define PACKAGE_VERSION "1.2.1 (" __DATE__ " " __TIME__ ")"
 #endif
 
 const char* XPR_JSON_Version(void)
@@ -420,3 +420,14 @@ void* XPR_JSON_NullValue(XPR_JSON* json)
     return NULL;
 }
 
+// Copy
+///////////////////////////////////////////////////////////////////////////////
+XPR_JSON* XPR_JSON_Copy(XPR_JSON* src)
+{
+    return (XPR_JSON*)json_copy((json_t*)src);
+}
+
+XPR_JSON* XPR_JSON_DeepCopy(XPR_JSON* src)
+{
+    return (XPR_JSON*)json_deep_copy((const json_t*)src);
+}
