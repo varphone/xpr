@@ -1,4 +1,4 @@
-﻿#ifndef XPR_UTILS_H
+#ifndef XPR_UTILS_H
 #define XPR_UTILS_H
 
 #include <stdint.h>
@@ -94,6 +94,18 @@ typedef struct XPR_IntRange XPR_IntRange;
 XPR_IntRange XPR_IntRangeParse(const char* s);
 int XPR_IntRangePrint(XPR_IntRange rng, char* s);
 char* XPR_IntRangeToString(XPR_IntRange rng);
+
+// Rect
+//==============================================================================
+#ifndef XPR_RECT_TYEP_DEFINED
+#define XPR_RECT_TYEP_DEFINED
+typedef struct XPR_Rect {
+    int left;
+    int top;
+    int right;
+    int bottom;
+} XPR_Rect;
+#endif // XPR_RECT_TYEP_DEFINED
 
 // PackBits
 //==============================================================================
@@ -221,4 +233,3 @@ int XPR_TemplateGetSpaceSize(XPR_Template* tmpl);
 #endif
 
 #endif // XPR_UTILS_H
-
