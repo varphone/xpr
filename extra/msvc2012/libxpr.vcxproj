@@ -163,7 +163,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\lib\x86;$(WORKSPACE_ROOT)\target\i686-win\usr\lib</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\..\src\libxpr.def</ModuleDefinitionFile>
-      <AdditionalDependencies>comctl32.lib;winmm.lib;d3d9.lib;d3dx9.lib;libavcodec-lite-mt-s-vc110.lib;libavutil-lite-mt-s-vc110.lib;libswscale-lite-mt-s-vc110.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;winmm.lib;d3d9.lib;d3dx9.lib;libavcodec-lite-mt-s-vc120.lib;libavutil-lite-mt-s-vc120.lib;libswscale-lite-mt-s-vc120.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT-S|Win32'">

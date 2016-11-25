@@ -6,11 +6,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <xpr/xpr_utils.h>
 
 #define DBG_MAX_PRINT_SIZE 2048
-void dbg_printf(int level, char* format, ...)
+void xpr_dbg_printf(int level, char* format, ...)
 {
 #ifdef DBG_LEVEL
     char tmp[DBG_MAX_PRINT_SIZE] = {0};
@@ -25,7 +27,7 @@ void dbg_printf(int level, char* format, ...)
 #endif
 }
 
-char* skip_blank(char* s)
+char* xpr_skip_blank(char* s)
 {
     while (*s) {
         if (*s != ' ' && *s != '\r' && *s != '\n')
@@ -35,7 +37,7 @@ char* skip_blank(char* s)
     return s;
 }
 
-int split_to_kv(char* line, char** key, char** value)
+int xpr_split_to_kv(char* line, char** key, char** value)
 {
     char*   k    = line;
     char*   v    = "";
@@ -57,7 +59,7 @@ int split_to_kv(char* line, char** key, char** value)
 }
 
 #if defined(_MSC_VER)
-char* strsep(char** stringp, const char* delim)
+char* xpr_strsep(char** stringp, const char* delim)
 {
     char* start = *stringp;
     char* p;
@@ -96,14 +98,14 @@ int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSourc
 }
 #endif
 
-char* trim_all(char* s)
+char* xpr_trim_all(char* s)
 {
-    s = skip_blank(s);
-    s = trim_tailer(s);
+    s = xpr_skip_blank(s);
+    s = xpr_trim_tailer(s);
     return s;
 }
 
-char* trim_quotes(char* s)
+char* xpr_trim_quotes(char* s)
 {
     int l = strlen(s);
     if (s[0] == '\"' || s[0] == '\'') {
@@ -118,7 +120,7 @@ char* trim_quotes(char* s)
 #define isspace(x) ((x) == ' ' || (x) == '\t' || (x) == '\r' || (x) == '\n')
 #endif
 
-char* trim_tailer(char* s)
+char* xpr_trim_tailer(char* s)
 {
     char* back = s + strlen(s) -1;
     while (back > s) {
@@ -130,7 +132,7 @@ char* trim_tailer(char* s)
     return s;
 }
 
-int calc_lines(const char* s)
+int xpr_calc_lines(const char* s)
 {
     int lines = 0;
     while (*s) {
@@ -141,7 +143,7 @@ int calc_lines(const char* s)
     return lines;
 }
 
-const char* get_next_line(const char** sp)
+const char* xpr_get_next_line(const char** sp)
 {
     int ch = 0;
     const char* l = *sp;
@@ -1244,6 +1246,12 @@ int XPR_TemplateBuild(XPR_Template* tmpl)
 int XPR_TemplateLoad(XPR_Template* tmpl, const char* file)
 {
     int fd = -1;
+    //
+    tmpl->handler = 0;
+    tmpl->opaque = 0;
+    tmpl->dst_data_size = 0;
+    tmpl->src_data_size = 0;
+    //
     fd = open(file, O_RDONLY);
     if (fd < 0)
         return -1;

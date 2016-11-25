@@ -4,8 +4,8 @@
 /// @defgroup xprdjsonc JSON
 /// @brief     采用 C 语言规范编写的一套接口, 用于操作基于 JavaScript 语言的轻量级的数据交换格式
 /// @author    Varphone Wong [varphone@163.com]
-/// @version   1.1.1
-/// @date      2013/7/30
+/// @version   1.6.1
+/// @date      2015/4/16
 ///
 /// @{
 ///
@@ -16,6 +16,9 @@
 #include "xpr_common.h"
 
 /// @page xprjsonc-changes 变更日志
+///
+/// @par 1.6.1 (2015/4/16)
+///   - 增加 XPR_JSON_ObjectRemove(), XPR_JSON_ObjectClear(), XPR_JSON_ArrayRemove(), XPR_JSON_ArrayClear()
 ///
 /// @par 1.2.1 (2015/2/3)
 ///   - 增加 XPR_JSON_Copy(), XPR_JSON_DeepCopy() 接口
@@ -42,7 +45,7 @@
 ///
 /// 当前定义版本号
 ///
-#define XPR_JSON_VERSION XPR_MakeVersion(1,2,1)
+#define XPR_JSON_VERSION XPR_MakeVersion(1,6,1)
 
 #ifdef __cplusplus
 extern "C"
@@ -273,6 +276,23 @@ XPR_JSON* XPR_JSON_ObjectGet(XPR_JSON* json, const char* key);
 /// @warning 非线程安全
 size_t XPR_JSON_ObjectSize(XPR_JSON* json);
 
+///
+/// 移除指定键值的成员对象
+///
+/// @param [in] json    #XPR_JSON 实例
+/// @param [in] key     要移除的成员的对象的键值
+/// @retval 0   成功
+/// @retval -1  失败
+int XPR_JSON_ObjectRemove(XPR_JSON* json, const char* key);
+
+///
+/// 清除所成员对象
+///
+/// @param [in] json    #XPR_JSON 实例
+/// @retval 0   成功
+/// @retval -1  失败
+int XPR_JSON_ObjectClear(XPR_JSON* json);
+
 /// @brief 创建一个迭代器
 /// @param [in] json    #XPR_JSON 实例
 /// @retval NULL    创建失败
@@ -423,6 +443,25 @@ int XPR_JSON_ArrayAppend(XPR_JSON* json, XPR_JSON* val);
 /// @sa XPR_JSON_Array(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val);
+
+///
+/// 移除指定索引的对象
+///
+/// @param [in] json    #XPR_JSON 对象实例(#XPR_JSON_ARRAY)
+/// @param [in] index   要移除的子对象的索引
+/// @retval 0   成功
+/// @retval -1  失败
+/// @note 本操作会改变数组的大小
+int XPR_JSON_ArrayRemove(XPR_JSON* json, size_t index);
+
+///
+/// 清除所有成员对象
+///
+/// @param [in] json    #XPR_JSON 对象实例(#XPR_JSON_ARRAY)
+/// @retval 0   成功
+/// @retval -1  失败
+/// @note 本操作会改变数组的大小
+int XPR_JSON_ArrayClear(XPR_JSON* json);
 
 /// @brief 创建一个 String 对象
 /// @param [in] val     对象的初始值

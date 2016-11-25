@@ -108,6 +108,20 @@
 #  define AV_FOURCC_H264  XPR_MakeFourCC('a', 'v', 'c', '1')
 #endif
 
+#ifndef AV_FOURCC_H265
+///
+/// H265 video codec
+///
+#  define AV_FOURCC_H265  XPR_MakeFourCC('h', 'e', 'v', 'c')
+#endif
+
+#ifndef AV_FOURCC_HEVC
+///
+/// H265 video codec
+///
+#  define AV_FOURCC_HEVC  XPR_MakeFourCC('h', 'e', 'v', 'c')
+#endif
+
 #ifndef AV_FOURCC_HKMI
 ///
 /// Hikvision media information data codec

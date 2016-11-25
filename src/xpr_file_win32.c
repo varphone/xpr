@@ -79,8 +79,8 @@ int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
 int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
 {
     if (offset < 0)
-        return SetFilePointer((HANDLE)f, 0, NULL, FILE_END) ? 0 : -1;
-    return SetFilePointer((HANDLE)f, offset, NULL, FILE_BEGIN) ? 0 : -1;
+		return (int64_t)SetFilePointer((HANDLE)f, 0, NULL, FILE_END) ? 0 : -1;
+    return (int64_t)SetFilePointer((HANDLE)f, (LONG)offset, NULL, FILE_BEGIN) ? 0 : -1;
 }
 
 // FIXME:

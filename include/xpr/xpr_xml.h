@@ -149,6 +149,110 @@ int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer, int hum
 
 void XPR_XML_Dump(XPR_XML_Node* node);
 
+///
+/// 通过 XPath 获取指定节点的符合表达式的元素
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @return 返回符合表达式的元
+XPR_XML_Node* XPR_XML_XGetNode(XPR_XML_Node* node, char* path, int nth);
+
+///
+/// 通过 XPath 获取指定节点的符合表达式的元素数
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @return 返回符合表达式的元素数
+int XPR_XML_XGetNodeNB(XPR_XML_Node* node, char* path);
+
+///
+/// 通过 XPath 获取指定节点内容
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @sa XPR_XML_XGetInt()
+char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char* buffer, int* size);
+
+///
+/// 通过 XPath 获取指定节点内容, 并将内容转为 int 数值
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @remark 使用示例
+/// @code
+/// {
+///    int i = 0;
+///    int nb = 0;
+///    int value = 0;
+///    XPR_XML_Node* root = XPR_XML_LoadDoc("doc.xml");
+///    nb = XPR_XML_XGetNB(root, "/root/int/v");
+///    printf("matches: %d\n", nb);
+///    for (; i < nb; i++) {
+///        XPR_XML_XGetInt(root, "/root/int/v", i, &value);
+///        printf("[%d] value: %d\n", i, value);
+///    }
+///    XPR_XML_Close(root);
+/// }
+/// @endcode
+///
+int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth, int* value);
+
+///
+/// 通过 XPath 获取指定节点内容, 并将内容转为 int64_t 数值
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @sa XPR_XML_XGetInt()
+int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* value);
+
+///
+/// 通过 XPath 获取指定节点内容, 并将内容转为 float 数值
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @sa XPR_XML_XGetInt()
+int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* value);
+
+///
+/// 通过 XPath 获取指定节点内容, 并将内容转为 double 数值
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @sa XPR_XML_XGetInt()
+int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* value);
+
+///
+/// 通过 XPath 获取指定节点内容, 并将内容转为 boolean 数值
+///
+/// @param [in] node        要操作的根节点
+/// @param [in] char        要查询的 XPath 表达式
+/// @param [in] nth         要操作的节点在列表中的位置
+/// @param [in,out] value   存放返回值的地址
+/// @retval XPR_ERR_OK      获取成功
+/// @retval XPR_ERR_ERROR   获取失败
+/// @sa XPR_XML_XGetInt()
+int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth, int* value);
+
 #ifdef __cplusplus
 }
 #endif

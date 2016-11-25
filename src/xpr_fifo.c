@@ -5,7 +5,7 @@
 #include <crtdbg.h>
 #include <malloc.h>
 #include <intrin.h>
-#endif
+#endif // defined(WIN32) || defined(_WIN32)
 #include <string.h>
 #include <xpr/xpr_atomic.h>
 #include <xpr/xpr_errno.h>
@@ -13,7 +13,7 @@
 #include <xpr/xpr_utils.h>
 #if defined(HAVE_MP)
 #include <xpr/xpr_sync.h>
-#endif
+#endif // defined(HAVE_MP)
 
 struct XPR_Fifo {
     XPR_Atomic head;
@@ -23,7 +23,7 @@ struct XPR_Fifo {
     unsigned char* data;
 #if defined(HAVE_MP)
     XPR_SpinLock lock;
-#endif
+#endif // defined(HAVE_MP)
 };
 
 #if defined(HAVE_MP)
@@ -36,7 +36,7 @@ struct XPR_Fifo {
 #define XPR_FIFO_LOCK_FINI(f)   do {} while (0)
 #define XPR_FIFO_LOCK(l)        do {} while (0)
 #define XPR_FIFO_UNLOCK(l)      do {} while (0)
-#endif
+#endif // defined(HAVE_MP)
 
 XPR_Fifo* XPR_FifoCreate(int elementSize, int maxElements)
 {
@@ -206,8 +206,8 @@ int XPR_FifoGetLength(const XPR_Fifo* f)
     if (!f)
         return 0;
     if (f->head < f->tail)
-        return f->head + (0xffffffff - f->tail);
-    return f->head - f->tail;
+        return (int)(f->head + (XPR_ATOMIC_MAX - f->tail));
+    return (int)(f->head - f->tail);
 }
 
 int XPR_FifoGetSize(const XPR_Fifo* f)
@@ -224,4 +224,3 @@ int XPR_FifoIsFull(const XPR_Fifo* f)
 {
     return XPR_FifoGetLength(f) == XPR_FifoGetSize(f);
 }
-

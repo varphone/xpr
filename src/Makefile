@@ -8,7 +8,7 @@ libxpr_DEFS     =
 libxpr_OBJS     =
 libxpr_CFLAGS   =
 libxpr_CXXFLAGS =
-libxpr_LDFLAGS  = -shared -rdynamic -Wl,--version-script=libxpr.sym
+libxpr_LDFLAGS  = -shared -Wl,--version-script=libxpr.sym
 libxpr_LIBS     =
 
 include Modules.mk
@@ -23,7 +23,7 @@ CFLAGS      += -I../contrib/$(TOOLSET_NAME)/include
 LDFLAGS     += -L../contrib/$(TOOLSET_NAME)/lib
 endif
 CXXFLAGS    += $(CFLAGS) $(libxpr_CXXFLAGS)
-libxpr_LIBS += -lstdc++ -lpthread -ldl
+libxpr_LIBS += -Wl,-Bdynamic -lstdc++ -lpthread -lm -ldl -Wl,-Bstatic -lavcodec -lavresample -lavutil -lswscale -Wl,-Bdynamic
 
 targets =
 ifeq ($(BUILD_STATIC),1)
@@ -35,7 +35,7 @@ endif
 
 all: prepare $(targets) local_install
 
-prepare: $(config_FILE) $(config_VARS)
+prepare: $(config_FILE) $(config_VARS) config_DEFS
 
 libxpr.a: $(libxpr_OBJS)
 	$(ECHO) "[  Archive] $@"
@@ -66,13 +66,22 @@ $(config_VARS): $(config_FILE)
 	fi; \
 	echo "" >> $^; \
 
+config_DEFS: $(config_FILE)
+	@echo "#define HAVE_SIGNAL_H 1" >> $^
+	@echo "#define HAVE_TIME_H 1" >> $^
+	@echo "#define HAVE_UNISTD_H 1" >> $^
+
+clean:
+	$(RM) $(libxpr_OBJS) $(targets)
+
 local_install: $(targets)
 	$(ECHO) "[  Install] Copy $^ to ../lib/"
 	@[ -d ../lib/ ] || mkdir ../lib
 	$(CP) $^ ../lib/
 
-clean:
-	$(RM) $(libxpr_OBJS) $(targets)
+strip: libxpr.so
+	$(STRIP) $^
+	make local_install
 
 .PHONY: $(config_FILE)
 

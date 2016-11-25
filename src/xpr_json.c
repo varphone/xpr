@@ -9,9 +9,9 @@ struct XPR_JSON {
 #  undef PACKAGE_VERSION
 #endif
 #if defined(_MSC_VER)
-#  define PACKAGE_VERSION "1.2.1 ("##__DATE__##" "##__TIME__##")"
+#  define PACKAGE_VERSION "1.6.1 ("##__DATE__##" "##__TIME__##")"
 #else
-#  define PACKAGE_VERSION "1.2.1 (" __DATE__ " " __TIME__ ")"
+#  define PACKAGE_VERSION "1.6.1 (" __DATE__ " " __TIME__ ")"
 #endif
 
 const char* XPR_JSON_Version(void)
@@ -189,6 +189,20 @@ size_t XPR_JSON_ObjectSize(XPR_JSON* json)
     return json_object_size((json_t*)json);
 }
 
+int XPR_JSON_ObjectRemove(XPR_JSON* json, const char* key)
+{
+    if (!json || !key)
+        return -1;
+    return json_object_del((json_t*)json, key);
+}
+
+int XPR_JSON_ObjectClear(XPR_JSON* json)
+{
+    if (!json)
+        return -1;
+    return json_object_clear((json_t*)json);
+}
+
 void* XPR_JSON_ObjectIter(XPR_JSON* json)
 {
     if (!json)
@@ -285,6 +299,20 @@ int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val)
     if (!json)
         return -1;
     return json_array_append_new((json_t*)json, (json_t*)val);
+}
+
+int XPR_JSON_ArrayRemove(XPR_JSON* json, size_t index)
+{
+    if (!json)
+        return -1;
+    return json_array_remove((json_t*)json, index);
+}
+
+int XPR_JSON_ArrayClear(XPR_JSON* json)
+{
+    if (!json)
+        return -1;
+    return json_array_clear((json_t*)json);
 }
 
 // String

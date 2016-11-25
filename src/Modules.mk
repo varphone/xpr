@@ -1,21 +1,45 @@
 # Builtin module(s) configs
-################################################################################
+###############################################################################
 # Syntax: XPR_{MODULE}=[0/1], 0 = enabled, 1 = disabled
-################################################################################
+###############################################################################
 XPR_ALL=1
 XPR_ADC=$(XPR_ALL)
+XPR_ADC_DRIVER_ALL=0
+XPR_ADC_DRIVER_A5S=$(XPR_ADC_DRIVER_ALL)
+
+XPR_ARP=$(XPR_ALL)
 XPR_ARR=$(XPR_ALL)
 XPR_AVFRAME=$(XPR_ALL)
 XPR_BASE64=$(XPR_ALL)
 XPR_BITVECTOR=$(XPR_ALL)
 XPR_DEVCAPS=$(XPR_ALL)
+
 XPR_DPU=$(XPR_ALL)
+XPR_DPU_DRIVER_ALL=0
+XPR_DPU_DRIVER_A2SVIDEO=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_A5SVIDEO=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_A5SYUV=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_ALSAPCM=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_G711TEST=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_MDSD=$(XPR_DPU_DRIVER_ALL)
+XPR_DPU_DRIVER_PCMTEST=$(XPR_DPU_DRIVER_ALL)
+
 XPR_DRM=$(XPR_ALL)
+XPR_DRM_DRIVER_ALL=0
+XPR_DRM_DRIVER_ALPUC_016=$(XPR_DRM_DRIVER_ALL)
+XPR_DRM_DRIVER_DS18B20=$(XPR_DRM_DRIVER_ALL)
+XPR_DRM_DRIVER_RECONBALL=$(XPR_DRM_DRIVER_ALL)
+
 XPR_FIFO=$(XPR_ALL)
 XPR_FILE=$(XPR_ALL)
 XPR_GPIO=$(XPR_ALL)
+XPR_GPIO_DRIVER_ALL=0
+XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
+
 XPR_H264=$(XPR_ALL)
+XPR_ICMP=$(XPR_ALL)
 XPR_JSON=$(XPR_ALL)
+XPR_MCDEC=$(XPR_ALL)
 XPR_MD5=$(XPR_ALL)
 XPR_MEM=$(XPR_ALL)
 XPR_PES=$(XPR_ALL)
@@ -29,127 +53,83 @@ XPR_URL=$(XPR_ALL)
 XPR_UTILS=$(XPR_ALL)
 XPR_XML=$(XPR_ALL)
 
-# Analog Data Channel
-################################################################################
-XPR_ADC_DRIVER_ALL=1
-XPR_ADC_DRIVER_A5S=0
+# Load local modules configs
+###############################################################################
+-include Modules.local
 
+# Analog Data Channel
+###############################################################################
 ifeq ($(XPR_ADC),1)
-ifeq ($(XPR_ADC_DRIVER_A5S),1)
-#libxpr_CFLAGS += -I${INSTALL_PREFIX}/usr/include/ambarella/a5s
-#libxpr_LDFLAGS += -I${INSTALL_PREFIX}/usr/lib/ambarella/a5s
-#libxpr_DEFS += -DXPR_ADC_DRIVER_A5S=1
-libxpr_SRCS += drivers/adc/a5s.c
-endif
+$(eval $(call add_driver,ADC,A5S,$(XPR_ADC_DRIVER_A5S),a5s.c))
 libxpr_SRCS += xpr_adc.c
 endif
 
+# ARP
+###############################################################################
+ifeq ($(XPR_ARP),1)
+libxpr_SRCS += xpr_arp_unix.c
+endif
+
 # Audio Resampler
-################################################################################
+###############################################################################
 ifeq ($(XPR_ARR),1)
 libxpr_SRCS += xpr_arr.c
 endif
 
 # Audio and Video frame
-################################################################################
+###############################################################################
 ifeq ($(XPR_AVFRAME),1)
 libxpr_SRCS += xpr_avframe.c
 endif
 
 # Base64
-################################################################################
+###############################################################################
 ifeq ($(XPR_BASE64),1)
 libxpr_SRCS += xpr_base64.c
 endif
 
 # BitVector
-################################################################################
+###############################################################################
 ifeq ($(XPR_BITVECTOR),1)
 libxpr_SRCS += xpr_bitvector.c
 endif
 
 # Device Capability
-################################################################################
+###############################################################################
 ifeq ($(XPR_DEVCAPS),1)
 libxpr_SRCS += xpr_devcaps.c
 endif
 
 # Data Process Unit
-################################################################################
-dpu-defs-     :=
-dpu-objs-     :=
-dpu-defs-0    :=
-dpu-srcs-0    :=
-dpu-defs-1    :=
-dpu-srcs-1    :=
-dpu-cflags-1  :=
-dpu-ldfalgs-1 :=
-dpu-libs-1    :=
-
-# add_dpu(Id,Switch?[0|1],Objects,CFLAGS,LDFLAGS,LIBS)
-define add_dpu
-$(eval XPR_DPU_DRIVER_$1 := $2)
-$(eval dpu-srcs-$(XPR_DPU_DRIVER_$1) += $(patsubst %,drivers/dpu/%,$3))
-#$(eval dpu-defs-$(XPR_DPU_DRIVER_$1) += -DXPR_DPU_DRIVER_$1=$(XPR_DPU_DRIVER_$1))
-$(eval dpu-cflags-$(XPR_DPU_DRIVER_$1) += $4)
-$(eval dpu-ldflags-$(XPR_DPU_DRIVER_$1) += $5)
-$(eval dpu-libs-$(XPR_DPU_DRIVER_$1) += $6)
-endef
-
+###############################################################################
 ifeq ($(XPR_DPU),1)
-$(eval $(call add_dpu,A2SVIDEO,0,a2svideo.c))
-$(eval $(call add_dpu,A5SVIDEO,0,a5svideo.c))
-$(eval $(call add_dpu,A5SYUV,0,a5syuv.c))
-$(eval $(call add_dpu,ALSAPCM,1,alsapcm.c,,,-lasound))
-$(eval $(call add_dpu,G711TEST,1,g711test.c))
-$(eval $(call add_dpu,MDSD,1,mdsd.c))
-$(eval $(call add_dpu,PCMTEST,1,pcmtest.c))
-libxpr_CFLAGS += $(dpu-cflags-1)
-libxpr_LDFLAGS += $(dpu-ldflags-1)
-libxpr_LIBS += $(dpu-libs-1)
-#libxpr_DEFS += $(dpu-defs-0) $(dpu-defs-1)
-libxpr_SRCS += $(dpu-srcs-1) \
-xpr_dpu.c \
-xpr_dpu_options.c
+$(eval $(call add_driver,DPU,A2SVIDEO,$(XPR_DPU_DRIVER_A2SVIDEO),a2svideo.c,,,))
+$(eval $(call add_driver,DPU,A5SVIDEO,$(XPR_DPU_DRIVER_A5SVIDEO),a5svideo.c,,,))
+$(eval $(call add_driver,DPU,A5SYUV,$(XPR_DPU_DRIVER_A5SYUV),a5syuv.c,,,))
+$(eval $(call add_driver,DPU,ALSAPCM,$(XPR_DPU_DRIVER_ALSAPCM),alsapcm.c,,,-lasound))
+$(eval $(call add_driver,DPU,G711TEST,$(XPR_DPU_DRIVER_G711TEST),g711test.c,,,))
+$(eval $(call add_driver,DPU,MDSD,$(XPR_DPU_DRIVER_MDSD),mdsd.c,,,))
+$(eval $(call add_driver,DPU,PCMTEST,$(XPR_DPU_DRIVER_PCMTEST),pcmtest.c,,,))
+libxpr_SRCS += xpr_dpu.c xpr_dpu_options.c
 endif
 
 # Digital Rights Management
-################################################################################
-XPR_DRM_DRIVER_ALL=0
-XPR_DRM_DRIVER_ALPUC_016=$(XPR_DRM_DRIVER_ALL)
-XPR_DRM_DRIVER_DS18B20=$(XPR_DRM_DRIVER_ALL)
-XPR_DRM_DRIVER_RECONBALL=$(XPR_DRM_DRIVER_ALL)
-
+###############################################################################
 ifeq ($(XPR_DRM),1)
-ifeq ($(XPR_DRM_DRIVER_ALPUC_016),1)
-#libxpr_CFLAGS += 
-#libxpr_LDFLAGS += 
-#libxpr_DEFS += -DXPR_DRM_DRIVER_ALPUC_016=1
-libxpr_SRCS += drivers/drm/alpuc-016.c
-endif
-ifeq ($(XPR_DRM_DRIVER_DS18B20),1)
-#libxpr_CFLAGS += 
-#libxpr_LDFLAGS += 
-#libxpr_DEFS += -DXPR_DRM_DRIVER_DS18B20=1
-libxpr_SRCS += drivers/drm/ds18b20.c
-endif
-ifeq ($(XPR_DRM_DRIVER_RECONBALL),1)
-#libxpr_CFLAGS += 
-#libxpr_LDFLAGS += 
-#libxpr_DEFS += -DXPR_DRM_DRIVER_RECONBALL=1
-libxpr_SRCS += drivers/drm/reconball.c
-endif
+$(eval $(call add_driver,DRM,ALPUC_016,$(XPR_DRM_DRIVER_ALPUC_016),alpuc-016.c,,,-lalpuc-016))
+$(eval $(call add_driver,DRM,DS18B20,$(XPR_DRM_DRIVER_DS18B20),ds18b20.c,,,))
+$(eval $(call add_driver,DRM,RECONBALL,$(XPR_DRM_DRIVER_RECONBALL),reconball.c,,,))
 libxpr_SRCS += xpr_drm.c
 endif
 
 # Fifo
-################################################################################
+###############################################################################
 ifeq ($(XPR_FIFO),1)
 libxpr_SRCS += xpr_fifo.c
 endif
 
 # File
-################################################################################
+###############################################################################
 ifeq ($(XPR_FILE),1)
 libxpr_SRCS += \
 xpr_file_unix.c \
@@ -157,25 +137,26 @@ xpr_file.c
 endif
 
 # GPIO
-################################################################################
-XPR_GPIO_DRIVER_ALL=0
-XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
-
+###############################################################################
 ifeq ($(XPR_GPIO),1)
-ifeq ($(XPR_GPIO_DRIVER_A5S),1)
-libxpr_SRCS += drivers/gpio/a5s.c
-endif
+$(eval $(call add_driver,GPIO,A5S,$(XPR_GPIO_DRIVER_A5S),a5s.c,,,))
 libxpr_SRCS += xpr_gpio.c
 endif
 
 # H264
-################################################################################
+###############################################################################
 ifeq ($(XPR_H264),1)
 libxpr_SRCS += xpr_h264.c
 endif
 
+# ICMP
+###############################################################################
+ifeq ($(XPR_ICMP),1)
+libxpr_SRCS += xpr_icmp_unix.c
+endif
+
 # JSON
-################################################################################
+###############################################################################
 ifeq ($(XPR_JSON),1)
 libxpr_SRCS += \
 deps/jansson/dump.c \
@@ -192,56 +173,62 @@ deps/jansson/value.c \
 xpr_json.c
 endif
 
+# MCDEC
+###############################################################################
+ifeq ($(XPR_MCDEC),1)
+libxpr_SRCS += xpr_mcdec.c
+endif
+
 # MD5
-################################################################################
+###############################################################################
 ifeq ($(XPR_MD5),1)
 libxpr_SRCS += xpr_md5.c
 endif
 
 # Memory management
-################################################################################
+###############################################################################
 ifeq ($(XPR_MEM),1)
 libxpr_SRCS += xpr_mem.c
 endif
 
 # Packetized Elementary Stream
-################################################################################
+###############################################################################
 ifeq ($(XPR_PES),1)
 libxpr_SRCS += xpr_pes.c
 endif
 
 # Plugin framework
-################################################################################
+###############################################################################
 ifeq ($(XPR_PLUGIN),1)
 libxpr_SRCS += xpr_plugin.c
 endif
 
 # Stream Block
-################################################################################
+###############################################################################
 ifeq ($(XPR_STREAMBLOCK),1)
 libxpr_SRCS += xpr_streamblock.c
 endif
 
 # Sync
-################################################################################
+###############################################################################
 ifeq ($(XPR_SYNC),1)
 libxpr_SRCS += xpr_sync.c xpr_sync_unix.c
 endif
 
 # System relates
-################################################################################
+###############################################################################
 ifeq ($(XPR_SYS),1)
-libxpr_SRCS += xpr_sys.c
+libxpr_SRCS += xpr_sys.c xpr_sys_unix.c
 endif
 
 # Thread
-################################################################################
+###############################################################################
 ifeq ($(XPR_THREAD),1)
 libxpr_SRCS += xpr_thread.c xpr_thread_unix.c
 endif
 
 # Universal Preference Settings framework
-################################################################################
+###############################################################################
 ifeq ($(XPR_UPS),1)
 libxpr_SRCS += \
 drivers/ups/root.c \
@@ -252,19 +239,19 @@ xpr_ups.c
 endif
 
 # URL
-################################################################################
+###############################################################################
 ifeq ($(XPR_URL),1)
 libxpr_SRCS += xpr_url.c
 endif
 
 # Utils
-################################################################################
+###############################################################################
 ifeq ($(XPR_UTILS),1)
 libxpr_SRCS += xpr_utils.c
 endif
 
 # XML
-################################################################################
+###############################################################################
 ifeq ($(XPR_XML),1)
 libxpr_SRCS += \
 deps/roxml/roxml.c \
@@ -273,8 +260,16 @@ deps/roxml/roxml-parse-engine.c \
 xpr_xml.c
 endif
 
+# Concat drivers flags
+###############################################################################
+libxpr_CFLAGS += $(libxpr_CFLAGS-1)
+libxpr_LDFLAGS += $(libxpr_LDFLAGS-1)
+libxpr_LIBS += $(libxpr_LIBS-1)
+#libxpr_DEFS += $(libxpr_DEFS-0) $(libxpr_DEFS-1)
+libxpr_SRCS += $(libxpr_SRCS-1)
+
 # Objects from sources
-################################################################################
+###############################################################################
 libxpr_OBJS := $(patsubst %.c,%.o,$(libxpr_SRCS))
 libxpr_OBJS := $(patsubst %.cpp,%.o,$(libxpr_OBJS))
 libxpr_OBJS := $(patsubst %.cxx,%.o,$(libxpr_OBJS))

@@ -6,7 +6,7 @@
 #include <xpr/xpr_streamblock.h>
 #include <xpr/xpr_utils.h>
 
-XPR_StreamBlock* XPR_StreamBlockAlloc(int size)
+XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 {
     XPR_StreamBlock* blk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
@@ -25,7 +25,7 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(int size)
     return blk;
 }
 
-XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, int size)
+XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
 {
     XPR_StreamBlock* nblk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
@@ -57,9 +57,9 @@ void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
     }
 }
 
-XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, int length)
+XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size_t length)
 {
-    int space = 0;
+    size_t space = 0;
     if (!blk || !data || !length)
         return blk;
     if (length > XPR_STREAMBLOCK_MAX_SIZE) {
@@ -125,7 +125,7 @@ void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
 
 XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
 {
-    int size = MIN(blk->bufferSize ? blk->bufferSize : blk->dataSize, blk->dataSize);
+    size_t size = MIN(blk->bufferSize ? blk->bufferSize : blk->dataSize, blk->dataSize);
     XPR_StreamBlock* nblk = 0;
 
     if (!blk)
@@ -153,17 +153,17 @@ uint8_t* XPR_StreamBlockData(const XPR_StreamBlock* blk)
     return blk->data;
 }
 
-int XPR_StreamBlockLength(const XPR_StreamBlock* blk)
+uint32_t XPR_StreamBlockLength(const XPR_StreamBlock* blk)
 {
     return blk->dataSize;
 }
 
-int XPR_StreamBlockSize(const XPR_StreamBlock* blk)
+uint32_t XPR_StreamBlockSize(const XPR_StreamBlock* blk)
 {
     return blk->bufferSize;
 }
 
-int XPR_StreamBlockSpace(const XPR_StreamBlock* blk)
+uint32_t XPR_StreamBlockSpace(const XPR_StreamBlock* blk)
 {
     return blk->bufferSize - blk->dataSize;
 }

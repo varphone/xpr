@@ -30,10 +30,10 @@ static unsigned int __stdcall ThreadRoutineWrapper(void *opaque)
     XPR_Thread* thread = (XPR_Thread*)opaque;
     unsigned int result = 0;
     __try {
-        result = (unsigned int)thread->routine(thread->opaque, thread);
+		result = (uintptr_t)thread->startRoutine(thread->opaque, thread);
     }
     __except(0) {
-        OutputDebugStringA("thread->routine raise an error\n");
+        OutputDebugStringA("thread->startRoutine() raise an error\n");
     }
     if (thread->endRoutine)
         thread->endRoutine(thread->opaque, thread);
@@ -130,7 +130,7 @@ void XPR_ThreadSleep(int64_t usec)
     tv.tv_usec = usec%1000000L;
     select(0, &dummy, 0, 0, &tv);
 #else
-    SleepEx(usec/1000, FALSE);
+    SleepEx((DWORD)(usec/1000), FALSE);
 #endif
 }
 
@@ -152,7 +152,7 @@ void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t usec)
         thread->NtDelayExecution(FALSE, &tmo);
     }
     else
-        Sleep(usec/1000);
+        Sleep((DWORD)(usec/1000));
 }
 #endif
 

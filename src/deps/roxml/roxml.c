@@ -176,7 +176,7 @@ char ROXML_API *roxml_get_content(node_t *n, char *buffer, int bufsize, int *siz
 		ROXML_GET_BASE_BUFFER(name);
 
 		roxml_get_name(n, name, ROXML_BASE_LEN);
-		name_len = strlen(name);
+		name_len = (int)strlen(name);
 
 		ROXML_PUT_BASE_BUFFER(name);
 
@@ -324,11 +324,11 @@ char ROXML_API *roxml_get_name(node_t *n, char *buffer, int size)
 	}
 
 	if (buffer == NULL) {
-		buffer = (char *)roxml_malloc(sizeof(char), strlen(tmp_name) - offset + 1, PTR_CHAR);
+		buffer = (char *)roxml_malloc(sizeof(char), (int)strlen(tmp_name) - offset + 1, PTR_CHAR);
 		strcpy(buffer, tmp_name + offset);
 	} else {
 		if (strlen(tmp_name) - offset < (unsigned int)size) {
-			size = strlen(tmp_name) - offset;
+			size = (int)strlen(tmp_name) - offset;
 		}
 		strncpy(buffer, tmp_name + offset, size);
 	}
@@ -776,7 +776,7 @@ int ROXML_API roxml_commit_changes(node_t *n, char *dest, char **buffer, int hum
 				char *ptr = NULL;
 				len -= ROXML_BASE_LEN;
 				ptr = *buffer + len;
-				len += strlen(ptr);
+				len += (int)strlen(ptr);
 			} else if (fout) {
 				len = ftell(fout);
 				fclose(fout);
@@ -816,10 +816,10 @@ node_t ROXML_API *roxml_add_node(node_t *parent, int position, int type, char *n
 	}
 
 	if (value) {
-		content_l = strlen(value);
+		content_l = (int)strlen(value);
 	}
 	if (name) {
-		name_l = strlen(name);
+		name_l = (int)strlen(name);
 	}
 
 	if (type & ROXML_ATTR_NODE) {

@@ -248,7 +248,7 @@ int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
         XPR_BitVectorSkip(bv, 1); // qpprime_y_zero_transform_bypass_flag
         sps->seq_scaling_matrix_present_flag = XPR_BitVectorGet1Bit(bv);
         if (sps->seq_scaling_matrix_present_flag) {
-            for (i = 0; i < ((sps->chroma_format_idc != 3) ? 8 : 12); ++i) {
+            for (i = 0; i < (unsigned int)((sps->chroma_format_idc != 3) ? 8 : 12); ++i) {
                 seq_scaling_list_present_flag = XPR_BitVectorGet1Bit(bv);
                 if (seq_scaling_list_present_flag) {
                     sizeOfScalingList = i < 6 ? 16 : 64;
@@ -324,14 +324,14 @@ int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
         if (++m > 3) {
             nalus[n].data = data + i + 1;
             if (n > 0)
-                nalus[n-1].length = nalus[n].data - nalus[n-1].data - 4;
-            if (++n > (maxNalus-1))
+                nalus[n-1].length = (unsigned int)(nalus[n].data - nalus[n-1].data - 4);
+            if (++n > (int)(maxNalus-1))
                 break;
             m = 0;
         }
     }
     if (n > 0)
-        nalus[n-1].length = data+length-nalus[n-1].data;
+		nalus[n - 1].length = (unsigned int)(data + length - nalus[n - 1].data);
     return n;
 }
 

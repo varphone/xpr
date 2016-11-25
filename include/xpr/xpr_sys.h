@@ -9,6 +9,7 @@ extern "C" {
 
 void XPR_SYS_Poweroff(void);
 void XPR_SYS_Reboot(void);
+void XPR_SYS_DelayedReboot(int secs);
 int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid);
 int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid);
 int XPR_SYS_SetAudioClockFrequency(int freq);

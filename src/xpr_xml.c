@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <xpr/xpr_errno.h>
+#include <xpr/xpr_utils.h>
 #include <xpr/xpr_xml.h>
 #include "deps/roxml/roxml.h"
 
@@ -94,7 +96,7 @@ char* XPR_XML_GetName(XPR_XML_Node* node, char* buffer, int size)
 
 char* XPR_XML_GetContent(XPR_XML_Node* node, char* buffer, int* size)
 {
-    return roxml_get_content((node_t*)node, buffer, *size, size);
+    return roxml_get_content((node_t*)node, buffer, size ? *size : 0, size);
 }
 
 void XPR_XML_SetContent(XPR_XML_Node* node, char* content)
@@ -138,6 +140,8 @@ int XPR_XML_GetTextNB(XPR_XML_Node* node)
 
 XPR_XML_Node** XPR_XML_XPath(XPR_XML_Node* node, char* path, int* nb)
 {
+    if (!node || !path)
+        return NULL;
     return (XPR_XML_Node**)roxml_xpath((node_t*)node, path, nb);
 }
 
@@ -211,3 +215,125 @@ void XPR_XML_Dump(XPR_XML_Node* node)
     }
 }
 
+XPR_XML_Node* XPR_XML_XGetNode(XPR_XML_Node* node, char* path, int nth)
+{
+    int nb = 0;
+    XPR_XML_Node* ret = 0;
+    XPR_XML_Node** nodes = XPR_XML_XPath(node, path, &nb);
+    if (nb > nth)
+        ret = nodes[nth];
+    if (nodes)
+        XPR_XML_Release(nodes);
+    return ret;
+}
+
+int XPR_XML_XGetNodeNB(XPR_XML_Node* node, char* path)
+{
+    int nb = 0;
+    XPR_XML_Node** nodes = XPR_XML_XPath(node, path, &nb);
+    if (nodes)
+        XPR_XML_Release(nodes);
+    return nb;
+}
+
+char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char* buffer, int* size)
+{
+    int nb = 0;
+    XPR_XML_Node** nodes = 0;
+    if (path)
+        nodes = XPR_XML_XPath(node, path, &nb);
+    if (nodes && nb > nth) {
+        if (buffer)
+            XPR_XML_GetContent(nodes[nth], buffer, size);
+        else
+            buffer = XPR_XML_GetContent(nodes[nth], NULL, NULL);
+    }
+    else if (!nodes && !path) {
+        buffer = XPR_XML_GetContent(node, buffer, size); 
+    }
+    else {
+        buffer = NULL;
+    }
+    if (nodes)
+        XPR_XML_Release(nodes);
+    return buffer;
+}
+
+int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth, int* value)
+{
+    int size = 256;
+    char buffer[256];
+    if (!node || !path || !value)
+        return XPR_ERR_ERROR;
+    if (XPR_XML_XGetContent(node, path, nth, buffer, &size) == NULL)
+        return XPR_ERR_ERROR;
+    if (value) {
+        *value = strtol(buffer, 0, 0);
+    }
+    return XPR_ERR_OK;
+}
+
+int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* value)
+{
+    int size = 256;
+    char buffer[256];
+    if (!node || !path || !value)
+        return XPR_ERR_ERROR;
+    if (XPR_XML_XGetContent(node, path, nth, buffer, &size) == NULL)
+        return XPR_ERR_ERROR;
+    if (value) {
+        *value = strtoll(buffer, 0, 0);
+    }
+    return XPR_ERR_OK;
+}
+
+int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* value)
+{
+    int size = 256;
+    char buffer[256];
+    if (!node || !path || !value)
+        return XPR_ERR_ERROR;
+    if (XPR_XML_XGetContent(node, path, nth, buffer, &size) == NULL)
+        return XPR_ERR_ERROR;
+    if (value) {
+        *value = strtof(buffer, 0);
+    }
+    return XPR_ERR_OK;
+}
+
+int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* value)
+{
+    int size = 256;
+    char buffer[256];
+    if (!node || !path || !value)
+        return XPR_ERR_ERROR;
+    if (XPR_XML_XGetContent(node, path, nth, buffer, &size) == NULL)
+        return XPR_ERR_ERROR;
+    if (value) {
+        *value = strtod(buffer, 0);
+    }
+    return XPR_ERR_OK;
+}
+
+int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth, int* value)
+{
+    int size = 256;
+    char buffer[256];
+    char* p = 0;
+    if (!node || !path || !value)
+        return XPR_ERR_ERROR;
+    if (XPR_XML_XGetContent(node, path, nth, buffer, &size) == NULL)
+        return XPR_ERR_ERROR;
+    p = xpr_skip_blank(buffer);
+    if (value) {
+        if (p[0] == 't' ||
+            p[0] == 'T' ||
+            p[0] == 'y' ||
+            p[0] == 'Y' ||
+            p[0] == '1')
+            *value = 1;
+        else
+            *value = 0;
+    }
+    return XPR_ERR_OK;
+}

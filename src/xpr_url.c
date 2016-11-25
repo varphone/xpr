@@ -112,7 +112,7 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
     const char* p2 = 0;
     const char* ep = 0;
     if (length <= 0)
-        length = strlen(s);
+        length = (int)strlen(s);
     // Save and Change
     ctmp = *(char*)(s+length);
     *(char*)(s+length) = 0;
@@ -121,7 +121,7 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
     p1 = strnchr(s, '@', length);
     if (p1) {
         // Split username & password
-        p2 = strnchr(s, ':', p1 - s);
+        p2 = strnchr(s, ':', (int)(p1 - s));
         if (p2) {
             strncpy_s(u->username, sizeof(u->username), s, p2 - s);
             strncpy_s(u->password, sizeof(u->password), p2 + 1, p1 - p2 -1);
@@ -133,7 +133,7 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         }
         // Split host & port
         p1 += 1;
-        p2 = strnchr(p1, ':', ep - p1);
+        p2 = strnchr(p1, ':', (int)(ep - p1));
         if (p2) {
             strncpy_s(u->host, sizeof(u->host), p1, p2 - p1);
             strncpy_s(tmp, sizeof(tmp), p2+1, ep - p2);
@@ -185,7 +185,7 @@ XPR_Url* XPR_UrlParse(const char* url, int length)
         return 0;
 
     if (length < 0)
-        length = strlen(url);
+        length = (int)strlen(url);
 
     ep = url + length;
 
@@ -216,7 +216,7 @@ XPR_Url* XPR_UrlParse(const char* url, int length)
         return u;
     }
     else if (p > (url + 1)) {
-        ParseHostPart(u, url, p - url);
+        ParseHostPart(u, url, (int)(p - url));
         url = p + 1;
     } else {
         u->host[0] = 0;
@@ -462,21 +462,21 @@ const char* XPR_UrlGetFullString(XPR_Url* url)
     }
 
     if (url->flags & URL_HAVE_PROTOCOL_MINOR)
-        size += strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor);
+        size += (int)(strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor));
     else if (url->flags & URL_HAVE_PROTOCOL_MAJOR)
-        size += strlen(url->protocolMajor);
+		size += (int)strlen(url->protocolMajor);
     if (url->flags & URL_HAVE_USERNAME)
-        size += strlen(url->username);
+		size += (int)strlen(url->username);
     if (url->flags & URL_HAVE_PASSWORD)
-        size += strlen(url->password);
+		size += (int)strlen(url->password);
     if (XPR_UrlHaveHost(url))
-        size += strlen(url->host);
+		size += (int)strlen(url->host);
     if (XPR_UrlHavePort(url))
         size += 5;
     if (XPR_UrlHavePath(url))
-        size += strlen(url->path);
+		size += (int)strlen(url->path);
     if (XPR_UrlHaveQuery(url))
-        size += strlen(url->query);
+		size += (int)strlen(url->query);
     p = url->fullString = (char*)malloc(size+32);
     bufferSize = size+32;
     if (XPR_UrlHaveProtocolMinor(url)) {

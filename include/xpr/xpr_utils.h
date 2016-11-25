@@ -1,4 +1,4 @@
-#ifndef XPR_UTILS_H
+﻿#ifndef XPR_UTILS_H
 #define XPR_UTILS_H
 
 #include <stdint.h>
@@ -24,8 +24,8 @@
 #define DBG_L9  9
 
 #ifdef DBG_LEVEL
-#define ASSERT(x)       do { if (!(x)) debug_break(); } while (0)
-#define ASSERT_PTR(x)   do { if (!(x) || !(((uintptr_t)(x)) & 0xffff0000)) debug_break(); } while (0)
+#define ASSERT(x)       do { if (!(x)) xpr_debug_break(); } while (0)
+#define ASSERT_PTR(x)   do { if (!(x) || !(((uintptr_t)(x)) & 0xffff0000)) xpr_debug_break(); } while (0)
 #define DBG dbg_printf
 #else
 #define ASSERT(x)                   do { } while (0)
@@ -47,9 +47,23 @@
 extern "C" {
 #endif
 
-void dbg_printf(int level, char* format, ...);
+#if defined(_MSC_VER)
+#define aligned_free            _aligned_free
+#define aligned_malloc          _aligned_malloc
+#define snprintf                sprintf_s
+#define xpr_debug_break         DebugBreak
+char* strsep(char** stringp, const char* delim);
+#endif
+#if !defined(_MSC_VER)
+#define aligned_free            free
+#define aligned_malloc(x,v)     malloc(x)
+#define xpr_debug_break         abort
+int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource);
+#endif
 
-char* skip_blank(char* s);
+void xpr_dbg_printf(int level, char* format, ...);
+
+char* xpr_skip_blank(char* s);
 
 /// 分离 Key/Value 格式字符串.
 /// @param [in] line        Key/Value 格式的字符串
@@ -57,28 +71,14 @@ char* skip_blank(char* s);
 /// @param [in] value       用于接收 Value 指针的缓冲区
 /// @retval 0   成功
 /// @retval -1  失败
-int split_to_kv(char* line, char** key, char** value);
+int xpr_split_to_kv(char* line, char** key, char** value);
 
-#if defined(_MSC_VER)
-#define aligned_free    _aligned_free
-#define aligned_malloc  _aligned_malloc
-#define debug_break     DebugBreak
-#define snprintf        sprintf_s
-char* strsep(char** stringp, const char* delim);
-#endif
-#if !defined(_MSC_VER)
-#define aligned_free            free
-#define aligned_malloc(x,v)     malloc(x)
-#define debug_break             abort
-int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource);
-#endif
+char* xpr_trim_all(char* s);
+char* xpr_trim_quotes(char* s);
+char* xpr_trim_tailer(char* s);
 
-char* trim_all(char* s);
-char* trim_quotes(char* s);
-char* trim_tailer(char* s);
-
-int calc_lines(const char* s);
-const char* get_next_line(const char** sp);
+int xpr_calc_lines(const char* s);
+const char* xpr_get_next_line(const char** sp);
 
 // IntRange
 //==============================================================================
@@ -94,18 +94,6 @@ typedef struct XPR_IntRange XPR_IntRange;
 XPR_IntRange XPR_IntRangeParse(const char* s);
 int XPR_IntRangePrint(XPR_IntRange rng, char* s);
 char* XPR_IntRangeToString(XPR_IntRange rng);
-
-// Rect
-//==============================================================================
-#ifndef XPR_RECT_TYEP_DEFINED
-#define XPR_RECT_TYEP_DEFINED
-typedef struct XPR_Rect {
-    int left;
-    int top;
-    int right;
-    int bottom;
-} XPR_Rect;
-#endif // XPR_RECT_TYEP_DEFINED
 
 // PackBits
 //==============================================================================
@@ -233,3 +221,4 @@ int XPR_TemplateGetSpaceSize(XPR_Template* tmpl);
 #endif
 
 #endif // XPR_UTILS_H
+

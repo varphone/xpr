@@ -1,8 +1,7 @@
-#ifndef XPR_RTSP_H
+﻿#ifndef XPR_RTSP_H
 #define XPR_RTSP_H
 
 #include <stdint.h>
-#include "xpr_streamblock.h"
 
 #ifdef __cplusplus
 extern "C" {
