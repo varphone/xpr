@@ -290,3 +290,5 @@ _Pvt_Extensions
 # ---> VisualStudioCode
 .settings
 .vscode
+
+!contrib/vc14/**/*.lib
