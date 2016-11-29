@@ -137,6 +137,15 @@ void XPR_StreamBlockClear(XPR_StreamBlock* blk);
 /// @note 当目的数据块缓冲区容量不足时会拷贝失败
 int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to);
 
+/// @brief 复制数据块内容
+///        仅复制数据块内容及长度
+/// @param [in] from    源数据块
+/// @param [in] to      目的数据块
+/// @retval -1  失败
+/// @retval 0   成功
+/// @note 当目的数据块缓冲区容量不足时会拷贝失败
+int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to);
+
 /// @brief 复制数据块头部信息
 ///        复制除缓冲区地址、缓冲区长度、负载数据地址、负载数据长度外的一切信息
 /// @param [in] from    源数据块

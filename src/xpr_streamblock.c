@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_common.h>
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_mem.h>
 #include <xpr/xpr_streamblock.h>
 #include <xpr/xpr_utils.h>
@@ -13,15 +14,23 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
         DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size, XPR_STREAMBLOCK_MAX_SIZE);
         return 0;
     }
-    size = XPR_AlignedUpTo(size, 256);
-    blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk)+size);
-    if (blk) {
-        memset(blk, 0, sizeof(*blk));
-        blk->buffer = (uint8_t*)blk + sizeof(*blk);
-        blk->bufferSize = (uint32_t)size;
-        blk->data = blk->buffer;
-        blk->dataSize = 0;
-    }
+	if (size == 0) {
+		blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk));
+		if (blk) {
+			memset(blk, 0, sizeof(*blk));
+		}
+	}
+	else {
+		size = XPR_AlignedUpTo(size, 256);
+		blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk) + size);
+		if (blk) {
+			memset(blk, 0, sizeof(*blk));
+			blk->buffer = (uint8_t*)blk + sizeof(*blk);
+			blk->bufferSize = (uint32_t)size;
+			blk->data = blk->buffer;
+			blk->dataSize = 0;
+		}
+	}
     return blk;
 }
 
@@ -108,6 +117,17 @@ int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to)
     to->dts = from->dts;
     to->duration = from->duration;
     return 0;
+}
+
+int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+{
+	if (!from || !to)
+		return XPR_ERR_GEN_ILLEGAL_PARAM;
+	if (to->bufferSize < from->dataSize)
+		return XPR_ERR_GEN_NOBUF;
+	memcpy(to->data, from->data, from->dataSize);
+	to->dataSize = from->dataSize;
+	return XPR_ERR_OK;
 }
 
 void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
