@@ -291,4 +291,4 @@ _Pvt_Extensions
 .settings
 .vscode
 
-!contrib/vc14/**/*.lib
+!/contrib/vc14/**
