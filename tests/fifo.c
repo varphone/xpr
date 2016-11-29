@@ -7,6 +7,14 @@
 #include <xpr/xpr_thread.h>
 #include <xpr/xpr_utils.h>
 
+#if defined(_MSC_VER)
+#  if defined(DEBUG) || defined(_DEBUG)
+#pragma comment(lib, "libxprd.lib")
+#  else
+#pragma comment(lib, "libxpr.lib")
+#  endif
+#endif
+
 static XPR_Atomic testCounter = 0;
 static void* PutData(void* opaque, XPR_Thread* t)
 {

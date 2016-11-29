@@ -10,6 +10,24 @@
 /// @{
 ///
 
+#if !defined(XPR_STATIC)
+#  if defined(XPR_EXPORTS)
+#    if defined(_MSC_VER)
+#      define XPR_API __declspec(dllexport)
+#    else
+#      define XPR_API
+#    endif // defined(_MSC_VER)
+#  else
+#    if defined(_MSC_VER)
+#      define XPR_API __declspec(dllimport)
+#    else
+#      define XPR_API
+#    endif // defined(_MSC_VER)
+#  endif // defined(XPR_EXPORTS)
+#else
+#define XPR_API
+#endif // !defined(XPR_STATIC)
+
 #ifndef XPR_AlignedUpTo
 ///
 /// 将数值 v 向上对齐到 x

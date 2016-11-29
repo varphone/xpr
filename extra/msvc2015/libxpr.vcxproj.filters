@@ -37,6 +37,12 @@
     <Filter Include="源文件\drivers\mcdec\libav">
       <UniqueIdentifier>{331a4e54-7e71-4b1c-87ac-6190379c7c7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\drivers\rtsp">
+      <UniqueIdentifier>{3ae20e5c-538b-466b-bbaa-84c832dd3d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\drivers\rtsp\live">
+      <UniqueIdentifier>{7de987ae-b6c7-4436-9704-e74ca0e3ffc7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\xpr_avframe.c">
@@ -186,6 +192,24 @@
     <ClCompile Include="..\..\src\xpr_crc.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\xpr_rtsp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp.cpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_server.cpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\xpr_arp_win32.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\xpr_arr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_client.cpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\libxpr.def">
@@ -195,6 +219,15 @@
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drivers\rtsp\live\rtsp.hpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drivers\rtsp\live\rtsp_client.hpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\drivers\rtsp\live\rtsp_server.hpp">
+      <Filter>源文件\drivers\rtsp\live</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

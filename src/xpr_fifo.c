@@ -38,7 +38,7 @@ struct XPR_Fifo {
 #define XPR_FIFO_UNLOCK(l)      do {} while (0)
 #endif // defined(HAVE_MP)
 
-XPR_Fifo* XPR_FifoCreate(int elementSize, int maxElements)
+XPR_API XPR_Fifo* XPR_FifoCreate(int elementSize, int maxElements)
 {
     XPR_Fifo* f = (XPR_Fifo*)aligned_malloc(sizeof(*f), 8);
     if (f) {
@@ -56,7 +56,7 @@ XPR_Fifo* XPR_FifoCreate(int elementSize, int maxElements)
     return f;
 }
 
-int XPR_FifoDestroy(XPR_Fifo* f)
+XPR_API int XPR_FifoDestroy(XPR_Fifo* f)
 {
     if (f && f->data)
         aligned_free((void*)f->data);
@@ -67,7 +67,7 @@ int XPR_FifoDestroy(XPR_Fifo* f)
     return 0;
 }
 
-int XPR_FifoGet(XPR_Fifo* f, void* buffer, int size)
+XPR_API int XPR_FifoGet(XPR_Fifo* f, void* buffer, int size)
 {
     int l = 0;
     int n = 0;
@@ -90,7 +90,7 @@ int XPR_FifoGet(XPR_Fifo* f, void* buffer, int size)
     return size;
 }
 
-int XPR_FifoPut(XPR_Fifo* f, const void* data, int size)
+XPR_API int XPR_FifoPut(XPR_Fifo* f, const void* data, int size)
 {
     int l = 0;
     int n = 0;
@@ -113,7 +113,7 @@ int XPR_FifoPut(XPR_Fifo* f, const void* data, int size)
     return size;
 }
 
-int XPR_FifoPeek(XPR_Fifo* f, void* buffer, int size, int offset)
+XPR_API int XPR_FifoPeek(XPR_Fifo* f, void* buffer, int size, int offset)
 {
     int l = 0;
     int n = 0;
@@ -135,7 +135,7 @@ int XPR_FifoPeek(XPR_Fifo* f, void* buffer, int size, int offset)
     return size;
 }
 
-uintptr_t XPR_FifoGetAsAtomic(XPR_Fifo* f)
+XPR_API uintptr_t XPR_FifoGetAsAtomic(XPR_Fifo* f)
 {
     int n = 0;
     uintptr_t v = 0;
@@ -153,7 +153,7 @@ uintptr_t XPR_FifoGetAsAtomic(XPR_Fifo* f)
     return v;
 }
 
-int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
+XPR_API int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
 {
     int n = 0;
     if (!f)
@@ -171,12 +171,12 @@ int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
 }
 
 // FIXME:
-uintptr_t XPR_FifoPeekAsAtomic(XPR_Fifo* f, int offset)
+XPR_API uintptr_t XPR_FifoPeekAsAtomic(XPR_Fifo* f, int offset)
 {
     return 0;
 }
 
-int XPR_FifoDrain(XPR_Fifo* f, int size)
+XPR_API int XPR_FifoDrain(XPR_Fifo* f, int size)
 {
     if (!f || XPR_FifoIsEmpty(f))
         return -1;
@@ -185,23 +185,23 @@ int XPR_FifoDrain(XPR_Fifo* f, int size)
     return size;
 }
 
-void XPR_FifoReset(XPR_Fifo* f)
+XPR_API void XPR_FifoReset(XPR_Fifo* f)
 {
     if (f)
         f->head = f->tail = 0;
 }
 
-int XPR_FifoGetAvailableSize(const XPR_Fifo* f)
+XPR_API int XPR_FifoGetAvailableSize(const XPR_Fifo* f)
 {
     return f ? (f->maxElements - XPR_FifoGetLength(f)) : 0;
 }
 
-int XPR_FifoGetElementSize(const XPR_Fifo* f)
+XPR_API int XPR_FifoGetElementSize(const XPR_Fifo* f)
 {
     return f ? f->elementSize : 0;
 }
 
-int XPR_FifoGetLength(const XPR_Fifo* f)
+XPR_API int XPR_FifoGetLength(const XPR_Fifo* f)
 {
     if (!f)
         return 0;
@@ -210,17 +210,17 @@ int XPR_FifoGetLength(const XPR_Fifo* f)
     return (int)(f->head - f->tail);
 }
 
-int XPR_FifoGetSize(const XPR_Fifo* f)
+XPR_API int XPR_FifoGetSize(const XPR_Fifo* f)
 {
     return f ? f->maxElements : 0;
 }
 
-int XPR_FifoIsEmpty(const XPR_Fifo* f)
+XPR_API int XPR_FifoIsEmpty(const XPR_Fifo* f)
 {
     return XPR_FifoGetLength(f) == 0;
 }
 
-int XPR_FifoIsFull(const XPR_Fifo* f)
+XPR_API int XPR_FifoIsFull(const XPR_Fifo* f)
 {
     return XPR_FifoGetLength(f) == XPR_FifoGetSize(f);
 }

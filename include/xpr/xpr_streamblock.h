@@ -41,6 +41,8 @@ extern "C" {
 #define XPR_STREAMBLOCK_FLAG_TOP_FIELD_FIRST      0x2000      ///< 顶场在前
 #define XPR_STREAMBLOCK_FLAG_BOTTOM_FIELD_FIRST   0x4000      ///< 底场在先
 #define XPR_STREAMBLOCK_FLAG_EOF                  0x00010000     ///< End of frame (Bitmask)
+#define XPR_STREAMBLOCK_FLAG_AUDIO_FRAME          0x00020000     ///< 音频帧
+#define XPR_STREAMBLOCK_FLAG_VIDEO_FRAME          0x00040000     ///< 视频帧
 #define XPR_STREAMBLOCK_MAX_SIZE                  16777216
 
 // 前置声明

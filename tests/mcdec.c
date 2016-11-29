@@ -1,3 +1,4 @@
+#if defined(HAVE_XPR_MCDEC)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +7,14 @@
 #include <xpr/xpr_mcdec.h>
 #include <xpr/xpr_thread.h>
 #include <Windows.h>
+
+#if defined(_MSC_VER)
+#  if defined(DEBUG) || defined(_DEBUG)
+#pragma comment(lib, "libxprd.lib")
+#  else
+#pragma comment(lib, "libxpr.lib")
+#  endif
+#endif
 
 int avf_handler(void* opaque, int port, const XPR_AVFrame* avf)
 {
@@ -48,3 +57,9 @@ int main(int argc, char** argv)
     //XPR_MCDEC_Fini();
     return 0;
 }
+#else
+int main(int argc, char** argv)
+{
+	return 0;
+}
+#endif

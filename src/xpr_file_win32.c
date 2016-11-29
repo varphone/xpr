@@ -5,7 +5,7 @@
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_file.h>
 
-XPR_File* XPR_FileOpen(const char* fn, const char* mode)
+XPR_API XPR_File* XPR_FileOpen(const char* fn, const char* mode)
 {
     DWORD access = GENERIC_READ;
     DWORD creation = OPEN_EXISTING;
@@ -48,18 +48,18 @@ XPR_File* XPR_FileOpen(const char* fn, const char* mode)
     return f;
 }
 
-int XPR_FileClose(XPR_File* f)
+XPR_API int XPR_FileClose(XPR_File* f)
 {
     return CloseHandle(f) ? 0 : -1;
 }
 
 // FIXME:
-int XPR_FileFlush(XPR_File* f)
+XPR_API int XPR_FileFlush(XPR_File* f)
 {
     return XPR_ERR_ERROR;
 }
 
-int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size)
+XPR_API int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size)
 {
     DWORD readed = 0;
     if (!ReadFile((HANDLE)f, buffer, size, &readed, NULL))
@@ -67,7 +67,7 @@ int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size)
     return readed;
 }
 
-int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
+XPR_API int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
 {
     DWORD wroted = 0;
     if (!WriteFile((HANDLE)f, data, length, &wroted, NULL))
@@ -76,7 +76,7 @@ int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
 }
 
 // FIXME:
-int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
+XPR_API int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
 {
     if (offset < 0)
 		return (int64_t)SetFilePointer((HANDLE)f, 0, NULL, FILE_END) ? 0 : -1;
@@ -84,7 +84,7 @@ int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
 }
 
 // FIXME:
-int64_t XPR_FileSize(const XPR_File* f)
+XPR_API int64_t XPR_FileSize(const XPR_File* f)
 {
     return 0;
 }

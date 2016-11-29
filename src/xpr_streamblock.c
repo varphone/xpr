@@ -10,7 +10,7 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 {
     XPR_StreamBlock* blk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
-        DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size, XPR_STREAM_BLOCK_MAX_SIZE);
+        DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size, XPR_STREAMBLOCK_MAX_SIZE);
         return 0;
     }
     size = XPR_AlignedUpTo(size, 256);
@@ -29,7 +29,7 @@ XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
 {
     XPR_StreamBlock* nblk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
-        DBG(DBG_L2, "stream block is too large to realloc (%u > %u)", size, XPR_STREAM_BLOCK_MAX_SIZE);
+        DBG(DBG_L2, "stream block is too large to realloc (%u > %u)", size, XPR_STREAMBLOCK_MAX_SIZE);
         return blk;
     }
     size = XPR_AlignedUpTo(size, 256);

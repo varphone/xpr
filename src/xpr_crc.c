@@ -56,7 +56,7 @@ static inline uint16_t crc16_byte(uint16_t crc, const uint16_t data)
 *
 * Returns the updated CRC value.
 */
-uint16_t XPR_CRC16(uint16_t crc, const void* buffer, size_t len)
+XPR_API uint16_t XPR_CRC16(uint16_t crc, const void* buffer, size_t len)
 {
 	const uint8_t *p;
 	
@@ -155,7 +155,7 @@ static uint32_t crc32_tab[] = {
 	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-uint32_t XPR_CRC32(uint32_t crc, const void *buf, size_t size)
+XPR_API uint32_t XPR_CRC32(uint32_t crc, const void *buf, size_t size)
 {
 	const uint8_t *p;
 

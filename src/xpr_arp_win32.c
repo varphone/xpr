@@ -5,17 +5,17 @@ struct XPR_ARP {
     int dummy;
 };
 
-XPR_ARP* XPR_ARP_New(const char* dev)
+XPR_API XPR_ARP* XPR_ARP_New(const char* dev)
 {
     return NULL;
 }
 
-int XPR_ARP_Destroy(XPR_ARP* arp)
+XPR_API int XPR_ARP_Destroy(XPR_ARP* arp)
 {
-    return XPR_ERR_ERROR;
+    return XPR_ERR_GEN_NOT_SUPPORT;
 }
 
-int XPR_ARP_Scan(XPR_ARP* arp, const char* host)
+XPR_API int XPR_ARP_Scan(XPR_ARP* arp, const char* host)
 {
-    return XPR_ERR_ERROR;
+    return XPR_ERR_GEN_NOT_SUPPORT;
 }

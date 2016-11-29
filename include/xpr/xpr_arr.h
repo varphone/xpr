@@ -1,7 +1,8 @@
-#ifndef XPR_ARR_H
+﻿#ifndef XPR_ARR_H
 #define XPR_ARR_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 /// @defgroup xprarr 音频重采样
 /// @brief     转换音频采样率
@@ -22,25 +23,25 @@ struct XPR_ARR;
 typedef struct XPR_ARR XPR_ARR;
 #endif // XPR_ARR_TYPE_DEFINED
 
-int XPR_ARR_Init(void);
+XPR_API int XPR_ARR_Init(void);
 
-void XPR_ARR_Fini(void);
+XPR_API void XPR_ARR_Fini(void);
 
-XPR_ARR* XPR_ARR_Open(void);
+XPR_API XPR_ARR* XPR_ARR_Open(void);
 
-int XPR_ARR_Close(XPR_ARR* r);
+XPR_API int XPR_ARR_Close(XPR_ARR* r);
 
-void XPR_ARR_SetBitsPerSample(XPR_ARR* r, int bps);
+XPR_API void XPR_ARR_SetBitsPerSample(XPR_ARR* r, int bps);
 
-void XPR_ARR_SetSampleRates(XPR_ARR* r, int from, int to);
+XPR_API void XPR_ARR_SetSampleRates(XPR_ARR* r, int from, int to);
 
-void XPR_ARR_SetChannels(XPR_ARR* r, int channels);
+XPR_API void XPR_ARR_SetChannels(XPR_ARR* r, int channels);
 
-int XPR_ARR_GetInputSamples(XPR_ARR* r);
+XPR_API int XPR_ARR_GetInputSamples(XPR_ARR* r);
 
-int XPR_ARR_GetOutputSamples(XPR_ARR* r);
+XPR_API int XPR_ARR_GetOutputSamples(XPR_ARR* r);
 
-int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst);
+XPR_API int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst);
 
 #ifdef __cplusplus
 }
