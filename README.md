@@ -10,6 +10,7 @@ X Portable Runtime {#mainpage}
 * [JSON](#json)
 * [MD5](#md5)
 * [PLUGIN](#plugin)
+* [RTSP](#rtsp)
 * [SYNC](#sync)
 * [SYS](#sys)
 * [THREAD](#thread)
@@ -47,11 +48,23 @@ Plugin framework
 
 ## RTSP
 
-### RTSP 服务器地址
+### RTSP 服务器
 
+**使用示例**
 ```
 const char* url = "rtsp://0.0.0.0:554?maxStreams=16&maxStreamTracks=4&maxWorkers=1&workerDelay=10"
-XPR_RTSP_Open(XPR_RTSP_PORT(2, 0, 0), url);
+int port = XPR_RTSP_Open(XPR_RTSP_PORT(2, 0, 0), url);
+if (port > 0) {
+    XPR_RTSP_Start(port);
+
+    int ch1 = XPR_RTSP_Open(XPR_RTSP_PORT(2, 1, 0), "uri:///channel/1?tracks=video/H264;audio/G711");
+    if (ch1 > 0) {
+        XPR_RTSP_Start(ch1);
+    }
+    ...
+    XPR_RTSP_Stop(port);
+    XPR_RTSP_Close(port);
+}
 ```
 
 ## SYNC
