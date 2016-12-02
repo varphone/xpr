@@ -34,7 +34,7 @@ XPR_API void XPR_ARR_Fini(void)
 {
 }
 
-XPR_API XPR_ARR* parOpen(void)
+XPR_API XPR_ARR* XPR_ARR_Open(void)
 {
     XPR_ARR* r = (XPR_ARR*)calloc(sizeof(*r), 1);
     if (r) {

@@ -7,7 +7,7 @@
 #include <xpr/xpr_streamblock.h>
 #include <xpr/xpr_utils.h>
 
-XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
+XPR_API XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 {
     XPR_StreamBlock* blk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
@@ -34,7 +34,7 @@ XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
     return blk;
 }
 
-XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
+XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
 {
     XPR_StreamBlock* nblk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
@@ -51,14 +51,14 @@ XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
     return nblk;
 }
 
-void XPR_StreamBlockFree(XPR_StreamBlock* blk)
+XPR_API void XPR_StreamBlockFree(XPR_StreamBlock* blk)
 {
     if (blk) {
         XPR_Free((void*)blk);
     }
 }
 
-void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
+XPR_API void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
 {
     if (blk) {
         if (blk->pf_release)
@@ -66,7 +66,7 @@ void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
     }
 }
 
-XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size_t length)
+XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size_t length)
 {
     size_t space = 0;
     if (!blk || !data || !length)
@@ -87,7 +87,7 @@ XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size
     return blk;
 }
 
-void XPR_StreamBlockClear(XPR_StreamBlock* blk)
+XPR_API void XPR_StreamBlockClear(XPR_StreamBlock* blk)
 {
     if (blk) {
         blk->dataSize = 0;
@@ -101,7 +101,7 @@ void XPR_StreamBlockClear(XPR_StreamBlock* blk)
     }
 }
 
-int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to)
 {
     if (!from || !to)
         return -1;
@@ -119,7 +119,7 @@ int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to)
     return 0;
 }
 
-int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to)
 {
 	if (!from || !to)
 		return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -130,7 +130,7 @@ int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to)
 	return XPR_ERR_OK;
 }
 
-void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
 {
     if (from && to) {
         to->flags = from->flags;
@@ -143,7 +143,7 @@ void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
     }
 }
 
-XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
+XPR_API XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
 {
     size_t size = MIN(blk->bufferSize ? blk->bufferSize : blk->dataSize, blk->dataSize);
     XPR_StreamBlock* nblk = 0;
@@ -163,62 +163,62 @@ XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
     return nblk;
 }
 
-uint8_t* XPR_StreamBlockBuffer(const XPR_StreamBlock* blk)
+XPR_API uint8_t* XPR_StreamBlockBuffer(const XPR_StreamBlock* blk)
 {
     return blk->buffer;
 }
 
-uint8_t* XPR_StreamBlockData(const XPR_StreamBlock* blk)
+XPR_API uint8_t* XPR_StreamBlockData(const XPR_StreamBlock* blk)
 {
     return blk->data;
 }
 
-uint32_t XPR_StreamBlockLength(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockLength(const XPR_StreamBlock* blk)
 {
     return blk->dataSize;
 }
 
-uint32_t XPR_StreamBlockSize(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockSize(const XPR_StreamBlock* blk)
 {
     return blk->bufferSize;
 }
 
-uint32_t XPR_StreamBlockSpace(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockSpace(const XPR_StreamBlock* blk)
 {
     return blk->bufferSize - blk->dataSize;
 }
 
-uint32_t XPR_StreamBlockCodec(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockCodec(const XPR_StreamBlock* blk)
 {
     return blk->codec;
 }
 
-uint32_t XPR_StreamBlockFlags(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockFlags(const XPR_StreamBlock* blk)
 {
     return blk->flags;
 }
 
-uint32_t XPR_StreamBlockSamples(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockSamples(const XPR_StreamBlock* blk)
 {
     return blk->samples;
 }
 
-uint32_t XPR_StreamBlockTrack(const XPR_StreamBlock* blk)
+XPR_API uint32_t XPR_StreamBlockTrack(const XPR_StreamBlock* blk)
 {
     return blk->track;
 }
 
-int64_t XPR_StreamBlockPTS(const XPR_StreamBlock* blk)
+XPR_API int64_t XPR_StreamBlockPTS(const XPR_StreamBlock* blk)
 {
     return blk->pts;
 }
 
-int64_t XPR_StreamBlockDTS(const XPR_StreamBlock* blk)
+XPR_API int64_t XPR_StreamBlockDTS(const XPR_StreamBlock* blk)
 {
     return blk->dts;
 }
 
-int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk)
+XPR_API int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk)
 {
     return blk->duration;
 }

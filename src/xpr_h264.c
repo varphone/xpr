@@ -6,7 +6,7 @@
 #include <xpr/xpr_h264.h>
 #include <xpr/xpr_utils.h>
 
-int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
+XPR_API int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
 {
     if (length < 4)
         return 0;
@@ -15,7 +15,7 @@ int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
     return 0;
 }
 
-int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
+XPR_API int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
 {
     if (!vui->timing_info_present_flag || !vui->num_units_in_tick || !vui->time_scale)
         return 0;
@@ -23,14 +23,14 @@ int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
     return base * vui->num_units_in_tick / vui->time_scale * 2;
 }
 
-float XPR_H264_VUI_CalcFPS(XPR_H264_VUI* vui)
+XPR_API float XPR_H264_VUI_CalcFPS(XPR_H264_VUI* vui)
 {
     if (!vui->timing_info_present_flag)
         return 0.0;
     return (float)vui->time_scale / (float)vui->num_units_in_tick / 2;
 }
 
-int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
+XPR_API int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
 {
     if (!vui->timing_info_present_flag)
         return 0;
@@ -38,7 +38,7 @@ int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
     return base * vui->num_units_in_tick / vui->time_scale * 2;
 }
 
-int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
+XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
                             XPR_H264_FrameInfo* fi)
 {
     int i = 0;
@@ -49,8 +49,8 @@ int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
 	return XPR_H264_ProbeFrameInfoEx(nalus, n, fi);
 }
 
-int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
-                              XPR_H264_FrameInfo* fi)
+XPR_API int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
+				                      XPR_H264_FrameInfo* fi)
 {
     int i = 0;
     XPR_H264_SPS sps;
@@ -199,8 +199,8 @@ static void ParseSPS_VUI(XPR_BitVector* bv, XPR_H264_SPS* sps,
     }
 }
 
-int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
-                           XPR_H264_SPS* sps)
+XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
+				                   XPR_H264_SPS* sps)
 {
     unsigned int i = 0;
     unsigned int j = 0;
@@ -308,8 +308,8 @@ int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
-                      XPR_H264_NALU nalus[], unsigned int maxNalus)
+XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
+				              XPR_H264_NALU nalus[], unsigned int maxNalus)
 {
     static const uint8_t kStartCode[4] = { 0x00, 0x00, 0x00, 0x01 };
     int i = 0;
@@ -335,7 +335,7 @@ int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
     return n;
 }
 
-void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
+XPR_API void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
 {
     printf("%scpb_cnt_minus1                          : 0x%x\n", indent,
            hrd->cpb_cnt_minus1);
@@ -359,7 +359,7 @@ void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
            hrd->time_offset_length);
 }
 
-void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
+XPR_API void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
 {
     printf("%saspect_ratio_info_present_flag      : 0x%hhx\n", indent,
            vui->aspect_ratio_info_present_flag);
@@ -411,7 +411,7 @@ void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
            vui->bitstream_restriction_flag);
 }
 
-void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
+XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
 {
     indent = indent ? indent : "";
     printf("%sforbidden_zero_bit                      : 0x%hhx\n", indent,

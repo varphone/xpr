@@ -2,20 +2,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_sys.h>
 
-void XPR_SYS_Poweroff(void)
+XPR_API void XPR_SYS_Poweroff(void)
 {
     printf("XPR_SYS_Poweroff()\n");
 }
 
-void XPR_SYS_Reboot(void)
+XPR_API void XPR_SYS_Reboot(void)
 {
     printf("XPR_SYS_Reboot()\n");
 }
 
 #ifdef HAVE_PHTREAD_H
 #include <pthread.h>
-int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
+XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 {
     struct sched_param param;
     int policy = SCHED_RR;
@@ -38,7 +40,7 @@ int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
     return 0;
 }
 #else
-int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
+XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 {
     return 0;
 }
@@ -46,7 +48,7 @@ int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 
 #ifdef HAVE_SCHED_H
 #include <sched.h>
-int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
+XPR_API int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
 {
     struct sched_param param;
     int maxpri = sched_get_priority_max(SCHED_FIFO);
@@ -66,7 +68,7 @@ int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
     return 0;
 }
 #else
-int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
+XPR_API int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
 {
     return 0;
 }
@@ -74,7 +76,7 @@ int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid)
 
 #if defined(BOARD_MAJOR_A5S)
 #include <ambarella/a5s/amba_api.h>
-int XPR_SYS_SetAudioClockFrequency(int freq)
+XPR_API int XPR_SYS_SetAudioClockFrequency(int freq)
 {
     int fd = open("/dev/iav", O_RDWR);
 
@@ -87,7 +89,7 @@ int XPR_SYS_SetAudioClockFrequency(int freq)
     return 0;
 }
 #else
-int XPR_SYS_SetAudioClockFrequency(int freq)
+XPR_API int XPR_SYS_SetAudioClockFrequency(int freq)
 {
     return 0;
 }
@@ -99,7 +101,7 @@ typedef NTSTATUS (NTAPI *NtQueryPerformanceCounterProc)(PLARGE_INTEGER Performan
 
 static NtQueryPerformanceCounterProc ntqpcp = 0;
 
-int64_t XPR_SYS_GetCTS(void)
+XPR_API int64_t XPR_SYS_GetCTS(void)
 {
     LARGE_INTEGER ticks;
     LARGE_INTEGER freq;
@@ -118,7 +120,7 @@ int64_t XPR_SYS_GetCTS(void)
 }
 #else
 #include <time.h>
-int64_t XPR_SYS_GetCTS(void)
+XPR_API int64_t XPR_SYS_GetCTS(void)
 {
     struct timespec tp;
     clock_gettime(CLOCK_MONOTONIC, &tp);

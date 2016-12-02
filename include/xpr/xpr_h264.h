@@ -122,19 +122,19 @@ typedef enum XPR_H264_NALU_Type {
 
 } XPR_H264_NALU_Type;
 
-int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
+XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
                             XPR_H264_FrameInfo* fi);
 
-int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
+XPR_API int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
                               XPR_H264_FrameInfo* fi);
 
-int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
+XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
                            XPR_H264_SPS* sps);
 
-int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
+XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
                       XPR_H264_NALU nalus[], unsigned int maxNalus);
 
-void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent);
+XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent);
 
 #ifdef __cplusplus
 }
