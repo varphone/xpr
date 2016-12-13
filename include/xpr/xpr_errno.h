@@ -58,6 +58,8 @@ typedef enum XPR_ModuleId {
 } XPR_ModuleId;
 #endif // XPR_MODULEID_TYPE_DEFINED
 
+/// @brief 检测是否错误返回值
+#define XPR_IS_ERROR(e)		((e) & 0x80000000)
 
 /// @ingroup xprerrno
 /// @brief 定义错误代码
