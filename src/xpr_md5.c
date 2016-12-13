@@ -27,7 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpr/xpr_file.h>
 #include <xpr/xpr_md5.h>
+
 
 /*
  * Constants for MD5Transform routine.
@@ -224,7 +226,7 @@ static void MD5Transform(uint32_t state[4], const unsigned char block[64])
  * 
  * Initializes MD5 context for the start of message digest computation.
  **/
-void XPR_MD5Init(XPR_MD5Context* context)
+XPR_API void XPR_MD5Init(XPR_MD5Context* context)
 {
 	context->count[0] = context->count[1] = 0;
 	/* Load magic initialization constants.  */
@@ -244,7 +246,7 @@ void XPR_MD5Init(XPR_MD5Context* context)
  * processing another message block, and updating the context.
  **/
 
-void XPR_MD5Update(XPR_MD5Context * context, const unsigned char *input, unsigned int inputLen)
+XPR_API void XPR_MD5Update(XPR_MD5Context * context, const uint8_t *input, size_t inputLen)
 {
 	unsigned int    i, index, partLen;
 
@@ -287,7 +289,7 @@ void XPR_MD5Update(XPR_MD5Context * context, const unsigned char *input, unsigne
  * with MD5Init() before being used for other MD5 checksum calculations.
  **/
 
-void XPR_MD5Final(unsigned char digest[16], XPR_MD5Context* context)
+XPR_API void XPR_MD5Final(uint8_t digest[16], XPR_MD5Context* context)
 {
 	unsigned char   bits[8];
 	unsigned int    index, padLen;
@@ -314,11 +316,11 @@ void XPR_MD5Final(unsigned char digest[16], XPR_MD5Context* context)
 }
 
 #define MD5_STRING_LENGTH 16
-char* XPR_MD5End(XPR_MD5Context* ctx, char* buf)
+XPR_API char* XPR_MD5End(XPR_MD5Context* ctx, char* buf)
 {
     int i;
     unsigned char digest[MD5_STRING_LENGTH];
-    static const char hex[]="0123456789abcdef";
+    static const char hex[]="0123456789ABCDEF";
 
     if (!buf)
         buf = (char*)malloc(2*MD5_STRING_LENGTH + 1);
@@ -333,10 +335,32 @@ char* XPR_MD5End(XPR_MD5Context* ctx, char* buf)
     return buf;
 }
 
-char* XPR_MD5Data(const unsigned char* data, unsigned int len, char* buf)
+XPR_API char* XPR_MD5Data(const uint8_t* data, size_t dataLength, char* strBuf)
 {
     XPR_MD5Context ctx;
     XPR_MD5Init(&ctx);
-    XPR_MD5Update(&ctx,data,len);
-    return XPR_MD5End(&ctx, buf);
+    XPR_MD5Update(&ctx, data, dataLength);
+    return XPR_MD5End(&ctx, strBuf);
+}
+
+XPR_API char* XPR_MD5File(const char* path, char* strBuf)
+{
+	int n = 0;
+	uint8_t tmp[4096];
+	XPR_MD5Context ctx;
+	XPR_File* f;
+	f = XPR_FileOpen(path, "rb");
+	if (f == NULL)
+		return NULL;
+	XPR_MD5Init(&ctx);
+	while (1) {
+		int n = XPR_FileRead(f, tmp, sizeof(tmp));
+		if (n <= 0)
+			break;
+		XPR_MD5Update(&ctx, tmp, n);
+		if (n < sizeof(tmp))
+			break;
+	}
+	XPR_FileClose(f);
+	return XPR_MD5End(&ctx, strBuf);
 }
