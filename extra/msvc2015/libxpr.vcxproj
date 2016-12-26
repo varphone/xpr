@@ -134,6 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\include;..\..\contrib\vc14\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ForcedIncludeFiles>$(SolutionDir)..\..\include\xpr\xpr_config_win32.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -153,6 +154,8 @@
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\include;..\..\contrib\vc14\include</AdditionalIncludeDirectories>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ForcedIncludeFiles>xpr/xpr_config_win32.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -175,6 +178,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
+      <ForcedIncludeFiles>$(SolutionDir)..\..\include\xpr\xpr_config_win32.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -232,13 +236,15 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;..\..\include;..\..\contrib\vc14\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>xpr/xpr_config_win32.h</ForcedIncludeFiles>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64;..\..\lib-x64;$(WORKSPACE_ROOT)\target\x86_64-win\usr\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x64;..\..\contrib\vc14\lib\x64</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
       <AdditionalDependencies>comctl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -311,9 +317,11 @@
     <ClCompile Include="..\..\src\xpr_json.c" />
     <ClCompile Include="..\..\src\xpr_mcdec.c" />
     <ClCompile Include="..\..\src\xpr_mcvr.c" />
+    <ClCompile Include="..\..\src\xpr_md5.c" />
     <ClCompile Include="..\..\src\xpr_mem.c" />
     <ClCompile Include="..\..\src\xpr_rtsp.c" />
     <ClCompile Include="..\..\src\xpr_rtsp_idd.c" />
+    <ClCompile Include="..\..\src\xpr_sha1.c" />
     <ClCompile Include="..\..\src\xpr_streamblock.c" />
     <ClCompile Include="..\..\src\xpr_sync.c" />
     <ClCompile Include="..\..\src\xpr_sync_win32.c" />

@@ -1,5 +1,10 @@
 ﻿#include "deps/jansson/jansson.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_json.h>
+#include <xpr/xpr_utils.h>
 
 struct XPR_JSON {
     json_t json;
@@ -300,6 +305,13 @@ XPR_API int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val)
     return json_array_append_new((json_t*)json, (json_t*)val);
 }
 
+XPR_API int XPR_JSON_ArrayInsertNew(XPR_JSON* json, size_t index, XPR_JSON* val)
+{
+	if (!json || !val)
+		return -1;
+	return json_array_insert_new((json_t*)json, index, (json_t*)val);
+}
+
 XPR_API int XPR_JSON_ArrayRemove(XPR_JSON* json, size_t index)
 {
     if (!json)
@@ -457,4 +469,224 @@ XPR_API XPR_JSON* XPR_JSON_Copy(XPR_JSON* src)
 XPR_API XPR_JSON* XPR_JSON_DeepCopy(XPR_JSON* src)
 {
     return (XPR_JSON*)json_deep_copy((const json_t*)src);
+}
+
+struct xpath_scan {
+	int			created;
+	int			array_index;
+	char		last_key[256];
+	XPR_JSON*	root;
+	XPR_JSON*	target;
+	XPR_JSON*	value;
+};
+
+static void __xpath(struct xpath_scan* xps, char* key)
+{
+	int		i  = 0;
+	int		ai = -1;	// 数组索引
+	char*	bb = NULL;	// 数组中括号起始位置
+
+	/*
+	bb = strchr(xps->lastkey, '[');
+	if (bb) {
+		*bb = 0;
+		ai = strtol(++bb, NULL, 10);
+	}
+	*/
+
+	
+	if (!xps || !key)
+		return;
+
+	strcpy_s(xps->last_key, sizeof(xps->last_key), key);
+
+	bb = strchr(xps->last_key, '[');
+	if (bb) {
+		*bb = 0;
+		ai = strtol(++bb, NULL, 10);
+		xps->array_index = ai;
+	}
+
+	printf("key %s\n", xps->last_key);
+
+	if (xps->last_key[0] == 0) {
+		printf("aaaaaaaaaa\n");
+		xps->target = xps->root;
+	}
+	else {
+		if (xps->target)
+			xps->root = xps->target;
+
+		xps->target = XPR_JSON_ObjectGet(xps->root, (const char*)xps->last_key);
+		// 
+		if (bb && ai != -1) {
+			if (xps->created && xps->target == NULL) {
+				printf("!!! created array.\n");
+				XPR_JSON_ObjectSetNew(xps->root, (const char*)xps->last_key, XPR_JSON_Array());
+				xps->target = XPR_JSON_ObjectGet(xps->root, (const char*)xps->last_key);
+				//xps->target = XPR_JSON_ArraySet(xps->target, ai, );
+			}
+			printf("arrayddddddd \n");
+			xps->root = xps->target;
+			xps->target = XPR_JSON_ArrayGet(xps->root, ai);
+			if (xps->created && xps->target == NULL) {
+				for (i = 0; i <= ai; i++) {
+					if (XPR_JSON_ArrayGet(xps->root, i) == NULL)
+						printf("%d\n", XPR_JSON_ArrayInsertNew(xps->root, i, XPR_JSON_Object()));
+				}
+				//printf("root is array %d\n", XPR_JSON_IsArray(xps->root));
+				//printf("create element on %p [%d]\n", xps->root, ai);
+				//printf("%d\n", XPR_JSON_ArrayInsertNew(xps->root, ai, XPR_JSON_Object()));
+				xps->target = XPR_JSON_ArrayGet(xps->root, ai);
+			}
+		}
+		else {
+			if (xps->created && xps->target == NULL) {
+				printf("!!! created object.\n");
+				XPR_JSON_ObjectSetNew(xps->root, xps->last_key, XPR_JSON_Object());
+			}
+			xps->target = XPR_JSON_ObjectGet(xps->root, (const char*)xps->last_key);
+		}
+	}
+}
+
+XPR_API XPR_JSON* XPR_JSON_XPathGet(XPR_JSON* json, const char* xpath)
+{
+	struct xpath_scan xps;
+	xps.created = 0;
+	xps.root = json;
+	xps.target = NULL;
+	xpr_foreach_s(xpath, -1, "/", __xpath, &xps);
+	return xps.target;
+}
+
+XPR_API int XPR_JSON_XPathSet(XPR_JSON* json, const char* xpath, XPR_JSON* value)
+{
+	struct xpath_scan xps;
+	xps.created = 1;
+	xps.root = json;
+	xps.target = NULL;
+	xpr_foreach_s(xpath, -1, "/", __xpath, &xps);
+	if (xps.target && xps.last_key[0] != 0) {
+		if (XPR_JSON_IsArray(xps.root))
+			return XPR_JSON_ArraySet(xps.root, xps.array_index, value);
+		return XPR_JSON_ObjectSet(xps.root, xps.last_key, value);
+	}
+	return XPR_ERR_ERROR;
+}
+
+XPR_API int XPR_JSON_XPathSetNew(XPR_JSON* json, const char* xpath, XPR_JSON* value)
+{
+	struct xpath_scan xps;
+	xps.created = 1;
+	xps.root = json;
+	xps.target = NULL;
+	xpr_foreach_s(xpath, -1, "/", __xpath, &xps);
+	if (xps.target && xps.last_key[0] != 0) {
+		if (XPR_JSON_IsArray(xps.root))
+			return XPR_JSON_ArraySetNew(xps.root, xps.array_index, value);
+		return XPR_JSON_ObjectSetNew(xps.root, xps.last_key, value);
+	}
+	return XPR_ERR_ERROR;
+}
+
+XPR_API int XPR_JSON_XPathIsNull(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_IsNull(jx);
+}
+
+XPR_API int XPR_JSON_XPathGetBoolean(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_BooleanValue(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetBoolean(XPR_JSON* json, const char* xpath, int value)
+{
+	return XPR_JSON_XPathSetNew(json, xpath, value ? XPR_JSON_True() : XPR_JSON_False());
+}
+
+XPR_API int XPR_JSON_XPathGetInt(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_IntegerValue(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetInt(XPR_JSON* json, const char* xpath, int value)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath); 
+	if (jx)
+		return XPR_JSON_IntegerSet(jx, value);
+	return XPR_JSON_XPathSetNew(json, xpath, XPR_JSON_Integer(value));
+}
+
+XPR_API int64_t XPR_JSON_XPathGetInt64(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_Integer64Value(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetInt64(XPR_JSON* json, const char* xpath, int64_t value)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	if (jx)
+		return XPR_JSON_Integer64Set(jx, value);
+	return XPR_JSON_XPathSetNew(json, xpath, XPR_JSON_Integer64(value));
+}
+
+XPR_API float XPR_JSON_XPathGetFloat(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return (float)XPR_JSON_RealValue(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetFloat(XPR_JSON* json, const char* xpath, float value)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	if (jx)
+		return XPR_JSON_RealSet(jx, value);
+	return XPR_JSON_XPathSetNew(json, xpath, XPR_JSON_Real(value));
+}
+
+XPR_API double XPR_JSON_XPathGetDouble(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_RealValue(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetDouble(XPR_JSON* json, const char* xpath, double value)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	if (jx)
+		return XPR_JSON_RealSet(jx, value);
+	return XPR_JSON_XPathSetNew(json, xpath, XPR_JSON_Real(value));
+}
+
+XPR_API double XPR_JSON_XPathGetNumber(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	if (XPR_JSON_IsTrue(jx) || XPR_JSON_IsFalse(jx))
+		return XPR_JSON_BooleanValue(jx);
+	if (XPR_JSON_IsInteger(jx))
+		return XPR_JSON_IntegerValue(jx);
+	if (XPR_JSON_IsReal(jx))
+		return XPR_JSON_RealValue(jx);
+	if (XPR_JSON_IsString(jx))
+		return strtod(XPR_JSON_StringValue(jx), NULL);
+	return 0.0;
+}
+
+XPR_API const char* XPR_JSON_XPathGetString(XPR_JSON* json, const char* xpath)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	return XPR_JSON_StringValue(jx);
+}
+
+XPR_API int XPR_JSON_XPathSetString(XPR_JSON* json, const char* xpath, const char* value)
+{
+	XPR_JSON* jx = XPR_JSON_XPathGet(json, xpath);
+	if (jx)
+		return XPR_JSON_StringSet(jx, value);
+	return XPR_JSON_XPathSetNew(json, xpath, XPR_JSON_String(value));
 }

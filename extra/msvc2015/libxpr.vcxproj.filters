@@ -210,6 +210,12 @@
     <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_client.cpp">
       <Filter>源文件\drivers\rtsp\live</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\xpr_md5.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\xpr_sha1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\libxpr.def">

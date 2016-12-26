@@ -444,6 +444,10 @@ XPR_API int XPR_JSON_ArrayAppend(XPR_JSON* json, XPR_JSON* val);
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val);
 
+/// @brief  往 Array 类型的 JSON 对象中插入成员(借用方式)
+///
+XPR_API int XPR_JSON_ArrayInsertNew(XPR_JSON* json, size_t index, XPR_JSON* val);
+
 ///
 /// 移除指定索引的对象
 ///
@@ -621,6 +625,109 @@ XPR_API XPR_JSON* XPR_JSON_Copy(XPR_JSON* src);
 /// @param [in] src   要复制的　#XPR_JSON 实例
 /// @return 返回新的 XPR_JSON 实例
 XPR_API XPR_JSON* XPR_JSON_DeepCopy(XPR_JSON* src);
+
+/// @brief 以 XPath 方式获取 JSON 实例
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @code
+/// XPR_JSON* root = XPR_JSON_LoadString(...);
+/// // 获取 Object 属性
+/// XPR_JSON* jx = XPR_JSON_XPathGet(root, "/top/sub/attr1");
+/// // 获取 Array 指定索引
+/// XPR_JSON* jz = XPR_JSON_XPathGet(root, "/top/sub/attrs[1]");
+/// @endcode
+XPR_API XPR_JSON* XPR_JSON_XPathGet(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式设置键值（引用）
+/// @note 本接口会增加 `value` 的引用计数，如果你在调用本接口后，如果没有对 `value` 调用 XPR_JSON_DecRef()，可能会导致内存泄漏。
+XPR_API int XPR_JSON_XPathSet(XPR_JSON* json, const char* xpath, XPR_JSON* value);
+
+/// @brief 以 XPath 方式设置键值（借用）
+/// @note 本接口不会增加 `value` 的引用计数。
+XPR_API int XPR_JSON_XPathSetNew(XPR_JSON* json, const char* xpath, XPR_JSON* value);
+
+/// @brief 检测 XPath 对应的对象是否为 Null。
+/// @return true/false
+XPR_API int XPR_JSON_XPathIsNull(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接获取布尔值
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval 0 false
+/// @retval 1 true
+XPR_API int XPR_JSON_XPathGetBoolean(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置布尔值
+/// @see XPR_JSON_XPathGetBoolean()
+/// @return XPR_ERR_xxx
+XPR_API int XPR_JSON_XPathSetBoolean(XPR_JSON* json, const char* xpath, int value);
+
+/// @brief 以 XPath 方式直接获取整形值（32位）
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval 0 对象不存在或其值为 0
+/// @retval other 对象的值
+XPR_API int XPR_JSON_XPathGetInt(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置整形值（32位）
+/// @return XPR_ERR_xxx
+/// @see XPR_JSON_XPathGetInt()
+XPR_API int XPR_JSON_XPathSetInt(XPR_JSON* json, const char* xpath, int value);
+
+/// @brief 以 XPath 方式直接获取整形值（64位）
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval 0 对象不存在或其值为 0
+/// @retval other 对象的值
+XPR_API int64_t XPR_JSON_XPathGetInt64(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置整形值（64位）
+/// @return XPR_ERR_xxx
+/// @see XPR_JSON_XPathGetInt64()
+XPR_API int XPR_JSON_XPathSetInt64(XPR_JSON* json, const char* xpath, int64_t value);
+
+/// @brief 以 XPath 方式直接获取浮点值（32位）
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval 0.0 对象不存在或其值为 0.0
+/// @retval other 对象的值
+XPR_API float XPR_JSON_XPathGetFloat(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置浮点值（32位）
+/// @return XPR_ERR_xxx
+/// @see XPR_JSON_XPathGetFloat()
+XPR_API int XPR_JSON_XPathSetFloat(XPR_JSON* json, const char* xpath, float value);
+
+/// @brief 以 XPath 方式直接获取浮点值（64位）
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval 0.0 对象不存在或其值为 0.0
+/// @retval other 对象的值
+XPR_API double XPR_JSON_XPathGetDouble(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置浮点值（32位）
+/// @return XPR_ERR_xxx
+/// @see XPR_JSON_XPathGetDouble()
+XPR_API int XPR_JSON_XPathSetDouble(XPR_JSON* json, const char* xpath, double value);
+
+/// @brief 以 XPath 方式获取数值。
+/// @note 本接口会自动将 True/False, Int/Int64, Number String 转换为 double 型值。
+///       例如：True = 1.0， False = 0.0， 111 = 111.0， "123" = 123.0
+XPR_API double XPR_JSON_XPathGetNumber(XPR_JSON* json, const char* xpath);
+
+// XPR_JSON_XPathSetNumber() 不支持。
+
+/// @brief 以 XPath 方式直接获取字符串值
+/// @param [in] json	目标根（父）节点
+/// @param [in] xpath	XPath 参数
+/// @retval NULL 对象不存在或其值为 NULL
+/// @retval other 对象的值
+XPR_API const char* XPR_JSON_XPathGetString(XPR_JSON* json, const char* xpath);
+
+/// @brief 以 XPath 方式直接设置字符串值
+/// @return XPR_ERR_xxx
+/// @see XPR_JSON_XPathGetString()
+XPR_API int XPR_JSON_XPathSetString(XPR_JSON* json, const char* xpath, const char* value);
 
 #ifdef __cplusplus
 }
