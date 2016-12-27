@@ -486,15 +486,6 @@ static void __xpath(struct xpath_scan* xps, char* key)
 	int		ai = -1;	// 数组索引
 	char*	bb = NULL;	// 数组中括号起始位置
 
-	/*
-	bb = strchr(xps->lastkey, '[');
-	if (bb) {
-		*bb = 0;
-		ai = strtol(++bb, NULL, 10);
-	}
-	*/
-
-	
 	if (!xps || !key)
 		return;
 
@@ -507,10 +498,7 @@ static void __xpath(struct xpath_scan* xps, char* key)
 		xps->array_index = ai;
 	}
 
-	printf("key %s\n", xps->last_key);
-
 	if (xps->last_key[0] == 0) {
-		printf("aaaaaaaaaa\n");
 		xps->target = xps->root;
 	}
 	else {
@@ -521,28 +509,21 @@ static void __xpath(struct xpath_scan* xps, char* key)
 		// 
 		if (bb && ai != -1) {
 			if (xps->created && xps->target == NULL) {
-				printf("!!! created array.\n");
 				XPR_JSON_ObjectSetNew(xps->root, (const char*)xps->last_key, XPR_JSON_Array());
 				xps->target = XPR_JSON_ObjectGet(xps->root, (const char*)xps->last_key);
-				//xps->target = XPR_JSON_ArraySet(xps->target, ai, );
 			}
-			printf("arrayddddddd \n");
 			xps->root = xps->target;
 			xps->target = XPR_JSON_ArrayGet(xps->root, ai);
 			if (xps->created && xps->target == NULL) {
 				for (i = 0; i <= ai; i++) {
 					if (XPR_JSON_ArrayGet(xps->root, i) == NULL)
-						printf("%d\n", XPR_JSON_ArrayInsertNew(xps->root, i, XPR_JSON_Object()));
+						XPR_JSON_ArrayInsertNew(xps->root, i, XPR_JSON_Object());
 				}
-				//printf("root is array %d\n", XPR_JSON_IsArray(xps->root));
-				//printf("create element on %p [%d]\n", xps->root, ai);
-				//printf("%d\n", XPR_JSON_ArrayInsertNew(xps->root, ai, XPR_JSON_Object()));
 				xps->target = XPR_JSON_ArrayGet(xps->root, ai);
 			}
 		}
 		else {
 			if (xps->created && xps->target == NULL) {
-				printf("!!! created object.\n");
 				XPR_JSON_ObjectSetNew(xps->root, xps->last_key, XPR_JSON_Object());
 			}
 			xps->target = XPR_JSON_ObjectGet(xps->root, (const char*)xps->last_key);
