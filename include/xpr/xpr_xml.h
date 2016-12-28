@@ -1,6 +1,7 @@
 ﻿#ifndef XPR_XML_H
 #define XPR_XML_H
 
+#include <stdint.h>
 #include <xpr/xpr_common.h>
 
 #ifdef __cplusplus

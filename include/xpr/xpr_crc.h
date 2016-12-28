@@ -2,6 +2,8 @@
 #define XPR_CRC_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
