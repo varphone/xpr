@@ -1282,7 +1282,7 @@ XPR_API int XPR_TemplateLoad(XPR_Template* tmpl, const char* file)
 	f = XPR_FileOpen(file, "rb");
     if (f == NULL)
         return -1;
-    tmpl->src_data_size = XPR_FileRead(f, tmpl->src_buffer, tmpl->src_buffer_size - 4);
+    tmpl->src_data_size = XPR_FileRead(f, (uint8_t*)tmpl->src_buffer, tmpl->src_buffer_size - 4);
 	XPR_FileClose(f);
     if (tmpl->src_data_size <= 0)
         return -1;
