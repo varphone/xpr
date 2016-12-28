@@ -480,11 +480,12 @@ struct xpath_scan {
 	XPR_JSON*	value;
 };
 
-static void __xpath(struct xpath_scan* xps, char* key)
+static void __xpath(void* opaque, char* key)
 {
-	int		i  = 0;
-	int		ai = -1;	// 数组索引
-	char*	bb = NULL;	// 数组中括号起始位置
+	int 			i  = 0;
+	int 			ai = -1;	// 数组索引
+	char* 			bb = NULL;	// 数组中括号起始位置
+	struct xpath_scan* 	xps = (struct xpath_scan*)opaque;
 
 	if (!xps || !key)
 		return;
