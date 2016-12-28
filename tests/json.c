@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <xpr/xpr_json.h>
 
 #if defined(_MSC_VER)
