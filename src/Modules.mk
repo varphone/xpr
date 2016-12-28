@@ -1,6 +1,6 @@
 # Builtin module(s) configs
 ###############################################################################
-# Syntax: XPR_{MODULE}=[0/1], 0 = enabled, 1 = disabled
+# Syntax: XPR_{MODULE}=[y/n], y = enabled, n = disabled
 ###############################################################################
 XPR_ALL=y
 XPR_ADC=$(XPR_ALL)
