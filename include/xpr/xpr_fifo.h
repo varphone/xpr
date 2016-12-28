@@ -31,10 +31,19 @@ XPR_API XPR_Fifo* XPR_FifoCreate(int elementSize, int maxElements);
 XPR_API int XPR_FifoDestroy(XPR_Fifo* f);
 
 /// @brief Get and remove an element from the fifo
+/// @param [in] f               Address of the fifo to be used.
+/// @param [in,out] buffer      Buffer to receive the element data.
+/// @param [in] size            Number of elements to get.
 /// @retval 0   success
 /// @retval -1  failure
 XPR_API int XPR_FifoGet(XPR_Fifo* f, void* buffer, int size);
 
+/// @brief Put element(s) to fifo
+/// @param [in] f               Address of the fifo to be used.
+/// @param [in] data            Element(s) data address.
+/// @param [in] size            Number of elements to put.
+/// @retval 0   success
+/// @retval -1  failure
 XPR_API int XPR_FifoPut(XPR_Fifo* f, const void* data, int size);
 
 /// @brief Get data from the fifo without removing
