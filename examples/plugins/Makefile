@@ -12,7 +12,7 @@ all: $(targets)
 
 %.o: %.c
 	$(ECHO) "[Compiling] $^"
-	$(CC) $(CFLAGS) -c $^
+	$(CC) $(CFLAGS) -fPIC -c $^
 
 %.o: %.cpp
 	$(ECHO) "[Compiling] $^"

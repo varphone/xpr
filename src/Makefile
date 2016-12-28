@@ -23,13 +23,13 @@ CFLAGS      += -I../contrib/$(TOOLSET_NAME)/include
 LDFLAGS     += -L../contrib/$(TOOLSET_NAME)/lib
 endif
 CXXFLAGS    += $(CFLAGS) $(libxpr_CXXFLAGS)
-libxpr_LIBS += -Wl,-Bdynamic -lstdc++ -lpthread -lm -ldl -Wl,-Bstatic -lavcodec -lavresample -lavutil -lswscale -Wl,-Bdynamic
+libxpr_LIBS += -Wl,-Bdynamic -lstdc++ -lpthread -lm -ldl
 
 targets =
-ifeq ($(BUILD_STATIC),1)
+ifeq ($(BUILD_STATIC),y)
 targets += libxpr.a
 endif
-ifeq ($(BUILD_SHARED),1)
+ifeq ($(BUILD_SHARED),y)
 targets += libxpr.so
 endif
 
@@ -59,8 +59,8 @@ $(config_FILE):
 
 $(config_VARS): $(config_FILE)
 	@echo "// $(@)" >> $^; \
-	if [ x$($(@)) = x1 ]; then \
-	  echo "#define HAVE_$@ $($@)" >> $^; \
+	if [ x$($(@)) = xy ]; then \
+	  echo "#define HAVE_$@ 1" >> $^; \
 	else \
 	  echo "#undef HAVE_$@" >> $^; \
 	fi; \
@@ -68,6 +68,7 @@ $(config_VARS): $(config_FILE)
 
 config_DEFS: $(config_FILE)
 	@echo "#define HAVE_SIGNAL_H 1" >> $^
+	@echo "#define HAVE_PTHREAD_H 1" >> $^
 	@echo "#define HAVE_TIME_H 1" >> $^
 	@echo "#define HAVE_UNISTD_H 1" >> $^
 

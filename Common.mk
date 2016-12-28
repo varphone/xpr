@@ -46,7 +46,7 @@ endef
 
 VERBOSE = @
 
-ifeq ($(V),1)
+ifeq ($(V),y)
 VERBOSE =
 endif
 
