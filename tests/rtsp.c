@@ -1,22 +1,25 @@
-#if defined(WIN32) || defined(_WIN32)
-#include <xpr/xpr_config_win32.h>
-#else
-#include <xpr/xpr_config.h>
-#endif // defined(WIN32) || defined(_WIN32)
-
-#if defined(HAVE_XPR_RTSP)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xpr/xpr_atomic.h>
-#include <xpr/xpr_errno.h>
-#include <xpr/xpr_fifo.h>
-#include <xpr/xpr_file.h>
-#include <xpr/xpr_mem.h>
-#include <xpr/xpr_rtsp.h>
-#include <xpr/xpr_sys.h>
-#include <xpr/xpr_thread.h>
-#include <xpr/xpr_utils.h>
+#define HAVE_CONFIG_H 1
+#include <xpr/xpr.h>
+
+//#if defined(WIN32) || defined(_WIN32)
+//#include <xpr/xpr_config_win32.h>
+//#else
+//#include <xpr/xpr_config.h>
+//#endif // defined(WIN32) || defined(_WIN32)
+
+#if defined(HAVE_XPR_RTSP)
+//#include <xpr/xpr_atomic.h>
+//#include <xpr/xpr_errno.h>
+//#include <xpr/xpr_fifo.h>
+//#include <xpr/xpr_file.h>
+//#include <xpr/xpr_mem.h>
+//#include <xpr/xpr_rtsp.h>
+//#include <xpr/xpr_sys.h>
+//#include <xpr/xpr_thread.h>
+//#include <xpr/xpr_utils.h>
 
 #if defined(_MSC_VER)
 #  if defined(DEBUG) || defined(_DEBUG)
@@ -83,7 +86,10 @@ static void Test_H264Video()
 	int serverPort = XPR_RTSP_PORT(2, 0, 0);
 	int streamPort = XPR_RTSP_PORT(2, 1, 0);
 	int err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
-	if (err == XPR_ERR_OK) {
+	if (XPR_IS_ERROR(err)) {
+		printf("XPR_RTSP_Open() failed, %x\n", err);
+	}
+	else if (err == XPR_ERR_OK) {
 		int err = XPR_RTSP_Open(streamPort, "uri:///live-1?track=1&mime=video/H264&track=2&mime=audio/G711");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", err);

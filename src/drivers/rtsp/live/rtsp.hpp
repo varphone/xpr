@@ -9,8 +9,8 @@
 #include <xpr/xpr_utils.h>
 
 #define XPR_RTSP_MAX_CALLBACKS      4
-#define XPR_RTSP_MAX_CLIENTS        256
-#define XPR_RTSP_MAX_STREAMS        256
+//#define XPR_RTSP_MAX_CLIENTS        256
+//#define XPR_RTSP_MAX_STREAMS        256
 #define XPR_RTSP_MAX_WORKERS        8
 #define XPR_RTSP_ACT_WORKERS        4
 #define XPR_RTSP_TMO_US             30000000
@@ -65,8 +65,8 @@ typedef struct PortContext {
 
 typedef struct XPR_RTSP {
 	int exit_loop;
-	PortContext client_ports[XPR_RTSP_MAX_CLIENTS + 2];
-	PortContext stream_ports[XPR_RTSP_MAX_STREAMS + 2];
+	PortContext client_ports[XPR_RTSP_PORT_MINOR_MAX + 2];
+	PortContext stream_ports[XPR_RTSP_PORT_MINOR_MAX + 2];
 	XPR_Thread* threads[XPR_RTSP_MAX_WORKERS];
 } XPR_RTSP;
 
@@ -88,54 +88,26 @@ namespace xpr {
 
 		// 前置声明
 		class Port;
-		//
+		class PortManager;
 
-		class QueryParams {
-		public:
-			QueryParams(const std::string& qs)
-			{
-				parse(qs);
-			}
-
-			~QueryParams(void)
-			{
-
-			}
-
-		private:
-			void parse(const std::string& qs)
-			{
-
-			}
-
-			void SplitString(const std::string& s, std::vector<std::string>& v, const std::string& c)
-			{
-				std::string::size_type pos1, pos2;
-				pos2 = s.find(c);
-				pos1 = 0;
-				while (std::string::npos != pos2)
-				{
-					v.push_back(s.substr(pos1, pos2 - pos1));
-
-					pos1 = pos2 + c.size();
-					pos2 = s.find(c, pos1);
-				}
-				if (pos1 != s.length())
-					v.push_back(s.substr(pos1));
-			}
-
-			std::pair<std::string, std::string> splitKV()
-			{
-
-			}
-
-		private:
-			std::vector<std::pair<std::string, std::string>>	mParams;
+		namespace PortFlags {
+			const uint32_t PORT_FLAG_NULL = 0x00000000;
+			const uint32_t PORT_FLAG_OPEN = 0x00000001;
+			const uint32_t PORT_FLAG_CLOSE = 0x00000002;
+			const uint32_t PORT_FLAG_START = 0x00000004;
+			const uint32_t PORT_FLAG_STOP = 0x00000008;
 		};
 
 		class Port {
 		public:
-			Port(void)
+			Port(int id, Port* parent = NULL)
+				: mId(id)
+				, mParent(parent)
+				, mActiveFlags(PortFlags::PORT_FLAG_NULL)
+				, mUserFlags(PortFlags::PORT_FLAG_NULL)
+				, mUrl()
+				, mUsername()
+				, mPassword()
 			{
 				// Nothing TODO
 			}
@@ -144,9 +116,67 @@ namespace xpr {
 			{
 			}
 
-			virtual bool isPortValid(int port)
+			virtual int id(void) const
 			{
-				return false;
+				return mId;
+			}
+
+			virtual Port* parent(void) const
+			{
+				return mParent;
+			}
+
+			virtual uint32_t& activeFlags()
+			{
+				return mActiveFlags;
+			}
+
+			virtual uint32_t& activeFlags(uint32_t replaced)
+			{
+				mActiveFlags = replaced;
+				return mActiveFlags;
+			}
+
+			virtual uint32_t& activeFlags(uint32_t added, uint32_t removed)
+			{
+				mActiveFlags |= added;
+				mActiveFlags &= ~removed;
+				return mActiveFlags;
+			}
+
+			virtual uint32_t& userFlags()
+			{
+				return mUserFlags;
+			}
+
+			virtual uint32_t& userFlags(uint32_t replaced)
+			{
+				mUserFlags = replaced;
+				return mUserFlags;
+			}
+
+			virtual uint32_t& userFlags(uint32_t added, uint32_t removed)
+			{
+				mUserFlags |= added;
+				mUserFlags &= ~removed;
+				return mUserFlags;
+			}
+
+			virtual std::string& url()
+			{
+				return mUrl;
+			}
+
+			virtual std::string& url(const char* url)
+			{
+				mUrl = url;
+				return mUrl;
+			}
+
+			virtual int isPortValid(int port)
+			{
+				printf("%s:%d:%s\n", __FILE__, __LINE__, __FUNCSIG__);
+				return XPR_FALSE;
 			}
 
 			virtual int open(int port, const char* url)
@@ -251,7 +281,12 @@ namespace xpr {
 				return XPR_ERR_GEN_NOT_SUPPORT;
 			}
 
-			virtual int postData(int port, const XPR_StreamBlock* stb)
+			virtual int pushData(int port, XPR_StreamBlock* stb)
+			{
+				return XPR_ERR_GEN_NOT_SUPPORT;
+			}
+
+			virtual int postData(int port, XPR_StreamBlock* stb)
 			{
 				return XPR_ERR_GEN_NOT_SUPPORT;
 			}
@@ -274,7 +309,26 @@ namespace xpr {
 			/// @brief 获取端口上下文
 			/// @param [in] port		端口句柄
 			/// return 成功返回端口的指针，失败返回 NULL
-			static Port* getPort(int port);
+			virtual Port* getPort(int port) const
+			{
+				return NULL;
+			}
+
+			/// @brief 获取端口上下文
+			/// @param [in] port		端口句柄
+			/// return 成功返回端口的指针，失败返回 NULL
+			virtual Port* getMajorPort(int port) const
+			{
+				return NULL;
+			}
+
+			/// @brief 获取端口上下文
+			/// @param [in] port		端口句柄
+			/// return 成功返回端口的指针，失败返回 NULL
+			virtual Port* getMinorPort(int port) const
+			{
+				return NULL;
+			}
 
 			/// 获取可用的流端口编号
 			/// @param [in] majorPort		主端口
@@ -285,6 +339,8 @@ namespace xpr {
 			static int getAvailStreamTrackId(int streamPort);
 
 		protected:
+			int				mId;
+			Port*			mParent;
 			uint32_t		mActiveFlags;
 			uint32_t		mUserFlags;
 			int64_t			mLastActiveTS;
@@ -297,6 +353,32 @@ namespace xpr {
 			std::string		mPassword;
 			int				mPwdIsMD5;
 			Callback		mCallbacks[XPR_RTSP_MAX_CALLBACKS];
+		};
+
+		class PortManager : public Port {
+		public:
+			PortManager(void);
+			virtual ~PortManager(void);
+
+			// Port interfaces
+			virtual int isPortValid(int port);
+			virtual int open(int port, const char* url);
+			virtual int close(int port);
+			virtual int start(int port);
+			virtual int stop(int port);
+
+			virtual int pushData(int port, XPR_StreamBlock* stb);
+
+			virtual Port* getPort(int port);
+			virtual Port* getMajorPort(int port);
+			virtual Port* getMinorPort(int port);
+
+		private:
+			int setupServer(const char* url);
+			int clearServer(void);
+
+		private:
+			Port*		mMajorPorts[XPR_RTSP_PORT_MAJOR_ALL + 1];
 		};
 
 	} // namespace xpr::rtsp

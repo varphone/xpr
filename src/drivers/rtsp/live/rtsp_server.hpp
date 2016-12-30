@@ -6,23 +6,25 @@
 #include <live/BasicUsageEnvironment.hh>
 #include <live/FramedSource.hh>
 #include <live/LiveMedia.hh>
+#include <xpr/xpr_fifo.h>
 #include "rtsp.hpp"
 
-#define XPR_RTSP_MAX_SERVERS			4
-#define XPR_RTSP_MAX_STREAMS			16
-#define XPR_RTSP_MAX_STREAM_TRACKS		4
-#define XPR_RTSP_MAX_WORKERS			4
-#define XPR_RTSP_STREAM_MAX_FRAME_SIZE	1048576
+#define XPR_RTSP_H264_MAX_FRAME_SIZE	320000
+#define XPR_RTSP_H264_VIDEO_BUFFER_SIZE	(1024*1024*2)
 
 namespace xpr {
 
 	namespace rtsp {
 
 		// 前置声明
+		class H264VideoFramedSource;
+		class H264VideoServerMediaSubsession;
 		class Server;
 		class ServerManager;
+		class Stream;
 		class Worker;
 
+		/// 基于帧的 H264 视频源
 		class H264VideoFramedSource : public FramedSource
 		{
 		public:
@@ -34,38 +36,164 @@ namespace xpr {
 			virtual void doGetNextFrame();
 			virtual unsigned int maxFrameSize() const;
 
-			// Published interface
+			// Methods
 			void fetchFrame();
-
+			int putFrame(const XPR_StreamBlock* stb);
 			//
 			static void getNextFrame(void * ptr);
 
 		private:
+			//virtual Boolean isH264VideoStreamFramer() const;
+
+		private:
 			TaskToken	mCurrentTask;
+			uint8_t*	mBuffer;
+			size_t		mBufferOffset;
+			size_t		mBufferSize;
+			XPR_Fifo*	mFreeList;
+			XPR_Fifo*	mDataList;
 		};
 
-		class H264VideoServerMediaSession : public OnDemandServerMediaSubsession
+		/// H264 视频服务媒体会话
+		class H264VideoServerMediaSubsession : public OnDemandServerMediaSubsession
 		{
 		public:
-			virtual ~H264VideoServerMediaSession(void);
+			virtual ~H264VideoServerMediaSubsession(void);
 
 			// Override OnDemandServerMediaSubsession interfaces
-			virtual char const * getAuxSDPLine(RTPSink * rtpSink, FramedSource * inputSource);
-			virtual FramedSource * createNewStreamSource(unsigned clientSessionId, unsigned & estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps  
-			virtual RTPSink * createNewRTPSink(Groupsock * rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource * inputSource);
+			virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
+			virtual FramedSource* createNewStreamSource(unsigned clientSessionId, unsigned & estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps  
+			virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 
 			// Methods
 			void chkForAuxSDPLine1();
+			void sdpDone(bool done = true);
 
 			// Static Methods
-			static H264VideoServerMediaSession* createNew(UsageEnvironment & env, FramedSource* source);
+			static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env, FramedSource* source);
 
 			static void afterPlayingDummy(void* ptr);
 
 			static void chkForAuxSDPLine(void* ptr);
 
 		protected:
-			H264VideoServerMediaSession(UsageEnvironment& env, FramedSource* source);
+			H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source);
+
+		private:
+			FramedSource*		mSource;
+			RTPSink*			mSink;
+			char				mSDPDone;
+			char*				mSDPLine;
+		};
+
+		/// 服务器
+		class Server : public Port {
+		public:
+			Server(int id, Port* parent);
+			virtual ~Server(void);
+
+			// Port interfaces
+			virtual int isPortValid(int port);
+			virtual int open(int port, const char* url);
+			virtual int close(int port);
+			virtual int start(int port);
+			virtual int stop(int port);
+			virtual int pushData(int port, XPR_StreamBlock* stb);
+
+			// Properties
+			RTSPServer* rtspServer(void);
+			Stream** streams(void);
+			Worker** workers(void);
+
+			// Methods
+			const char* getBindAddress(void) const;
+			void setBindAddress(const char* bindAddress);
+
+			uint16_t getBindPort(void) const;
+			void setBindPort(uint16_t port);
+
+			size_t getMaxStreams(void) const;
+			void setMaxStreams(size_t maxStreams);
+
+			size_t getMaxStreamTracks(void) const;
+			void setMaxStreamTracks(size_t maxStreamTracks);
+
+			size_t getMaxWorkers(void) const;
+			void setMaxWorkers(size_t maxWorkers);
+
+			bool isValidStreamId(int streamId);
+			bool isValidStreamTrackId(int streamTrackId);
+
+		private:
+			int openServer(const char* url);
+			int closeServer(void);
+
+			int startServer(void);
+			int stopServer(void);
+
+			int openStream(int port, const char* url);
+			int closeStream(int port);
+
+			int startStream(int port);
+			int stopStream(int port);
+
+			int setupServer(const char* url);
+			int clearServer(void);
+			void configServer(const char* query);
+			void configServer(const char* key, const char* value);
+
+			void setupStreams(void);
+			void clearStreams(void);
+			void configStream(int port, const char* query);
+			void configStream(int port, const char* key, const char* value);
+
+			void setupWorkers(void);
+			void clearWorkers(void);
+
+			void setupRTSPServer(void);
+			void clearRTSPServer(void);
+
+			static void handleServerConfig(void* opaque, char* seg);
+
+		private:
+			std::string			mBindAddress;
+			uint16_t			mBindPort;
+			size_t				mMaxStreams;
+			size_t				mMaxStreamTracks;
+			size_t				mMaxWorkers;
+			Stream*							mStreams[XPR_RTSP_PORT_MINOR_MAX + 2];
+			Worker*							mWorkers[XPR_RTSP_MAX_WORKERS];
+			UserAuthenticationDatabase*		mAuthDB;
+			RTSPServer*						mRTSPServer;
+		};
+
+		class Stream : public Port {
+		public:
+			Stream(int id, Port* parent);
+			virtual ~Stream(void);
+
+			// Override Port interfaces
+			virtual int open(int port, const char* url);
+			virtual int close(int port);
+			virtual int start(int port);
+			virtual int stop(int port);
+			virtual int pushData(int port, XPR_StreamBlock* stb);
+
+			// Properties
+			ServerMediaSession* sms(void) const;
+
+		private:
+			void configStream(const char* query);
+			void configStream(const char* key, const char* value);
+
+			static void handleStreamConfig(void* opaque, char* seg);
+
+		private:
+			ServerMediaSession* mSMS;
+			FramedSource*		mFramedSources[XPR_RTSP_PORT_TRACK_MAX+1];
+			// Cached configurations
+			std::string			mSourceType;
+			std::string			mTrackId;
 		};
 
 		class Worker {
@@ -100,71 +228,6 @@ namespace xpr {
 			UsageEnvironment*	mEnv;
 			XPR_Thread*			mThread;
 			bool				mExitLoop;
-		};
-
-		class Server {
-		public:
-			Server(void);
-			virtual ~Server(void);
-
-			int start(void);
-			int stop(void);
-
-			const char* getBindAddress(void) const;
-			void setBindAddress(const char* bindAddress);
-
-			uint16_t getBindPort(void) const;
-			void setBindPort(uint16_t port);
-
-			size_t getMaxStreams(void) const;
-			void setMaxStreams(size_t maxStreams);
-
-			size_t getMaxStreamTracks(void) const;
-			void setMaxStreamTracks(size_t maxStreamTracks);
-
-			size_t getMaxWorkers(void) const;
-			void setMaxWorkers(size_t maxWorkers);
-
-			bool isValidStreamId(int streamId);
-			bool isValidStreamTrackId(int streamTrackId);
-
-		private:
-			void setupWorkers(void);
-			void clearWorkers(void);
-
-		private:
-			std::string			mBindAddress;
-			uint16_t			mBindPort;
-			size_t				mMaxStreams;
-			size_t				mMaxStreamTracks;
-			size_t				mMaxWorkers;
-			Worker*				mWorkers[XPR_RTSP_MAX_WORKERS];
-		};
-
-		class ServerManager : public Port {
-		public:
-			ServerManager(void);
-			virtual ~ServerManager(void);
-
-			// Port interfaces
-			virtual bool isPortValid(int port);
-			virtual int open(int port, const char* url);
-			virtual int close(int port);
-			virtual int start(int port);
-			virtual int stop(int port);
-
-		private:
-			int setupServer(const char* url);
-			int clearServer(void);
-			void configServer(const char* query);
-			void configServer(const char* key, const char* value);
-			int setupStream(int port, const char* url);
-			int clearStream(int port);
-
-			friend void handleServerConfig(void* opaque, char* seg);
-
-		private:
-			Server*		mServer;
 		};
 
 	} // namespace xpr::rtsp
