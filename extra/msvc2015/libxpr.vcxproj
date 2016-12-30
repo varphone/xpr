@@ -309,10 +309,12 @@
     <ClCompile Include="..\..\src\xpr_avframe.c" />
     <ClCompile Include="..\..\src\xpr_base64.c" />
     <ClCompile Include="..\..\src\xpr_bitvector.c" />
+    <ClCompile Include="..\..\src\xpr_clb.c" />
     <ClCompile Include="..\..\src\xpr_crc.c" />
     <ClCompile Include="..\..\src\xpr_fifo.c" />
     <ClCompile Include="..\..\src\xpr_file.c" />
     <ClCompile Include="..\..\src\xpr_file_win32.c" />
+    <ClCompile Include="..\..\src\xpr_fq.c" />
     <ClCompile Include="..\..\src\xpr_h264.c" />
     <ClCompile Include="..\..\src\xpr_json.c" />
     <ClCompile Include="..\..\src\xpr_mcdec.c" />
@@ -326,6 +328,7 @@
     <ClCompile Include="..\..\src\xpr_sync.c" />
     <ClCompile Include="..\..\src\xpr_sync_win32.c" />
     <ClCompile Include="..\..\src\xpr_sys.c" />
+    <ClCompile Include="..\..\src\xpr_sys_win32.c" />
     <ClCompile Include="..\..\src\xpr_thread.c" />
     <ClCompile Include="..\..\src\xpr_thread_win32.c" />
     <ClCompile Include="..\..\src\xpr_url.c" />
