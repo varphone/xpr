@@ -18,6 +18,7 @@ endif
 targets   :=
 targets-y :=
 targets-$(XPR_FIFO) += fifo
+targets-$(XPR_FQ) += fq
 targets-$(XPR_JSON) += json
 targets-$(XPR_THREAD) += thread
 targets-$(XPR_UPS) += ups

@@ -33,6 +33,7 @@ XPR_DRM_DRIVER_RECONBALL=$(XPR_DRM_DRIVER_ALL)
 
 XPR_FIFO=$(XPR_ALL)
 XPR_FILE=$(XPR_ALL)
+XPR_FQ=$(XPR_ALL)
 XPR_GPIO=$(XPR_ALL)
 XPR_GPIO_DRIVER_ALL=n
 XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
@@ -142,6 +143,12 @@ ifeq ($(XPR_FILE),y)
 libxpr_SRCS += \
 xpr_file_unix.c \
 xpr_file.c
+endif
+
+# Fifo
+###############################################################################
+ifeq ($(XPR_FQ),y)
+libxpr_SRCS += xpr_fq.c
 endif
 
 # GPIO
