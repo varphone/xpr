@@ -63,7 +63,7 @@ static void* GetData(void* opaque, XPR_Thread* t)
             td = (struct TestData*)(ent->data);
             crc = XPR_CRC32(0, td->str, ent->length - 4);
             if (td->crc != crc)
-                printf("=== FAILED <%08X, %08X>, [%.*s] ===\n", td->crc, crc, ent->length - 4, td->str);
+                printf("=== FAILED <%08X, %08X>, [%.*s] ===\n", td->crc, crc, (int)(ent->length - 4), td->str);
             //else
             //    printf("%08X <%08X, %08X>, [%.*s]\n", ent->flags, td->crc, crc, ent->length - 4, td->str);
             XPR_FQ_ReleaseEntry(fq, ent);
