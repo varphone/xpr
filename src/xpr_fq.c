@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_errno.h>
@@ -11,11 +11,11 @@
 #endif // defined(HAVE_MP)
 
 struct XPR_FQ {
-    size_t			maxQueues;			// ×î´ó¶ÓÁĞ³¤¶È
-    size_t			maxBufferSize;		// ×î´ó»º³åÇø³¤¶È
-    XPR_Fifo*       freeList;           // ¿ÕÏĞ Fifo
-    XPR_Fifo*       queuedList;         // ¶ÓÁĞ Fifo
-    XPR_FQ_ENTRY*  	entries;            // ÌõÄ¿ÁĞ±í
+    size_t			maxQueues;			// æœ€å¤§é˜Ÿåˆ—é•¿åº¦
+    size_t			maxBufferSize;		// æœ€å¤§ç¼“å†²åŒºé•¿åº¦
+    XPR_Fifo*       freeList;           // ç©ºé—² Fifo
+    XPR_Fifo*       queuedList;         // é˜Ÿåˆ— Fifo
+    XPR_FQ_ENTRY*  	entries;            // æ¡ç›®åˆ—è¡¨
     uint8_t         stuff[8];           //
 };
 
