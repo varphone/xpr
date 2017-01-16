@@ -56,7 +56,7 @@ static void Test_StartStop()
 	int streamPort = XPR_RTSP_PORT(2, 1, 0);
 	int err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
 	if (err == XPR_ERR_OK) {
-		int err = XPR_RTSP_Open(streamPort, "uri:///live-1?track=1&mime=video/H264&track=2&mime=audio/G711");
+		int err = XPR_RTSP_Open(streamPort, "uri:///live-1?vsrc=0&vql=10&asrc=0&aql=10&track=1&mime=video/H264&track=2&mime=audio/G711");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", err);
 		err = XPR_RTSP_Start(streamPort);

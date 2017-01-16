@@ -8,16 +8,17 @@
 
 // H264VideoFramedSource
 //============================================================================
-xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env)
+xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env, xpr::rtsp::Stream* stream)
 	: FramedSource(env)
-	, mBuffer(new uint8_t[XPR_RTSP_H264_VIDEO_BUFFER_SIZE])
-	, mBufferSize(XPR_RTSP_H264_VIDEO_BUFFER_SIZE)
-	, mFreeList(NULL)
-	, mDataList(NULL)
+    , mStream(stream)
 {
 	DBG(DBG_L4, "xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(%p) = %p", &env, this);
-	mFreeList = XPR_FifoCreate(sizeof(XPR_StreamBlock*), 10);
-	mDataList = XPR_FifoCreate(sizeof(XPR_StreamBlock*), 10);
+}
+
+xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(const H264VideoFramedSource & rhs)
+    : FramedSource(rhs.envir())
+    , mStream(rhs.stream())
+{
 }
 
 xpr::rtsp::H264VideoFramedSource::~H264VideoFramedSource(void)
@@ -28,14 +29,10 @@ xpr::rtsp::H264VideoFramedSource::~H264VideoFramedSource(void)
 
 void xpr::rtsp::H264VideoFramedSource::doGetNextFrame()
 {
-	DBG(DBG_L4, "void xpr::rtsp::H264VideoFramedSource::doGetNextFrame() = %p", this);
-	// 根据 fps，计算等待时间  
-	//double delay = 1000.0 / (25 * 2);  // ms  
-	//int to_delay = delay * 1000;  // us  
-
-	printf("void xpr::rtsp::H264VideoFramedSource::doGetNextFrame()\n");
-
-	mCurrentTask = envir().taskScheduler().scheduleDelayedTask(10000, getNextFrame, this);
+    if (mStream->hasVideoFrame())
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(0, getNextFrame, this);
+    else
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(10000, getNextFrame, this);
 }
 
 unsigned int xpr::rtsp::H264VideoFramedSource::maxFrameSize() const
@@ -45,102 +42,49 @@ unsigned int xpr::rtsp::H264VideoFramedSource::maxFrameSize() const
 
 void xpr::rtsp::H264VideoFramedSource::fetchFrame()
 {
-	/*
-	::gettimeofday(&fPresentationTime, 0);
-
-	fFrameSize = 0;
-
-	int len = 0;
-	unsigned char buffer[BUFFER_SIZE] = { 0 };
-	while ((len = read(m_hFifo, buffer, BUFFER_SIZE))>0)
-	{
-		memcpy(m_pFrameBuffer + fFrameSize, buffer, len);
-		fFrameSize += len;
-	}
-	//printf("[MEDIA SERVER] GetFrameData len = [%d],fMaxSize = [%d]\n",fFrameSize,fMaxSize);  
-
-	// fill frame data  
-	memcpy(fTo, m_pFrameBuffer, fFrameSize);
-
-	if (fFrameSize > fMaxSize)
-	{
-		fNumTruncatedBytes = fFrameSize - fMaxSize;
-		fFrameSize = fMaxSize;
-	}
-	else
-	{
-		fNumTruncatedBytes = 0;
-	}
-	*/
-
-	printf("fetch frame\n");
-
-	XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mDataList);
+    XPR_StreamBlock* ntb = mStream->getVideoFrame();
 	if (ntb) {
-		printf("fMaxSize %d, fTo %p\n", fMaxSize, fTo);
 		fFrameSize = min(XPR_StreamBlockLength(ntb), fMaxSize);
 		fNumTruncatedBytes = XPR_StreamBlockLength(ntb) - fMaxSize;
 		memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
 		fPresentationTime.tv_sec = XPR_StreamBlockPTS(ntb) / 1000000;
 		fPresentationTime.tv_usec = XPR_StreamBlockPTS(ntb) % 1000000;
-		afterGetting(this);
+        mStream->releaseVideoFrame(ntb);        
 	}
 	else {
 		fFrameSize = 0;
 		fNumTruncatedBytes = 0;
-		doGetNextFrame();
 	}
+    FramedSource::afterGetting(this);
 }
 
-int xpr::rtsp::H264VideoFramedSource::putFrame(const XPR_StreamBlock * stb)
+xpr::rtsp::Stream* xpr::rtsp::H264VideoFramedSource::stream(void) const
 {
-	// Pop from free list
-	XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mFreeList);
-	if (ntb == NULL) {
-		ntb = XPR_StreamBlockAlloc(0);
-		ntb->buffer = mBuffer + mBufferOffset;
-		ntb->bufferSize = mBufferSize - mBufferOffset;
-		ntb->data = ntb->buffer;
-	}
-	if (XPR_StreamBlockSize(ntb) < XPR_StreamBlockLength(stb)) {
-		ntb->buffer = mBuffer;
-		ntb->bufferSize = mBufferSize;
-		ntb->data = ntb->buffer;
-		mBufferOffset = 0;
-	}
-	//
-	XPR_StreamBlockCopyHeader(stb, ntb);
-	XPR_StreamBlockCopyData(stb, ntb);
-	// Put to data list
-	int err = XPR_FifoPutAsAtomic(mDataList, (uintptr_t)ntb);
-	if (err < 0) {
-		XPR_StreamBlockFree(ntb);
-	}
-	//printf("push data err %x\n", err);
-	return err;
+    return mStream;
 }
 
 void xpr::rtsp::H264VideoFramedSource::getNextFrame(void * ptr)
 {
 	if (ptr) {
-		printf("getNextFrame\n");
 		((H264VideoFramedSource*)ptr)->fetchFrame();
 	}
 }
 
-//Boolean xpr::rtsp::H264VideoFramedSource::isH264VideoStreamFramer() const
-//{
-//	return True;
-//}
+Boolean xpr::rtsp::H264VideoFramedSource::isH264VideoStreamFramer() const
+{
+	return True;
+}
 
 // H264VideoServerMediaSubsession
 //============================================================================
-xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(UsageEnvironment & env, FramedSource* source)
+xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
+        UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
 	: OnDemandServerMediaSubsession(env, True)
 	, mSource(source)
 	, mSink(NULL)
-	, mSDPDone(0)
-	, mSDPLine(NULL)
+    , mStream(stream)
+	, mDoneFlag(0)
+	, mAuxSDPLine(NULL)
 {
 	DBG(DBG_L4, "xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, %p) = %p", &env, source, this);
 }
@@ -148,50 +92,89 @@ xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(UsageE
 xpr::rtsp::H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
 {
 	DBG(DBG_L4, "xpr::rtsp::H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = %p", this);
-	if (mSDPLine) {
-		free(mSDPLine);
-		mSDPLine = NULL;
+	if (mAuxSDPLine) {
+		free(mAuxSDPLine);
+        mAuxSDPLine = NULL;
 	}
 	mSource = NULL;
 	mSink = NULL;
-	mSDPDone = false;
+	mDoneFlag = 0;
+}
+
+static void afterPlayingDummy(void* clientData) {
+    xpr::rtsp::H264VideoServerMediaSubsession* subsess = (xpr::rtsp::H264VideoServerMediaSubsession*)clientData;
+    subsess->afterPlayingDummy1();
+}
+
+void xpr::rtsp::H264VideoServerMediaSubsession::afterPlayingDummy1()
+{
+    // Unschedule any pending 'checking' task:
+    envir().taskScheduler().unscheduleDelayedTask(nextTask());
+    // Signal the event loop that we're done:
+    setDoneFlag();
+}
+
+void xpr::rtsp::H264VideoServerMediaSubsession::setDoneFlag()
+{
+    mDoneFlag = ~0x00;
+}
+
+static void checkForAuxSDPLine(void* clientData) {
+    xpr::rtsp::H264VideoServerMediaSubsession* subsess = (xpr::rtsp::H264VideoServerMediaSubsession*)clientData;
+    subsess->checkForAuxSDPLine1();
+}
+
+void xpr::rtsp::H264VideoServerMediaSubsession::checkForAuxSDPLine1()
+{
+    const char* dasl = NULL;
+
+    nextTask() = NULL;
+
+    if (mAuxSDPLine != NULL) {
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
+        mAuxSDPLine = strDup(dasl);
+        mSink = NULL;
+        DBG(DBG_L4, "H264VideoServerMediaSubsession: AuxSDPLine [%s]", mAuxSDPLine);
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (!mDoneFlag) {
+        // try again after a brief delay:
+        int uSecsToDelay = 10000; // 10 ms
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay,
+            (TaskFunc*)checkForAuxSDPLine, this);
+    }
 }
 
 char const * xpr::rtsp::H264VideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource)
 {
-	if (mSDPLine) {
-		return mSDPLine;
+	if (mAuxSDPLine) {
+		return mAuxSDPLine;
 	}
 
-	printf("getAuxSDPLine(%p, %p)\n", rtpSink, inputSource);
-
-	mSink = rtpSink;
-	//FramedSource* fs = new H264VideoFramedSource(envir());
-	mSink->startPlaying(*inputSource, 0, 0);
-	printf("AAAAAAAAAAAAAA-1101\n");
-	chkForAuxSDPLine(this);
-	printf("AAAAAAAAAAAAAA-1121\n");
-	mSDPDone = 0;
-	envir().taskScheduler().doEventLoop(&mSDPDone);
-	printf("AAAAAAAAAAAAAA-1131\n");
-#if defined(_MSC_VER)
-	mSDPLine = _strdup(mSink->auxSDPLine());
-#else
-	mSDPLine = strdup(mSink->auxSDPLine());
-#endif // defined(_MSC_VER)
-	//mSink->stopPlaying();
-	return mSDPLine;
+    if (mSink == NULL) {
+        // we're not already setting it up for another, concurrent stream
+        // Note: For H264 video files, the 'config' information ("profile-level-id" and "sprop-parameter-sets") isn't known
+        // until we start reading the file.  This means that "rtpSink"s "auxSDPLine()" will be NULL initially,
+        // and we need to start reading data from our file until this changes.
+        mSink = rtpSink;
+        // Start reading the file:
+        mSink->startPlaying(*inputSource, afterPlayingDummy, this);
+        // Check whether the sink's 'auxSDPLine()' is ready:
+        checkForAuxSDPLine(this);
+    }
+    envir().taskScheduler().doEventLoop(&mDoneFlag);
+    return mAuxSDPLine;
 }
 
 FramedSource* xpr::rtsp::H264VideoServerMediaSubsession::createNewStreamSource(
 		unsigned clientSessionId, unsigned & estBitrate)
 {
-	//mSource->
-	return H264VideoStreamFramer::createNew(envir(), mSource, True);
-	//return H264VideoStreamFramer::createNew(envir(), new H264VideoFramedSource(envir()), True);
-	//return new H264VideoFramedSource(envir());
-	//return H264VideoStreamFramer::createNew(envir(), new WW_H264VideoSource(envir()));
-	//return NULL;// new H264VideoFramedSource::createNew()
+    H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
+	return H264VideoStreamFramer::createNew(envir(), src, False);
 }
 
 RTPSink * xpr::rtsp::H264VideoServerMediaSubsession::createNewRTPSink(
@@ -199,45 +182,14 @@ RTPSink * xpr::rtsp::H264VideoServerMediaSubsession::createNewRTPSink(
 		unsigned char rtpPayloadTypeIfDynamic,
 		FramedSource * inputSource)
 {
+    OutPacketBuffer::maxSize = 320000;
 	return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
 }
 
-void xpr::rtsp::H264VideoServerMediaSubsession::chkForAuxSDPLine1()
+xpr::rtsp::H264VideoServerMediaSubsession* xpr::rtsp::H264VideoServerMediaSubsession::createNew(
+        UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
 {
-	printf("mSink %p\n", mSink);
-	if (mSink && mSink->auxSDPLine())
-	{
-		printf("aux line: %s\n", mSink->auxSDPLine());
-		mSDPDone = 0xff;
-	}
-	else
-	{
-		nextTask() = envir().taskScheduler().scheduleDelayedTask(20000, chkForAuxSDPLine, this);
-	}
-}
-
-void xpr::rtsp::H264VideoServerMediaSubsession::sdpDone(bool done)
-{
-	mSDPDone = done ? 0xFF : 0x00;
-}
-
-xpr::rtsp::H264VideoServerMediaSubsession* xpr::rtsp::H264VideoServerMediaSubsession::createNew(UsageEnvironment& env, FramedSource* source)
-{
-	return new H264VideoServerMediaSubsession(env, source);
-}
-
-void xpr::rtsp::H264VideoServerMediaSubsession::afterPlayingDummy(void* ptr)
-{
-	H264VideoServerMediaSubsession* self = (H264VideoServerMediaSubsession*)ptr;
-	if (self)
-		self->mSDPDone = 0xff;
-}
-
-void xpr::rtsp::H264VideoServerMediaSubsession::chkForAuxSDPLine(void* ptr)
-{
-	H264VideoServerMediaSubsession* self = (H264VideoServerMediaSubsession *)ptr;
-	if (self)
-		self->chkForAuxSDPLine1();
+	return new H264VideoServerMediaSubsession(env, source, stream);
 }
 
 // Server
@@ -349,6 +301,11 @@ RTSPServer * xpr::rtsp::Server::rtspServer(void)
 xpr::rtsp::Stream ** xpr::rtsp::Server::streams(void)
 {
 	return mStreams;
+}
+
+xpr::rtsp::Worker * xpr::rtsp::Server::worker(int index) const
+{
+    return mWorkers[index];
 }
 
 xpr::rtsp::Worker ** xpr::rtsp::Server::workers(void)
@@ -655,9 +612,13 @@ void xpr::rtsp::Server::handleServerConfig(void * opaque, char * seg)
 xpr::rtsp::Stream::Stream(int id, Port* parent)
 	: Port(id, parent)
 	, mSMS(NULL)
+    , mAQL(10)
+    , mVQL(10)
+    , mAudioQ(NULL)
+    , mVideoQ(NULL)
 {
 	DBG(DBG_L4, "xpr::rtsp::Stream::Stream(%d, %p) = %p", id, parent, this);
-	memset(mFramedSources, 0, sizeof(mFramedSources));
+	//memset(mFramedSources, 0, sizeof(mFramedSources));
 }
 
 xpr::rtsp::Stream::~Stream(void)
@@ -686,15 +647,19 @@ int xpr::rtsp::Stream::open(int port, const char* url)
 
 	DBG(DBG_L4, "stream name: %s", path);
 	// 创建服务流会话
-	mSMS = ServerMediaSession::createNew(server->workers()[0]->env(), path, NULL, path);
+	mSMS = ServerMediaSession::createNew(server->worker(0)->env(), path, NULL, path);
 	// 使用 Query 参数来配置
 	configStream(XPR_UrlGetQuery(u));
 	//
 	XPR_UrlDestroy(u);
-	//
+	// 创建音视频数据队列
+    mAudioQ = XPR_FifoCreate(sizeof(uintptr_t), mAQL);
+    mVideoQ = XPR_FifoCreate(sizeof(uintptr_t), mVQL);
+    //
 	return XPR_ERR_OK;
 }
 
+// FIXME:
 int xpr::rtsp::Stream::close(int port)
 {
 	return 0;
@@ -712,23 +677,31 @@ int xpr::rtsp::Stream::start(int port)
 
 int xpr::rtsp::Stream::stop(int port)
 {
-	return 0;
+    Server* server = (Server*)parent();
+    if (mSMS == NULL || server->rtspServer() == NULL)
+        return XPR_ERR_GEN_SYS_NOTREADY;
+    server->rtspServer()->removeServerMediaSession(mSMS);
+    mSMS = NULL;
+    return XPR_ERR_OK;
 }
 
 int xpr::rtsp::Stream::pushData(int port, XPR_StreamBlock* stb)
 {
-	//ServerMediaSubsessionIterator smsitr(*mSMS);
-	//ServerMediaSubsession* smss = NULL;
-	//while ((smss = smsitr.next())) {
-	//	if (smss->trackNumber() == stb->track) {
-	//		smss->getStreamSource(NULL);
-	//	}
-	//}
 	if (mSourceType == "stb") {
-		H264VideoFramedSource* src = (H264VideoFramedSource*)mFramedSources[stb->track];
-		if (src) {
-			return src->putFrame(stb);
-		}
+        switch (stb->codec) {
+        case AV_FOURCC_AAC:
+        case AV_FOURCC_PCMA:
+        case AV_FOURCC_PCMU:
+        case AV_FOURCC_G711A:
+        case AV_FOURCC_G711U:
+            return putAudioFrame(stb);
+            break;
+        case AV_FOURCC_H264:
+        case AV_FOURCC_H265:
+        case AV_FOURCC_JPEG:
+            return putVideoFrame(stb);
+            break;
+        }
 	}
 	return XPR_ERR_GEN_UNEXIST;
 }
@@ -736,6 +709,62 @@ int xpr::rtsp::Stream::pushData(int port, XPR_StreamBlock* stb)
 ServerMediaSession * xpr::rtsp::Stream::sms(void) const
 {
 	return mSMS;
+}
+
+bool xpr::rtsp::Stream::hasAudioFrame(void) const
+{
+    return !XPR_FifoIsEmpty(mAudioQ);
+}
+
+bool xpr::rtsp::Stream::hasVideoFrame(void) const
+{
+    return !XPR_FifoIsEmpty(mVideoQ);
+}
+
+XPR_StreamBlock * xpr::rtsp::Stream::getAudioFrame(void) const
+{
+    XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mAudioQ);
+    return ntb;
+}
+
+XPR_StreamBlock * xpr::rtsp::Stream::getVideoFrame(void) const
+{
+    XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mVideoQ);
+    return ntb;
+}
+
+int xpr::rtsp::Stream::putAudioFrame(XPR_StreamBlock * stb)
+{
+    if (!stb || !mAudioQ)
+        return XPR_ERR_GEN_NULL_PTR;
+    XPR_StreamBlock* ntb = XPR_StreamBlockDuplicate(stb);
+    int err = XPR_FifoPutAsAtomic(mAudioQ, (uintptr_t)ntb);
+    if (XPR_IS_ERROR(err)) {
+        XPR_StreamBlockFree(ntb);
+    }
+    return err;
+}
+
+int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock * stb)
+{
+    if (!stb || !mVideoQ)
+        return XPR_ERR_GEN_NULL_PTR;
+    XPR_StreamBlock* ntb = XPR_StreamBlockDuplicate(stb);
+    int err = XPR_FifoPutAsAtomic(mVideoQ, (uintptr_t)ntb);
+    if (XPR_IS_ERROR(err)) {
+        XPR_StreamBlockFree(ntb);
+    }
+    return err;
+}
+
+void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock * stb)
+{
+    XPR_StreamBlockFree(stb);
+}
+
+void xpr::rtsp::Stream::releaseVideoFrame(XPR_StreamBlock * stb)
+{
+    XPR_StreamBlockFree(stb);
 }
 
 void xpr::rtsp::Stream::configStream(const char* query)
@@ -762,11 +791,25 @@ void xpr::rtsp::Stream::configStream(const char * key, const char * value)
 			if (mSourceType == "stb") {
 				UsageEnvironment& env = server->workers()[0]->env();
 				int trackId = strtol(mTrackId.c_str(), NULL, 10);
-				mFramedSources[trackId] = new H264VideoFramedSource(env);
-				mSMS->addSubsession(H264VideoServerMediaSubsession::createNew(env, mFramedSources[trackId]));
+				//mFramedSources[trackId] = new H264VideoFramedSource(env);
+                //H264VideoFramedSource* src = new H264VideoFramedSource(env, this);
+                //printf("stream %p, src %p\n", this, src);
+				mSMS->addSubsession(H264VideoServerMediaSubsession::createNew(env, NULL, this));
 			}
 		}
 	}
+    else if (strcmp(key, "aql") == 0) {
+        mAQL = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "vql") == 0) {
+        mVQL = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "asrc") == 0) {
+        mAsrcId = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "vsrc") == 0) {
+        mVsrcId = strtol(value, NULL, 10);
+    }
 	else {
 		DBG(DBG_L3, "Server configuration: %s unsupported.", key);
 	}

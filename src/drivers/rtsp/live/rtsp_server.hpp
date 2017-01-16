@@ -28,7 +28,8 @@ namespace xpr {
 		class H264VideoFramedSource : public FramedSource
 		{
 		public:
-			H264VideoFramedSource(UsageEnvironment& env);
+			H264VideoFramedSource(UsageEnvironment& env, Stream* stream);
+            H264VideoFramedSource(const H264VideoFramedSource& rhs);
 			virtual ~H264VideoFramedSource(void);
 
 		public:
@@ -38,15 +39,19 @@ namespace xpr {
 
 			// Methods
 			void fetchFrame();
-			int putFrame(const XPR_StreamBlock* stb);
+
+            // Properties
+            Stream* stream(void) const;
+
 			//
 			static void getNextFrame(void * ptr);
 
 		private:
-			//virtual Boolean isH264VideoStreamFramer() const;
+			virtual Boolean isH264VideoStreamFramer() const;
 
 		private:
 			TaskToken	mCurrentTask;
+            Stream*     mStream;
 			uint8_t*	mBuffer;
 			size_t		mBufferOffset;
 			size_t		mBufferSize;
@@ -61,29 +66,32 @@ namespace xpr {
 			virtual ~H264VideoServerMediaSubsession(void);
 
 			// Override OnDemandServerMediaSubsession interfaces
-			virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
 			virtual FramedSource* createNewStreamSource(unsigned clientSessionId, unsigned & estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps  
 			virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 
-			// Methods
-			void chkForAuxSDPLine1();
-			void sdpDone(bool done = true);
+            // Used to implement "getAuxSDPLine()":
+            void checkForAuxSDPLine1();
+            void afterPlayingDummy1();
+			void setDoneFlag();
 
 			// Static Methods
-			static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env, FramedSource* source);
+			static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env, FramedSource* source, Stream* stream);
 
-			static void afterPlayingDummy(void* ptr);
-
-			static void chkForAuxSDPLine(void* ptr);
+			//static void afterPlayingDummy(void* ptr);
+            //static void chkForAuxSDPLine(void* ptr);
 
 		protected:
-			H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source);
+			H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source, Stream* stream);
+
+            // Override OnDemandServerMediaSubsession interfaces
+            virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
 
 		private:
 			FramedSource*		mSource;
 			RTPSink*			mSink;
-			char				mSDPDone;
-			char*				mSDPLine;
+            Stream*             mStream;
+			char				mDoneFlag;
+			char*				mAuxSDPLine;
 		};
 
 		/// ·þÎñÆ÷
@@ -103,6 +111,7 @@ namespace xpr {
 			// Properties
 			RTSPServer* rtspServer(void);
 			Stream** streams(void);
+            Worker* worker(int index) const;
 			Worker** workers(void);
 
 			// Methods
@@ -181,6 +190,20 @@ namespace xpr {
 
 			// Properties
 			ServerMediaSession* sms(void) const;
+            int asrcId(void) const;
+            int vsrcId(void) const;
+
+            bool hasAudioFrame(void) const;
+            bool hasVideoFrame(void) const;
+
+            XPR_StreamBlock* getAudioFrame(void) const;
+            XPR_StreamBlock* getVideoFrame(void) const;
+
+            int putAudioFrame(XPR_StreamBlock* stb);
+            int putVideoFrame(XPR_StreamBlock* stb);
+
+            void releaseAudioFrame(XPR_StreamBlock* stb);
+            void releaseVideoFrame(XPR_StreamBlock* stb);
 
 		private:
 			void configStream(const char* query);
@@ -190,10 +213,16 @@ namespace xpr {
 
 		private:
 			ServerMediaSession* mSMS;
-			FramedSource*		mFramedSources[XPR_RTSP_PORT_TRACK_MAX+1];
+			//FramedSource*		mFramedSources[XPR_RTSP_PORT_TRACK_MAX+1];
+            XPR_Fifo*           mAudioQ;
+            XPR_Fifo*           mVideoQ;
 			// Cached configurations
 			std::string			mSourceType;
 			std::string			mTrackId;
+            int                 mAQL;
+            int                 mVQL;
+            int                 mAsrcId;
+            int                 mVsrcId;
 		};
 
 		class Worker {
