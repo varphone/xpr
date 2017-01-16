@@ -62,8 +62,9 @@ XPR_API int XPR_FifoPeek(XPR_Fifo* f, void* buffer, int size, int offset);
 XPR_API uintptr_t XPR_FifoGetAsAtomic(XPR_Fifo* f);
 
 /// @brief Put data as atomic
-/// @retval 0   success
-/// @retval -1  failure
+/// @retval XPR_ERR_OK              Success.
+/// @retval XPR_ERR_GEN_NULL_PTR    Null ptr passed.
+/// @retval XPR_ERR_GEN_NOBUF       No buffer or queue full.
 XPR_API int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data);
 
 XPR_API uintptr_t XPR_FifoPeekAsAtomic(XPR_Fifo* f, int offset);

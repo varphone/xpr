@@ -167,7 +167,7 @@ XPR_API int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
     XPR_AtomicInc(&f->head);
     *(uintptr_t*)(f->data + n * f->elementSize) = data;
     XPR_FIFO_UNLOCK(f);
-    return 0;
+    return XPR_ERR_OK;
 }
 
 // FIXME:
