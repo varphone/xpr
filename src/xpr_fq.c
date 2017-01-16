@@ -11,11 +11,11 @@
 #endif // defined(HAVE_MP)
 
 struct XPR_FQ {
-    size_t			maxQueues;			// 最大队列长度
-    size_t			maxBufferSize;		// 最大缓冲区长度
+    size_t          maxQueues;          // 最大队列长度
+    size_t          maxBufferSize;      // 最大缓冲区长度
     XPR_Fifo*       freeList;           // 空闲 Fifo
     XPR_Fifo*       queuedList;         // 队列 Fifo
-    XPR_FQ_ENTRY*  	entries;            // 条目列表
+    XPR_FQ_ENTRY*   entries;            // 条目列表
     uint8_t         stuff[8];           //
 };
 
@@ -73,7 +73,6 @@ XPR_API int XPR_FQ_Clear(XPR_FQ* fq)
 {
     if (fq == NULL)
         return XPR_ERR_GEN_NULL_PTR;
-
     return XPR_ERR_OK;
 }
 
@@ -122,7 +121,8 @@ XPR_API int XPR_FQ_PushBack(XPR_FQ* fq, const XPR_FQ_ENTRY* entry)
     return XPR_ERR_OK;
 }
 
-XPR_API int XPR_FQ_PushBackRaw(XPR_FQ* fq, const void* data, size_t length, size_t flags)
+XPR_API int XPR_FQ_PushBackRaw(XPR_FQ* fq, const void* data, size_t length,
+                               size_t flags)
 {
     XPR_FQ_ENTRY ent = { (uint8_t*)data, length, flags };
     return XPR_FQ_PushBack(fq, &ent);
