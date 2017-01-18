@@ -1,7 +1,9 @@
 ﻿#ifndef XPR_STREAMBLOCK_H
 #define XPR_STREAMBLOCK_H
 
+#include <stddef.h>
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 /// @defgroup xprstreamblock 流式数据块
 /// @brief     各种流式数据的容器
