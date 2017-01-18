@@ -9,257 +9,266 @@
 #include <xpr/xpr_fifo.h>
 #include "rtsp.hpp"
 
-#define XPR_RTSP_H264_MAX_FRAME_SIZE	320000
-#define XPR_RTSP_H264_VIDEO_BUFFER_SIZE	(1024*1024*2)
+#define XPR_RTSP_H264_MAX_FRAME_SIZE    320000
+#define XPR_RTSP_H264_VIDEO_BUFFER_SIZE (1024*1024*2)
 
-namespace xpr {
+namespace xpr
+{
 
-	namespace rtsp {
+namespace rtsp
+{
 
-		// 前置声明
-		class H264VideoFramedSource;
-		class H264VideoServerMediaSubsession;
-		class Server;
-		class ServerManager;
-		class Stream;
-		class Worker;
+// 前置声明
+class H264VideoFramedSource;
+class H264VideoServerMediaSubsession;
+class Server;
+class ServerManager;
+class Stream;
+class Worker;
 
-		/// 基于帧的 H264 视频源
-		class H264VideoFramedSource : public FramedSource
-		{
-		public:
-			H264VideoFramedSource(UsageEnvironment& env, Stream* stream);
-            H264VideoFramedSource(const H264VideoFramedSource& rhs);
-			virtual ~H264VideoFramedSource(void);
+/// 基于帧的 H264 视频源
+class H264VideoFramedSource : public FramedSource
+{
+public:
+    H264VideoFramedSource(UsageEnvironment& env, Stream* stream);
+    H264VideoFramedSource(const H264VideoFramedSource& rhs);
+    virtual ~H264VideoFramedSource(void);
 
-		public:
-			// FramedSource interfaces
-			virtual void doGetNextFrame();
-			virtual unsigned int maxFrameSize() const;
+public:
+    // FramedSource interfaces
+    virtual void doGetNextFrame();
+    virtual unsigned int maxFrameSize() const;
 
-			// Methods
-			void fetchFrame();
+    // Methods
+    void fetchFrame();
 
-            // Properties
-            Stream* stream(void) const;
+    // Properties
+    Stream* stream(void) const;
 
-			//
-			static void getNextFrame(void * ptr);
+    //
+    static void getNextFrame(void* ptr);
 
-		private:
-			virtual Boolean isH264VideoStreamFramer() const;
+private:
+    virtual Boolean isH264VideoStreamFramer() const;
 
-		private:
-			TaskToken	mCurrentTask;
-            Stream*     mStream;
-			uint8_t*	mBuffer;
-			size_t		mBufferOffset;
-			size_t		mBufferSize;
-			XPR_Fifo*	mFreeList;
-			XPR_Fifo*	mDataList;
-		};
+private:
+    TaskToken   mCurrentTask;
+    Stream*     mStream;
+    uint8_t*    mBuffer;
+    size_t      mBufferOffset;
+    size_t      mBufferSize;
+    XPR_Fifo*   mFreeList;
+    XPR_Fifo*   mDataList;
+};
 
-		/// H264 视频服务媒体会话
-		class H264VideoServerMediaSubsession : public OnDemandServerMediaSubsession
-		{
-		public:
-			virtual ~H264VideoServerMediaSubsession(void);
+/// H264 视频服务媒体会话
+class H264VideoServerMediaSubsession : public OnDemandServerMediaSubsession
+{
+public:
+    virtual ~H264VideoServerMediaSubsession(void);
 
-			// Override OnDemandServerMediaSubsession interfaces
-			virtual FramedSource* createNewStreamSource(unsigned clientSessionId, unsigned & estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps  
-			virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
+                                                unsigned& estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps
+    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
+                                      unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 
-            // Used to implement "getAuxSDPLine()":
-            void checkForAuxSDPLine1();
-            void afterPlayingDummy1();
-			void setDoneFlag();
+    // Used to implement "getAuxSDPLine()":
+    void checkForAuxSDPLine1();
+    void afterPlayingDummy1();
+    void setDoneFlag();
 
-			// Static Methods
-			static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env, FramedSource* source, Stream* stream);
+    // Static Methods
+    static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env,
+                                                     FramedSource* source, Stream* stream);
 
-			//static void afterPlayingDummy(void* ptr);
-            //static void chkForAuxSDPLine(void* ptr);
+    //static void afterPlayingDummy(void* ptr);
+    //static void chkForAuxSDPLine(void* ptr);
 
-		protected:
-			H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source, Stream* stream);
+protected:
+    H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
+                                   Stream* stream);
 
-            // Override OnDemandServerMediaSubsession interfaces
-            virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
 
-		private:
-			FramedSource*		mSource;
-			RTPSink*			mSink;
-            Stream*             mStream;
-			char				mDoneFlag;
-			char*				mAuxSDPLine;
-		};
+private:
+    FramedSource*       mSource;
+    RTPSink*            mSink;
+    Stream*             mStream;
+    char                mDoneFlag;
+    char*               mAuxSDPLine;
+};
 
-		/// 服务器
-		class Server : public Port {
-		public:
-			Server(int id, Port* parent);
-			virtual ~Server(void);
+/// 服务器
+class Server : public Port
+{
+public:
+    Server(int id, Port* parent);
+    virtual ~Server(void);
 
-			// Port interfaces
-			virtual int isPortValid(int port);
-			virtual int open(int port, const char* url);
-			virtual int close(int port);
-			virtual int start(int port);
-			virtual int stop(int port);
-			virtual int pushData(int port, XPR_StreamBlock* stb);
+    // Port interfaces
+    virtual int isPortValid(int port);
+    virtual int open(int port, const char* url);
+    virtual int close(int port);
+    virtual int start(int port);
+    virtual int stop(int port);
+    virtual int pushData(int port, XPR_StreamBlock* stb);
 
-			// Properties
-			RTSPServer* rtspServer(void);
-			Stream** streams(void);
-            Worker* worker(int index) const;
-			Worker** workers(void);
+    // Properties
+    RTSPServer* rtspServer(void);
+    Stream** streams(void);
+    Worker* worker(int index) const;
+    Worker** workers(void);
 
-			// Methods
-			const char* getBindAddress(void) const;
-			void setBindAddress(const char* bindAddress);
+    // Methods
+    const char* getBindAddress(void) const;
+    void setBindAddress(const char* bindAddress);
 
-			uint16_t getBindPort(void) const;
-			void setBindPort(uint16_t port);
+    uint16_t getBindPort(void) const;
+    void setBindPort(uint16_t port);
 
-			size_t getMaxStreams(void) const;
-			void setMaxStreams(size_t maxStreams);
+    size_t getMaxStreams(void) const;
+    void setMaxStreams(size_t maxStreams);
 
-			size_t getMaxStreamTracks(void) const;
-			void setMaxStreamTracks(size_t maxStreamTracks);
+    size_t getMaxStreamTracks(void) const;
+    void setMaxStreamTracks(size_t maxStreamTracks);
 
-			size_t getMaxWorkers(void) const;
-			void setMaxWorkers(size_t maxWorkers);
+    size_t getMaxWorkers(void) const;
+    void setMaxWorkers(size_t maxWorkers);
 
-			bool isValidStreamId(int streamId);
-			bool isValidStreamTrackId(int streamTrackId);
+    bool isValidStreamId(int streamId);
+    bool isValidStreamTrackId(int streamTrackId);
 
-		private:
-			int openServer(const char* url);
-			int closeServer(void);
+private:
+    int openServer(const char* url);
+    int closeServer(void);
 
-			int startServer(void);
-			int stopServer(void);
+    int startServer(void);
+    int stopServer(void);
 
-			int openStream(int port, const char* url);
-			int closeStream(int port);
+    int openStream(int port, const char* url);
+    int closeStream(int port);
 
-			int startStream(int port);
-			int stopStream(int port);
+    int startStream(int port);
+    int stopStream(int port);
 
-			int setupServer(const char* url);
-			int clearServer(void);
-			void configServer(const char* query);
-			void configServer(const char* key, const char* value);
+    int setupServer(const char* url);
+    int clearServer(void);
+    void configServer(const char* query);
+    void configServer(const char* key, const char* value);
 
-			void setupStreams(void);
-			void clearStreams(void);
-			void configStream(int port, const char* query);
-			void configStream(int port, const char* key, const char* value);
+    void setupStreams(void);
+    void clearStreams(void);
+    void configStream(int port, const char* query);
+    void configStream(int port, const char* key, const char* value);
 
-			void setupWorkers(void);
-			void clearWorkers(void);
+    void setupWorkers(void);
+    void clearWorkers(void);
 
-			void setupRTSPServer(void);
-			void clearRTSPServer(void);
+    void setupRTSPServer(void);
+    void clearRTSPServer(void);
 
-			static void handleServerConfig(void* opaque, char* seg);
+    static void handleServerConfig(void* opaque, char* seg);
 
-		private:
-			std::string			mBindAddress;
-			uint16_t			mBindPort;
-			size_t				mMaxStreams;
-			size_t				mMaxStreamTracks;
-			size_t				mMaxWorkers;
-			Stream*							mStreams[XPR_RTSP_PORT_MINOR_MAX + 2];
-			Worker*							mWorkers[XPR_RTSP_MAX_WORKERS];
-			UserAuthenticationDatabase*		mAuthDB;
-			RTSPServer*						mRTSPServer;
-		};
+private:
+    std::string         mBindAddress;
+    uint16_t            mBindPort;
+    size_t              mMaxStreams;
+    size_t              mMaxStreamTracks;
+    size_t              mMaxWorkers;
+    Stream*                         mStreams[XPR_RTSP_PORT_MINOR_MAX + 2];
+    Worker*                         mWorkers[XPR_RTSP_MAX_WORKERS];
+    UserAuthenticationDatabase*     mAuthDB;
+    RTSPServer*                     mRTSPServer;
+};
 
-		class Stream : public Port {
-		public:
-			Stream(int id, Port* parent);
-			virtual ~Stream(void);
+class Stream : public Port
+{
+public:
+    Stream(int id, Port* parent);
+    virtual ~Stream(void);
 
-			// Override Port interfaces
-			virtual int open(int port, const char* url);
-			virtual int close(int port);
-			virtual int start(int port);
-			virtual int stop(int port);
-			virtual int pushData(int port, XPR_StreamBlock* stb);
+    // Override Port interfaces
+    virtual int open(int port, const char* url);
+    virtual int close(int port);
+    virtual int start(int port);
+    virtual int stop(int port);
+    virtual int pushData(int port, XPR_StreamBlock* stb);
 
-			// Properties
-			ServerMediaSession* sms(void) const;
-            int asrcId(void) const;
-            int vsrcId(void) const;
+    // Properties
+    ServerMediaSession* sms(void) const;
+    int asrcId(void) const;
+    int vsrcId(void) const;
 
-            bool hasAudioFrame(void) const;
-            bool hasVideoFrame(void) const;
+    bool hasAudioFrame(void) const;
+    bool hasVideoFrame(void) const;
 
-            XPR_StreamBlock* getAudioFrame(void) const;
-            XPR_StreamBlock* getVideoFrame(void) const;
+    XPR_StreamBlock* getAudioFrame(void) const;
+    XPR_StreamBlock* getVideoFrame(void) const;
 
-            int putAudioFrame(XPR_StreamBlock* stb);
-            int putVideoFrame(XPR_StreamBlock* stb);
+    int putAudioFrame(XPR_StreamBlock* stb);
+    int putVideoFrame(XPR_StreamBlock* stb);
 
-            void releaseAudioFrame(XPR_StreamBlock* stb);
-            void releaseVideoFrame(XPR_StreamBlock* stb);
+    void releaseAudioFrame(XPR_StreamBlock* stb);
+    void releaseVideoFrame(XPR_StreamBlock* stb);
 
-		private:
-			void configStream(const char* query);
-			void configStream(const char* key, const char* value);
+private:
+    void configStream(const char* query);
+    void configStream(const char* key, const char* value);
 
-			static void handleStreamConfig(void* opaque, char* seg);
+    static void handleStreamConfig(void* opaque, char* seg);
 
-		private:
-			ServerMediaSession* mSMS;
-			//FramedSource*		mFramedSources[XPR_RTSP_PORT_TRACK_MAX+1];
-            XPR_Fifo*           mAudioQ;
-            XPR_Fifo*           mVideoQ;
-			// Cached configurations
-			std::string			mSourceType;
-			std::string			mTrackId;
-            int                 mAQL;
-            int                 mVQL;
-            int                 mAsrcId;
-            int                 mVsrcId;
-		};
+private:
+    ServerMediaSession* mSMS;
+    //FramedSource*     mFramedSources[XPR_RTSP_PORT_TRACK_MAX+1];
+    XPR_Fifo*           mAudioQ;
+    XPR_Fifo*           mVideoQ;
+    // Cached configurations
+    std::string         mSourceType;
+    std::string         mTrackId;
+    int                 mAQL;
+    int                 mVQL;
+    int                 mAsrcId;
+    int                 mVsrcId;
+};
 
-		class Worker {
-		public:
-			Worker(int id, Server* server);
-			virtual ~Worker(void);
+class Worker
+{
+public:
+    Worker(int id, Server* server);
+    virtual ~Worker(void);
 
-			// Methods
-			void run(void);
-			int start(void);
-			int stop(void);
-			int terminate(void);
+    // Methods
+    void run(void);
+    int start(void);
+    int stop(void);
+    int terminate(void);
 
-			// Properties
+    // Properties
 
-			int id(void) const;
+    int id(void) const;
 
-			Server& server(void);
+    Server& server(void);
 
-			TaskScheduler& scheduler(void);
+    TaskScheduler& scheduler(void);
 
-			UsageEnvironment& env(void);
+    UsageEnvironment& env(void);
 
-		private:
+private:
 
-			static void* thread(void* opaque, XPR_Thread* thread);
+    static void* thread(void* opaque, XPR_Thread* thread);
 
-		private:
-			int					mId;
-			Server*				mServer;
-			TaskScheduler*		mScheduler;
-			UsageEnvironment*	mEnv;
-			XPR_Thread*			mThread;
-			bool				mExitLoop;
-		};
+private:
+    int                 mId;
+    Server*             mServer;
+    TaskScheduler*      mScheduler;
+    UsageEnvironment*   mEnv;
+    XPR_Thread*         mThread;
+    bool                mExitLoop;
+};
 
-	} // namespace xpr::rtsp
+} // namespace xpr::rtsp
 
 } // namespace xpr
 
