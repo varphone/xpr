@@ -46,6 +46,10 @@ XPR_MD5=$(XPR_ALL)
 XPR_MEM=$(XPR_ALL)
 XPR_PES=$(XPR_ALL)
 XPR_PLUGIN=$(XPR_ALL)
+XPR_RTSP=$(XPR_ALL)
+XPR_RTSP_DRIVER_ALL=$(XPR_RTSP)
+XPR_RTSP_DRIVER_LIVE=$(XPR_RTSP_DRIVER_ALL)
+XPR_RTSP_SERVER=$(XPR_RTSP)
 XPR_SHA1=$(XPR_ALL)
 XPR_STREAMBLOCK=$(XPR_ALL)
 XPR_SYNC=$(XPR_ALL)
@@ -218,6 +222,14 @@ endif
 ifeq ($(XPR_PLUGIN),y)
 libxpr_SRCS += xpr_plugin.c
 endif
+
+# RTSP framework
+###############################################################################
+ifeq ($(XPR_RTSP),y)
+$(eval $(call add_driver,RTSP,LIVE,$(XPR_RTSP_DRIVER_LIVE),live/rtsp.cpp live/rtsp_server.cpp,,,-lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment))
+libxpr_SRCS += xpr_rtsp.c
+endif
+
 
 # SHA1
 ###############################################################################
