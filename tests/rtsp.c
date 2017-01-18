@@ -36,10 +36,14 @@ static void segment(void* opaque, char* seg)
 
 static void Test_OpenServer()
 {
+	int i;
+	int err;
+	int serverPort;
+
 	XPR_RTSP_Init();
-	int serverPort = XPR_RTSP_PORT(2, 0, 0);
-	for (int i = 0; i < 10; i++) {
-		int err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/akaa?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
+	serverPort = XPR_RTSP_PORT(2, 0, 0);
+	for (i = 0; i < 10; i++) {
+		err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/akaa?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", serverPort);
 		XPR_RTSP_Start(serverPort);
@@ -51,12 +55,16 @@ static void Test_OpenServer()
 
 static void Test_StartStop()
 {
+	int err;
+	int serverPort;
+	int streamPort;
+
 	XPR_RTSP_Init();
-	int serverPort = XPR_RTSP_PORT(2, 0, 0);
-	int streamPort = XPR_RTSP_PORT(2, 1, 0);
-	int err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
+	serverPort = XPR_RTSP_PORT(2, 0, 0);
+	streamPort = XPR_RTSP_PORT(2, 1, 0);
+	err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
 	if (err == XPR_ERR_OK) {
-		int err = XPR_RTSP_Open(streamPort, "uri:///live-1?vsrc=0&vql=10&asrc=0&aql=10&track=1&mime=video/H264&track=2&mime=audio/G711");
+		err = XPR_RTSP_Open(streamPort, "uri:///live-1?vsrc=0&vql=10&asrc=0&aql=10&track=1&mime=video/H264&track=2&mime=audio/G711");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", err);
 		err = XPR_RTSP_Start(streamPort);
@@ -79,18 +87,22 @@ struct FrameInfo {
 
 static void Test_H264Video()
 {
+	int err;
+	int n1, n2;
+	int serverPort;
+	int streamPort;
 	struct FrameInfo fi = { 0 };
 	XPR_StreamBlock stb = { 0 };
 
 	XPR_RTSP_Init();
-	int serverPort = XPR_RTSP_PORT(2, 0, 0);
-	int streamPort = XPR_RTSP_PORT(2, 1, 0);
-	int err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
+	serverPort = XPR_RTSP_PORT(2, 0, 0);
+	streamPort = XPR_RTSP_PORT(2, 1, 0);
+	err = XPR_RTSP_Open(serverPort, "rtsp://0.0.0.0:554/live/0?maxStreams=16&maxStreamTracks=4&maxWorkers=1&high");
 	if (XPR_IS_ERROR(err)) {
 		printf("XPR_RTSP_Open() failed, %x\n", err);
 	}
 	else if (err == XPR_ERR_OK) {
-		int err = XPR_RTSP_Open(streamPort, "uri:///live-1?track=1&mime=video/H264&track=2&mime=audio/G711");
+		err = XPR_RTSP_Open(streamPort, "uri:///live-1?track=1&mime=video/H264&track=2&mime=audio/G711");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", err);
 		err = XPR_RTSP_Start(streamPort);
@@ -109,14 +121,14 @@ static void Test_H264Video()
 		stb.codec = AV_FOURCC_H264;
 		stb.track = 1;
 		while (1) {
-			int n1 = XPR_FileRead(f2, &fi, sizeof(fi));
+			n1 = XPR_FileRead(f2, (uint8_t*)&fi, sizeof(fi));
 			if (n1 != sizeof(fi)) {
 				XPR_FileSeek(f1, 0, XPR_FILE_SEEK_SET);
 				XPR_FileSeek(f2, 0, XPR_FILE_SEEK_SET);
 				continue;
 			}
 			XPR_FileSeek(f1, fi.offset, XPR_FILE_SEEK_SET);
-			int n2 = XPR_FileRead(f1, stb.data, fi.length);
+			n2 = XPR_FileRead(f1, stb.data, fi.length);
 			if (n2 != fi.length)
 				continue;
 			stb.dataSize = fi.length;

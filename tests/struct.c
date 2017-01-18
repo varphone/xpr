@@ -61,8 +61,8 @@ static void reg(struct Entry ents[], int count)
 
 static void runTest(void)
 {
-    printf("sizeof(struct Entry) = %ld\n", sizeof(struct Entry));
-    printf("sizeof(ents[]) = %ld\n", sizeof(ents));
+    printf("sizeof(struct Entry) = %d\n", sizeof(struct Entry));
+    printf("sizeof(ents[]) = %d\n", sizeof(ents));
     printf("ents[0].names = %p (%s, %s, %s, %s)\n",
            ents[0].names, ents[0].names[0], ents[0].names[1],
            ents[0].names[2], ents[0].names[3]);
