@@ -175,7 +175,6 @@ namespace xpr {
 
 			virtual int isPortValid(int port)
 			{
-				printf("%s:%d:%s\n", __FILE__, __LINE__, __FUNCSIG__);
 				return XPR_FALSE;
 			}
 

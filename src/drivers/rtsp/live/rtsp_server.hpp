@@ -5,7 +5,7 @@
 #include <string>
 #include <live/BasicUsageEnvironment.hh>
 #include <live/FramedSource.hh>
-#include <live/LiveMedia.hh>
+#include <live/liveMedia.hh>
 #include <xpr/xpr_fifo.h>
 #include "rtsp.hpp"
 

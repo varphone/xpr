@@ -44,7 +44,7 @@ void xpr::rtsp::H264VideoFramedSource::fetchFrame()
 {
     XPR_StreamBlock* ntb = mStream->getVideoFrame();
 	if (ntb) {
-		fFrameSize = min(XPR_StreamBlockLength(ntb), fMaxSize);
+		fFrameSize = std::min(XPR_StreamBlockLength(ntb), fMaxSize);
 		fNumTruncatedBytes = XPR_StreamBlockLength(ntb) - fMaxSize;
 		memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
 		fPresentationTime.tv_sec = XPR_StreamBlockPTS(ntb) / 1000000;
@@ -340,7 +340,7 @@ size_t xpr::rtsp::Server::getMaxStreams(void) const
 
 void xpr::rtsp::Server::setMaxStreams(size_t maxStreams)
 {
-	mMaxStreams = min(maxStreams, XPR_RTSP_PORT_STREAM_MAX);
+	mMaxStreams = MIN(maxStreams, XPR_RTSP_PORT_STREAM_MAX);
 }
 
 size_t xpr::rtsp::Server::getMaxStreamTracks(void) const
@@ -350,7 +350,7 @@ size_t xpr::rtsp::Server::getMaxStreamTracks(void) const
 
 void xpr::rtsp::Server::setMaxStreamTracks(size_t maxStreamTracks)
 {
-	mMaxStreamTracks = min(maxStreamTracks, XPR_RTSP_PORT_TRACK_MAX);
+	mMaxStreamTracks = MIN(maxStreamTracks, XPR_RTSP_PORT_TRACK_MAX);
 }
 
 size_t xpr::rtsp::Server::getMaxWorkers(void) const
@@ -360,7 +360,7 @@ size_t xpr::rtsp::Server::getMaxWorkers(void) const
 
 void xpr::rtsp::Server::setMaxWorkers(size_t maxWorkers)
 {
-	mMaxWorkers = min(maxWorkers, XPR_RTSP_MAX_WORKERS);
+	mMaxWorkers = MIN(maxWorkers, XPR_RTSP_MAX_WORKERS);
 }
 
 bool xpr::rtsp::Server::isValidStreamId(int streamId)
@@ -612,10 +612,10 @@ void xpr::rtsp::Server::handleServerConfig(void * opaque, char * seg)
 xpr::rtsp::Stream::Stream(int id, Port* parent)
 	: Port(id, parent)
 	, mSMS(NULL)
-    , mAQL(10)
-    , mVQL(10)
-    , mAudioQ(NULL)
-    , mVideoQ(NULL)
+	, mAudioQ(NULL)
+	, mVideoQ(NULL)
+	, mAQL(10)
+	, mVQL(10)
 {
 	DBG(DBG_L4, "xpr::rtsp::Stream::Stream(%d, %p) = %p", id, parent, this);
 	//memset(mFramedSources, 0, sizeof(mFramedSources));

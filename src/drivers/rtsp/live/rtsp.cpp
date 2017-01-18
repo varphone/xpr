@@ -197,7 +197,7 @@ int xpr::rtsp::PortManager::fini(void)
 int xpr::rtsp::PortManager::setupServer(const char * url)
 {
 	// 创建服务器
-	Server* server = new Server(XPR_RTSP_PORT_MAJOR_SVR, this);
+	xpr::rtsp::Server* server = new xpr::rtsp::Server(XPR_RTSP_PORT_MAJOR_SVR, this);
 	if (server == NULL)
 		return XPR_ERR_GEN_NOMEM;
 	int err = server->open(XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_SVR, 0, 0), url);
@@ -208,7 +208,7 @@ int xpr::rtsp::PortManager::setupServer(const char * url)
 
 int xpr::rtsp::PortManager::clearServer(void)
 {
-	Server* server = (Server*)mMajorPorts[XPR_RTSP_PORT_MAJOR_SVR];
+	xpr::rtsp::Server* server = (xpr::rtsp::Server*)mMajorPorts[XPR_RTSP_PORT_MAJOR_SVR];
 	if (server) {
 		server->close(XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_SVR, 0, 0));
 		delete server;
