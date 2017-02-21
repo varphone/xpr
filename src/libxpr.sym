@@ -1,0 +1,6 @@
+{
+    global:
+            libXPR_*;
+            XPR_*;
+    local: *;
+};
