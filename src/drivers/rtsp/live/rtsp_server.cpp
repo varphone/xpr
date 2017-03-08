@@ -592,7 +592,7 @@ void xpr::rtsp::Server::setupRTSPServer(void)
 #if defined(DEBUG) || defined(_DEBUG)
     mAuthDB->addUserRecord("test", "test");
 #endif
-    mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, mAuthDB);
+    mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, NULL);
 }
 
 void xpr::rtsp::Server::clearRTSPServer(void)
