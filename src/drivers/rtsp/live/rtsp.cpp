@@ -1,4 +1,4 @@
-#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
+ï»¿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
 
 #if defined(_MSC_VER)
 #  if defined(DEBUG) || defined(_DEBUG)
@@ -27,10 +27,11 @@
 #include <xpr/xpr_rtsp.h>
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_url.h>
+#include <live/GroupsockHelper.hh>
 
 #include "rtsp.hpp"
 
-// ¶Ë¿ÚÖ÷¶Ë¿Ú²ÛÎ»
+// ç«¯å£ä¸»ç«¯å£æ§½ä½
 static xpr::rtsp::PortManager*  rtsp = NULL;
 
 #if defined(HAVE_XPR_RTSP_CLIENT)
@@ -196,7 +197,7 @@ int xpr::rtsp::PortManager::fini(void)
 
 int xpr::rtsp::PortManager::setupServer(const char* url)
 {
-    // ´´½¨·şÎñÆ÷
+    // åˆ›å»ºæœåŠ¡å™¨
     xpr::rtsp::Server* server = new xpr::rtsp::Server(XPR_RTSP_PORT_MAJOR_SVR,
                                                       this);
     if (server == NULL)
@@ -223,8 +224,19 @@ int xpr::rtsp::PortManager::clearServer(void)
 //============================================================================
 XPR_API int XPR_RTSP_Init(void)
 {
+    char* env = NULL;
     if (rtsp)
         return XPR_ERR_GEN_EXIST;
+    // Set live555 ReceivingInterfaceAddr & SendingInterfaceAddr from ENV
+    env = getenv("XPR_RTSP_RX_IF_ADDR");
+    if (env && *env) {
+        ReceivingInterfaceAddr = our_inet_addr(env);
+    }
+    env = getenv("XPR_RTSP_TX_IF_ADDR");
+    if (env && *env) {
+        SendingInterfaceAddr = our_inet_addr(env);
+    }
+    //
     rtsp = new xpr::rtsp::PortManager();
     if (rtsp == NULL)
         return XPR_ERR_GEN_NOMEM;
