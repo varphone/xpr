@@ -1,10 +1,13 @@
-#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
+ï»¿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
 
 #include "rtsp_server.hpp"
 #include <live/GroupsockHelper.hh>
 #include <xpr/xpr_rtsp.h>
 #include <xpr/xpr_url.h>
+#include <algorithm>
 #include <map>
+
+#undef min // avoid from cstdlib
 
 // H264VideoFramedSource
 //============================================================================
@@ -386,9 +389,9 @@ bool xpr::rtsp::Server::isValidStreamTrackId(int streamTrackId)
     return false;
 }
 
-/// ´ò¿ª·şÎñÆ÷
-/// @retval XPR_ERR_GEN_BUSY    ·şÎñÆ÷ÕıÔÚÔËĞĞ
-/// @retval XPR_ERR_OK          ·şÎñÆ÷´ò¿ª³É¹¦
+/// æ‰“å¼€æœåŠ¡å™¨
+/// @retval XPR_ERR_GEN_BUSY    æœåŠ¡å™¨æ­£åœ¨è¿è¡Œ
+/// @retval XPR_ERR_OK          æœåŠ¡å™¨æ‰“å¼€æˆåŠŸ
 int xpr::rtsp::Server::openServer(const char* url)
 {
     if (activeFlags() != PortFlags::PORT_FLAG_NULL ||
@@ -490,7 +493,7 @@ int xpr::rtsp::Server::stopStream(int port)
 
 int xpr::rtsp::Server::setupServer(const char* url)
 {
-    // ½âÎöµØÖ·²ÎÊı
+    // è§£æåœ°å€å‚æ•°
     XPR_Url* u = XPR_UrlParse(url, -1);
     if (u == NULL)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -499,12 +502,12 @@ int xpr::rtsp::Server::setupServer(const char* url)
     //
     const char* host = XPR_UrlGetHost(u);
     uint16_t port = XPR_UrlGetPort(u);
-    // Éè¶¨°ó¶¨µØÖ·¼°¶Ë¿Ú
+    // è®¾å®šç»‘å®šåœ°å€åŠç«¯å£
     if (host)
         setBindAddress(host);
     if (port)
         setBindPort(port);
-    // Ê¹ÓÃ Query ²ÎÊıÀ´ÅäÖÃ·şÎñÆ÷
+    // ä½¿ç”¨ Query å‚æ•°æ¥é…ç½®æœåŠ¡å™¨
     configServer(XPR_UrlGetQuery(u));
     //
     XPR_UrlDestroy(u);
@@ -642,7 +645,7 @@ xpr::rtsp::Stream::~Stream(void)
 
 int xpr::rtsp::Stream::open(int port, const char* url)
 {
-    // ½âÎöµØÖ·²ÎÊı
+    // è§£æåœ°å€å‚æ•°
     XPR_Url* u = XPR_UrlParse(url, -1);
     if (u == NULL)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -655,18 +658,18 @@ int xpr::rtsp::Stream::open(int port, const char* url)
         XPR_UrlDestroy(u);
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     }
-    // Ìø¹ıÆğÊ¼ '/'
+    // è·³è¿‡èµ·å§‹ '/'
     if (*path == '/')
         path++;
     DBG(DBG_L4, "stream name: %s", path);
-    // ´´½¨·şÎñÁ÷»á»°
+    // åˆ›å»ºæœåŠ¡æµä¼šè¯
     mSMS = ServerMediaSession::createNew(server->worker(0)->env(), path, NULL,
                                          path);
-    // Ê¹ÓÃ Query ²ÎÊıÀ´ÅäÖÃ
+    // ä½¿ç”¨ Query å‚æ•°æ¥é…ç½®
     configStream(XPR_UrlGetQuery(u));
     //
     XPR_UrlDestroy(u);
-    // ´´½¨ÒôÊÓÆµÊı¾İ¶ÓÁĞ
+    // åˆ›å»ºéŸ³è§†é¢‘æ•°æ®é˜Ÿåˆ—
     mAudioQ = XPR_FifoCreate(sizeof(uintptr_t), mAQL);
     mVideoQ = XPR_FifoCreate(sizeof(uintptr_t), mVQL);
     //
