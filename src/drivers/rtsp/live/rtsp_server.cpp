@@ -628,8 +628,8 @@ xpr::rtsp::Stream::Stream(int id, Port* parent)
     , mSMS(NULL)
     , mAudioQ(NULL)
     , mVideoQ(NULL)
-    , mAQL(10)
-    , mVQL(10)
+    , mAQL(30)
+    , mVQL(30)
 {
     DBG(DBG_L4, "xpr::rtsp::Stream::Stream(%d, %p) = %p", id, parent, this);
     //memset(mFramedSources, 0, sizeof(mFramedSources));
