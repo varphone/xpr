@@ -56,11 +56,10 @@ void XPR_DPU_RegisterAll(void)
     extern XPR_DPU_Driver xpr_dpu_driver_mdsd;
     XPR_DPU_Register(&xpr_dpu_driver_mdsd);
 #endif
-
-//#if HAVE_XPR_DPU_DRIVER_HI3516CVIDEO
+#if HAVE_XPR_DPU_DRIVER_HI3516CVIDEO
     extern XPR_DPU_Driver xpr_dpu_driver_hi3516cvideo;
     XPR_DPU_Register(&xpr_dpu_driver_hi3516cvideo);
-//#endif
+#endif
 }                                                                                     
 
 XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id)
