@@ -100,6 +100,8 @@ struct XPR_UPS_Entry {
     XPR_UPS_Entry* prev; ///< 前一个节点
     XPR_UPS_Entry* next; ///< 下一个节点
     XPR_UPS_Entry* subs; ///< 首个子节点
+    XPR_UPS_Entry* parent; ///< 父亲节点
+    void* data;
 };
 
 #define XPR_UPS_ENTRY_END   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -282,11 +284,13 @@ const char* XPR_UPS_NextKey(const char* key);
 
 /// @brief 开始分组操作
 /// @param [in] group       分组名称
-void XPR_UPS_BeginGroup(const char* group);
+/// @retval 见错误码表
+int XPR_UPS_BeginGroup(const char* group);
 
 /// @brief 结束分组操作
 /// @param [in] group       分组名称
-void XPR_UPS_EndGroup(const char* group);
+/// @retval 见错误码表
+int XPR_UPS_EndGroup(const char* group);
 
 /// @brief 导出数据为平坦文件
 /// @param [in] url         平坦文件路径

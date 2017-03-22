@@ -40,8 +40,8 @@ static void InitBase64DecodeTable(void)
     gBase64DecodeTable[(unsigned char)'='] = 0;
 }
 
-XPR_API unsigned char* XPR_Base64Decode(char const* in, unsigned inSize,
-									    unsigned int* resultSize, int trimTrailingZeros)
+unsigned char* XPR_Base64Decode(char const* in, unsigned inSize,
+                                unsigned int* resultSize, int trimTrailingZeros)
 {
     static int haveInitializedBase64DecodeTable = 0;
     unsigned char* out = 0;
@@ -88,7 +88,7 @@ XPR_API unsigned char* XPR_Base64Decode(char const* in, unsigned inSize,
 static const char gBase64Char[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-XPR_API char* XPR_Base64Encode(const unsigned char* origSigned, unsigned int origLength)
+char* XPR_Base64Encode(const unsigned char* origSigned, unsigned int origLength)
 {
     const unsigned char* orig = (const unsigned char*)origSigned; // in case any input bytes have the MSB set
     const unsigned int numOrig24BitValues = origLength/3;

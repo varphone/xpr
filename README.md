@@ -1,93 +1,25 @@
-X Portable Runtime {#mainpage}
-==================
+# Video Recorder System
+视频记录仪系统是基于FPGA+Hi3531架构的视频存储设备。<br/>
 
-## Compoments
+## 说明
+VRS是基于Qt + Plugins的方式开发的音视频记录系统，其底层库采用C89实现，上层应用使用Qt库来实现。
 
-* [AVFRAME](#avframe)
-* [BASE64](#base64)
-* [DPU](#dpu)
-* [FIFO](#fifo)
-* [JSON](#json)
-* [MD5](#md5)
-* [PLUGIN](#plugin)
-* [RTSP](#rtsp)
-* [SYNC](#sync)
-* [SYS](#sys)
-* [THREAD](#thread)
-* [UPS](#ups)
-* [URL](#url)
-* [UTILS](#utils)
 
-## AVFRAME
+## 使用
+使用之前请先确保你的交叉工具链环境已经导出<br/>
 
-Audio and Video raw data container
+<strong>步骤 1:</strong> 获取 VRS
+<pre>
+git clone https://10.0.2.2/git/rdst/vrs.git
+cd vrs
+make
+make install
+</pre>
 
-## BASE64
-
-BASE64 algorithm
-
-## DPU
-
-Data Processing Unit
-
-## FIFO
-
-Fifo
-
-## JSON
-
-Java Script Object Notiation
-
-## MD5
-
-MD5 algorithm
-
-## PLUGIN
-
-Plugin framework
-
-## RTSP
-
-### RTSP 服务器
-
-**使用示例**
-```
-const char* url = "rtsp://0.0.0.0:554?maxStreams=16&maxStreamTracks=4&maxWorkers=1&workerDelay=10"
-int port = XPR_RTSP_Open(XPR_RTSP_PORT(2, 0, 0), url);
-if (port > 0) {
-    XPR_RTSP_Start(port);
-
-    int ch1 = XPR_RTSP_Open(XPR_RTSP_PORT(2, 1, 0), "uri:///channel/1?tracks=video/H264;audio/G711");
-    if (ch1 > 0) {
-        XPR_RTSP_Start(ch1);
-    }
-    ...
-    XPR_RTSP_Stop(port);
-    XPR_RTSP_Close(port);
-}
-```
-
-## SYNC
-
-Thread and Process synchronization
-
-## SYS
-
-System relates
-
-## THREAD
-
-Thread
-
-## UPS
-
-Universal Preference Settings framework
-
-## URL
-
-Url parser
-
-## UTILS
-
-Utilities
-
+<strong>步骤 2: </strong> 运行测试程序<br/>
+<pre>
+ cp apps/plugins/plugin_*.p /plugins/
+ cp lib/libxpr.so  /usr/lib/
+ cp tests/test /
+ ./test
+</pre>

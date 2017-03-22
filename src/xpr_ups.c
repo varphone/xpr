@@ -157,6 +157,7 @@ int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
             printf("ret = %X, cant not find:%s\n", ret, ent->root);
             return XPR_ERR_UPS_UNEXIST;
         }
+        ent->parent = entry;
         if (!entry->subs) {
             entry->subs = ent;
         }
@@ -165,8 +166,9 @@ int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
             while (entry) {
                 if (ent->type ==
                     XPR_UPS_ENTRY_TYPE_DIR  // 如果目录已存在则直接退出，不做挂载
-                    && strcmp(entry->names[0], ent->names[0]) == 0)
+                    && strcmp(entry->names[0], ent->names[0]) == 0) {
                     return XPR_ERR_SUCCESS;
+				}
                 if (!entry->next) {
                     entry->next = ent;
                     ent->prev = entry;
@@ -194,10 +196,10 @@ extern const int xpr_ups_driver_camera_image_count;
 static void XPR_UPS_RegisterAll(void)
 {
     XPR_UPS_Register(&xpr_ups_driver_root, 1);
-    XPR_UPS_Register(xpr_ups_driver_system_network,
-                     xpr_ups_driver_system_network_count);
     XPR_UPS_Register(xpr_ups_driver_system_information,
                      xpr_ups_driver_system_information_count);
+    XPR_UPS_Register(xpr_ups_driver_system_network,
+                     xpr_ups_driver_system_network_count);
     // register other....
 }
 
@@ -205,17 +207,16 @@ int XPR_UPS_Init(void)
 {
     if (root_json)
         return XPR_ERR_SUCCESS;
-    root_json = XPR_JSON_LoadFileName("./configuration.json");
+    root_json = XPR_JSON_LoadFileName("/hi3531/configuration.json");
     if (!root_json)
         return XPR_ERR_UPS_UNEXIST;
-    //printf("%s\n", XPR_JSON_DumpString(root_json));
     XPR_UPS_RegisterAll();
     return XPR_ERR_SUCCESS;
 }
 
 int XPR_UPS_Fini(void)
 {
-    XPR_JSON_DumpFileName(root_json, "./configuration.json");
+    XPR_JSON_DumpFileName(root_json, "/hi3531/configuration.json");
     XPR_JSON_DecRef(root_json);
     root_json = 0;
     return XPR_ERR_SUCCESS;
@@ -492,8 +493,7 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
     const char* s = NULL;
     switch (ent->type) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        *(int*)buffer = XPR_JSON_IntegerValue(
-                            json);//not support boolean set now 20140924
+        *(int*)buffer = XPR_JSON_IntegerValue(json); //not support boolean set now 20140924
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
         // not support yet...
@@ -509,6 +509,8 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
         break;
     case XPR_UPS_ENTRY_TYPE_STRING:
         s = XPR_JSON_StringValue(json);
+		if(!s)
+			return XPR_ERR_ERROR;
         len = strlen(s);
         if (len >= *size) {
             result = XPR_ERR_BUF_FULL;
@@ -530,8 +532,7 @@ int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
     int result = XPR_ERR_OK;
     switch (ent->type) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        result = XPR_JSON_IntegerSet(json,
-                                     *(int*)data);//not support boolean set now 20140924
+        result = XPR_JSON_IntegerSet(json, *(int*)data);//not support boolean set now 20140924
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
         // not support yet...
@@ -576,12 +577,37 @@ const char* XPR_UPS_NextKey(const char* key)
     return XPR_ERR_OK;
 }
 
-void XPR_UPS_BeginGroup(const char* group)
+int  XPR_UPS_BeginGroup(const char* group)
 {
+    int ret = 0;
+    XPR_JSON* json = NULL;
+    XPR_UPS_Entry* entry = NULL;
+    ret = XPR_UPS_FindEntry(group, &json, &entry);
+    if (XPR_ERR_SUCCESS != ret)     
+		return ret;
+
+    if (entry->get)
+        ret = entry->get(entry, json, group, 0, 0);
+	else
+		ret = XPR_ERR_UPS_NOT_SUPPORT;
+	return ret;
 }
 
-void XPR_UPS_EndGroup(const char* group)
+int XPR_UPS_EndGroup(const char* group)
 {
+    int ret = 0;
+    XPR_JSON* json = NULL;
+    XPR_UPS_Entry* entry = NULL;
+    ret = XPR_UPS_FindEntry(group, &json, &entry);
+    if (XPR_ERR_SUCCESS != ret) {
+        printf("XPR_UPS_EndGroup errno\n");
+		return ret;
+	}
+    if (entry->set) 
+        ret = entry->set(entry, json, group, 0, 0);
+	else
+		ret = XPR_ERR_UPS_NOT_SUPPORT;
+	return ret;
 }
 
 int XPR_UPS_Export(const char* url)
@@ -601,5 +627,7 @@ int XPR_UPS_Pack(void)
 
 int XPR_UPS_Sync(void)
 {
-    return XPR_JSON_DumpFileName(root_json, "./configuration.json");
+	int result;
+    result =  XPR_JSON_DumpFileName(root_json, "/hi3531/configuration.json");
+	return result == 0 ? XPR_ERR_SUCCESS : XPR_ERR_ERROR;
 }

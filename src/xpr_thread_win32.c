@@ -30,17 +30,17 @@ static unsigned int __stdcall ThreadRoutineWrapper(void *opaque)
     XPR_Thread* thread = (XPR_Thread*)opaque;
     unsigned int result = 0;
     __try {
-		result = (uintptr_t)thread->startRoutine(thread->opaque, thread);
+        result = (unsigned int)thread->routine(thread->opaque, thread);
     }
     __except(0) {
-        OutputDebugStringA("thread->startRoutine() raise an error\n");
+        OutputDebugStringA("thread->routine raise an error\n");
     }
     if (thread->endRoutine)
         thread->endRoutine(thread->opaque, thread);
     return result;
 }
 
-XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackSize, void* opaque)
+XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackSize, void* opaque)
 {
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
@@ -61,10 +61,10 @@ XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned in
     return t;
 }
 
-XPR_API XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
-									   XPR_ThreadEndRoutine endRoutine,
-									   unsigned int flags, unsigned int stackSize,
-									   void* opaque)
+XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
+                               XPR_ThreadEndRoutine endRoutine,
+                               unsigned int flags, unsigned int stackSize,
+                               void* opaque)
 {
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
@@ -85,7 +85,7 @@ XPR_API XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
     return t;
 }
 
-XPR_API int XPR_ThreadDestroy(XPR_Thread* thread)
+int XPR_ThreadDestroy(XPR_Thread* thread)
 {
     if (thread && thread->handle != INVALID_HANDLE_VALUE)
         XPR_ThreadJoin(thread);
@@ -94,7 +94,7 @@ XPR_API int XPR_ThreadDestroy(XPR_Thread* thread)
     return 0;
 }
 
-XPR_API int XPR_ThreadJoin(XPR_Thread* thread)
+int XPR_ThreadJoin(XPR_Thread* thread)
 {
     if (thread && thread->handle != INVALID_HANDLE_VALUE) {
         WaitForSingleObject(thread->handle, INFINITE);
@@ -104,19 +104,19 @@ XPR_API int XPR_ThreadJoin(XPR_Thread* thread)
     return 0;
 }
 
-XPR_API int64_t XPR_ThreadGetCurrentId(void)
+int64_t XPR_ThreadGetCurrentId(void)
 {
     return GetCurrentThreadId();
 }
 
-XPR_API int64_t XPR_ThreadGetId(XPR_Thread* thread)
+int64_t XPR_ThreadGetId(XPR_Thread* thread)
 {
     if (thread)
         return thread->id;
     return XPR_ThreadGetCurrentId();
 }
 
-XPR_API void XPR_ThreadSleep(int64_t usec)
+void XPR_ThreadSleep(int64_t usec)
 {
 #if 0
     static SOCKET s = 0;
@@ -130,12 +130,12 @@ XPR_API void XPR_ThreadSleep(int64_t usec)
     tv.tv_usec = usec%1000000L;
     select(0, &dummy, 0, 0, &tv);
 #else
-    SleepEx((DWORD)(usec/1000), FALSE);
+    SleepEx(usec/1000, FALSE);
 #endif
 }
 
 #if 0
-XPR_API void ThreadSleepEx(Thread* thread, int usec)
+void ThreadSleepEx(Thread* thread, int usec)
 {
     LARGE_INTEGER tmo;
     if (thread && thread->NtWaitForSingleObject && thread->sleepEvent != INVALID_HANDLE_VALUE) {
@@ -144,7 +144,7 @@ XPR_API void ThreadSleepEx(Thread* thread, int usec)
     }
 }
 #else
-XPR_API void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t usec)
+void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t usec)
 {
     LARGE_INTEGER tmo;
     if (thread && thread->NtDelayExecution) {
@@ -152,22 +152,22 @@ XPR_API void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t usec)
         thread->NtDelayExecution(FALSE, &tmo);
     }
     else
-        Sleep((DWORD)(usec/1000));
+        Sleep(usec/1000);
 }
 #endif
 
-XPR_API void XPR_ThreadYield(void)
+void XPR_ThreadYield(void)
 {
     SwitchToThread();
 }
 
-XPR_API void XPR_ThreadSetUserData(XPR_Thread* thread, void* userData)
+void XPR_ThreadSetUserData(XPR_Thread* thread, void* userData)
 {
     if (thread)
         thread->userData = userData;
 }
 
-XPR_API void* XPR_ThreadGetUserData(const XPR_Thread* thread)
+void* XPR_ThreadGetUserData(const XPR_Thread* thread)
 {
     return thread ? thread->userData : 0;
 }

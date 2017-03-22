@@ -7,7 +7,7 @@
 #include <xpr/xpr_avframe.h>
 #include <xpr/xpr_dpu.h>
 #include <xpr/xpr_dpupriv.h>
-#include "xpr_dpu_options.h"
+#include <xpr/xpr_dpu_options.h>
 
 static XPR_DPU_Driver* gFirstDPUDriver = NULL;
 
@@ -56,6 +56,11 @@ void XPR_DPU_RegisterAll(void)
     extern XPR_DPU_Driver xpr_dpu_driver_mdsd;
     XPR_DPU_Register(&xpr_dpu_driver_mdsd);
 #endif
+
+//#if HAVE_XPR_DPU_DRIVER_HI3516CVIDEO
+    extern XPR_DPU_Driver xpr_dpu_driver_hi3516cvideo;
+    XPR_DPU_Register(&xpr_dpu_driver_hi3516cvideo);
+//#endif
 }                                                                                     
 
 XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id)
@@ -87,6 +92,7 @@ static const char* gDriverNames[] = {
     [XPR_DPU_ID_G711TEST] = "g711test",
     [XPR_DPU_ID_PCMTEST] = "pcmtest",
     [XPR_DPU_ID_MDSD] = "mdsd",
+    [XPR_DPU_ID_HI3516CVIDEO] = "hi3516cvideo",
     [XPR_DPU_ID_MAX] = 0,
 };
 
@@ -216,6 +222,8 @@ static const char* getDriverName(const char* args)
         return "pcmtest";
     if (strstr(args, "\"mdsd\""))
         return "mdsd";
+	if (strstr(args, "\"hi3516cvideo\""))
+        return "hi3516cvideo";
     return NULL;
 }
 

@@ -2,14 +2,14 @@
 #define XPR_OSD_H
 
 #include <stdint.h>
-
+#include <xpr/xpr_utils.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // 前置声明
-typedef struct XPR_Image XPR_Image;
-typedef struct XPR_Rect XPR_Rect;
+//typedef struct XPR_Image XPR_Image;
+//typedef struct XPR_Rect XPR_Rect;
 
 //==============================================================================
 // PORT 的解析
@@ -39,7 +39,7 @@ typedef struct XPR_Rect XPR_Rect;
 /// @return OSD 对象句柄
 #define XPR_OSD_PORT(major, minor)  (((major) << 16) | (minor))
 
-#define XPR_OSD_PORT_MAJOR(a)       ((a)>>8 & 0xffff)
+#define XPR_OSD_PORT_MAJOR(a)       ((a)>>16 & 0xffff)
 #define XPR_OSD_PORT_MINOR(a)       ((a) & 0xffff)
 #define XPR_OSD_PORT_MAJOR_MASK     0xffff0000
 #define XPR_OSD_PORT_MINOR_MASK     0x0000ffff
@@ -47,6 +47,7 @@ typedef struct XPR_Rect XPR_Rect;
 #define XPR_OSD_PORT_MAJOR_ALL      0xffff
 #define XPR_OSD_PORT_MAJOR_ANY      0xfffe
 #define XPR_OSD_PORT_MAJOR_DEF      0x0001
+#define XPR_OSD_PORT_MAJOR_SEC      0x0002
 #define XPR_OSD_PORT_MAJOR_MIN      0x0001
 #define XPR_OSD_PORT_MAJOR_MAX      0x000f
 #define XPR_OSD_PORT_MAJOR_NUL      0x0000
@@ -63,6 +64,11 @@ typedef struct XPR_Rect XPR_Rect;
 #define XPR_OSD_AREA3               XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_DEF, XPR_OSD_PORT_MINOR_MIN+2)
 #define XPR_OSD_AREA4               XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_DEF, XPR_OSD_PORT_MINOR_MIN+3)
 
+#define XPR_OSD_SECOND_AREA1        XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_SEC, XPR_OSD_PORT_MINOR_MIN)
+#define XPR_OSD_SECOND_AREA2        XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_SEC, XPR_OSD_PORT_MINOR_MIN+1)
+#define XPR_OSD_SECOND_AREA3        XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_SEC, XPR_OSD_PORT_MINOR_MIN+2)
+#define XPR_OSD_SECOND_AREA4        XPR_OSD_PORT(XPR_OSD_PORT_MAJOR_SEC, XPR_OSD_PORT_MINOR_MIN+3)
+
 #ifndef XPR_OSD_TEXTALIGNMENT_TYPE_DEFINED
 #define XPR_OSD_TEXTALIGNMENT_TYPE_DEFINED
 ///
@@ -77,6 +83,14 @@ typedef enum XPR_OSD_TextAlignment {
     XPR_OSD_TEXT_ALIGN_VCENTER  = 0x20,     ///< 垂直居中
 } XPR_OSD_TextAlignment;
 #endif // XPR_OSD_TEXTALIGNMENT_TYPE_DEFINED
+
+#ifndef XPR_OSD_TEXT_FLAG_DEFINED
+#define XPR_OSD_TEXT_FLAG_DEFINED
+typedef enum XPR_OSD_TextFlag {
+	XPR_OSD_TEXT_FLAG_TIME = 0x01,     ///< time 2015-01-28 12:12:10
+	XPR_OSD_TEXT_FLAG_TEST = 0x02
+}XPR_OSD_TextFlag;
+#endif // XPR_OSD_TEXT_FLAG_DEFINED
 
 ///
 /// 初始化 XPR_OSD 模块

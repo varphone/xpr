@@ -54,6 +54,35 @@ extern "C" {
 #define XPR_GPIO_PORT_MINOR_MIN         0x0001
 #define XPR_GPIO_PORT_MINOR_MAX         0xfffd
 
+#define XPR_GPIO0_BASE              0x20140000
+#define XPR_GPIO1_BASE              0x20150000
+#define XPR_GPIO2_BASE              0x20160000
+#define XPR_GPIO3_BASE              0x20170000
+#define XPR_GPIO4_BASE              0x20180000
+#define XPR_GPIO5_BASE              0x20190000
+#define XPR_GPIO6_BASE              0x201A0000
+#define XPR_GPIO7_BASE              0x201B0000
+#define XPR_GPIO8_BASE              0x201C0000
+#define XPR_GPIO9_BASE              0x201D0000
+#define XPR_GPIO10_BASE             0x201E0000
+#define XPR_GPIO11_BASE             0x201F0000
+int XPR_GPIOX_BASE[12] = {XPR_GPIO0_BASE, XPR_GPIO1_BASE, XPR_GPIO2_BASE, XPR_GPIO3_BASE, XPR_GPIO4_BASE, XPR_GPIO5_BASE, XPR_GPIO6_BASE, XPR_GPIO7_BASE, XPR_GPIO8_BASE, XPR_GPIO9_BASE, XPR_GPIO10_BASE, XPR_GPIO11_BASE};
+
+#define XPR_GPIO_DIR              0x400
+#define XPR_GPIO_IS               0x404
+#define XPR_GPIO_IBE              0x408
+#define XPR_GPIO_IEV              0x40C
+#define XPR_GPIO_IE               0x410
+#define XPR_GPIO_RIS              0x414
+#define XPR_GPIO_MIS              0x418
+#define XPR_GPIO_IC               0x41C
+int XPR_GPIO_OFFSET[8] = {XPR_GPIO_DIR, XPR_GPIO_IS, XPR_GPIO_IBE, XPR_GPIO_IEV, XPR_GPIO_IE, XPR_GPIO_RIS, XPR_GPIO_MIS, XPR_GPIO_IC};
+
+#define GPIO0_6_ENABLE  0x200F0138
+#define GPIO5_2_ENABLE  0x200F00BC
+#define GPIO5_3_ENABLE  0x200F00C0
+
+
 #ifndef XPR_GPIO_MODE_TYPE_DEFINED
 #define XPR_GPIO_MODE_TYPE_DEFINED
 ///
@@ -76,6 +105,15 @@ typedef enum XPP_GPIO_Level {
     XPR_GPIO_LEVEL_HIGH = 1,    ///< 高电平
 } XPP_GPIO_Level;
 #endif // XPR_GPIO_LEVEL_TYPE_DEFINED
+
+///
+/// GPIO 管脚复用
+///
+typedef enum XPP_GPIO_Mux {
+    XPR_GPIO_MUX_ENABLED  = 0,    ///< 开启
+    XPR_GPIO_MUX_DISABLED = 1,    ///< 关闭
+} XPP_GPIO_Mux;
+#endif // XPR_GPIO_MUX_TYPE_DEFINED
 
 ///
 /// 初始化 XPR_GPIO 模块
@@ -127,8 +165,16 @@ int XPR_GPIO_GetMode(int port, int* mode);
 /// @retval XPR_ERR_ERROR   失败
 int XPR_GPIO_SetMode(int port, int mode);
 
+///
+/// 开启/关闭指定端口复用
+///
+/// @param [in] port        GPIO 端口号, 见 [#XPR_GPIO_PORT]
+/// @param [in,out] value   端口值, 见 [#XPR_GPIO_Mux]
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
+int XPR_GPIO_Enable(int port, int value);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // XPR_GPIO_H

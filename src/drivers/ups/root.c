@@ -10,6 +10,6 @@ XPR_UPS_Entry xpr_ups_driver_root = {
     "",
     XPR_UPS_ENTRY_TYPE_DIR,
     0, 0, 0, 0,
-    0, 0, 0
+    0, 0, 0, 0, 0
 };
 

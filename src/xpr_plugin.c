@@ -17,9 +17,11 @@ static void DropPluginModule(XPR_PluginModule* pm)
         pluginRoot->prev = 0;
     }
     else {
-        pm->prev->next = pm->next;
-        if (pm->next)
-            pm->next->prev = pm->prev;
+		if(pm->prev) 
+		    pm->prev->next = pm->next;
+		if (pm->next)
+		    pm->next->prev = pm->prev;
+		
     }
 }
 
@@ -73,14 +75,14 @@ XPR_PluginModule* XPR_PluginLoad(const char* name)
         pm->fini = dlsym(pm->libHandle, "XPR_PluginFini");
         if (pm->init) {
             pm->pluginHandle = pm->init();
-            if(pm->pluginHandle == NULL) {
+            if(pm->pluginHandle ==NULL) {
                 fprintf(stderr, "load [%s] failed\n", name);
                 goto fail;
             }
         }
         HoldPluginModule(pm);
+	    return pm;
     }
-    return pm;
 fail:
     XPR_PluginUnload(pm);
     return 0;

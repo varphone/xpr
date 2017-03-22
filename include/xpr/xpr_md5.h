@@ -28,7 +28,6 @@ documentation and/or software.
 #define XPR_MD5_H
 
 #include <stdint.h>
-#include <xpr/xpr_common.h>
 
 /* Definitions of _ANSI_ARGS and EXTERN that will work in either
    C or C++ code:
@@ -44,38 +43,24 @@ documentation and/or software.
 extern "C" {
 #endif
 
-/// @brief MD5 哈希值字串缓冲区长度
-#define XPR_MD5_HASH_BUF	34
-
 /* MD5 context. */
 #ifndef XPR_MD5CONTEXT_TYPE_DEFINED
 #define XPR_MD5CONTEXT_TYPE_DEFINED
 struct XPR_MD5Context {
-	uint32_t state[4];	/* state (ABCD) */
-	uint32_t count[2];	/* number of bits, modulo 2^64 (lsb first) */
-	uint8_t buffer[64];	/* input buffer */
+  uint32_t state[4];	/* state (ABCD) */
+  uint32_t count[2];	/* number of bits, modulo 2^64 (lsb first) */
+  unsigned char buffer[64];	/* input buffer */
 };
 typedef struct XPR_MD5Context XPR_MD5Context;
 #endif // XPR_MD5CONTEXT_TYPE_DEFINED
 
-XPR_API void XPR_MD5Init(XPR_MD5Context* ctx);
-XPR_API void XPR_MD5Update(XPR_MD5Context* ctx, const uint8_t* input, size_t inputLength);
-XPR_API void XPR_MD5Pad(XPR_MD5Context* ctx);
-XPR_API void XPR_MD5Final(uint8_t digest[16], XPR_MD5Context* ctx);
-XPR_API char* XPR_MD5End(XPR_MD5Context* ctx, char* buf);
-
-/// @brief Do MD5 on file
-/// @param [in] path			File path
-/// @param [in,out] hashOut		String buffer to receive the md5 string, must be large than XPR_MD5_HASH_BUF bytes
-/// @return hashOut on success, NULL on failure
-XPR_API char* XPR_MD5File(const char* path, char* hashOut);
-
-/// @brief Do MD5 on memory buffer
-/// @param [in] data			Data buffer
-/// @param [in] dataLength		Bytes of the data buffer
-/// @param [in,out] hashOut		String buffer to receive the md5 string, must be large than XPR_MD5_HASH_BUF bytes
-/// @return hashOut on success, NULL on failure
-XPR_API char* XPR_MD5Data(const uint8_t* data, size_t dataLength, char* hashOut);
+void XPR_MD5Init(XPR_MD5Context* ctx);
+void XPR_MD5Update(XPR_MD5Context* ctx, const unsigned char* input, unsigned int inputLength);
+void XPR_MD5Pad(XPR_MD5Context* ctx);
+void XPR_MD5Final(unsigned char digest[16], XPR_MD5Context* ctx);
+char* XPR_MD5End(XPR_MD5Context* ctx, char* buf);
+char* XPR_MD5File(const char* path, char* buf);
+char* XPR_MD5Data(const unsigned char* data, unsigned int dataLength, char* buf);
 
 #ifdef __cplusplus
 }

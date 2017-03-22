@@ -1,54 +1,32 @@
 include ../Common.mk
 -include ../Config.mk
--include ../src/Modules.mk
--include ../src/Modules.local
 
-CFLAGS  = $(BUILD_OPT_FLAGS) -I../include
-CXXFLAGS= $(CFLAGS)
-LDFLAGS = -L../lib -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
+CFLAGS   = $(BUILD_OPT_FLAGS) -I../include -I../contrib/include
+CXXFLAGS = $(CFLAGS)
+#LDFLAGS = -L../lib -L../contrib/lib -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
 
-ifeq ($(BUILD_STATIC),y)
-LDFLAGS += -Wl,-Bstatic -lxpr -Wl,-Bdynamic -lpthread -ldl 
-endif
 
-ifeq ($(BUILD_SHARED),y)
-LDFLAGS += -Wl,-Bdynamic -lxpr -Wl,-Bdynamic
-endif
+LDFLAGS = -L../lib -L../contrib/lib -Wl,-Bdynamic -lxpr -lmpi -lmal -Wl,-Bstatic  -lresampler  -laec -lanr -ljpeg -lpciv  -lhdmi -ljpeg -lVoiceEngine -lvqev2 -lexpat -laacenc -Wl,-Bdynamic -ldl
 
-targets   :=
-targets-y :=
-targets-$(XPR_FIFO) += fifo
-targets-$(XPR_FQ) += fq
-targets-$(XPR_JSON) += json
-targets-$(XPR_RTSP) += rtsp
-targets-$(XPR_THREAD) += thread
-targets-$(XPR_UPS) += ups
-targets-$(XPR_XML) += xml
-targets += $(targets-y)
-targets += qsort realpath struct
 
-objects = $(targets:%=%.o)
+targets =  test
+objs = test.o
 
 all: $(targets)
 
-$(targets): $(objects)
-	$(ECHO) "[ Building] $@"
-	$(CC) $@.o -o $@ $(LDFLAGS)
+$(targets): $(objs)
+	@echo "[ Building] $@"
+	$(CC)  $^ -o $@ $(LDFLAGS) 
 
 %.o: %.c
-	$(ECHO) "[Compiling] $^"
-	$(CC) $(CFLAGS) -c $^
+	@echo "[Compiling] $^"
+	$(CC) $(CFLAGS) -c $^ -o $@
 
-%.o: %.cpp
-	$(ECHO) "[Compiling] $^"
-	$(CXX) $(CXXFLAGS) -c $^
 
 clean:
-	$(RM) $(targets) $(objects)
+	-rm $(targets) $(objs)
 
-distclean: clean
-
-test: $(targets)
-	$(call run_test, $^)
+#test: $(targets)
+#	$(call run_test, $^)
 
 .PHONY: clean distclean install test

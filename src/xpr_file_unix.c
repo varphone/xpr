@@ -31,12 +31,12 @@ XPR_File* XPR_FileOpen(const char* fn, const char* mode)
             break;
         }
     }
-    return (void*)(long)open(fn, modeFlags, 0644);
+    return (void*)open(fn, modeFlags, 0644);
 }
 
 int XPR_FileClose(XPR_File* f)
 {
-    return close((int)(long)f);
+    return close((int)f);
 }
 
 // FIXME:
@@ -47,17 +47,17 @@ int XPR_FileFlush(XPR_File* f)
 
 int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size)
 {
-    return read((int)(long)f, buffer, size);
+    return read((int)f, buffer, size);
 }
 
 int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
 {
-    return write((int)(long)f, data, length);
+    return write((int)f, data, length);
 }
 
 int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
 {
-    return lseek((int)(long)f, offset, whence);
+    return lseek((int)f, offset, whence);
 }
 
 // FIXME:

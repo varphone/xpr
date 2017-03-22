@@ -1,8 +1,7 @@
-﻿#ifndef XPR_FILE_H
+#ifndef XPR_FILE_H
 #define XPR_FILE_H
 
 #include <stdint.h>
-#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,32 +27,23 @@ typedef enum XPR_FileSeekWhence {
 /// @param [in] mode    Operation mode(s), 'a'=append,'c'=create always,'r'=read,'w'=write,'t'=truncate
 ///                     Example: osalOpenFile("file.x", "rw");
 /// @return the file handle
-XPR_API XPR_File* XPR_FileOpen(const char* fn, const char* mode);
+XPR_File* XPR_FileOpen(const char* fn, const char* mode);
 
 /// @brief Close a opened file
 /// @param [in] f       File handle
 /// @retval 0   success
 /// @retval -1  failure
-XPR_API int XPR_FileClose(XPR_File* f);
+int XPR_FileClose(XPR_File* f);
 
-/// @brief 立即刷写到磁盘
-/// @retval XPR_ERR_OK
-/// @retval XPR_ERR_ERROR
-XPR_API int XPR_FileFlush(XPR_File* f);
+int XPR_FileFlush(XPR_File* f);
 
-/// @brief 读取文件内容到内存
-/// @retval -1	读取失败
-/// @retval  0	文件为空
-/// @retval >0	读取到的字节数
-XPR_API int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size);
+int XPR_FileRead(XPR_File* f, uint8_t* buffer, int size);
 
-XPR_API int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length);
+int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length);
 
-XPR_API int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence);
+int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence);
 
-/// @brief 获取文件大小
-/// @return 文件字节数
-XPR_API int64_t XPR_FileSize(const XPR_File* f);
+int64_t XPR_FileSize(const XPR_File* f);
 
 #ifdef __cplusplus
 }

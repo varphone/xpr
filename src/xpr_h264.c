@@ -6,7 +6,7 @@
 #include <xpr/xpr_h264.h>
 #include <xpr/xpr_utils.h>
 
-XPR_API int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
+int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
 {
     if (length < 4)
         return 0;
@@ -15,7 +15,7 @@ XPR_API int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
     return 0;
 }
 
-XPR_API int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
+int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
 {
     if (!vui->timing_info_present_flag || !vui->num_units_in_tick || !vui->time_scale)
         return 0;
@@ -23,14 +23,14 @@ XPR_API int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
     return base * vui->num_units_in_tick / vui->time_scale * 2;
 }
 
-XPR_API float XPR_H264_VUI_CalcFPS(XPR_H264_VUI* vui)
+float XPR_H264_VUI_CalcFPS(XPR_H264_VUI* vui)
 {
     if (!vui->timing_info_present_flag)
         return 0.0;
     return (float)vui->time_scale / (float)vui->num_units_in_tick / 2;
 }
 
-XPR_API int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
+int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
 {
     if (!vui->timing_info_present_flag)
         return 0;
@@ -38,7 +38,7 @@ XPR_API int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
     return base * vui->num_units_in_tick / vui->time_scale * 2;
 }
 
-XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
+int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
                             XPR_H264_FrameInfo* fi)
 {
     int i = 0;
@@ -49,8 +49,8 @@ XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
 	return XPR_H264_ProbeFrameInfoEx(nalus, n, fi);
 }
 
-XPR_API int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
-				                      XPR_H264_FrameInfo* fi)
+int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
+                              XPR_H264_FrameInfo* fi)
 {
     int i = 0;
     XPR_H264_SPS sps;
@@ -199,8 +199,8 @@ static void ParseSPS_VUI(XPR_BitVector* bv, XPR_H264_SPS* sps,
     }
 }
 
-XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
-				                   XPR_H264_SPS* sps)
+int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
+                           XPR_H264_SPS* sps)
 {
     unsigned int i = 0;
     unsigned int j = 0;
@@ -248,7 +248,7 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
         XPR_BitVectorSkip(bv, 1); // qpprime_y_zero_transform_bypass_flag
         sps->seq_scaling_matrix_present_flag = XPR_BitVectorGet1Bit(bv);
         if (sps->seq_scaling_matrix_present_flag) {
-            for (i = 0; i < (unsigned int)((sps->chroma_format_idc != 3) ? 8 : 12); ++i) {
+            for (i = 0; i < ((sps->chroma_format_idc != 3) ? 8 : 12); ++i) {
                 seq_scaling_list_present_flag = XPR_BitVectorGet1Bit(bv);
                 if (seq_scaling_list_present_flag) {
                     sizeOfScalingList = i < 6 ? 16 : 64;
@@ -308,8 +308,8 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
     return XPR_ERR_SUCCESS;
 }
 
-XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
-				              XPR_H264_NALU nalus[], unsigned int maxNalus)
+int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
+                      XPR_H264_NALU nalus[], unsigned int maxNalus)
 {
     static const uint8_t kStartCode[4] = { 0x00, 0x00, 0x00, 0x01 };
     int i = 0;
@@ -324,18 +324,18 @@ XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
         if (++m > 3) {
             nalus[n].data = data + i + 1;
             if (n > 0)
-                nalus[n-1].length = (unsigned int)(nalus[n].data - nalus[n-1].data - 4);
-            if (++n > (int)(maxNalus-1))
+                nalus[n-1].length = nalus[n].data - nalus[n-1].data - 4;
+            if (++n > (maxNalus-1))
                 break;
             m = 0;
         }
     }
     if (n > 0)
-		nalus[n - 1].length = (unsigned int)(data + length - nalus[n - 1].data);
+        nalus[n-1].length = data+length-nalus[n-1].data;
     return n;
 }
 
-XPR_API void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
+void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
 {
     printf("%scpb_cnt_minus1                          : 0x%x\n", indent,
            hrd->cpb_cnt_minus1);
@@ -359,7 +359,7 @@ XPR_API void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
            hrd->time_offset_length);
 }
 
-XPR_API void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
+void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
 {
     printf("%saspect_ratio_info_present_flag      : 0x%hhx\n", indent,
            vui->aspect_ratio_info_present_flag);
@@ -411,7 +411,7 @@ XPR_API void XPR_H264_VUI_Dump(XPR_H264_VUI* vui, const char* indent)
            vui->bitstream_restriction_flag);
 }
 
-XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
+void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
 {
     indent = indent ? indent : "";
     printf("%sforbidden_zero_bit                      : 0x%hhx\n", indent,

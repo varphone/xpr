@@ -153,13 +153,13 @@ static int hashtable_do_rehash(hashtable_t *hashtable)
     jsonp_free(hashtable->buckets);
 
     hashtable->order++;
-    new_size = (size_t)hashsize(hashtable->order);
+    new_size = hashsize(hashtable->order);
 
     hashtable->buckets = jsonp_malloc(new_size * sizeof(bucket_t));
     if(!hashtable->buckets)
         return -1;
 
-    for(i = 0; i < (size_t)hashsize(hashtable->order); i++)
+    for(i = 0; i < hashsize(hashtable->order); i++)
     {
         hashtable->buckets[i].first = hashtable->buckets[i].last =
             &hashtable->list;
@@ -185,13 +185,13 @@ int hashtable_init(hashtable_t *hashtable)
 
     hashtable->size = 0;
     hashtable->order = 3;
-    hashtable->buckets = jsonp_malloc((size_t)hashsize(hashtable->order) * sizeof(bucket_t));
+    hashtable->buckets = jsonp_malloc(hashsize(hashtable->order) * sizeof(bucket_t));
     if(!hashtable->buckets)
         return -1;
 
     list_init(&hashtable->list);
 
-    for(i = 0; i < (size_t)hashsize(hashtable->order); i++)
+    for(i = 0; i < hashsize(hashtable->order); i++)
     {
         hashtable->buckets[i].first = hashtable->buckets[i].last =
             &hashtable->list;
@@ -215,7 +215,7 @@ int hashtable_set(hashtable_t *hashtable,
     size_t hash, index;
 
     /* rehash if the load ratio exceeds 1 */
-    if(hashtable->size >= (size_t)hashsize(hashtable->order))
+    if(hashtable->size >= hashsize(hashtable->order))
         if(hashtable_do_rehash(hashtable))
             return -1;
 
@@ -279,7 +279,7 @@ void hashtable_clear(hashtable_t *hashtable)
 
     hashtable_do_clear(hashtable);
 
-    for(i = 0; i < (size_t)hashsize(hashtable->order); i++)
+    for(i = 0; i < hashsize(hashtable->order); i++)
     {
         hashtable->buckets[i].first = hashtable->buckets[i].last =
             &hashtable->list;

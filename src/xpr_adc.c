@@ -1,4 +1,4 @@
-#if !defined(HAVE_XPR_ADC_DRIVER_A5S)
+#if !defined(XPR_ADC_DRIVER_A5S)
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_common.h>
 #include <xpr/xpr_adc.h>
@@ -32,6 +32,7 @@ int XPR_ADC_IsPortValid(int port)
 
 int XPR_ADC_GetValue(int port, void* buffer, int* size)
 {
+    //FIXME:
     return XPR_ERR_ERROR;
 }
 

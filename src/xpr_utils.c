@@ -1,4 +1,4 @@
-﻿#include <errno.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -6,31 +6,27 @@
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#include <xpr/xpr_file.h>
-#include <xpr/xpr_sys.h>
+#include <signal.h>
 #include <xpr/xpr_utils.h>
 
 #define DBG_MAX_PRINT_SIZE 2048
-XPR_API void xpr_dbg_printf(int level, char* format, ...)
+void dbg_printf(int level, char* format, ...)
 {
 #ifdef DBG_LEVEL
     char tmp[DBG_MAX_PRINT_SIZE] = {0};
     va_list va;
-	double ts = (double)XPR_SYS_GetCTS() / 1000000;
 
     if (level <= DBG_LEVEL) {
         va_start(va, format);
         vsnprintf(tmp, DBG_MAX_PRINT_SIZE, format, va);
         va_end(va);
-        fprintf(stderr, "[%12.3f] DEBUG[%d] : %s\n", ts, level, tmp);
+        fprintf(stderr, "!!!DEBUG!!! : %s", tmp);
     }
 #endif
 }
 
-XPR_API char* xpr_skip_blank(char* s)
+char* skip_blank(char* s)
 {
     while (*s) {
         if (*s != ' ' && *s != '\r' && *s != '\n')
@@ -40,7 +36,7 @@ XPR_API char* xpr_skip_blank(char* s)
     return s;
 }
 
-XPR_API int xpr_split_to_kv(char* line, char** key, char** value)
+int split_to_kv(char* line, char** key, char** value)
 {
     char*   k    = line;
     char*   v    = "";
@@ -61,6 +57,87 @@ XPR_API int xpr_split_to_kv(char* line, char** key, char** value)
     return 0;
 }
 
+int get_resolution_from_string(const char *str, int *width, int *height)
+{
+    if(!str || !width || !height)
+        return -1;
+    
+    if(sscanf(str, "%dx%d", width, height) != 2) {
+        if(sscanf(str, "%dX%d", width, height) !=2)
+            return -1;
+    }
+        
+    return 0;
+}
+#if 0
+int get_action_from_key(const char *key, char *name, int len)
+{
+	int l, s;
+
+	if(!key || !name)
+		return -1;
+
+    l = strlen(key);
+    s = l;
+    if(key[l-1] == '/')
+    	return -1;
+
+    while(l > 0 && key[l-1] != '/') {
+        --l;
+    }
+
+    s = s - l;
+    if(s + 1 > len)
+    	return -1;
+
+    strncpy(name, key + l, s);
+    name[s+1] = '\0';
+	return 0;
+}
+#else
+int get_action_from_key(const char *key, char *name, int len)
+{
+	int l, s;
+
+	if(!key || !name)
+		return -1;
+
+    l = strlen(key);
+    s = l;
+
+    if(key[l-1] == '/')
+    	return -1;
+
+    while(l > 0 && key[l-1] != '/') {
+        --l;
+    }
+
+    strcpy_s(name, len, key + l);
+    name[s+1] = '\0';
+	return 0;
+}
+
+int get_ether_name_from_key(const char *key, char *name, int len)
+{
+    int l, s;
+    const char* str;
+    if(!key || !name)
+        return -1; 
+
+    if(len <5) 
+        return -1; 
+
+    str = strstr(key, "eth");
+    if(!str)
+        return -1; 
+
+    strncpy(name, str, 4); 
+    name[4] = '\0';
+    return 0;
+}
+
+
+#endif
 #if defined(_MSC_VER)
 char* strsep(char** stringp, const char* delim)
 {
@@ -82,7 +159,7 @@ char* strsep(char** stringp, const char* delim)
 #endif
 
 #if !defined(_MSC_VER)
-XPR_API int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource)
+int strcpy_s(char* strDestination, int numberOfElements, const char* strSource)
 {
     char* p = strDestination;
     size_t available = numberOfElements;
@@ -101,14 +178,14 @@ XPR_API int strcpy_s(char* strDestination, size_t numberOfElements, const char* 
 }
 #endif
 
-XPR_API char* xpr_trim_all(char* s)
+char* trim_all(char* s)
 {
-    s = xpr_skip_blank(s);
-    s = xpr_trim_tailer(s);
+    s = skip_blank(s);
+    s = trim_tailer(s);
     return s;
 }
 
-XPR_API char* xpr_trim_quotes(char* s)
+char* trim_quotes(char* s)
 {
     int l = strlen(s);
     if (s[0] == '\"' || s[0] == '\'') {
@@ -123,7 +200,7 @@ XPR_API char* xpr_trim_quotes(char* s)
 #define isspace(x) ((x) == ' ' || (x) == '\t' || (x) == '\r' || (x) == '\n')
 #endif
 
-XPR_API char* xpr_trim_tailer(char* s)
+char* trim_tailer(char* s)
 {
     char* back = s + strlen(s) -1;
     while (back > s) {
@@ -135,7 +212,7 @@ XPR_API char* xpr_trim_tailer(char* s)
     return s;
 }
 
-XPR_API int xpr_calc_lines(const char* s)
+int calc_lines(const char* s)
 {
     int lines = 0;
     while (*s) {
@@ -146,7 +223,7 @@ XPR_API int xpr_calc_lines(const char* s)
     return lines;
 }
 
-XPR_API const char* xpr_get_next_line(const char** sp)
+const char* get_next_line(const char** sp)
 {
     int ch = 0;
     const char* l = *sp;
@@ -161,43 +238,19 @@ XPR_API const char* xpr_get_next_line(const char** sp)
     return l;
 }
 
-XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
-						   void(*filter)(void* opaque, char* segment),
-						   void* opaque)
-{
-	char* tok = NULL;
-	char* tmp = NULL;
-	if (length > 0) {
-		tmp = malloc(length + 1);
-		memcpy(tmp, str, length);
-		tmp[length] = 0;
-	}
-	else {
-#if defined(_MSC_VER)
-		tmp = _strdup(str);
-#else
-		tmp = strdup(str);
-#endif
-	}
-	for (tok = strsep(&tmp, delim); tok != NULL; tok = strsep(&tmp, delim)) {
-		filter(opaque, tok);
-	}
-	free(tmp);
-}
-
-XPR_API XPR_IntRange XPR_IntRangeParse(const char* s)
+XPR_IntRange XPR_IntRangeParse(const char* s)
 {
     XPR_IntRange rng = {0, 0};
     sscanf(s, "%d - %d", &rng.min, &rng.max);
     return rng;
 }
 
-XPR_API int XPR_IntRangePrint(XPR_IntRange rng, char* s)
+int XPR_IntRangePrint(XPR_IntRange rng, char* s)
 {
     return sprintf(s, "%d-%d", rng.min, rng.max);
 }
 
-XPR_API char* XPR_IntRangeToString(XPR_IntRange rng)
+char* XPR_IntRangeToString(XPR_IntRange rng)
 {
     char tmp[128];
     (void)XPR_IntRangePrint(rng, tmp);
@@ -214,8 +267,8 @@ XPR_API char* XPR_IntRangeToString(XPR_IntRange rng)
 /// @param [in] buffer  Buffer to save packed data
 /// @param [in] size    Buffer size
 /// @return bytes of packed data
-XPR_API int XPR_PackBitse(unsigned char* data, int length,
-						  unsigned char* buffer, int size)
+int XPR_PackBitse(unsigned char* data, int length,
+                  unsigned char* buffer, int size)
 {
     unsigned char* p, *q, *run, *dataend;
     int count, maxrun;
@@ -262,10 +315,10 @@ XPR_API int XPR_PackBitse(unsigned char* data, int length,
 /// @param [in] buffer  Buffer to save unpacked data
 /// @param [in] size    Buffer size
 /// @return bytes of unpacked data
-XPR_API int XPR_UnPackBits(unsigned char* data, int length,
-				           unsigned char* buffer, int size)
+int XPR_UnPackBits(unsigned char* data, int length,
+                   unsigned char* buffer, int size)
 {
-    int i, len;
+    unsigned int i, len;
     int val;
 
     /* i counts output bytes; outlen = expected output size */
@@ -370,7 +423,7 @@ static int htoi(int8_t hc)
     return 0;
 }
 
-XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, int* size)
+int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, int* size)
 {
     static int8_t hexTable[] = "0123456789ABCDEF";
     int i = 0;
@@ -419,7 +472,7 @@ XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, in
     return buffer;
 }
 
-XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer, int* size)
+uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer, int* size)
 {
     int i = 0;
     int c = 0;
@@ -828,7 +881,7 @@ static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8, int si
     return retval;
 }
 
-XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
 {
     int n8 = 0;
     int n16 = 0;
@@ -902,7 +955,7 @@ next:
     return u16;
 }
 
-XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
 {
     int n8 = 0;
     int n16 = 0;
@@ -974,12 +1027,12 @@ next:
     return u16;
 }
 
-XPR_API uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
 {
     return XPR_UTF8_UTF16(utf8, length, utf16, size);
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
 {
     int n8 = 0;
     int n32 = 0;
@@ -1051,7 +1104,7 @@ next:
     return u32;
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
 {
     int n8 = 0;
     int n32 = 0;
@@ -1123,12 +1176,12 @@ next:
     return u32;
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
 {
     return XPR_UTF8_UTF32(utf8, length, utf32, size);
 }
 
-XPR_API int XPR_UTF8_GetChars(const uint8_t* utf8, int length)
+int XPR_UTF8_GetChars(const uint8_t* utf8, int length)
 {
     int chars = 0;
     uint8_t c = 0;
@@ -1153,7 +1206,7 @@ XPR_API int XPR_UTF8_GetChars(const uint8_t* utf8, int length)
     return chars;
 }
 
-XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs, int* size)
+wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs, int* size)
 {
     if (sizeof(wchar_t) == sizeof(uint16_t))
         return (wchar_t*)XPR_UTF8_UTF16(utf8, length, (uint16_t*)wcs, size);
@@ -1162,17 +1215,17 @@ XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs,
     return 0;
 }
 
-XPR_API uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size)
+uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size)
 {
     return 0;
 }
 
-XPR_API uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size)
+uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size)
 {
     return 0;
 }
 
-XPR_API uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8, int size)
+uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8, int size)
 {
     return 0;
 }
@@ -1191,7 +1244,7 @@ struct XPR_Template
 
 #define XPR_TEMPLATE_BUFFER_SIZE    32768
 
-XPR_API XPR_Template* XPR_TemplateNew(void)
+XPR_Template* XPR_TemplateNew(void)
 {
     XPR_Template* tmpl = (XPR_Template*)calloc(sizeof(*tmpl), 1);
     if (tmpl) {
@@ -1203,7 +1256,7 @@ XPR_API XPR_Template* XPR_TemplateNew(void)
     return tmpl;
 }
 
-XPR_API int XPR_TemplateDestroy(XPR_Template* tmpl)
+int XPR_TemplateDestroy(XPR_Template* tmpl)
 {
     if (tmpl) {
         if (tmpl->dst_buffer) {
@@ -1219,7 +1272,7 @@ XPR_API int XPR_TemplateDestroy(XPR_Template* tmpl)
     return 0;
 }
 
-XPR_API int XPR_TemplateBuild(XPR_Template* tmpl)
+int XPR_TemplateBuild(XPR_Template* tmpl)
 {
     int l1 = 0;
     int l2 = 0;
@@ -1270,59 +1323,53 @@ XPR_API int XPR_TemplateBuild(XPR_Template* tmpl)
     return 0;
 }
 
-XPR_API int XPR_TemplateLoad(XPR_Template* tmpl, const char* file)
+int XPR_TemplateLoad(XPR_Template* tmpl, const char* file)
 {
-	XPR_File* f = NULL;
-    //
-    tmpl->handler = 0;
-    tmpl->opaque = 0;
-    tmpl->dst_data_size = 0;
-    tmpl->src_data_size = 0;
-    //
-	f = XPR_FileOpen(file, "rb");
-    if (f == NULL)
+    int fd = -1;
+    fd = open(file, O_RDONLY);
+    if (fd < 0)
         return -1;
-    tmpl->src_data_size = XPR_FileRead(f, (uint8_t*)tmpl->src_buffer, tmpl->src_buffer_size - 4);
-	XPR_FileClose(f);
+    tmpl->src_data_size = read(fd, tmpl->src_buffer, tmpl->src_buffer_size - 4);
+    close(fd);
     if (tmpl->src_data_size <= 0)
         return -1;
     tmpl->src_buffer[tmpl->src_data_size] = 0;
     return 0;
 }
 
-XPR_API int XPR_TemplateSetHandler(XPR_Template* tmpl, XPR_TemplateHandler cb)
+int XPR_TemplateSetHandler(XPR_Template* tmpl, XPR_TemplateHandler cb)
 {
     tmpl->handler = cb;
     return 0;
 }
 
-XPR_API XPR_TemplateHandler XPR_TemplateGetHandler(XPR_Template* tmpl)
+XPR_TemplateHandler XPR_TemplateGetHandler(XPR_Template* tmpl)
 {
     return tmpl->handler;
 }
 
-XPR_API int XPR_TemplateSetOpaque(XPR_Template* tmpl, void* opaque)
+int XPR_TemplateSetOpaque(XPR_Template* tmpl, void* opaque)
 {
     tmpl->opaque = opaque;
     return 0;
 }
 
-XPR_API void* XPR_TemplateGetOpaque(XPR_Template* tmpl)
+void* XPR_TemplateGetOpaque(XPR_Template* tmpl)
 {
     return tmpl->opaque;
 }
 
-XPR_API char* XPR_TemplateGetData(XPR_Template* tmpl)
+char* XPR_TemplateGetData(XPR_Template* tmpl)
 {
     return (char*)tmpl->dst_buffer;
 }
 
-XPR_API int XPR_TemplateGetDataSize(XPR_Template* tmpl)
+int XPR_TemplateGetDataSize(XPR_Template* tmpl)
 {
     return tmpl->dst_data_size;
 }
 
-XPR_API int XPR_TemplatePutf(XPR_Template* tmpl, const char* fmt, ...)
+int XPR_TemplatePutf(XPR_Template* tmpl, const char* fmt, ...)
 {
     int l = 0;
     va_list ap;
@@ -1336,7 +1383,7 @@ XPR_API int XPR_TemplatePutf(XPR_Template* tmpl, const char* fmt, ...)
     return l;
 }
 
-XPR_API int XPR_TemplatePutData(XPR_Template* tmpl, char* data, int length)
+int XPR_TemplatePutData(XPR_Template* tmpl, char* data, int length)
 {
     if (length == -1)
         length = strlen(data);
@@ -1347,12 +1394,63 @@ XPR_API int XPR_TemplatePutData(XPR_Template* tmpl, char* data, int length)
     return length;
 }
 
-XPR_API char* XPR_TemplateGetSpace(XPR_Template* tmpl)
+char* XPR_TemplateGetSpace(XPR_Template* tmpl)
 {
     return (char*)(tmpl->dst_buffer + tmpl->dst_data_size);
 }
 
-XPR_API int XPR_TemplateGetSpaceSize(XPR_Template* tmpl)
+int XPR_TemplateGetSpaceSize(XPR_Template* tmpl)
 {
     return tmpl->dst_buffer_size - tmpl->dst_data_size;
 }
+
+int XPR_System(const char* cmdstring)
+{
+	pid_t pid;
+	int status;
+	struct sigaction ignore, saveintr,savequit;
+	sigset_t chldmask ,savemask;
+
+	if(cmdstring ==NULL)
+		return 1;
+
+	ignore.sa_handler = SIG_IGN;
+	sigemptyset(&ignore.sa_mask);
+	ignore.sa_flags = 0;
+	if(sigaction(SIGINT, &ignore, &saveintr) <0)
+		return -1;
+	if(sigaction(SIGQUIT, &ignore, &savequit)<0)
+		return -1;
+	sigemptyset(&chldmask);
+	sigaddset(&chldmask, SIGCHLD);
+	if(sigprocmask(SIG_BLOCK, &chldmask, &savemask) <0)
+		return -1;
+
+	if((pid=vfork())<0) {
+		status = -1;
+	}
+	else if(pid == 0) {
+		sigaction(SIGINT, &saveintr, NULL);
+		sigaction(SIGQUIT, &savequit, NULL);
+		sigaction(SIG_SETMASK, &savemask, NULL);
+		execl("/bin/sh", "sh", "-c", cmdstring, (char*)0);
+		_exit(127);
+	}
+	else {
+		while(waitpid(pid, &status, 0)<0) {
+			if(errno != EINTR) {
+				status = -1;
+				break;
+			}
+		}
+	}
+	if(sigaction(SIGINT, &saveintr, NULL) <0)
+		return -1;
+	if(sigaction(SIGQUIT, &savequit, NULL) <0)
+		return -1;
+	if(sigprocmask(SIG_SETMASK, &savemask, NULL) <0)
+		return -1;
+
+	return status;
+}
+

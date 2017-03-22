@@ -1,4 +1,0 @@
-{
-	global: XPR_*;
-	local: *;
-};

@@ -5,7 +5,8 @@
 
 #if !defined(HAVE_XPR_DRM_DRIVER_ALPUC_016) && \
     !defined(HAVE_XPR_DRM_DRIVER_DS18B20) && \
-    !defined(HAVE_XPR_DRM_DRIVER_RECONBALL)
+    !defined(HAVE_XPR_DRM_DRIVER_RECONBALL) && \
+	!defined(HAVE_XPR_DRM_DRIVER_AT24C02)
 
 int XPR_DRM_Config(int request, const void* data, int size)
 {
@@ -46,6 +47,10 @@ const char* XPR_DRM_GetUuidString(void)
 int XPR_DRM_InstallSerial(const uint8_t* data, int length)
 {
     return XPR_ERR_SUCCESS;
+}
+
+int XPR_DRM_GetRawData(uint8_t* data, int *size)
+{
 }
 
 #endif // HAVE_XPR_DRM_DRIVER_XXX

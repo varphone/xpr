@@ -84,7 +84,7 @@ static int strncpy_s(char* strDest, size_t numberOfElements, const char* strSour
 }
 #endif
 
-XPR_API XPR_Url* XPR_UrlNew(void)
+XPR_Url* XPR_UrlNew(void)
 {
     XPR_Url* url = (XPR_Url*)calloc(sizeof(XPR_Url), 1);
     if (url)
@@ -92,7 +92,7 @@ XPR_API XPR_Url* XPR_UrlNew(void)
     return url;
 }
 
-XPR_API void XPR_UrlDestroy(XPR_Url* url)
+void XPR_UrlDestroy(XPR_Url* url)
 {
     if (url) {
         if (url->fullString) {
@@ -112,17 +112,16 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
     const char* p2 = 0;
     const char* ep = 0;
     if (length <= 0)
-        length = (int)strlen(s);
-
+        length = strlen(s);
     // Save and Change
-    //ctmp = *(char*)(s+length);
-    //*(char*)(s+length) = 0;
+    ctmp = *(char*)(s+length);
+    *(char*)(s+length) = 0;
     //
     ep = s + length;
     p1 = strnchr(s, '@', length);
     if (p1) {
         // Split username & password
-        p2 = strnchr(s, ':', (int)(p1 - s));
+        p2 = strnchr(s, ':', p1 - s);
         if (p2) {
             strncpy_s(u->username, sizeof(u->username), s, p2 - s);
             strncpy_s(u->password, sizeof(u->password), p2 + 1, p1 - p2 -1);
@@ -134,7 +133,7 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         }
         // Split host & port
         p1 += 1;
-        p2 = strnchr(p1, ':', (int)(ep - p1));
+        p2 = strnchr(p1, ':', ep - p1);
         if (p2) {
             strncpy_s(u->host, sizeof(u->host), p1, p2 - p1);
             strncpy_s(tmp, sizeof(tmp), p2+1, ep - p2);
@@ -166,10 +165,10 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
     if (n > 1)
         u->flags |= URL_HAVE_PROTOCOL_MINOR;
     // Restore
-    //*(char*)(s+length) = ctmp;
+    *(char*)(s+length) = ctmp;
 }
 
-XPR_API XPR_Url* XPR_UrlParse(const char* url, int length)
+XPR_Url* XPR_UrlParse(const char* url, int length)
 {
     int n = 0;
     XPR_Url* u = 0;
@@ -186,7 +185,7 @@ XPR_API XPR_Url* XPR_UrlParse(const char* url, int length)
         return 0;
 
     if (length < 0)
-        length = (int)strlen(url);
+        length = strlen(url);
 
     ep = url + length;
 
@@ -211,17 +210,14 @@ XPR_API XPR_Url* XPR_UrlParse(const char* url, int length)
         goto lastPart;
     }
 
-	p = strchr(url, '/');
-	if (!p)
-		p = strchr(url, '?');
+    p = strchr(url, '/');
     if (!p) {
         ParseHostPart(u, url, -1);
         return u;
     }
     else if (p > (url + 1)) {
-        ParseHostPart(u, url, (int)(p - url));
-		if (*p != '?')
-			url = p + 1;
+        ParseHostPart(u, url, p - url);
+        url = p + 1;
     } else {
         u->host[0] = 0;
         url = p;
@@ -244,47 +240,47 @@ lastPart:
     return u;
 }
 
-XPR_API const char* XPR_UrlGetProtocol(const XPR_Url* url)
+const char* XPR_UrlGetProtocol(const XPR_Url* url)
 {
     return url ? url->protocol : 0;
 }
 
-XPR_API const char* XPR_UrlGetProtocolMajor(const XPR_Url* url)
+const char* XPR_UrlGetProtocolMajor(const XPR_Url* url)
 {
     return url ? url->protocolMajor : 0;
 }
 
-XPR_API const char* XPR_UrlGetProtocolMinor(const XPR_Url* url)
+const char* XPR_UrlGetProtocolMinor(const XPR_Url* url)
 {
     return url ? url->protocolMinor : 0;
 }
 
-XPR_API const char* XPR_UrlGetUsername(const XPR_Url* url)
+const char* XPR_UrlGetUsername(const XPR_Url* url)
 {
     return url ? url->username : 0;
 }
 
-XPR_API const char* XPR_UrlGetPassword(const XPR_Url* url)
+const char* XPR_UrlGetPassword(const XPR_Url* url)
 {
     return url ? url->password : 0;
 }
 
-XPR_API const char* XPR_UrlGetHost(const XPR_Url* url)
+const char* XPR_UrlGetHost(const XPR_Url* url)
 {
     return url ? url->host : 0;
 }
 
-XPR_API int XPR_UrlGetPort(const XPR_Url* url)
+int XPR_UrlGetPort(const XPR_Url* url)
 {
     return url ? url->port : 0;
 }
 
-XPR_API const char* XPR_UrlGetPath(const XPR_Url* url)
+const char* XPR_UrlGetPath(const XPR_Url* url)
 {
     return url ? url->path : 0;
 }
 
-XPR_API const char* XPR_UrlGetRelPath(const XPR_Url* url)
+const char* XPR_UrlGetRelPath(const XPR_Url* url)
 {
     const char* s = XPR_UrlGetPath(url);
     if (s)
@@ -294,57 +290,57 @@ XPR_API const char* XPR_UrlGetRelPath(const XPR_Url* url)
     return s;
 }
 
-XPR_API const char* XPR_UrlGetQuery(const XPR_Url* url)
+const char* XPR_UrlGetQuery(const XPR_Url* url)
 {
     return url ? url->query : 0;
 }
 
-XPR_API int XPR_UrlHaveProtocol(const XPR_Url* url)
+int XPR_UrlHaveProtocol(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PROTOCOL : 0;
 }
 
-XPR_API int XPR_UrlHaveProtocolMajor(const XPR_Url* url)
+int XPR_UrlHaveProtocolMajor(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PROTOCOL_MAJOR : 0;
 }
 
-XPR_API int XPR_UrlHaveProtocolMinor(const XPR_Url* url)
+int XPR_UrlHaveProtocolMinor(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PROTOCOL_MINOR : 0;
 }
 
-XPR_API int XPR_UrlHaveUsername(const XPR_Url* url)
+int XPR_UrlHaveUsername(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_USERNAME : 0;
 }
 
-XPR_API int XPR_UrlHavePassword(const XPR_Url* url)
+int XPR_UrlHavePassword(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PASSWORD : 0;
 }
 
-XPR_API int XPR_UrlHaveHost(const XPR_Url* url)
+int XPR_UrlHaveHost(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_HOST : 0;
 }
 
-XPR_API int XPR_UrlHavePort(const XPR_Url* url)
+int XPR_UrlHavePort(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PORT : 0;
 }
 
-XPR_API int XPR_UrlHavePath(const XPR_Url* url)
+int XPR_UrlHavePath(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_PATH : 0;
 }
 
-XPR_API int XPR_UrlHaveQuery(const XPR_Url* url)
+int XPR_UrlHaveQuery(const XPR_Url* url)
 {
     return url ? url->flags & URL_HAVE_QUERY : 0;
 }
 
-XPR_API void XPR_UrlReplaceProtocol(XPR_Url* url, const char* value)
+void XPR_UrlReplaceProtocol(XPR_Url* url, const char* value)
 {
     int n = 0;
     ASSERT(url);
@@ -365,7 +361,7 @@ XPR_API void XPR_UrlReplaceProtocol(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplaceUsername(XPR_Url* url, const char* value)
+void XPR_UrlReplaceUsername(XPR_Url* url, const char* value)
 {
     ASSERT(url);
     if (!url)
@@ -379,7 +375,7 @@ XPR_API void XPR_UrlReplaceUsername(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplacePassword(XPR_Url* url, const char* value)
+void XPR_UrlReplacePassword(XPR_Url* url, const char* value)
 {
     ASSERT(url);
     if (!url)
@@ -393,7 +389,7 @@ XPR_API void XPR_UrlReplacePassword(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplaceHost(XPR_Url* url, const char* value)
+void XPR_UrlReplaceHost(XPR_Url* url, const char* value)
 {
     ASSERT(url);
     if (!url)
@@ -407,7 +403,7 @@ XPR_API void XPR_UrlReplaceHost(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplacePort(XPR_Url* url, int value)
+void XPR_UrlReplacePort(XPR_Url* url, int value)
 {
     ASSERT(url);
     if (!url)
@@ -421,7 +417,7 @@ XPR_API void XPR_UrlReplacePort(XPR_Url* url, int value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplacePath(XPR_Url* url, const char* value)
+void XPR_UrlReplacePath(XPR_Url* url, const char* value)
 {
     ASSERT(url);
     if (!url)
@@ -435,7 +431,7 @@ XPR_API void XPR_UrlReplacePath(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API void XPR_UrlReplaceQuery(XPR_Url* url, const char* value)
+void XPR_UrlReplaceQuery(XPR_Url* url, const char* value)
 {
     ASSERT(url);
     if (!url)
@@ -449,7 +445,7 @@ XPR_API void XPR_UrlReplaceQuery(XPR_Url* url, const char* value)
     url->flags |= URL_HAVE_CHANGED;
 }
 
-XPR_API const char* XPR_UrlGetFullString(XPR_Url* url)
+const char* XPR_UrlGetFullString(XPR_Url* url)
 {
     int size = 64;
     char* p = 0;
@@ -466,21 +462,21 @@ XPR_API const char* XPR_UrlGetFullString(XPR_Url* url)
     }
 
     if (url->flags & URL_HAVE_PROTOCOL_MINOR)
-        size += (int)(strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor));
+        size += strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor);
     else if (url->flags & URL_HAVE_PROTOCOL_MAJOR)
-		size += (int)strlen(url->protocolMajor);
+        size += strlen(url->protocolMajor);
     if (url->flags & URL_HAVE_USERNAME)
-		size += (int)strlen(url->username);
+        size += strlen(url->username);
     if (url->flags & URL_HAVE_PASSWORD)
-		size += (int)strlen(url->password);
+        size += strlen(url->password);
     if (XPR_UrlHaveHost(url))
-		size += (int)strlen(url->host);
+        size += strlen(url->host);
     if (XPR_UrlHavePort(url))
         size += 5;
     if (XPR_UrlHavePath(url))
-		size += (int)strlen(url->path);
+        size += strlen(url->path);
     if (XPR_UrlHaveQuery(url))
-		size += (int)strlen(url->query);
+        size += strlen(url->query);
     p = url->fullString = (char*)malloc(size+32);
     bufferSize = size+32;
     if (XPR_UrlHaveProtocolMinor(url)) {

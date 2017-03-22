@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "xpr_dpu_options.h"
+#include <xpr/xpr_dpu_options.h>
 
 static const XPR_DPU_Option* nextOption(XPR_DPU* ctx, const XPR_DPU_Option* last)
 {

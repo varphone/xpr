@@ -63,14 +63,14 @@ int ROXML_INT roxml_read(int pos, int size, char *buffer, node_t *node)
 	if (size > 0 && buffer) {
 		if (node->type & ROXML_FILE) {
 			if (fseek(node->src.fil, pos, SEEK_SET) == 0) {
-				ret_len = (int)fread(buffer, 1, size, node->src.fil);
+				ret_len = fread(buffer, 1, size, node->src.fil);
 			}
 		} else {
 			char *r1 = buffer;
 			char const *r2 = node->src.buf + pos;
 
 			while (size-- && (*r1++ = *r2++)) ;
-			ret_len = (int)(r1 - buffer);
+			ret_len = r1 - buffer;
 		}
 	}
 	return ret_len;
@@ -268,7 +268,7 @@ node_t ROXML_INT *roxml_load(node_t *current_node, FILE * file, char *buffer)
 		do {
 			int ret = 0;
 			int chunk_len = 0;
-			int_len = (int)fread(int_buffer + circle, 1, ROXML_BULK_READ - circle, file) + circle;
+			int_len = fread(int_buffer + circle, 1, ROXML_BULK_READ - circle, file) + circle;
 			int_buffer[int_len] = '\0';
 
 			if (int_len == ROXML_BULK_READ) {
@@ -395,7 +395,7 @@ xpath_node_t ROXML_INT *roxml_set_axes(xpath_node_t *node, char *axes, int *offs
 		// ROXML_L_DESC_O_SELF
 		node->axes = ROXML_ID_DESC_O_SELF;
 		node->name = axes + strlen(ROXML_L_DESC_O_SELF);
-		*offset += (int)strlen(ROXML_L_DESC_O_SELF);
+		*offset += strlen(ROXML_L_DESC_O_SELF);
 		tmp_node = (xpath_node_t *) calloc(1, sizeof(xpath_node_t));
 		tmp_node->axes = ROXML_ID_CHILD;
 		node->next = tmp_node;
@@ -404,7 +404,7 @@ xpath_node_t ROXML_INT *roxml_set_axes(xpath_node_t *node, char *axes, int *offs
 		// ROXML_L_DESC
 		node->axes = ROXML_ID_DESC;
 		node->name = axes + strlen(ROXML_L_DESC);
-		*offset += (int)strlen(ROXML_L_DESC);
+		*offset += strlen(ROXML_L_DESC);
 		tmp_node = (xpath_node_t *) calloc(1, sizeof(xpath_node_t));
 		tmp_node->axes = ROXML_ID_CHILD;
 		node->next = tmp_node;
@@ -417,7 +417,7 @@ xpath_node_t ROXML_INT *roxml_set_axes(xpath_node_t *node, char *axes, int *offs
 		node->name = axes;
 
 		for (i = 0; i < 14; i++) {
-			int len = (int)strlen(xpath_axes[i].name);
+			int len = strlen(xpath_axes[i].name);
 			if (strncmp(xpath_axes[i].name, axes, len) == 0) {
 				node->axes = xpath_axes[i].id;
 				node->name = axes + len;
@@ -948,7 +948,7 @@ int ROXML_INT roxml_validate_axes(node_t *root, node_t * candidat, node_t *** an
 		char *name = intern_buff;
 		if (candidat->ns) {
 			name = roxml_get_name(candidat->ns, intern_buff, ROXML_BASE_LEN);
-			ns_len = (int)strlen(name);
+			ns_len = strlen(name);
 			if (ns_len) {
 				name[ns_len] = ':';
 				ns_len++;
@@ -1447,7 +1447,7 @@ void ROXML_INT roxml_print_space(FILE * f, char **buf, int *offset, int *len, in
 
 void ROXML_INT roxml_write_string(char **buf, FILE * f, char *str, int *offset, int *len)
 {
-	int min_len = (int)strlen(str);
+	int min_len = strlen(str);
 	int pos = *offset + min_len;
 	int appended_space = ROXML_BASE_LEN * ((int)(min_len / ROXML_BASE_LEN) + 1);
 

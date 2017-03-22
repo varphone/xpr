@@ -872,7 +872,7 @@ static json_t *parse_json(lex_t *lex, size_t flags, json_error_t *error)
 
     if(error) {
         /* Save the position even though there was no error */
-        error->position = (int)lex->stream.position;
+        error->position = lex->stream.position;
     }
 
     return result;

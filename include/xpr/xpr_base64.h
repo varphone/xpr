@@ -21,8 +21,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef XPR_BASE64_H
 #define XPR_BASE64_H
 
-#include <xpr/xpr_common.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,12 +29,12 @@ extern "C" {
 ///        the caller is responsible for delete[]ing.
 ///        As above, but includes the size of the input string (i.e., the number of bytes to decode) as a parameter.
 ///        This saves an extra call to "strlen()" if we already know the length of the input string.
-XPR_API unsigned char* XPR_Base64Decode(const char* in, unsigned int inSize,
-									    unsigned int* resultSize, int trimTrailingZeros);
+unsigned char* XPR_Base64Decode(const char* in, unsigned int inSize,
+                                unsigned int* resultSize, int trimTrailingZeros);
 
 /// @brief returns a 0-terminated string that
 /// the caller is responsible for delete[]ing.
-XPR_API char* XPR_Base64Encode(const unsigned char* orig, unsigned int origLength);
+char* XPR_Base64Encode(const unsigned char* orig, unsigned int origLength);
 
 #ifdef __cplusplus
 }

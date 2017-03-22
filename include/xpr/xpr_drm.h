@@ -103,6 +103,12 @@ const char* XPR_DRM_GetUuidString(void);
 /// @retval XPR_ERR_ERROR 安装失败
 int XPR_DRM_InstallSerial(const uint8_t* data, int length);
 
+/// @param [out] data 用于接受数据的缓存区
+/// @param [in,out]  size 用于接受raw数据的缓冲区长度，并返回实际长度
+/// @retval XPR_ERR_SUCCESS 验证成功
+/// @retval XPR_ERR_ERROR 验证失败
+int XPR_DRM_GetRawData(uint8_t* data, int *size);
+
 #ifdef __cplusplus
 }
 #endif

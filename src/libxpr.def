@@ -123,11 +123,10 @@ EXPORTS
 	XPR_MCDEC_Config
 	XPR_MCDEC_Init
 	XPR_MCDEC_Fini
-	XPR_MCDEC_Flush
-	XPR_MCDEC_Reset
 	XPR_MCDEC_PushAVFrame
 	XPR_MCDEC_PushData
 	XPR_MCDEC_PushStreamBlock
+	XPR_MCDEC_Reset
 	XPR_MCDEC_AddAVFrameHandler
 	XPR_MCDEC_AddStreamBlockHandler
 	XPR_MCDEC_SetParam

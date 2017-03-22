@@ -27,14 +27,16 @@ static const char* xpr_ups_driver_sys_descs[] = { "system", 0};
 static const char* xpr_ups_driver_sys_info_names[] = { "information", 0};
 static const char* xpr_ups_driver_sys_info_descs[] = { "information", 0};
 
-static const char* xpr_ups_driver_sys_info_strings_names[] = { "name", "location", "manufacturer", "model", "serial_number", "internal_model", "hardware", "software", "firmware", "onvif_version", "onvif_url", "uuid", "id", 0};
-static const char* xpr_ups_driver_sys_info_strings_descs[] = { "name", "location", "manufacturer", "model", "serial_number", "internal_model", "hardware", "software", "firmware", "onvif_version", "onvif_url", "uuid", "id", 0};
+static const char* xpr_ups_driver_sys_info_strings_names[] = { "name", "location", "manufacturer", "model", "serial_number", "internal_model", "hardware", "software", "firmware", "onvif_version", "onvif_url", "uuid", "id", "resolution", 0};
+static const char* xpr_ups_driver_sys_info_strings_descs[] = { "name", "location", "manufacturer", "model", "serial_number", "internal_model", "hardware", "software", "firmware", "onvif_version", "onvif_url", "uuid", "id", "resolution", 0};
 
 static const char* xpr_ups_driver_sys_time_names[] = { "time", 0};
 static const char* xpr_ups_driver_sys_time_descs[] = { "time", 0};
 
 static const char* xpr_ups_driver_sys_time_strings_names[] = { "time_zone", "date_time", 0};
 static const char* xpr_ups_driver_sys_time_strings_descs[] = { "time_zone", "date_time", 0};
+
+
 
 XPR_UPS_Entry xpr_ups_driver_system_information[] = {
 
@@ -45,7 +47,7 @@ XPR_UPS_Entry xpr_ups_driver_system_information[] = {
         "/",
         XPR_UPS_ENTRY_TYPE_DIR,
         0, 0, 0, 0,
-        0, 0, 0
+        0, 0, 0, 0, 0
     },
 
     {
@@ -55,7 +57,7 @@ XPR_UPS_Entry xpr_ups_driver_system_information[] = {
         "/system/",
         XPR_UPS_ENTRY_TYPE_DIR,
         0, 0, 0, 0,
-        0, 0, 0
+        0, 0, 0, 0, 0
     },
 
     {	
@@ -65,7 +67,7 @@ XPR_UPS_Entry xpr_ups_driver_system_information[] = {
         "/system/information/",
         XPR_UPS_ENTRY_TYPE_STRING,
         0, 0, information_common_get, information_common_set,
-        0, 0, 0
+        0, 0, 0, 0, 0
     },
     {
         xpr_ups_driver_sys_time_names,
@@ -74,7 +76,7 @@ XPR_UPS_Entry xpr_ups_driver_system_information[] = {
         "/system/",
         XPR_UPS_ENTRY_TYPE_DIR,
         0, 0, 0, 0,
-        0, 0, 0
+        0, 0, 0, 0, 0
     },
     {
         xpr_ups_driver_sys_time_strings_names,
@@ -83,7 +85,7 @@ XPR_UPS_Entry xpr_ups_driver_system_information[] = {
         "/system/time/",
         XPR_UPS_ENTRY_TYPE_STRING,
         0, 0, information_common_get, information_common_set,
-        0, 0, 0
+        0, 0, 0, 0, 0
     },
 
 };

@@ -4,12 +4,12 @@
 #include <wchar.h>
 #include <xpr/xpr_mem.h>
 
-XPR_API void* XPR_Alloc(size_t size)
+void* XPR_Alloc(size_t size)
 {
     return malloc(size);
 }
 
-XPR_API void XPR_Free(void* ptr)
+void XPR_Free(void* ptr)
 {
     if(ptr) {
 		free(ptr);
@@ -17,7 +17,7 @@ XPR_API void XPR_Free(void* ptr)
 	}
 }
 
-XPR_API void XPR_Freep(void** pptr)
+void XPR_Freep(void** pptr)
 {
     if (pptr) {
         if (*pptr) {
@@ -27,7 +27,7 @@ XPR_API void XPR_Freep(void** pptr)
     }
 }
 
-XPR_API void XPR_Freev(void** vptr)
+void XPR_Freev(void** vptr)
 {
     if (vptr) {
         void** p = vptr;
@@ -39,7 +39,7 @@ XPR_API void XPR_Freev(void** vptr)
     }
 }
 
-XPR_API char* XPR_StrDup(const char* str)
+char* XPR_StrDup(const char* str)
 {
 #if defined(_MSC_VER)
     return _strdup(str);
@@ -48,7 +48,7 @@ XPR_API char* XPR_StrDup(const char* str)
 #endif
 }
 
-XPR_API wchar_t* XPR_StrDupW(const wchar_t* str)
+wchar_t* XPR_StrDupW(const wchar_t* str)
 {
 #if defined(_MSC_VER)
     return _wcsdup(str);
