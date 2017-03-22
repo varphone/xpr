@@ -3,20 +3,20 @@ include Common.mk
 
 subdirs =
 
-ifeq ($(BUILD_SRC),1)
+ifeq ($(BUILD_SRC),y)
 subdirs += src
 endif
 
-ifeq ($(BUILD_TESTS),1)
+ifeq ($(BUILD_EXAMPLES),y)
+subdirs += examples
+endif
+
+ifeq ($(BUILD_TESTS),y)
 subdirs += tests
 endif
 
-ifeq ($(BUILD_APPS),1)
-subdirs += apps
-endif
-
-ifeq ($(BUILD_LIBMAL),1)
-subdirs += libmal
+ifeq ($(BUILD_DOCS),y)
+subdirs += docs
 endif
 
 all: $(subdirs)
