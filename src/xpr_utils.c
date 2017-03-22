@@ -1404,6 +1404,8 @@ int XPR_TemplateGetSpaceSize(XPR_Template* tmpl)
     return tmpl->dst_buffer_size - tmpl->dst_data_size;
 }
 
+#include <sys/types.h>
+#include <sys/wait.h>
 int XPR_System(const char* cmdstring)
 {
 	pid_t pid;
@@ -1432,7 +1434,7 @@ int XPR_System(const char* cmdstring)
 	else if(pid == 0) {
 		sigaction(SIGINT, &saveintr, NULL);
 		sigaction(SIGQUIT, &savequit, NULL);
-		sigaction(SIG_SETMASK, &savemask, NULL);
+		sigprocmask(SIG_SETMASK, &savemask, NULL);
 		execl("/bin/sh", "sh", "-c", cmdstring, (char*)0);
 		_exit(127);
 	}
