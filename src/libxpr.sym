@@ -2,8 +2,9 @@
     global:
             libXPR_*;
             XPR_*;
-     		dbg_printf;
+            xpr_*;
+     	    dbg_printf;
             get_resolution_from_string;
-			get_action_from_key;
+            get_action_from_key;
     local: *;
 };
