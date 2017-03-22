@@ -24,17 +24,17 @@ static void g_xpr_arr_8k_11k_table_init(void)
     }
 }
 
-int XPR_ARR_Init(void)
+XPR_API int XPR_ARR_Init(void)
 {
     g_xpr_arr_8k_11k_table_init();
     return 0;
 }
 
-void XPR_ARR_Fini(void)
+XPR_API void XPR_ARR_Fini(void)
 {
 }
 
-XPR_ARR* parOpen(void)
+XPR_API XPR_ARR* XPR_ARR_Open(void)
 {
     XPR_ARR* r = (XPR_ARR*)calloc(sizeof(*r), 1);
     if (r) {
@@ -44,7 +44,7 @@ XPR_ARR* parOpen(void)
     return r;
 }
 
-int XPR_ARR_Close(XPR_ARR* r)
+XPR_API int XPR_ARR_Close(XPR_ARR* r)
 {
     if (r) {
         free((void*)r);
@@ -52,30 +52,30 @@ int XPR_ARR_Close(XPR_ARR* r)
     return 0;
 }
 
-void XPR_ARR_SetBitsPerSample(XPR_ARR* r, int bps)
+XPR_API void XPR_ARR_SetBitsPerSample(XPR_ARR* r, int bps)
 {
     r->bitsPerSample = bps;
 }
 
-void XPR_ARR_SetSampleRates(XPR_ARR* r, int from, int to)
+XPR_API void XPR_ARR_SetSampleRates(XPR_ARR* r, int from, int to)
 {
     r->srcSampleRate = from;
     r->dstSampleRate = to;
 }
 
-void XPR_ARR_SetChannels(XPR_ARR* r, int channels)
+XPR_API void XPR_ARR_SetChannels(XPR_ARR* r, int channels)
 {
     r->channels = channels;
 }
 
-int XPR_ARR_GetInputSamples(XPR_ARR* r)
+XPR_API int XPR_ARR_GetInputSamples(XPR_ARR* r)
 {
     if (r->srcSampleRate == 8000 && r->dstSampleRate == 11025)
         return 320;
     return 0;
 }
 
-int parGetOutputSamples(XPR_ARR* r)
+XPR_API int XPR_ARR_GetOutputSamples(XPR_ARR* r)
 {
     if (r->srcSampleRate == 8000 && r->dstSampleRate == 11025)
         return 441;
@@ -90,7 +90,7 @@ static int XPR_ARR_Transform_s16le(XPR_ARR* r, short* src, short* dst)
     return 441;
 }
 
-int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst)
+XPR_API int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst)
 {
     if (r->bitsPerSample == 16)
         return XPR_ARR_Transform_s16le(r, (short*)src, (short*)dst);
