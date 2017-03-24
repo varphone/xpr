@@ -85,7 +85,7 @@ struct FrameInfo {
 	uint32_t length;
 };
 
-static void Test_H264Video()
+static void Test_H264Video(const char* path)
 {
 	int err;
 	int n1, n2;
@@ -93,6 +93,12 @@ static void Test_H264Video()
 	int streamPort;
 	struct FrameInfo fi = { 0 };
 	XPR_StreamBlock stb = { 0 };
+	char h264FileName[256];
+	char h264IndexFileName[256];
+	int64_t pts = 0;
+
+	sprintf(h264FileName, "%s", path);
+	sprintf(h264IndexFileName, "%s.idx", path);
 
 	XPR_RTSP_Init();
 	serverPort = XPR_RTSP_PORT(2, 0, 0);
@@ -105,13 +111,14 @@ static void Test_H264Video()
 		err = XPR_RTSP_Open(streamPort, "uri:///live-1?track=1&mime=video/H264&track=2&mime=audio/G711");
 		if (err < 0)
 			fprintf(stderr, "XPR_RTSP_Open() failed, errno: %x\n", err);
+		fprintf(stderr, "RTSP [%d] URL: %s\n", streamPort, "rtsp://0.0.0.0/live-1");
 		err = XPR_RTSP_Start(streamPort);
-		fprintf(stderr, "XPR_RTSP_Start() failed, errno: %x\n", err);
+		//fprintf(stderr, "XPR_RTSP_Start() failed, errno: %x\n", err);
 		err = XPR_RTSP_Start(serverPort);
-		fprintf(stderr, "XPR_RTSP_Start() failed, errno: %x\n", err);
+		//fprintf(stderr, "XPR_RTSP_Start() failed, errno: %x\n", err);
 		//
-		XPR_File* f1 = XPR_FileOpen("D:\\Home\\Varphone\\Videos\\3516a.264", "rb");
-		XPR_File* f2 = XPR_FileOpen("D:\\Home\\Varphone\\Videos\\3516a.264.idx", "rb");
+		XPR_File* f1 = XPR_FileOpen(h264FileName, "rb");
+		XPR_File* f2 = XPR_FileOpen(h264IndexFileName, "rb");
 
 		memset(&stb, 0, sizeof(stb));
 		stb.bufferSize = 1024 * 1024;
@@ -127,15 +134,19 @@ static void Test_H264Video()
 				XPR_FileSeek(f2, 0, XPR_FILE_SEEK_SET);
 				continue;
 			}
+			if (fi.length <= 0)
+				continue;
 			XPR_FileSeek(f1, fi.offset, XPR_FILE_SEEK_SET);
 			n2 = XPR_FileRead(f1, stb.data, fi.length);
 			if (n2 != fi.length)
 				continue;
 			stb.dataSize = fi.length;
-			stb.pts = XPR_SYS_GetCTS();
+			stb.pts = pts;
 			XPR_RTSP_PushData(streamPort, &stb);
-			//printf("send stream %d, %d\n", fi.offset, fi.length);
-			XPR_ThreadSleep(40000);
+			//fprintf(stderr, "### Send Frame: O = %12d, L = %8d, PTS = %14lld\n",
+			//	fi.offset, fi.length, stb.pts);
+			XPR_ThreadSleep(38000);
+			pts += 40000;
 		}
 		XPR_RTSP_Stop(streamPort);
 		XPR_RTSP_Stop(serverPort);
@@ -149,7 +160,7 @@ int main(int argc, char** argv)
 {
 	//Test_OpenServer();
 	//Test_StartStop();
-	Test_H264Video();
+	Test_H264Video(argv[1]);
 	system("pause");
 	return 0;
 }
