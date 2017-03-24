@@ -15,6 +15,7 @@ xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
                                                         xpr::rtsp::Stream* stream)
     : FramedSource(env)
     , mStream(stream)
+    , mLastPTS(0)
 {
     DBG(DBG_L4, "xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(%p) = %p",
         &env, this);
@@ -24,6 +25,7 @@ xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(
     const H264VideoFramedSource& rhs)
     : FramedSource(rhs.envir())
     , mStream(rhs.stream())
+    , mLastPTS(rhs.mLastPTS)
 {
 }
 
@@ -36,11 +38,7 @@ xpr::rtsp::H264VideoFramedSource::~H264VideoFramedSource(void)
 
 void xpr::rtsp::H264VideoFramedSource::doGetNextFrame()
 {
-    if (mStream->hasVideoFrame())
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(0, getNextFrame, this);
-    else
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(10000, getNextFrame,
-                                                                 this);
+    fetchFrame();
 }
 
 unsigned int xpr::rtsp::H264VideoFramedSource::maxFrameSize() const
@@ -50,20 +48,49 @@ unsigned int xpr::rtsp::H264VideoFramedSource::maxFrameSize() const
 
 void xpr::rtsp::H264VideoFramedSource::fetchFrame()
 {
+    // Check video queue, if empty, delay for next.
+    if (!mStream->hasVideoFrame()) {
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(5000, getNextFrame,
+                                                                 this);
+        return;
+    }
+    // Fetch one block from video queue.
     XPR_StreamBlock* ntb = mStream->getVideoFrame();
     if (ntb) {
-        fFrameSize = std::min(XPR_StreamBlockLength(ntb), fMaxSize);
-        fNumTruncatedBytes = XPR_StreamBlockLength(ntb) - fMaxSize;
+        fFrameSize = XPR_StreamBlockLength(ntb);
+        if (fFrameSize > fMaxSize) {
+            fNumTruncatedBytes = fFrameSize - fMaxSize;
+            fFrameSize = fMaxSize;
+        }
         memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
-        fPresentationTime.tv_sec = XPR_StreamBlockPTS(ntb) / 1000000;
-        fPresentationTime.tv_usec = XPR_StreamBlockPTS(ntb) % 1000000;
+#if 0
+        // Setup PTS with ntb->pts
+        if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
+            gettimeofday(&fPresentationTime, NULL);
+        }
+        else {
+            int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
+            fPresentationTime.tv_sec += usecs / 1000000;
+            fPresentationTime.tv_usec += usecs % 1000000;
+            mLastPTS = XPR_StreamBlockPTS(ntb);
+        }
+#else
+        // Auto filled by H264VideoSteamFramer
+        fPresentationTime.tv_sec = 0;
+        fPresentationTime.tv_usec = 0;
+#endif
         mStream->releaseVideoFrame(ntb);
+        if (fNumTruncatedBytes > 0)
+            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n", fNumTruncatedBytes);
     }
     else {
+        // Should never run here
+        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        // Clear
         fFrameSize = 0;
         fNumTruncatedBytes = 0;
     }
-    FramedSource::afterGetting(this);
+    afterGetting(this);
 }
 
 xpr::rtsp::Stream* xpr::rtsp::H264VideoFramedSource::stream(void) const
@@ -187,6 +214,8 @@ char const* xpr::rtsp::H264VideoServerMediaSubsession::getAuxSDPLine(
 FramedSource* xpr::rtsp::H264VideoServerMediaSubsession::createNewStreamSource(
     unsigned clientSessionId, unsigned& estBitrate)
 {
+    printf("XPR_RTSP: createNewStreamSource(%u, %u)\n", clientSessionId, estBitrate);
+    estBitrate = 5000;
     H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
     return H264VideoStreamFramer::createNew(envir(), src, False);
 }
@@ -876,7 +905,7 @@ void xpr::rtsp::Worker::run(void)
 {
     DBG(DBG_L4, "worker [%d @ %p] running ...", id(), this);
     while (!mExitLoop) {
-        ((BasicTaskScheduler*)mScheduler)->SingleStep(10);
+        ((BasicTaskScheduler*)mScheduler)->SingleStep(0);
     }
     DBG(DBG_L4, "worker [%d @ %p] exited.", id(), this);
 }
@@ -888,7 +917,7 @@ int xpr::rtsp::Worker::start(void)
         return XPR_ERR_GEN_SYS_NOTREADY;
     if (mThread != NULL)
         return XPR_ERR_GEN_BUSY;
-    mThread = XPR_ThreadCreate(xpr::rtsp::Worker::thread, 1024 * 1024 * 4, this);
+    mThread = XPR_ThreadCreate(xpr::rtsp::Worker::thread, 1024 * 1024 * 1, this);
     return XPR_ERR_OK;
 }
 

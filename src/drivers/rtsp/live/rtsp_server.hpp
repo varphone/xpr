@@ -1,4 +1,4 @@
-#ifndef XPR_RTSP_DRIVER_LIVE_RTSP_SERVER_HPP
+ï»¿#ifndef XPR_RTSP_DRIVER_LIVE_RTSP_SERVER_HPP
 #define XPR_RTSP_DRIVER_LIVE_RTSP_SERVER_HPP
 
 #include <stdint.h>
@@ -18,7 +18,7 @@ namespace xpr
 namespace rtsp
 {
 
-// Ç°ÖÃÉùÃ÷
+// å‰ç½®å£°æ˜
 class H264VideoFramedSource;
 class H264VideoServerMediaSubsession;
 class Server;
@@ -26,7 +26,7 @@ class ServerManager;
 class Stream;
 class Worker;
 
-/// »ùÓÚÖ¡µÄ H264 ÊÓÆµÔ´
+/// åŸºäºå¸§çš„ H264 è§†é¢‘æº
 class H264VideoFramedSource : public FramedSource
 {
 public:
@@ -59,9 +59,10 @@ private:
     size_t      mBufferSize;
     XPR_Fifo*   mFreeList;
     XPR_Fifo*   mDataList;
+    int64_t     mLastPTS;
 };
 
-/// H264 ÊÓÆµ·şÎñÃ½Ìå»á»°
+/// H264 è§†é¢‘æœåŠ¡åª’ä½“ä¼šè¯
 class H264VideoServerMediaSubsession : public OnDemandServerMediaSubsession
 {
 public:
@@ -100,7 +101,7 @@ private:
     char*               mAuxSDPLine;
 };
 
-/// ·şÎñÆ÷
+/// æœåŠ¡å™¨
 class Server : public Port
 {
 public:
