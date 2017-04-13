@@ -207,7 +207,7 @@ int XPR_UPS_Init(void)
 {
     if (root_json)
         return XPR_ERR_SUCCESS;
-    root_json = XPR_JSON_LoadFileName("/hi3531/configuration.json");
+    root_json = XPR_JSON_LoadFileName("/etc/vrs/configuration.json");
     if (!root_json)
         return XPR_ERR_UPS_UNEXIST;
     XPR_UPS_RegisterAll();
@@ -216,7 +216,7 @@ int XPR_UPS_Init(void)
 
 int XPR_UPS_Fini(void)
 {
-    XPR_JSON_DumpFileName(root_json, "/hi3531/configuration.json");
+    XPR_JSON_DumpFileName(root_json, "/etc/vrs/configuration.json");
     XPR_JSON_DecRef(root_json);
     root_json = 0;
     return XPR_ERR_SUCCESS;
