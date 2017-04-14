@@ -292,3 +292,16 @@ _Pvt_Extensions
 .vscode
 
 !/contrib/vc14/**
+
+examples/plugin_framework
+examples/plugins/plugin_a.p
+include/xpr/xpr_config.h
+tests/fifo
+tests/fq
+tests/json
+tests/qsort
+tests/realpath
+tests/rtsp
+tests/struct
+tests/thread
+tests/xml
