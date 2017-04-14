@@ -50,6 +50,7 @@ XPR_RTSP=$(XPR_ALL)
 XPR_RTSP_DRIVER_ALL=$(XPR_RTSP)
 XPR_RTSP_DRIVER_LIVE=$(XPR_RTSP_DRIVER_ALL)
 XPR_RTSP_SERVER=$(XPR_RTSP)
+XPR_SERIAL=$(XPR_ALL)
 XPR_SHA1=$(XPR_ALL)
 XPR_STREAMBLOCK=$(XPR_ALL)
 XPR_SYNC=$(XPR_ALL)
@@ -235,6 +236,12 @@ endif
 ###############################################################################
 ifeq ($(XPR_SHA1),y)
 libxpr_SRCS += xpr_sha1.c
+endif
+
+# Serial
+###############################################################################
+ifeq ($(XPR_SERIAL),y)
+libxpr_SRCS += xpr_serial_unix.c
 endif
 
 # Stream Block
