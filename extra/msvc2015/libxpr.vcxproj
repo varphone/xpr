@@ -289,6 +289,7 @@
     <ClCompile Include="..\..\src\deps\roxml\roxml-parse-engine.c" />
     <ClCompile Include="..\..\src\deps\roxml\roxml-parser.c" />
     <ClCompile Include="..\..\src\deps\roxml\roxml.c" />
+    <ClCompile Include="..\..\src\drivers\mcdec\libav\mcdec.c" />
     <ClCompile Include="..\..\src\drivers\mcdec\libav\runtime.c" />
     <ClCompile Include="..\..\src\drivers\mcdec\libav\task.c" />
     <ClCompile Include="..\..\src\drivers\mcdec\libav\worker.c" />
@@ -303,13 +304,13 @@
     <ClCompile Include="..\..\src\drivers\mcvr\d3d9\textwriter.cpp" />
     <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp.cpp" />
     <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_client.cpp" />
+    <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_client1.cpp" />
     <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_server.cpp" />
     <ClCompile Include="..\..\src\xpr_arp_win32.c" />
     <ClCompile Include="..\..\src\xpr_arr.c" />
     <ClCompile Include="..\..\src\xpr_avframe.c" />
     <ClCompile Include="..\..\src\xpr_base64.c" />
     <ClCompile Include="..\..\src\xpr_bitvector.c" />
-    <ClCompile Include="..\..\src\xpr_clb.c" />
     <ClCompile Include="..\..\src\xpr_crc.c" />
     <ClCompile Include="..\..\src\xpr_fifo.c" />
     <ClCompile Include="..\..\src\xpr_file.c" />
@@ -321,6 +322,7 @@
     <ClCompile Include="..\..\src\xpr_mcvr.c" />
     <ClCompile Include="..\..\src\xpr_md5.c" />
     <ClCompile Include="..\..\src\xpr_mem.c" />
+    <ClCompile Include="..\..\src\xpr_pes.c" />
     <ClCompile Include="..\..\src\xpr_rtsp.c" />
     <ClCompile Include="..\..\src\xpr_rtsp_idd.c" />
     <ClCompile Include="..\..\src\xpr_sha1.c" />
