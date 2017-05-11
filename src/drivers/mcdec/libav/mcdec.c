@@ -19,6 +19,7 @@ extern "C" {
 #endif
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 #ifdef __cplusplus
 }
@@ -28,9 +29,6 @@ extern "C" {
 #include <xpr/xpr_mem.h>
 #include <xpr/xpr_mcdec.h>
 #include <xpr/xpr_utils.h>
-//#include "drivers/mcdec/libav/runtime.h"
-//#include "drivers/mcdec/libav/task.h"
-//#include "drivers/mcdec/libav/worker.h"
 
 #define XPR_MCDEC_CHANNEL_MIN  1
 #define XPR_MCDEC_CHANNEL_MAX  16
