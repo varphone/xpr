@@ -1,6 +1,5 @@
-#if defined(XPR_RTSP_DRIVER_LIVE)
+#if defined(XPR_RTSP_DRIVER_LIVE) && defined(XPR_RTSP_HAVE_CLIENT)
 
-#if 0
 #if defined(_MSC_VER)
 #pragma comment(lib, "BasicUsageEnvironment-mt-s-vc140.lib")
 #pragma comment(lib, "groupsock-mt-s-vc140.lib")
@@ -1567,5 +1566,5 @@ int XD_StreamSetTransferMode(int port, int mode)
     return -1;
 }
 #endif
-#endif // 0
-#endif // defined(XPR_RTSP_DRIVER_LIVE)
+
+#endif // defined(XPR_RTSP_DRIVER_LIVE) && defined(XPR_RTSP_HAVE_CLIENT)
