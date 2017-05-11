@@ -1,4 +1,4 @@
-﻿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
+﻿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE) && !defined(HAVE_XPR_RTSP_CLIENT1)
 
 #if defined(_MSC_VER)
 #  if defined(DEBUG) || defined(_DEBUG)
