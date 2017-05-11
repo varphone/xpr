@@ -85,6 +85,10 @@
 // XPR_MD5
 #define HAVE_XPR_MD5 1
 
+// XPR_MCDEC
+#define XPR_MCDEC 1
+#define XPR_MCDEC_DRIVER_LIBAV 1
+
 // XPR_MEM
 #define HAVE_XPR_MEM 1
 
