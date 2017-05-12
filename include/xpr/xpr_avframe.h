@@ -2,6 +2,7 @@
 #define XPR_AVFFAME_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 /// @defgroup xpravframe 音视频原始数据
 /// @brief     音频及视频原始数据容器及相关操作接口
@@ -198,71 +199,75 @@ typedef enum XPR_AVPixelFormat XPR_AVPixelFormat;
 
 /// @brief Create an new frame without data buffers
 /// @return the frame context, null on failure
-XPR_AVFrame* XPR_AVFrameNew(void);
+XPR_API XPR_AVFrame* XPR_AVFrameNew(void);
 
 /// @brief Create an new frame with audio data buffers
 /// @param [in] format          Frame format
 /// @param [in] samples         Number of samples
 /// @param [in] channelLayout   Channels layout
 /// @return the frame context, null on failure
-XPR_AVFrame* XPR_AVFrameNewAudio(int format, int samples,
-                               int64_t channelLayout);
+XPR_API XPR_AVFrame* XPR_AVFrameNewAudio(int format, int samples,
+                                         int64_t channelLayout);
 
 /// @brief Create an new frame with video data buffers
 /// @param [in] format          Frame format
 /// @param [in] width           Width of the picture
 /// @param [in] height          Height of the picture
 /// @return the frame context, null on failure
-XPR_AVFrame* XPR_AVFrameNewVideo(int format, int width, int height);
+XPR_API XPR_AVFrame* XPR_AVFrameNewVideo(int format, int width, int height);
 
 /// @brief Force destroy an frame, ignore the references
 /// @param [in] frame   Frame context
 /// @return no value returns
-void XPR_AVFrameDestroy(XPR_AVFrame* frame);
+XPR_API void XPR_AVFrameDestroy(XPR_AVFrame* frame);
 
-int XPR_AVFrameGetPlanes(const XPR_AVFrame* frame,
-                         uint8_t** data[XPR_AVFRAME_PLANES],
-                         int* lines[XPR_AVFRAME_PLANES]);
+XPR_API int XPR_AVFrameGetPlanes(const XPR_AVFrame* frame,
+                                 uint8_t** data[XPR_AVFRAME_PLANES],
+                                 int* lines[XPR_AVFRAME_PLANES]);
 
-int XPR_AVFrameSetPlanes(XPR_AVFrame* frame,
-                         uint8_t* data[XPR_AVFRAME_PLANES],
-                         int lines[XPR_AVFRAME_PLANES]);
+XPR_API int XPR_AVFrameSetPlanes(XPR_AVFrame* frame,
+                                 uint8_t* data[XPR_AVFRAME_PLANES],
+                                 int lines[XPR_AVFRAME_PLANES]);
 
-int XPR_AVFrameSetFormat(XPR_AVFrame* frame, int format);
-int XPR_AVFrameGetFormat(const XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameSetFormat(XPR_AVFrame* frame, int format);
+XPR_API int XPR_AVFrameGetFormat(const XPR_AVFrame* frame);
 
-int XPR_AVFrameSetSamples(XPR_AVFrame* frame, int samples);
-int XPR_AVFrameGetSamples(const XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameSetSamples(XPR_AVFrame* frame, int samples);
+XPR_API int XPR_AVFrameGetSamples(const XPR_AVFrame* frame);
 
-int XPR_AVFrameSetSampleRate(XPR_AVFrame* frame, int sampleRate);
-int XPR_AVFrameGetSampleRate(const XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameSetSampleRate(XPR_AVFrame* frame, int sampleRate);
+XPR_API int XPR_AVFrameGetSampleRate(const XPR_AVFrame* frame);
 
-int XPR_AVFrameSetChannelLayout(XPR_AVFrame* frame,
-                               int64_t channelLayout);
-int64_t XPR_AVFrameGetChannelLayout(const XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameSetChannelLayout(XPR_AVFrame* frame,
+                                        int64_t channelLayout);
+XPR_API int64_t XPR_AVFrameGetChannelLayout(const XPR_AVFrame* frame);
 
 /// @brief Set the DTS of the frame
 /// @param [in] frame   AVFrame instance
 /// @param [in] dts     Data/Decode/Display timestamp
 /// retval 0    success
 /// @retval -1  failure
-int XPR_AVFrameSetDTS(XPR_AVFrame* frame, int64_t dts);
+XPR_API int XPR_AVFrameSetDTS(XPR_AVFrame* frame, int64_t dts);
 
 /// @brief Get the DTS of the frame
 /// @param [in] frame   AVFrame instance
 /// @return Data/Decode/Display timestamp of the frame
-int64_t XPR_AVFrameGetDTS(const XPR_AVFrame* frame);
+XPR_API int64_t XPR_AVFrameGetDTS(const XPR_AVFrame* frame);
 
 /// @brief Increase the references
 /// @param [in] frame   AVFrame instance
 /// @return the reference count after increased
-int XPR_AVFrameRetain(XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameRetain(XPR_AVFrame* frame);
 
 /// @brief Decrease the references
 /// @param [in] frame   AVFrame instance
 /// @return the reference count after decreased
 /// @note if reference counter == 0, the AVFrame will be destroy
-int XPR_AVFrameRelease(XPR_AVFrame* frame);
+XPR_API int XPR_AVFrameRelease(XPR_AVFrame* frame);
+
+XPR_API XPR_AVFrame* XPR_AVFrameClone(const XPR_AVFrame* src);
+
+XPR_API int XPR_AVFrameCopy(const XPR_AVFrame* src, XPR_AVFrame* dst);
 
 #ifdef __cplusplus
 }
