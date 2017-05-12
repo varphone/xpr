@@ -2,6 +2,7 @@
 #define XPR_MCDEC_H
 
 #include <stdint.h>
+#include "xpr_common.h"
 #include "xpr_avframe.h"
 #include "xpr_streamblock.h"
 
@@ -178,21 +179,21 @@ typedef enum XPR_MCDEC_PARAM {
 /// @param [in] size        配置数据长度, NULL 结尾的字串型数据可以为 -1
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_Config(XPR_MCDEC_CFG cfg, const void* data, int size);
+XPR_API int XPR_MCDEC_Config(XPR_MCDEC_CFG cfg, const void* data, int size);
 
 ///
 /// 初始化整个多通道解码器
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_Init(void);
+XPR_API int XPR_MCDEC_Init(void);
 
 ///
 /// 释放整个多通道解码器
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_Fini(void);
+XPR_API int XPR_MCDEC_Fini(void);
 
 ///
 /// 立即清洗解码缓冲区
@@ -200,7 +201,7 @@ int XPR_MCDEC_Fini(void);
 /// @param [in] port        要操作的端口
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_Flush(int port);
+XPR_API int XPR_MCDEC_Flush(int port);
 
 ///
 /// 重置指定端口并释放其所分配的一切资源
@@ -208,7 +209,7 @@ int XPR_MCDEC_Flush(int port);
 /// @param [in] port        要操作的端口
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_Reset(int port);
+XPR_API int XPR_MCDEC_Reset(int port);
 
 /// 向指定端口推入一帧原始音/视频帧数据
 ///
@@ -216,7 +217,7 @@ int XPR_MCDEC_Reset(int port);
 /// @param [in] avf         音/视频原始帧数据
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_PushAVFrame(int port, const XPR_AVFrame* avf);
+XPR_API int XPR_MCDEC_PushAVFrame(int port, const XPR_AVFrame* avf);
 
 ///
 /// 向指定端口推入一帧原始音/视频码流数据
@@ -225,7 +226,7 @@ int XPR_MCDEC_PushAVFrame(int port, const XPR_AVFrame* avf);
 /// @param [in] stb         音/视频码流数据
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* stb);
+XPR_API int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* stb);
 
 ///
 /// 向指定端口推入没有容器包装的数据
@@ -235,7 +236,7 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* stb);
 /// @param [in] length      要处理的数据的字节数
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_PushData(int port, const uint8_t* data, int length);
+XPR_API int XPR_MCDEC_PushData(int port, const uint8_t* data, int length);
 
 ///
 /// 分发解码后的数据
@@ -243,7 +244,7 @@ int XPR_MCDEC_PushData(int port, const uint8_t* data, int length);
 /// @param [in] avf         音/视频原始帧数据
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avf);
+XPR_API void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avf);
 
 ///
 /// 分发编码/转码后的数据
@@ -251,7 +252,7 @@ void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avf);
 /// @param [in] stb         音/视频码流数据
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* stb);
+XPR_API void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* stb);
 
 ///
 /// 向指定端口添加处理音/视频原始帧数据的回调函数
@@ -263,9 +264,9 @@ void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* stb);
 /// @retval XPR_ERR_ERROR   失败
 /// @note 此接口端口可以为：编码器组或编码器组中的特定目标
 ///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
-int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
 
-int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
 
 ///
 /// 向指定端口添加处理音/视频码流数据的回调函数
@@ -277,9 +278,9 @@ int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaqu
 /// @retval XPR_ERR_ERROR   失败
 /// @note 此接口端口可以为：编码器组或编码器组中的特定目标
 ///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
-int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
 
-int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
 
 ///
 /// 设置指定端口的参数
@@ -289,7 +290,7 @@ int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* o
 /// @param [in] size        要设置的参数值/数据字节数
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int size);
+XPR_API int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int size);
 
 ///
 /// 获取指定端口的参数
@@ -299,7 +300,7 @@ int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int si
 /// @param [in,out] size    要获取的参数值/数据接收缓冲区字节数, 并返回实际数据长度
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size);
+XPR_API int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size);
 
 #ifdef __cplusplus
 }
