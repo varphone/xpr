@@ -222,14 +222,14 @@
     <ClCompile Include="..\..\src\xpr_fq.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\drivers\mcdec\libav\mcdec.c">
-      <Filter>源文件\drivers\mcdec</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\drivers\rtsp\live\rtsp_client1.cpp">
       <Filter>源文件\drivers\rtsp\live</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\xpr_pes.c">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\drivers\mcdec\libav\mcdec.c">
+      <Filter>源文件\drivers\mcdec\libav</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
