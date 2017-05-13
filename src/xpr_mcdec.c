@@ -1,4 +1,4 @@
-#if !defined(XPR_MCDEC_DRIVER_LIBAV)
+#if !defined(HAVE_XPR_MCDEC_DRIVER_LIBAV)
 
 #include <xpr/xpr_common.h>
 #include <xpr/xpr_errno.h>
@@ -74,4 +74,4 @@ int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size)
 	return XPR_ERR_GEN_NOT_SUPPORT;
 }
 
-#endif // !XPR_MCDEC_DRIVER_LIBAV
+#endif // !defined(HAVE_XPR_MCDEC_DRIVER_LIBAV)
