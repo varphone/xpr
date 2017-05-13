@@ -1,4 +1,4 @@
-#ifdef XPR_MCDEC_DRIVER_LIBAV
+#ifdef HAVE_XPR_MCDEC_DRIVER_LIBAV
 
 #pragma comment(lib, "avcodec.lib")
 #pragma comment(lib, "avutil.lib")
@@ -707,4 +707,4 @@ int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size)
     return XPR_ERR_SUCCESS;
 }
 
-#endif // XPR_MCDEC_DRIVER_LIBAV
+#endif // HAVE_XPR_MCDEC_DRIVER_LIBAV

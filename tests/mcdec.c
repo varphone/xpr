@@ -23,13 +23,13 @@ int avf_handler(void* opaque, int port, const XPR_AVFrame* avf)
 }
 
 
-static void test_decode_264(void)
+static void test_decode_264(const char* file)
 {
 	char* buf = malloc(1024 * 16);
 	size_t n = 0;
 	FILE* fp;
 	XPR_StreamBlock stb;
-	fp = fopen("sample.264", "rb");
+	fp = fopen(file, "rb");
 	if (fp) {
 		memset(&stb, 0, sizeof(stb));
 		while (1) {
@@ -43,7 +43,7 @@ static void test_decode_264(void)
 			stb.codec = AV_FOURCC_H264;
 			stb.flags = XPR_STREAMBLOCK_FLAG_TYPE_I;
 			XPR_MCDEC_PushStreamBlock(XPR_MCDEC_PORT(1, 1), &stb);
-			//Sleep(40);
+			Sleep(40);
 		}
 	}
 }
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 {
     XPR_MCDEC_Init();
 	XPR_MCDEC_AddAVFrameHandler(0, avf_handler, NULL);
-	test_decode_264();
+	test_decode_264(argv[1]);
 	printf("exit\n");
     //XPR_MCDEC_Fini();
     return 0;

@@ -1,4 +1,4 @@
-#ifndef XPR_MCDEC_H
+﻿#ifndef XPR_MCDEC_H
 #define XPR_MCDEC_H
 
 #include <stdint.h>
@@ -11,37 +11,37 @@ extern "C" {
 #endif
 
 //==============================================================================
-// PORT �Ľ���
+// PORT 的解析
 //
-// ��������в������ǻ��� PORT ��ʵ��, PORT ����˼�Ƕ˿�, �ڱ����д�����Ŀ�ꡢͨ���ĺ���
-// PORT �� 2 ���ֹ��ɣ�
-//     major   ��Ŀ��, �������� ������ ��
-//     minor   ��Ŀ��, ����ָ�� ������ �����ض�Ŀ��
+// 本库的所有操作都是基于 PORT 来实现, PORT 的意思是端口, 在本库中代表着目标、通道的含义
+// PORT 有 2 部分构成：
+//     major   主目标, 用来区分 解码器 组
+//     minor   次目标, 用来指定 解码器 组中特定目标
 //
-// ���磺
-//     PORT = 0x00010000 = ��һ�� ������ ��
-//     PORT = 0x00010001 = ��һ�� ������ ���е�һ���˿�
+// 例如：
+//     PORT = 0x00010000 = 第一个 解码器 组
+//     PORT = 0x00010001 = 第一个 解码器 组中第一个端口
 //
-// ÿ���ֶ��� 3 ��ֵ�������⺬���:
-//     0    ��ʾ�˲��ֱ�����
-//     M    ��ʾ����Ŀ��
-//     M-1  ��ʾ����Ŀ���е���һ
-// * (M) ��ÿ���ֵ����ֵ, ���� major �� 16 ��λ, �����ֵ�� 0xFFFF
+// 每部分都有 3 个值是有特殊含义的:
+//     0    表示此部分被忽略
+//     M    表示所有目标
+//     M-1  表示可以目标中的任一
+// * (M) 是每部分的最大值, 例如 major 是 16 个位, 其最大值是 0xFFFF
 //
 //==============================================================================
 
 ///
-/// �ϳ� ������ �˿ں�
+/// 合成 解码器 端口号
 ///
 #define XPR_MCDEC_PORT(major, minor)     (((major)<<16)|(minor))
 
 ///
-/// ��ȡ ������ �˿ں�����Ŀ��
+/// 提取 解码器 端口号中主目标
 ///
 #define XPR_MCDEC_PORT_MAJOR(port)       (((port)>>16) & 0xffff)
 
 ///
-/// ��ȡ ������ �˿ں��д�Ŀ��
+/// 提取 解码器 端口号中次目标
 ///
 #define XPR_MCDEC_PORT_MINOR(port)       ((port) & 0xffff)
 
@@ -53,7 +53,7 @@ extern "C" {
 #define XPR_MCDEC_PORT_MAJOR_MAX         0xfffd
 
 ///
-/// ͨ�����ݽ�������
+/// 通用数据解码器组
 ///
 #define XPR_MCDEC_PORT_MAJOR_GEN         0x0001
 
@@ -65,41 +65,41 @@ extern "C" {
 #define XPR_MCDEC_PORT_MINOR_MAX         0xfffd
 
 ///
-/// ����˿ڣ�BMP ��ʽ������
+/// 特殊端口：BMP 格式编码器
 ///
 #define XPR_MCDEC_SPEC_BMPENC_PORT      (0x00000001)
 
 ///
-/// ����˿ڣ�JPG ��ʽ������
+/// 特殊端口：JPG 格式编码器
 ///
 #define XPR_MCDEC_SPEC_JPGENC_PORT      (0x00000002)
 
 ///
-/// ����˿ڣ�PNG ��ʽ������
+/// 特殊端口：PNG 格式编码器
 ///
 #define XPR_MCDEC_SPEC_PNGENC_PORT      (0x00000003)
 
 ///
-/// �����˿ڿ����ɵ����ص���������
+/// 单个端口可容纳的最大回调函数总量
 ///
 #define XPR_MCDEC_MAX_HANDLERS          8
 
 ///
-/// ��/��Ƶԭʼ֡���ݻص�����
+/// 音/视频原始帧数据回调函数
 ///
-/// @param [in] opaque		�û���������
-/// @param [in] port		�����ص��Ķ˿�
-/// @param [in] avf			��/��Ƶԭʼ֡����
-/// return Ŀǰ���Է���ֵ
+/// @param [in] opaque		用户关联数据
+/// @param [in] port		产生回调的端口
+/// @param [in] avf			音/视频原始帧数据
+/// return 目前忽略返回值
 typedef int (*XPR_MCDEC_AVF_FXN)(void* opaque, int port, const XPR_AVFrame* avf);
 
 ///
-/// ��/��Ƶ����֡���ݻص�����
+/// 音/视频码流帧数据回调函数
 ///
-/// @param [in] opaque		�û���������
-/// @param [in] port		�����ص��Ķ˿�
-/// @param [in] stb			��/��Ƶ����֡����
-/// return Ŀǰ���Է���ֵ
+/// @param [in] opaque		用户关联数据
+/// @param [in] port		产生回调的端口
+/// @param [in] stb			音/视频码流帧数据
+/// return 目前忽略返回值
 typedef int (*XPR_MCDEC_STB_FXN)(void* opaque, int port, const XPR_StreamBlock* stb);
 
 ///
@@ -148,7 +148,7 @@ typedef int (*XPR_MCDEC_STB_FXN)(void* opaque, int port, const XPR_StreamBlock* 
 
 typedef enum XPR_MCDEC_CFG {
 	XPR_MCDEC_CFG_C4WGA,
-	XPR_MCDEC_CFG_LOG_LEVEL,		///< ��־��ӡ�ȼ�, ��������: int, ֵ: �� XPR_MCDEC_LOG_LEVEL_xxx 
+	XPR_MCDEC_CFG_LOG_LEVEL,		///< 日志打印等级, 数据类型: int, 值: 见 XPR_MCDEC_LOG_LEVEL_xxx 
     XPR_MCDEC_CFG_MAX,
 } XPR_MCDEC_CFG;
 
@@ -172,134 +172,134 @@ typedef enum XPR_MCDEC_PARAM {
 } XPR_MCDEC_PARAM;
 
 ///
-/// ����������ͨ��������
+/// 配置整个多通道解码器
 ///
-/// @param [in] cfg         ����ѡ�����, �μ� [#XPR_MCDEC_CFG]
-/// @param [in] data        ��������
-/// @param [in] size        �������ݳ���, NULL ��β���ִ������ݿ���Ϊ -1
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] cfg         配置选项编码, 参见 [#XPR_MCDEC_CFG]
+/// @param [in] data        配置数据
+/// @param [in] size        配置数据长度, NULL 结尾的字串型数据可以为 -1
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_Config(XPR_MCDEC_CFG cfg, const void* data, int size);
 
 ///
-/// ��ʼ��������ͨ��������
+/// 初始化整个多通道解码器
 ///
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_Init(void);
 
 ///
-/// �ͷ�������ͨ��������
+/// 释放整个多通道解码器
 ///
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_Fini(void);
 
 ///
-/// ������ϴ���뻺����
+/// 立即清洗解码缓冲区
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] port        要操作的端口
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_Flush(int port);
 
 ///
-/// ����ָ���˿ڲ��ͷ����������һ����Դ
+/// 重置指定端口并释放其所分配的一切资源
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] port        要操作的端口
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_Reset(int port);
 
-/// ��ָ���˿�����һ֡ԭʼ��/��Ƶ֡����
+/// 向指定端口推入一帧原始音/视频帧数据
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] avf         ��/��Ƶԭʼ֡����
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] port        要操作的端口
+/// @param [in] avf         音/视频原始帧数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_PushAVFrame(int port, const XPR_AVFrame* avf);
 
 ///
-/// ��ָ���˿�����һ֡ԭʼ��/��Ƶ��������
+/// 向指定端口推入一帧原始音/视频码流数据
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] stb         ��/��Ƶ��������
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] port        要操作的端口
+/// @param [in] stb         音/视频码流数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* stb);
 
 ///
-/// ��ָ���˿�����û��������װ������
+/// 向指定端口推入没有容器包装的数据
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] data        Ҫ����������, ���ʽ��Ҫʹ�� XPR_MCDEC_SetParam() ����Э��
-/// @param [in] length      Ҫ���������ݵ��ֽ���
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// @param [in] port        要操作的端口
+/// @param [in] data        要处理的数据, 其格式需要使用 XPR_MCDEC_SetParam() 进行协商
+/// @param [in] length      要处理的数据的字节数
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_PushData(int port, const uint8_t* data, int length);
 
 ///
-/// �ַ�����������
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] avf         ��/��Ƶԭʼ֡����
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// 分发解码后的数据
+/// @param [in] port        要操作的端口
+/// @param [in] avf         音/视频原始帧数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avf);
 
 ///
-/// �ַ�����/ת��������
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] stb         ��/��Ƶ��������
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// 分发编码/转码后的数据
+/// @param [in] port        要操作的端口
+/// @param [in] stb         音/视频码流数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* stb);
 
 ///
-/// ��ָ���˿����Ӵ�����/��Ƶԭʼ֡���ݵĻص�����
+/// 向指定端口添加处理音/视频原始帧数据的回调函数
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] handler     �ص�����
-/// @param [in] opaque      �ù�������
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
-/// @note �˽ӿڶ˿ڿ���Ϊ�������������������е��ض�Ŀ��
-///       ���˿�Ϊ �������� ʱ, ���������е�����Ŀ�궼����ô˻ص�����
+/// @param [in] port        要操作的端口
+/// @param [in] handler     回调函数
+/// @param [in] opaque      用关联数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
+/// @note 此接口端口可以为：编码器组或编码器组中的特定目标
+///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
 XPR_API int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
 
 XPR_API int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
 
 ///
-/// ��ָ���˿����Ӵ�����/��Ƶ�������ݵĻص�����
+/// 向指定端口添加处理音/视频码流数据的回调函数
 ///
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] handler     �ص�����
-/// @param [in] opaque      �ù�������
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
-/// @note �˽ӿڶ˿ڿ���Ϊ�������������������е��ض�Ŀ��
-///       ���˿�Ϊ �������� ʱ, ���������е�����Ŀ�궼����ô˻ص�����
+/// @param [in] port        要操作的端口
+/// @param [in] handler     回调函数
+/// @param [in] opaque      用关联数据
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
+/// @note 此接口端口可以为：编码器组或编码器组中的特定目标
+///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
 XPR_API int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
 
 XPR_API int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
 
 ///
-/// ����ָ���˿ڵĲ���
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] param       Ҫ���õĲ������, �μ� [#XPR_MCDEC_Param]
-/// @param [in] data        Ҫ���õĲ���ֵ/����
-/// @param [in] size        Ҫ���õĲ���ֵ/�����ֽ���
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// 设置指定端口的参数
+/// @param [in] port        要操作的端口
+/// @param [in] param       要设置的参数编号, 参见 [#XPR_MCDEC_Param]
+/// @param [in] data        要设置的参数值/数据
+/// @param [in] size        要设置的参数值/数据字节数
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int size);
 
 ///
-/// ��ȡָ���˿ڵĲ���
-/// @param [in] port        Ҫ�����Ķ˿�
-/// @param [in] param       Ҫ��ȡ�Ĳ������, �μ� [#XPR_MCDEC_Param]
-/// @param [in] data        Ҫ��ȡ�Ĳ���ֵ/���ݽ��ջ�����
-/// @param [in,out] size    Ҫ��ȡ�Ĳ���ֵ/���ݽ��ջ������ֽ���, ������ʵ�����ݳ���
-/// @retval XPR_ERR_OK      �ɹ�
-/// @retval XPR_ERR_ERROR   ʧ��
+/// 获取指定端口的参数
+/// @param [in] port        要操作的端口
+/// @param [in] param       要获取的参数编号, 参见 [#XPR_MCDEC_Param]
+/// @param [in] data        要获取的参数值/数据接收缓冲区
+/// @param [in,out] size    要获取的参数值/数据接收缓冲区字节数, 并返回实际数据长度
+/// @retval XPR_ERR_OK      成功
+/// @retval XPR_ERR_ERROR   失败
 XPR_API int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size);
 
 #ifdef __cplusplus
