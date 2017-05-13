@@ -49,6 +49,7 @@
 #define H264_FLAG_ADD_AUD			0x00000001
 #define H264_FLAG_SINGLE_FRAME		0x00000002
 #define H264_FLAG_START_CODE		0x00000004
+#define H264_FLAG_SA_SPS_PPS		0x00000008
 
 typedef struct Callback {
     XPR_RTSP_DCB dcb;
@@ -897,7 +898,7 @@ struct timeval presentationTime, unsigned /*durationInMicroseconds*/) {
     }
 
 	// Post H264 SPS_NALU or PPS_NALU
-	if (fCodec == AV_FOURCC_H264) {
+	if (fCodec == AV_FOURCC_H264 && (pc->h264_flags & H264_FLAG_SA_SPS_PPS)) {
 		int naluType = fReceiveBuffer[0] & 0x1f;
 		if (naluType == 7 ||
 			naluType == 8) {
@@ -1489,6 +1490,9 @@ int XPR_RTSP_SetParam(int port, XPR_RTSP_PARAM param, const void* data, int leng
 		break;
 	case XPR_RTSP_PARAM_H264_STARTCODE:
 		pc->h264_flags |= (int)data ? H264_FLAG_START_CODE : 0;
+		break;
+	case XPR_RTSP_PARAM_H264_SA_SPS_PPS:
+		pc->h264_flags |= (int)data ? H264_FLAG_SA_SPS_PPS : 0;
 		break;
 	case XPR_RTSP_PARAM_MAX:
 		break;
