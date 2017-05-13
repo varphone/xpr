@@ -601,11 +601,24 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avfrm)
 {
     int i = 0;
+	PortContext* pc = NULL;
+
+	if (port != 0)
+		pc = GetPortContext(port);
+
     for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
-        if (xpr_mcdec_avfrm_handlers[i].handler) {
-            ((XPR_MCDEC_AVF_FXN)xpr_mcdec_avfrm_handlers[i].handler)(
-                    xpr_mcdec_avfrm_handlers[i].opaque, port, avfrm);
-        }
+		if (port == 0) {
+			if (xpr_mcdec_avfrm_handlers[i].handler) {
+				((XPR_MCDEC_AVF_FXN)xpr_mcdec_avfrm_handlers[i].handler)(
+					xpr_mcdec_avfrm_handlers[i].opaque, port, avfrm);
+			}
+		}
+		else if (pc) {
+			if (pc->out_frame_handlers[i].handler) {
+				((XPR_MCDEC_AVF_FXN)pc->out_frame_handlers[i].handler)(
+					pc->out_frame_handlers[i].opaque, port, avfrm);
+			}
+		}
     }
 }
 
