@@ -499,8 +499,8 @@ int XPR_MCDEC_PushData(int port, const uint8_t* data, int length)
 		out_avf.datas[1] = pc->avfrm->data[2];
 		out_avf.datas[2] = pc->avfrm->data[1];
 		out_avf.pitches[0] = pc->avfrm->linesize[0];
-		out_avf.pitches[1] = pc->avfrm->linesize[2];
-		out_avf.pitches[2] = pc->avfrm->linesize[1];
+		out_avf.pitches[1] = pc->avfrm->linesize[1];
+		out_avf.pitches[2] = pc->avfrm->linesize[2];
 		out_avf.format = XPR_AV_PIX_FMT_YUV420P;
 		out_avf.width = pc->avfrm->width;
 		out_avf.height = pc->avfrm->height;
@@ -563,14 +563,14 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 		if (pc->params.deinterlace) {
 			//printf("field order: %d\n", pc->avctx->field_order);
 			memcpy(pc->out_frame.datas[0], pc->avfrm->data[0], pc->avfrm->height * pc->avfrm->linesize[0]);
-			memcpy(pc->out_frame.datas[1], pc->avfrm->data[2], pc->avfrm->height * pc->avfrm->linesize[2]);
-			memcpy(pc->out_frame.datas[2], pc->avfrm->data[1], pc->avfrm->height * pc->avfrm->linesize[1]);
+			memcpy(pc->out_frame.datas[1], pc->avfrm->data[1], pc->avfrm->height * pc->avfrm->linesize[1]);
+			memcpy(pc->out_frame.datas[2], pc->avfrm->data[2], pc->avfrm->height * pc->avfrm->linesize[2]);
 			//pc->out_frame.datas[0] = pc->avfrm->data[0];
-			//pc->out_frame.datas[1] = pc->avfrm->data[2];
-			//pc->out_frame.datas[2] = pc->avfrm->data[1];
+			//pc->out_frame.datas[1] = pc->avfrm->data[1];
+			//pc->out_frame.datas[2] = pc->avfrm->data[2];
 			pc->out_frame.pitches[0] = pc->avfrm->linesize[0];
-			pc->out_frame.pitches[1] = pc->avfrm->linesize[2];
-			pc->out_frame.pitches[2] = pc->avfrm->linesize[1];
+			pc->out_frame.pitches[1] = pc->avfrm->linesize[1];
+			pc->out_frame.pitches[2] = pc->avfrm->linesize[2];
 			pc->out_frame.format = XPR_AV_PIX_FMT_YUV420P;
 			pc->out_frame.width = pc->avfrm->width;
 			pc->out_frame.height = pc->avfrm->height;
@@ -578,14 +578,14 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 		}
 		else {
 			memcpy(pc->out_frame.datas[0], pc->avfrm->data[0], pc->avfrm->height * pc->avfrm->linesize[0]);
-			memcpy(pc->out_frame.datas[1], pc->avfrm->data[2], pc->avfrm->height / 2 * pc->avfrm->linesize[2]);
-			memcpy(pc->out_frame.datas[2], pc->avfrm->data[1], pc->avfrm->height / 2 * pc->avfrm->linesize[1]);
+			memcpy(pc->out_frame.datas[1], pc->avfrm->data[1], pc->avfrm->height / 2 * pc->avfrm->linesize[1]);
+			memcpy(pc->out_frame.datas[2], pc->avfrm->data[2], pc->avfrm->height / 2 * pc->avfrm->linesize[2]);
 			//pc->out_frame.datas[0] = pc->avfrm->data[0];
 			//pc->out_frame.datas[1] = pc->avfrm->data[2];
 			//pc->out_frame.datas[2] = pc->avfrm->data[1];
 			pc->out_frame.pitches[0] = pc->avfrm->linesize[0];
-			pc->out_frame.pitches[1] = pc->avfrm->linesize[2];
-			pc->out_frame.pitches[2] = pc->avfrm->linesize[1];
+			pc->out_frame.pitches[1] = pc->avfrm->linesize[1];
+			pc->out_frame.pitches[2] = pc->avfrm->linesize[2];
 			pc->out_frame.format = XPR_AV_PIX_FMT_YUV420P;
 			pc->out_frame.width = pc->avfrm->width;
 			pc->out_frame.height = pc->avfrm->height;
@@ -601,11 +601,24 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avfrm)
 {
     int i = 0;
+	PortContext* pc = NULL;
+
+	if (port != 0)
+		pc = GetPortContext(port);
+
     for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
-        if (xpr_mcdec_avfrm_handlers[i].handler) {
-            ((XPR_MCDEC_AVF_FXN)xpr_mcdec_avfrm_handlers[i].handler)(
-                    xpr_mcdec_avfrm_handlers[i].opaque, port, avfrm);
-        }
+		if (port == 0) {
+			if (xpr_mcdec_avfrm_handlers[i].handler) {
+				((XPR_MCDEC_AVF_FXN)xpr_mcdec_avfrm_handlers[i].handler)(
+					xpr_mcdec_avfrm_handlers[i].opaque, port, avfrm);
+			}
+		}
+		else if (pc) {
+			if (pc->out_frame_handlers[i].handler) {
+				((XPR_MCDEC_AVF_FXN)pc->out_frame_handlers[i].handler)(
+					pc->out_frame_handlers[i].opaque, port, avfrm);
+			}
+		}
     }
 }
 
