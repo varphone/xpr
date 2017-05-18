@@ -258,7 +258,7 @@ static int ResetPort(int port, uint32_t fourcc)
 		//
 		pc->avctx->delay = 0;
 		SetupSkipFrame(pc);//pc->avctx->skip_frame = AVDISCARD_NONKEY;
-		pc->avctx->thread_count = 4;
+		pc->avctx->thread_count = 2;
 		pc->avctx->thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE;
 		pc->avctx->refcounted_frames = 0;
 		avcodec_open2(pc->avctx, codec, NULL);
@@ -655,6 +655,32 @@ int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaqu
     return XPR_ERR_ERROR;
 }
 
+int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque)
+{
+	int i = 0;
+	PortContext* pc = 0;
+	if (port == 0) {
+		if (xpr_mcdec_avfrm_handlers[0].handler == handler &&
+			xpr_mcdec_avfrm_handlers[0].opaque == opaque) {
+			xpr_mcdec_avfrm_handlers[0].handler = NULL;
+			xpr_mcdec_avfrm_handlers[0].opaque = NULL;
+		}
+		return XPR_ERR_SUCCESS;
+	}
+	pc = GetPortContext(port);
+	if (!pc)
+		return XPR_ERR_ERROR;
+	for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
+		if (pc->out_frame_handlers[i].handler == handler &&
+			pc->out_frame_handlers[i].opaque == opaque) {
+			pc->out_frame_handlers[i].handler = NULL;
+			pc->out_frame_handlers[i].opaque = NULL;
+			return XPR_ERR_SUCCESS;
+		}
+	}
+	return XPR_ERR_ERROR;
+}
+
 int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque)
 {
     int i = 0;
@@ -666,7 +692,7 @@ int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* o
 	}
 	pc = GetPortContext(port);
 	if (!pc)
-		return XPR_ERR_ERROR;
+		return XPR_ERR_GEN_SYS_NOTREADY;
     for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
 		if (pc->out_stblk_handlers[i].handler == 0) {
 			pc->out_stblk_handlers[i].handler = handler;
@@ -674,7 +700,33 @@ int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* o
             return XPR_ERR_SUCCESS;
         }
     }
-    return XPR_ERR_ERROR;
+    return XPR_ERR_GEN_UNEXIST;
+}
+
+int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque)
+{
+	int i = 0;
+	PortContext* pc = 0;
+	if (port == 0) {
+		if (xpr_mcdec_stblk_handlers[0].handler == handler &&
+			xpr_mcdec_stblk_handlers[0].opaque == opaque) {
+			xpr_mcdec_stblk_handlers[0].handler = NULL;
+			xpr_mcdec_stblk_handlers[0].opaque = NULL;
+		}
+		return XPR_ERR_SUCCESS;
+	}
+	pc = GetPortContext(port);
+	if (!pc)
+		return XPR_ERR_GEN_SYS_NOTREADY;
+	for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
+		if (pc->out_stblk_handlers[i].handler == handler &&
+			pc->out_stblk_handlers[i].opaque == opaque) {
+			pc->out_stblk_handlers[i].handler = NULL;
+			pc->out_stblk_handlers[i].opaque = NULL;
+			return XPR_ERR_SUCCESS;
+		}
+	}
+	return XPR_ERR_GEN_UNEXIST;
 }
 
 int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int size)
