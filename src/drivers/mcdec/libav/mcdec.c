@@ -149,6 +149,7 @@ static void InitSpecialPorts(void)
     PortContext* pc = 0;
     // Init bmp image converter
     pc = GetPortContext(XPR_MCDEC_SPEC_BMPENC_PORT);
+	memset(pc->out_stblk_handlers, 0, sizeof(pc->out_stblk_handlers));
     pc->avcodec = avcodec_find_encoder(AV_CODEC_ID_BMP);
     if (pc->avcodec) {
         pc->avctx = avcodec_alloc_context3(pc->avcodec);
@@ -168,6 +169,7 @@ static void InitSpecialPorts(void)
     }
     // Init jpeg image converter
 	pc = GetPortContext(XPR_MCDEC_SPEC_JPGENC_PORT);
+	memset(pc->out_stblk_handlers, 0, sizeof(pc->out_stblk_handlers));
     pc->avcodec = avcodec_find_encoder(AV_CODEC_ID_MJPEG);
     if (pc->avcodec) {
         pc->avctx = avcodec_alloc_context3(pc->avcodec);
@@ -187,6 +189,7 @@ static void InitSpecialPorts(void)
     }
     // Init png image converter
 	pc = GetPortContext(XPR_MCDEC_SPEC_PNGENC_PORT);
+	memset(pc->out_stblk_handlers, 0, sizeof(pc->out_stblk_handlers));
     pc->avcodec = avcodec_find_encoder(AV_CODEC_ID_PNG);
     if (pc->avcodec) {
         pc->avctx = avcodec_alloc_context3(pc->avcodec);
@@ -625,11 +628,22 @@ void XPR_MCDEC_DeliverAVFrame(int port, const XPR_AVFrame* avfrm)
 void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* blk)
 {
     int i = 0;
+	PortContext* pc = NULL;
+
+	if (port != 0)
+		pc = GetPortContext(port);
+
     for (; i < XPR_MCDEC_MAX_HANDLERS; i++) {
         if (xpr_mcdec_stblk_handlers[i].handler) {
             ((XPR_MCDEC_STB_FXN)xpr_mcdec_stblk_handlers[i].handler)(
                     xpr_mcdec_stblk_handlers[i].opaque, port, blk);
         }
+		else if (pc) {
+			if (pc->out_stblk_handlers[i].handler) {
+				((XPR_MCDEC_STB_FXN)pc->out_stblk_handlers[i].handler)(
+					pc->out_stblk_handlers[i].opaque, port, blk);
+			}
+		}
     }
 }
 
