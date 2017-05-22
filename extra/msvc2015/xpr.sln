@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_fifo", "test_fifo.vcxproj", "{22B00EB8-4771-42F5-B005-5BD18251F844}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_mcdec", "test_mcdec.vcxproj", "{90C1EF4F-2732-4DB0-9E60-836C3780DCF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F8BDF28-B2BA-4C9E-A212-68F5F0107DE4} = {1F8BDF28-B2BA-4C9E-A212-68F5F0107DE4}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_mcvr", "test_mcvr.vcxproj", "{CE51FAA6-173C-4FC3-87F3-C63DCFFFA3C7}"
 EndProject
