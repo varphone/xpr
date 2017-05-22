@@ -519,22 +519,20 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
     int got = 0;
 	PortContext* pc = 0;
     AVPacket pkt = {0};
-    //XPR_AVFrame out_avf;
-    //
 
 	if (!blk)
-		return XPR_ERR_ERROR;
+		return XPR_ERR_GEN_NULL_PTR;
     if (!IsPortValid(port))
-        return XPR_ERR_ERROR;
+        return XPR_ERR_GEN_NOT_SUPPORT;
 	if (IsPortBlocked(port) || IsPortClosed(port))
-		return XPR_ERR_ERROR;
+		return XPR_ERR_GEN_BUSY;
 	if (!IsPortReady(port, blk->codec)) {
 		if (ResetPort(port, blk->codec) != XPR_ERR_OK)
-			return XPR_ERR_ERROR;
+			return XPR_ERR_GEN_SYS_NOTREADY;
 	}
 	pc = GetPortContext(port);
     if (!pc->avctx || !pc->avfrm)
-		return XPR_ERR_ERROR;
+		return XPR_ERR_GEN_SYS_NOTREADY;
 	//
 	if (pc->flags & XPR_MCDEC_FLAG_SYNRQ) {
 		if (!(XPR_StreamBlockFlags(blk) & XPR_STREAMBLOCK_FLAG_TYPE_I))
@@ -548,8 +546,6 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
     pkt.dts = AV_NOPTS_VALUE;
     pkt.pts = AV_NOPTS_VALUE;
 	pkt.flags |= (XPR_StreamBlockFlags(blk) & XPR_STREAMBLOCK_FLAG_TYPE_I) ? AV_PKT_FLAG_KEY : 0;
-	//printf("%p, %d, %02hhx, %02hhx, %02hhx, %02hhx, %02hhx, %02hhx\n",
-	//       pkt.data, pkt.size, pkt.data[0], pkt.data[1], pkt.data[2], pkt.data[3], pkt.data[4], pkt.data[5]);
 #if defined(WIN32) || defined(WIN64)
 	__try {
 #endif
@@ -557,20 +553,14 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 #if defined(WIN32) || defined(WIN64)
 	}
 	__except (FilterFunc(GetExceptionCode())) {
-		//
-		//OutputDebugStringA("RAISED\n");
 		return XPR_ERR_ERROR;
 	}
 #endif
     if (got) {
 		if (pc->params.deinterlace) {
-			//printf("field order: %d\n", pc->avctx->field_order);
 			memcpy(pc->out_frame.datas[0], pc->avfrm->data[0], pc->avfrm->height * pc->avfrm->linesize[0]);
 			memcpy(pc->out_frame.datas[1], pc->avfrm->data[1], pc->avfrm->height * pc->avfrm->linesize[1]);
 			memcpy(pc->out_frame.datas[2], pc->avfrm->data[2], pc->avfrm->height * pc->avfrm->linesize[2]);
-			//pc->out_frame.datas[0] = pc->avfrm->data[0];
-			//pc->out_frame.datas[1] = pc->avfrm->data[1];
-			//pc->out_frame.datas[2] = pc->avfrm->data[2];
 			pc->out_frame.pitches[0] = pc->avfrm->linesize[0];
 			pc->out_frame.pitches[1] = pc->avfrm->linesize[1];
 			pc->out_frame.pitches[2] = pc->avfrm->linesize[2];
@@ -583,9 +573,6 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 			memcpy(pc->out_frame.datas[0], pc->avfrm->data[0], pc->avfrm->height * pc->avfrm->linesize[0]);
 			memcpy(pc->out_frame.datas[1], pc->avfrm->data[1], pc->avfrm->height / 2 * pc->avfrm->linesize[1]);
 			memcpy(pc->out_frame.datas[2], pc->avfrm->data[2], pc->avfrm->height / 2 * pc->avfrm->linesize[2]);
-			//pc->out_frame.datas[0] = pc->avfrm->data[0];
-			//pc->out_frame.datas[1] = pc->avfrm->data[2];
-			//pc->out_frame.datas[2] = pc->avfrm->data[1];
 			pc->out_frame.pitches[0] = pc->avfrm->linesize[0];
 			pc->out_frame.pitches[1] = pc->avfrm->linesize[1];
 			pc->out_frame.pitches[2] = pc->avfrm->linesize[2];

@@ -25,6 +25,7 @@ int avf_handler(void* opaque, int port, const XPR_AVFrame* avf)
 
 static void test_decode_264(const char* file)
 {
+	XPR_MCDEC_AddAVFrameHandler(XPR_MCDEC_PORT(1, 1), avf_handler, NULL);
 	char* buf = malloc(1024 * 16);
 	size_t n = 0;
 	FILE* fp;
@@ -48,11 +49,46 @@ static void test_decode_264(const char* file)
 	}
 }
 
+static int stb_handler(void* opaque, int port, const XPR_StreamBlock* stb)
+{
+	printf("%p %d %p\n", opaque, port, stb);
+	FILE* fp = fopen("C:\\Users\\Varphone\\Videos\\out.jpg", "w+b");
+	if (fp) {
+		fwrite(stb->data, 1, stb->dataSize, fp);
+		fclose(fp);
+	}
+	return 0;
+}
+static void test_bmpenc(const char* yuvfile)
+{
+	XPR_MCDEC_AddStreamBlockHandler(XPR_MCDEC_SPEC_JPGENC_PORT, stb_handler, NULL);
+	FILE* fp = fopen(yuvfile, "rb");
+	XPR_AVFrame avf;
+	memset(&avf, 0, sizeof(avf));
+	avf.format = XPR_AV_PIX_FMT_YUV420P;
+	avf.width = 1024;
+	avf.height = 600;
+	avf.pitches[0] = 1024;
+	avf.pitches[1] = 512;
+	avf.pitches[2] = 512;
+	avf.datas[0] = malloc(1024 * 600);
+	avf.datas[1] = malloc(1024 * 600 / 4);
+	avf.datas[2] = malloc(1024 * 600 / 4);
+	fread(avf.datas[0], 1, 1024 * 600, fp);
+	fread(avf.datas[1], 1, 1024 * 600 / 4, fp);
+	fread(avf.datas[2], 1, 1024 * 600 / 4, fp);
+	printf("%d\n", XPR_MCDEC_PushAVFrame(XPR_MCDEC_SPEC_JPGENC_PORT, &avf));
+}
+
 int main(int argc, char** argv)
 {
+	XPR_MCDEC_Config(XPR_MCDEC_CFG_LOG_LEVEL, 64, 0);
     XPR_MCDEC_Init();
-	XPR_MCDEC_AddAVFrameHandler(0, avf_handler, NULL);
 	test_decode_264(argv[1]);
+	test_bmpenc(argv[1]);
+	while (1) {
+		XPR_ThreadSleep(1000000);
+	}
 	printf("exit\n");
     //XPR_MCDEC_Fini();
     return 0;
