@@ -1,4 +1,4 @@
-#ifdef HAVE_XPR_MCDEC_DRIVER_LIBAV
+﻿#ifdef HAVE_XPR_MCDEC_DRIVER_LIBAV
 
 #pragma comment(lib, "avcodec.lib")
 #pragma comment(lib, "avutil.lib")
@@ -261,7 +261,7 @@ static int ResetPort(int port, uint32_t fourcc)
 		//
 		pc->avctx->delay = 0;
 		SetupSkipFrame(pc);//pc->avctx->skip_frame = AVDISCARD_NONKEY;
-		pc->avctx->thread_count = 2;
+		pc->avctx->thread_count = 0;// 1;// 2;
 		pc->avctx->thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE;
 		pc->avctx->refcounted_frames = 0;
 		avcodec_open2(pc->avctx, codec, NULL);
@@ -429,7 +429,9 @@ static int AVFrameToImage(int port, const XPR_AVFrame* frm)
             return XPR_ERR_ERROR;
         }
         //
-        avcodec_encode_video2(pc->avctx, &avpkt, &avfrm, &got);
+        //avcodec_encode_video2(pc->avctx, &avpkt, &avfrm, &got);
+		avcodec_send_frame(pc->avctx, &avfrm);
+		got = avcodec_receive_packet(pc->avctx, &avpkt) == 0 ? 1 : 0;
         avcodec_close(pc->avctx);
         if (scaled)
 			av_freep(&pointers[0]);
@@ -464,6 +466,7 @@ long WINAPI FilterFunc(DWORD dwExceptionCode)
 
 int XPR_MCDEC_PushData(int port, const uint8_t* data, int length)
 {
+	int i = 0;
     int got = 0;
 	PortContext* pc = 0;
     AVPacket pkt;
@@ -487,8 +490,9 @@ int XPR_MCDEC_PushData(int port, const uint8_t* data, int length)
     pkt.pts = AV_NOPTS_VALUE;
 #if defined(WIN32) || defined(WIN64)
 	__try {
-#endif    
-		avcodec_decode_video2(pc->avctx, pc->avfrm, &got, &pkt);
+#endif
+		//avcodec_decode_video2(pc->avctx, pc->avfrm, &got, &pkt);
+		i = avcodec_send_packet(pc->avctx, &pkt);
 #if defined(WIN32) || defined(WIN64)
 	}
 	__except (FilterFunc(GetExceptionCode())) {
@@ -497,6 +501,9 @@ int XPR_MCDEC_PushData(int port, const uint8_t* data, int length)
 		return XPR_ERR_ERROR;
 	}
 #endif
+get_frame:
+	if (i == 0)
+		got = avcodec_receive_frame(pc->avctx, pc->avfrm) == 0 ? 1 : 0;
 	if (got) {
 		out_avf.datas[0] = pc->avfrm->data[0];
 		out_avf.datas[1] = pc->avfrm->data[2];
@@ -508,6 +515,7 @@ int XPR_MCDEC_PushData(int port, const uint8_t* data, int length)
 		out_avf.width = pc->avfrm->width;
 		out_avf.height = pc->avfrm->height;
 		XPR_MCDEC_DeliverAVFrame(port, &out_avf);
+		goto get_frame;
 	}
 
     return XPR_ERR_SUCCESS;
@@ -545,17 +553,21 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
     pkt.size = (int)XPR_StreamBlockLength(blk);
     pkt.dts = AV_NOPTS_VALUE;
     pkt.pts = AV_NOPTS_VALUE;
-	pkt.flags |= (XPR_StreamBlockFlags(blk) & XPR_STREAMBLOCK_FLAG_TYPE_I) ? AV_PKT_FLAG_KEY : 0;
+	pkt.flags = (XPR_StreamBlockFlags(blk) & XPR_STREAMBLOCK_FLAG_TYPE_I) ? AV_PKT_FLAG_KEY : 0;
 #if defined(WIN32) || defined(WIN64)
 	__try {
 #endif
-		i = avcodec_decode_video2(pc->avctx, pc->avfrm, &got, &pkt);
+		//i = avcodec_decode_video2(pc->avctx, pc->avfrm, &got, &pkt);
+		i = avcodec_send_packet(pc->avctx, &pkt);
 #if defined(WIN32) || defined(WIN64)
 	}
 	__except (FilterFunc(GetExceptionCode())) {
 		return XPR_ERR_ERROR;
 	}
 #endif
+get_frame:
+	if (i == 0)
+		got = avcodec_receive_frame(pc->avctx, pc->avfrm) == 0 ? 1 : 0;
     if (got) {
 		if (pc->params.deinterlace) {
 			memcpy(pc->out_frame.datas[0], pc->avfrm->data[0], pc->avfrm->height * pc->avfrm->linesize[0]);
@@ -581,6 +593,7 @@ int XPR_MCDEC_PushStreamBlock(int port, const XPR_StreamBlock* blk)
 			pc->out_frame.height = pc->avfrm->height;
 			XPR_MCDEC_DeliverAVFrame(port, &pc->out_frame);
 		}
+		goto get_frame;
     }
 	pc->flags &= ~XPR_MCDEC_FLAG_PNDNG;
 	if (pc->flags & XPR_MCDEC_FLAG_CLOSE)
