@@ -167,6 +167,7 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
 {
 	char* tok = NULL;
 	char* tmp = NULL;
+	char* ptr = NULL;
 	if (length > 0) {
 		tmp = malloc(length + 1);
 		memcpy(tmp, str, length);
@@ -179,7 +180,8 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
 		tmp = strdup(str);
 #endif
 	}
-	for (tok = strsep(&tmp, delim); tok != NULL; tok = strsep(&tmp, delim)) {
+ 	ptr = tmp;
+	for (tok = strsep(&ptr, delim); tok != NULL; tok = strsep(&ptr, delim)) {
 		filter(opaque, tok);
 	}
 	free(tmp);
