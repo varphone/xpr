@@ -1,0 +1,149 @@
+﻿// pthread.h
+#cmakedefine HAVE_PTHREAD_H 1
+
+// sched.h
+#cmakedefine HAVE_SCHED_H 1
+
+// time.h
+#cmakedefine HAVE_TIME_H 1
+
+// unistd.h
+#cmakedefine HAVE_UNISTD_H 1
+
+// XPR_ARP
+#cmakedefine HAVE_XPR_ARP 1
+
+// XPR_ARR
+#cmakedefine HAVE_XPR_ARR 1
+
+// XPR_AVFRAME
+#cmakedefine HAVE_XPR_AVFRAME 1
+
+// XPR_BASE64
+#cmakedefine HAVE_XPR_BASE64 1
+
+// XPR_BITVECTOR
+#cmakedefine HAVE_XPR_BITVECTOR 1
+
+// XPR_DEVCAPS
+#cmakedefine HAVE_XPR_DEVCAPS 1
+
+// XPR_DPU
+#cmakedefine HAVE_XPR_DPU 1
+
+// XPR_DPU_DRIVER_A2SVIDEO
+#cmakedefine HAVE_XPR_DPU_DRIVER_A2SVIDEO 1
+
+// XPR_DPU_DRIVER_A5SVIDEO
+#cmakedefine HAVE_XPR_DPU_DRIVER_A5SVIDEO 1
+
+// XPR_DPU_DRIVER_A5SYUV
+#cmakedefine HAVE_XPR_DPU_DRIVER_A5SYUV 1
+
+// XPR_DPU_DRIVER_ALL
+#cmakedefine HAVE_XPR_DPU_DRIVER_ALL 1
+
+// XPR_DPU_DRIVER_ALSAPCM
+#cmakedefine HAVE_XPR_DPU_DRIVER_ALSAPCM 1
+
+// XPR_DPU_DRIVER_G711TEST
+#cmakedefine HAVE_XPR_DPU_DRIVER_G711TEST 1
+
+// XPR_DPU_DRIVER_MDSD
+#cmakedefine HAVE_XPR_DPU_DRIVER_MDSD 1
+
+// XPR_DPU_DRIVER_PCMTEST
+#cmakedefine HAVE_XPR_DPU_DRIVER_PCMTEST 1
+
+// XPR_DRM
+#cmakedefine HAVE_XPR_DRM 1
+
+// XPR_DRM_DRIVER_ALL
+#cmakedefine HAVE_XPR_DRM_DRIVER_ALL 1
+
+// XPR_DRM_DRIVER_ALPUC_016
+#cmakedefine HAVE_XPR_DRM_DRIVER_ALPUC_016 1
+
+// XPR_DRM_DRIVER_DS18B20
+#cmakedefine HAVE_XPR_DRM_DRIVER_DS18B20 1
+
+// XPR_DRM_DRIVER_RECONBALL
+#cmakedefine HAVE_XPR_DRM_DRIVER_RECONBALL 1
+
+// XPR_FIFO
+#cmakedefine HAVE_XPR_FIFO 1
+
+// XPR_FILE
+#cmakedefine HAVE_XPR_FILE 1
+
+// XPR_GPIO
+#cmakedefine HAVE_XPR_GPIO 1
+
+// XPR_GPIO_DRIVER_A5S
+#cmakedefine HAVE_XPR_GPIO_DRIVER_A5S 1
+
+// XPR_GPIO_DRIVER_ALL
+#cmakedefine HAVE_XPR_GPIO_DRIVER_ALL 1
+
+// XPR_H264
+#cmakedefine HAVE_XPR_H264 1
+
+// XPR_ICMP
+#cmakedefine HAVE_XPR_ICMP 1
+
+// XPR_JSON
+#cmakedefine HAVE_XPR_JSON 1
+
+// XPR_MD5
+#cmakedefine HAVE_XPR_MD5 1
+
+// XPR_MCDEC
+#cmakedefine HAVE_XPR_MCDEC 1
+
+// XPR_MCDEC_DRIVER_LIBAV
+#cmakedefine HAVE_XPR_MCDEC_DRIVER_LIBAV 1
+
+// XPR_MEM
+#cmakedefine HAVE_XPR_MEM 1
+
+// XPR_PES
+#cmakedefine HAVE_XPR_PES 1
+
+// XPR_PLUGIN
+#cmakedefine HAVE_XPR_PLUGIN 1
+
+// XPR_RTSP
+#cmakedefine HAVE_XPR_RTSP 1
+
+// XPR_RTSP_SERVER
+#cmakedefine HAVE_XPR_RTSP_SERVER 1
+
+// XPR_RTSP_DRIVER_LIVE
+#cmakedefine HAVE_XPR_RTSP_DRIVER_LIVE 1
+
+// XPR_SHA1
+#cmakedefine HAVE_XPR_SHA1 1
+
+// XPR_STREAMBLOCK
+#cmakedefine HAVE_XPR_STREAMBLOCK 1
+
+// XPR_SYNC
+#cmakedefine HAVE_XPR_SYNC 1
+
+// XPR_SYS
+#cmakedefine HAVE_XPR_SYS 1
+
+// XPR_THREAD
+#cmakedefine HAVE_XPR_THREAD 1
+
+// XPR_UPS
+#cmakedefine HAVE_XPR_UPS
+
+// XPR_URL
+#cmakedefine HAVE_XPR_URL 1
+
+// XPR_UTILS
+#cmakedefine HAVE_XPR_UTILS 1
+
+// XPR_XML
+#cmakedefine HAVE_XPR_XML 1

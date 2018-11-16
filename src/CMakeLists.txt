@@ -1,0 +1,216 @@
+﻿# src/CMakeLists.txt
+# @author Varphone Wong <varphone@qq.com>
+# @date 2018/11/16
+
+if(HAVE_XPR_ADC)
+    list(APPEND SOURCES xpr_adc.c)
+endif()
+
+if(HAVE_XPR_ARP)
+    if(UNIX)
+        list(APPEND SOURCES xpr_arp_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_arp_win32.c)
+    endif()
+endif()
+
+if(HAVE_XPR_ARR)
+    list(APPEND SOURCES xpr_arr.c)
+endif()
+
+if(HAVE_XPR_AVFRAME)
+    list(APPEND SOURCES xpr_avframe.c)
+endif()
+
+if(HAVE_XPR_BASE64)
+    list(APPEND SOURCES xpr_base64.c)
+endif()
+
+if(HAVE_XPR_BITVECTOR)
+    list(APPEND SOURCES xpr_bitvector.c)
+endif()
+
+if(HAVE_XPR_CRC)
+    list(APPEND SOURCES xpr_crc.c)
+endif()
+
+if(HAVE_XPR_DEVCAPS)
+    list(APPEND SOURCES xpr_devcaps.c)
+endif()
+
+if(HAVE_XPR_DPU)
+    list(APPEND SOURCES xpr_dpu.c xpr_dpu_options.c)
+endif()
+
+if(HAVE_XPR_DRM)
+    list(APPEND SOURCES xpr_drm.c)
+endif()
+
+if(HAVE_XPR_FIFO)
+    list(APPEND SOURCES xpr_fifo.c)
+endif()
+
+if(HAVE_XPR_FILE)
+    if(UNIX)
+        list(APPEND SOURCES xpr_file_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_file_win32.c)
+    endif()
+endif()
+
+if(HAVE_XPR_FQ)
+    list(APPEND SOURCES xpr_fq.c)
+endif()
+
+if(HAVE_XPR_GPIO)
+    list(APPEND SOURCES xpr_gpio.c)
+endif()
+
+if(HAVE_XPR_H264)
+    list(APPEND SOURCES xpr_h264.c)
+endif()
+
+if(HAVE_XPR_ICMP)
+    if(UNIX)
+        list(APPEND SOURCES xpr_icmp_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_icmp_win32.c)
+    endif()
+endif()
+
+if(HAVE_XPR_JSON)
+    list(APPEND SOURCES 
+        deps/jansson/dump.c
+        deps/jansson/error.c
+        deps/jansson/hashtable.c
+        deps/jansson/hashtable_seed.c
+        deps/jansson/load.c
+        deps/jansson/memory.c
+        deps/jansson/pack_unpack.c
+        deps/jansson/strbuffer.c
+        deps/jansson/strconv.c
+        deps/jansson/utf.c
+        deps/jansson/value.c
+        xpr_json.c
+    )
+endif()
+
+if(HAVE_XPR_MCDEC)
+    list(APPEND SOURCES xpr_mcdec.c)
+endif()
+
+if(HAVE_XPR_MCVR)
+    list(APPEND SOURCES xpr_mcvr.c)
+endif()
+
+if(HAVE_XPR_MD5)
+    list(APPEND SOURCES xpr_md5.c)
+endif()
+
+if(HAVE_XPR_MEM)
+    list(APPEND SOURCES xpr_mem.c)
+endif()
+
+if(HAVE_XPR_PES)
+    list(APPEND SOURCES xpr_pes.c)
+endif()
+
+if(HAVE_XPR_PLUGIN)
+    list(APPEND SOURCES xpr_plugin.c)
+endif()
+
+if(HAVE_XPR_RTSP_IDD)
+    list(APPEND SOURCES xpr_rtsp_idd.c)
+endif()
+
+if(HAVE_XPR_RTSP)
+    list(APPEND SOURCES
+        drivers/rtsp/live/rtsp.cpp
+        drivers/rtsp/live/rtsp_server.cpp
+        xpr_rtsp.c
+    )
+endif()
+
+if(HAVE_XPR_SERIAL)
+    if(UNIX)
+        list(APPEND SOURCES xpr_serial_unix.c)
+    endif()
+endif()
+
+if(HAVE_XPR_SHA1)
+    list(APPEND SOURCES xpr_sha1.c)
+endif()
+
+if(HAVE_XPR_STREAMBLOCK)
+    list(APPEND SOURCES xpr_streamblock.c)
+endif()
+
+if(HAVE_XPR_SYNC)
+    if(UNIX)
+        list(APPEND SOURCES xpr_sync_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_sync_win32.c)
+    endif()
+    list(APPEND SOURCES xpr_sync.c)
+endif()
+
+if(HAVE_XPR_SYS)
+    if(UNIX)
+        list(APPEND SOURCES xpr_sys_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_sys_win32.c)
+    endif()
+    list(APPEND SOURCES xpr_sys.c)
+endif()
+
+if(HAVE_XPR_THREAD)
+    if(UNIX)
+        list(APPEND SOURCES xpr_thread_unix.c)
+    endif()
+    if(MSVC)
+        list(APPEND SOURCES xpr_thread_win32.c)
+    endif()
+    list(APPEND SOURCES xpr_thread.c)
+endif()
+
+if(HAVE_XPR_UPS)
+    list(APPEND SOURCES xpr_ups.c)
+endif()
+
+if(HAVE_XPR_URL)
+    list(APPEND SOURCES xpr_url.c)
+endif()
+
+if(HAVE_XPR_UTILS)
+    list(APPEND SOURCES xpr_utils.c)
+endif()
+
+if(HAVE_XPR_XML)
+    list(APPEND SOURCES
+        deps/roxml/roxml.c
+        deps/roxml/roxml-internal.c
+        deps/roxml/roxml-parse-engine.c
+        xpr_xml.c
+    )
+endif()
+
+# Additional definitions
+if(UNIX)
+    # For: pthread_yield, ...
+    add_definitions(-D_GNU_SOURCE)
+endif()
+
+# Framework headers
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# Library: libxpr
+add_library(xpr ${SOURCES})
+
+target_compile_options(xpr
+    PUBLIC -include ${CMAKE_SOURCE_DIR}/include/xpr/xpr_config.h
+)
