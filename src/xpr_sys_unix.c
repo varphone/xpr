@@ -1,4 +1,6 @@
 #include <pthread.h>
+#include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/reboot.h>
 #include <xpr/xpr_sys.h>
@@ -33,7 +35,7 @@ void XPR_SYS_DelayedReboot(int secs)
 	}
 }
 
-#ifdef HAVE_PHTREAD_H
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 {
@@ -52,7 +54,7 @@ XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 	return 0;
 }
 #else
-#pragma message "HAVE_PHTREAD_H not defined, XPR_SYS_EnableThreadRealtimeSchedule() will not work."
+#pragma message "HAVE_PTHREAD_H not defined, XPR_SYS_EnableThreadRealtimeSchedule() will not work."
 XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid)
 {
 	return 0;
