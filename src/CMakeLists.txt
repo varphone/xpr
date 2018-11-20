@@ -2,6 +2,8 @@
 # @author Varphone Wong <varphone@qq.com>
 # @date 2018/11/16
 
+project(xpr)
+
 if(HAVE_XPR_ADC)
     list(APPEND SOURCES xpr_adc.c)
 endif()
@@ -209,8 +211,25 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Library: libxpr
-add_library(xpr ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
 target_compile_options(xpr
     PUBLIC -include ${CMAKE_SOURCE_DIR}/include/xpr/xpr_config.h
+)
+
+# Installation
+#
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "lib"
+    ARCHIVE DESTINATION "lib"
+    RUNTIME DESTINATION "bin"
+    INCLUDES DESTINATION "${INCLUDE_INSTALL_DIR}"
+)
+
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    NAMESPACE "${NAMESPACE}"
+    DESTINATION "${CONFIG_INSTALL_DIR}"
 )

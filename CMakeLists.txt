@@ -60,6 +60,14 @@ CHECK_INCLUDE_FILES(sched.h HAVE_SCHED_H)
 CHECK_INCLUDE_FILES(time.h HAVE_TIME_H)
 CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 
+# Dependency
+#
+find_package(live QUIET)
+
+if(NOT live_FOUND)
+    set(HAVE_XPR_RTSP_DRIVER_LIVE OFF)
+endif()
+
 # Generate config file
 configure_file(
     ${CMAKE_SOURCE_DIR}/include/xpr/xpr_config.h.in
@@ -67,7 +75,20 @@ configure_file(
     @ONLY
 )
 
+# Installation properties
+#
+set(CONFIG_INSTALL_DIR "lib/cmake/${PROJECT_NAME}")
+set(INCLUDE_INSTALL_DIR "include")
+
+set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+
+set(VERSION_CONFIG "${GENERATED_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+set(PROJECT_CONFIG "${GENERATED_DIR}/${PROJECT_NAME}Config.cmake")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+set(NAMESPACE "${PROJECT_NAME}::")
+
 # Subdirectories
+#
 if(BUILD_INCLUDE)
 	add_subdirectory(include)
 endif()
@@ -86,3 +107,22 @@ endif()
 if(BUILD_TOOLS)
 	add_subdirectory(tools)
 endif()
+
+# Installation (https://github.com/forexample/package-example)
+#
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+    "${VERSION_CONFIG}" COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+    "cmake/Config.cmake.in"
+    "${PROJECT_CONFIG}"
+    INSTALL_DESTINATION "${CONFIG_INSTALL_DIR}"
+)
+
+install(
+    FILES "${PROJECT_CONFIG}" "${VERSION_CONFIG}"
+    DESTINATION "${CONFIG_INSTALL_DIR}"
+)
