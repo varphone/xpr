@@ -1,0 +1,11 @@
+﻿prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: xpr
+Description: X Portable Runtime library
+Version: 2.1.7
+Requires:
+Cflags: -I${includedir}
+Libs: -L${libdir} -lxpr
