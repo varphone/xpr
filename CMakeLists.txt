@@ -49,7 +49,7 @@ option(HAVE_XPR_XML          "Enable Utilities module"               OFF)
 
 # Setup project informations
 project(xpr
-    VERSION 2.1.7
+    VERSION 2.1.8
     LANGUAGES C CXX
 )
 
