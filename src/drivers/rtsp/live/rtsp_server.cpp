@@ -782,6 +782,8 @@ int xpr::rtsp::Stream::putAudioFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mAudioQ)
         return XPR_ERR_GEN_NULL_PTR;
+    if (XPR_FifoIsFull(mAudioQ))
+        releaseAudioFrame(getAudioFrame());
     XPR_StreamBlock* ntb = stb;
     if (!(stb->flags & XPR_STREAMBLOCK_FLAG_REFERABLE))
         ntb = XPR_StreamBlockDuplicate(stb);
@@ -796,6 +798,8 @@ int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mVideoQ)
         return XPR_ERR_GEN_NULL_PTR;
+    if (XPR_FifoIsFull(mVideoQ))
+        releaseVideoFrame(getVideoFrame());
     XPR_StreamBlock* ntb = stb;
     if (!(stb->flags & XPR_STREAMBLOCK_FLAG_REFERABLE))
         ntb = XPR_StreamBlockDuplicate(stb);
@@ -808,6 +812,8 @@ int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock* stb)
 
 void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock* stb)
 {
+    if (!stb)
+        return;
     if (stb->pf_release)
         XPR_StreamBlockRelease(stb);
     else
@@ -816,6 +822,8 @@ void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock* stb)
 
 void xpr::rtsp::Stream::releaseVideoFrame(XPR_StreamBlock* stb)
 {
+    if (!stb)
+        return;
     if (stb->pf_release)
         XPR_StreamBlockRelease(stb);
     else
