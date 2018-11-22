@@ -782,10 +782,12 @@ int xpr::rtsp::Stream::putAudioFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mAudioQ)
         return XPR_ERR_GEN_NULL_PTR;
-    XPR_StreamBlock* ntb = XPR_StreamBlockDuplicate(stb);
+    XPR_StreamBlock* ntb = stb;
+    if (!(stb->flags & XPR_STREAMBLOCK_FLAG_REFERABLE))
+        ntb = XPR_StreamBlockDuplicate(stb);
     int err = XPR_FifoPutAsAtomic(mAudioQ, (uintptr_t)ntb);
     if (XPR_IS_ERROR(err)) {
-        XPR_StreamBlockFree(ntb);
+        releaseAudioFrame(ntb);
     }
     return err;
 }
@@ -794,22 +796,30 @@ int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mVideoQ)
         return XPR_ERR_GEN_NULL_PTR;
-    XPR_StreamBlock* ntb = XPR_StreamBlockDuplicate(stb);
+    XPR_StreamBlock* ntb = stb;
+    if (!(stb->flags & XPR_STREAMBLOCK_FLAG_REFERABLE))
+        ntb = XPR_StreamBlockDuplicate(stb);
     int err = XPR_FifoPutAsAtomic(mVideoQ, (uintptr_t)ntb);
     if (XPR_IS_ERROR(err)) {
-        XPR_StreamBlockFree(ntb);
+        releaseVideoFrame(ntb);
     }
     return err;
 }
 
 void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock* stb)
 {
-    XPR_StreamBlockFree(stb);
+    if (stb->pf_release)
+        XPR_StreamBlockRelease(stb);
+    else
+        XPR_StreamBlockFree(stb);
 }
 
 void xpr::rtsp::Stream::releaseVideoFrame(XPR_StreamBlock* stb)
 {
-    XPR_StreamBlockFree(stb);
+    if (stb->pf_release)
+        XPR_StreamBlockRelease(stb);
+    else
+        XPR_StreamBlockFree(stb);
 }
 
 void xpr::rtsp::Stream::configStream(const char* query)
