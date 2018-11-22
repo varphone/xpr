@@ -214,7 +214,6 @@ char const* xpr::rtsp::H264VideoServerMediaSubsession::getAuxSDPLine(
 FramedSource* xpr::rtsp::H264VideoServerMediaSubsession::createNewStreamSource(
     unsigned clientSessionId, unsigned& estBitrate)
 {
-    printf("XPR_RTSP: createNewStreamSource(%u, %u)\n", clientSessionId, estBitrate);
     estBitrate = 5000;
     H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
     return H264VideoStreamFramer::createNew(envir(), src, False);
