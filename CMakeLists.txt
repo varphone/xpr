@@ -78,6 +78,9 @@ if(BUILD_WITH_HUNTER)
     # live
     hunter_add_package(live)
     find_package(live CONFIG REQUIRED)
+    if (NOT LIVE_INCLUDE_DIRS)
+        set(LIVE_INCLUDE_DIRS ${LIVE_ROOT}/include)
+    endif()
 else()
     find_package(live QUIET)
 

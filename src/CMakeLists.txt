@@ -266,9 +266,11 @@ set_target_properties(${PROJECT_NAME}
 )
 
 if(BUILD_WITH_HUNTER)
-    include_directories(${live_INCLUDE_DIRS})
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC ${LIVE_INCLUDE_DIRS}
+    )
     target_link_libraries(${PROJECT_NAME}
-        PUBLIC ${live_LIBRARIES}
+        PUBLIC ${LIVE_LIBRARIES}
     )
 endif()
 
