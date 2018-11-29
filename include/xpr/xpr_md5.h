@@ -27,6 +27,7 @@ documentation and/or software.
 #ifndef XPR_MD5_H
 #define XPR_MD5_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <xpr/xpr_common.h>
 
