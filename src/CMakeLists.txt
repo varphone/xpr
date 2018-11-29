@@ -265,6 +265,13 @@ set_target_properties(${PROJECT_NAME}
         PUBLIC_HEADER "${PUBLIC_HEADERS}"
 )
 
+if(BUILD_WITH_HUNTER)
+    include_directories(${live_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}
+        PUBLIC ${live_LIBRARIES}
+    )
+endif()
+
 # Installation
 #
 install(

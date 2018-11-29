@@ -1,12 +1,13 @@
 ﻿cmake_minimum_required(VERSION 3.2)
 
 # Build options
-option(BUILD_INCLUDE    "Build include directory"               OFF)
-option(BUILD_SRC        "Build src directory"                   ON)
-option(BUILD_DOCS       "Build docs directory"                  OFF)
-option(BUILD_EXAMPLES   "Build examples directory"              ON)
-option(BUILD_TESTS      "Build tests directory"                 OFF)
-option(BUILD_TOOLS      "Build tools directory"                 OFF)
+option(BUILD_INCLUDE        "Build include directory"               OFF)
+option(BUILD_SRC            "Build src directory"                   ON)
+option(BUILD_DOCS           "Build docs directory"                  OFF)
+option(BUILD_EXAMPLES       "Build examples directory"              ON)
+option(BUILD_TESTS          "Build tests directory"                 OFF)
+option(BUILD_TOOLS          "Build tools directory"                 OFF)
+option(BUILD_WITH_HUNTER    "Build with hunter package manager"     OFF)
 
 # Module options
 option(HAVE_XPR_ADC          "Enable ADC module"                     OFF)
@@ -47,6 +48,17 @@ option(HAVE_XPR_URL          "Enable URL module"                     ON)
 option(HAVE_XPR_UTILS        "Enable Utilities module"               ON)
 option(HAVE_XPR_XML          "Enable Utilities module"               OFF)
 
+# Import hunter package manager
+if(BUILD_WITH_HUNTER)
+    include("cmake/HunterGate.cmake")
+
+    HunterGate(
+        URL "https://github.com/varphone/hunter/archive/v0.23.59-p1.tar.gz"
+        SHA1 "893a82934813dc9a9a788ec0203f782343d96758"
+        LOCAL
+    )
+endif()
+
 # Setup project informations
 project(xpr
     VERSION 2.1.9
@@ -62,10 +74,16 @@ CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 
 # Dependency
 #
-find_package(live QUIET)
+if(BUILD_WITH_HUNTER)
+    # live
+    hunter_add_package(live)
+    find_package(live CONFIG REQUIRED)
+else()
+    find_package(live QUIET)
 
-if(NOT live_FOUND)
-    set(HAVE_XPR_RTSP_DRIVER_LIVE OFF)
+    if(NOT live_FOUND)
+        set(HAVE_XPR_RTSP_DRIVER_LIVE OFF)
+    endif()
 endif()
 
 # Generate config file
