@@ -4,6 +4,9 @@
 // sched.h
 #cmakedefine HAVE_SCHED_H 1
 
+// stdint.h
+#cmakedefine HAVE_STDINT_H 1
+
 // time.h
 #cmakedefine HAVE_TIME_H 1
 
