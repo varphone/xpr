@@ -12,6 +12,9 @@
 #define XPR_RTSP_H264_MAX_FRAME_SIZE    320000
 #define XPR_RTSP_H264_VIDEO_BUFFER_SIZE (1024*1024*2)
 
+#define XPR_RTSP_JPEG_MAX_FRAME_SIZE    512000
+#define XPR_RTSP_JPEG_VIDEO_BUFFER_SIZE (1024*1024*2)
+
 namespace xpr
 {
 
@@ -21,6 +24,8 @@ namespace rtsp
 // 前置声明
 class H264VideoFramedSource;
 class H264VideoServerMediaSubsession;
+class JPEGVideoFramedSource;
+class JPEGVideoServerMediaSubsession;
 class Server;
 class ServerManager;
 class Stream;
@@ -88,6 +93,81 @@ public:
 
 protected:
     H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
+                                   Stream* stream);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
+
+private:
+    FramedSource*       mSource;
+    RTPSink*            mSink;
+    Stream*             mStream;
+    char                mDoneFlag;
+    char*               mAuxSDPLine;
+};
+
+/// 基于帧的 JPEG 视频源
+class JPEGVideoFramedSource : public FramedSource
+{
+public:
+    JPEGVideoFramedSource(UsageEnvironment& env, Stream* stream);
+    JPEGVideoFramedSource(const JPEGVideoFramedSource& rhs);
+    virtual ~JPEGVideoFramedSource(void);
+
+public:
+    // FramedSource interfaces
+    virtual void doGetNextFrame();
+    virtual unsigned int maxFrameSize() const;
+
+    // Methods
+    void fetchFrame();
+
+    // Properties
+    Stream* stream(void) const;
+
+    //
+    static void getNextFrame(void* ptr);
+
+private:
+    virtual Boolean isJPEGVideoStreamFramer() const;
+
+private:
+    TaskToken   mCurrentTask;
+    Stream*     mStream;
+    uint8_t*    mBuffer;
+    size_t      mBufferOffset;
+    size_t      mBufferSize;
+    XPR_Fifo*   mFreeList;
+    XPR_Fifo*   mDataList;
+    int64_t     mLastPTS;
+};
+
+/// JPEG 视频服务媒体会话
+class JPEGVideoServerMediaSubsession : public OnDemandServerMediaSubsession
+{
+public:
+    virtual ~JPEGVideoServerMediaSubsession(void);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
+                                                unsigned& estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps
+    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
+                                      unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
+
+    // Used to implement "getAuxSDPLine()":
+    void checkForAuxSDPLine1();
+    void afterPlayingDummy1();
+    void setDoneFlag();
+
+    // Static Methods
+    static JPEGVideoServerMediaSubsession* createNew(UsageEnvironment& env,
+                                                     FramedSource* source, Stream* stream);
+
+    //static void afterPlayingDummy(void* ptr);
+    //static void chkForAuxSDPLine(void* ptr);
+
+protected:
+    JPEGVideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
                                    Stream* stream);
 
     // Override OnDemandServerMediaSubsession interfaces

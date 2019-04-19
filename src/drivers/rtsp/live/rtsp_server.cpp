@@ -236,6 +236,233 @@ xpr::rtsp::H264VideoServerMediaSubsession::createNew(
     return new H264VideoServerMediaSubsession(env, source, stream);
 }
 
+// JPEGVideoFramedSource
+//============================================================================
+xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
+                                                        xpr::rtsp::Stream* stream)
+    : FramedSource(env)
+    , mStream(stream)
+    , mLastPTS(0)
+{
+    DBG(DBG_L4, "xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p",
+        &env, this);
+}
+
+xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(
+    const JPEGVideoFramedSource& rhs)
+    : FramedSource(rhs.envir())
+    , mStream(rhs.stream())
+    , mLastPTS(rhs.mLastPTS)
+{
+}
+
+xpr::rtsp::JPEGVideoFramedSource::~JPEGVideoFramedSource(void)
+{
+    DBG(DBG_L4, "xpr::rtsp::JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p",
+        this);
+    envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
+}
+
+void xpr::rtsp::JPEGVideoFramedSource::doGetNextFrame()
+{
+    fetchFrame();
+}
+
+unsigned int xpr::rtsp::JPEGVideoFramedSource::maxFrameSize() const
+{
+    return XPR_RTSP_JPEG_MAX_FRAME_SIZE;
+}
+
+void xpr::rtsp::JPEGVideoFramedSource::fetchFrame()
+{
+    // Check video queue, if empty, delay for next.
+    if (!mStream->hasVideoFrame()) {
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(5000, getNextFrame,
+                                                                 this);
+        return;
+    }
+    // Fetch one block from video queue.
+    XPR_StreamBlock* ntb = mStream->getVideoFrame();
+    if (ntb) {
+        fFrameSize = XPR_StreamBlockLength(ntb);
+        if (fFrameSize > fMaxSize) {
+            fNumTruncatedBytes = fFrameSize - fMaxSize;
+            fFrameSize = fMaxSize;
+        }
+        memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
+#if 0
+        // Setup PTS with ntb->pts
+        if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
+            gettimeofday(&fPresentationTime, NULL);
+        }
+        else {
+            int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
+            fPresentationTime.tv_sec += usecs / 1000000;
+            fPresentationTime.tv_usec += usecs % 1000000;
+            mLastPTS = XPR_StreamBlockPTS(ntb);
+        }
+#else
+        // Auto filled by JPEGVideoSteamFramer
+        fPresentationTime.tv_sec = 0;
+        fPresentationTime.tv_usec = 0;
+#endif
+        mStream->releaseVideoFrame(ntb);
+        if (fNumTruncatedBytes > 0)
+            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n", fNumTruncatedBytes);
+    }
+    else {
+        // Should never run here
+        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        // Clear
+        fFrameSize = 0;
+        fNumTruncatedBytes = 0;
+    }
+    afterGetting(this);
+}
+
+xpr::rtsp::Stream* xpr::rtsp::JPEGVideoFramedSource::stream(void) const
+{
+    return mStream;
+}
+
+void xpr::rtsp::JPEGVideoFramedSource::getNextFrame(void* ptr)
+{
+    if (ptr) {
+        ((JPEGVideoFramedSource*)ptr)->fetchFrame();
+    }
+}
+
+Boolean xpr::rtsp::JPEGVideoFramedSource::isJPEGVideoStreamFramer() const
+{
+    return True;
+}
+
+// JPEGVideoServerMediaSubsession
+//============================================================================
+xpr::rtsp::JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+    : OnDemandServerMediaSubsession(env, True)
+    , mSource(source)
+    , mSink(NULL)
+    , mStream(stream)
+    , mDoneFlag(0)
+    , mAuxSDPLine(NULL)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, %p) = %p",
+        &env, source, this);
+}
+
+xpr::rtsp::JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = %p",
+        this);
+    if (mAuxSDPLine) {
+        free(mAuxSDPLine);
+        mAuxSDPLine = NULL;
+    }
+    mSource = NULL;
+    mSink = NULL;
+    mDoneFlag = 0;
+}
+
+static void afterPlayingDummy_JPEG(void* clientData)
+{
+    xpr::rtsp::JPEGVideoServerMediaSubsession* subsess =
+        (xpr::rtsp::JPEGVideoServerMediaSubsession*)clientData;
+    subsess->afterPlayingDummy1();
+}
+
+void xpr::rtsp::JPEGVideoServerMediaSubsession::afterPlayingDummy1()
+{
+    // Unschedule any pending 'checking' task:
+    envir().taskScheduler().unscheduleDelayedTask(nextTask());
+    // Signal the event loop that we're done:
+    setDoneFlag();
+}
+
+void xpr::rtsp::JPEGVideoServerMediaSubsession::setDoneFlag()
+{
+    mDoneFlag = ~0x00;
+}
+
+static void checkForAuxSDPLine_JPEG(void* clientData)
+{
+    xpr::rtsp::JPEGVideoServerMediaSubsession* subsess =
+        (xpr::rtsp::JPEGVideoServerMediaSubsession*)clientData;
+    subsess->checkForAuxSDPLine1();
+}
+
+void xpr::rtsp::JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
+{
+    const char* dasl = NULL;
+    nextTask() = NULL;
+    if (mAuxSDPLine != NULL) {
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
+        mAuxSDPLine = strDup(dasl);
+        mSink = NULL;
+        DBG(DBG_L4, "JPEGVideoServerMediaSubsession: AuxSDPLine [%s]", mAuxSDPLine);
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (!mDoneFlag) {
+        // try again after a brief delay:
+        int uSecsToDelay = 10000; // 10 ms
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay,
+                                                                 (TaskFunc*)checkForAuxSDPLine_JPEG, this);
+    }
+}
+
+char const* xpr::rtsp::JPEGVideoServerMediaSubsession::getAuxSDPLine(
+    RTPSink* rtpSink, FramedSource* inputSource)
+{
+    if (mAuxSDPLine) {
+        return mAuxSDPLine;
+    }
+    if (mSink == NULL) {
+        // we're not already setting it up for another, concurrent stream
+        // until we start reading the file.  This means that "rtpSink"s "auxSDPLine()" will be NULL initially,
+        // and we need to start reading data from our file until this changes.
+        mSink = rtpSink;
+        // Start reading the file:
+        mSink->startPlaying(*inputSource, afterPlayingDummy, this);
+        // Check whether the sink's 'auxSDPLine()' is ready:
+        checkForAuxSDPLine(this);
+    }
+    envir().taskScheduler().doEventLoop(&mDoneFlag);
+    return mAuxSDPLine;
+}
+
+FramedSource* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewStreamSource(
+    unsigned clientSessionId, unsigned& estBitrate)
+{
+    estBitrate = 5000;
+    JPEGVideoFramedSource* src = new JPEGVideoFramedSource(envir(), mStream);
+    // FIXME:
+    // return JPEGVideoStreamFramer::createNew(envir(), src, False);
+    return src;
+}
+
+RTPSink* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewRTPSink(
+    Groupsock* rtpGroupsock,
+    unsigned char rtpPayloadTypeIfDynamic,
+    FramedSource* inputSource)
+{
+    OutPacketBuffer::maxSize = XPR_RTSP_JPEG_MAX_FRAME_SIZE;
+    return JPEGVideoRTPSink::createNew(envir(), rtpGroupsock);
+}
+
+xpr::rtsp::JPEGVideoServerMediaSubsession*
+xpr::rtsp::JPEGVideoServerMediaSubsession::createNew(
+    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+{
+    return new JPEGVideoServerMediaSubsession(env, source, stream);
+}
+
 // Server
 //============================================================================
 xpr::rtsp::Server::Server(int id, Port* parent)
@@ -858,6 +1085,13 @@ void xpr::rtsp::Stream::configStream(const char* key, const char* value)
                 //H264VideoFramedSource* src = new H264VideoFramedSource(env, this);
                 //printf("stream %p, src %p\n", this, src);
                 mSMS->addSubsession(H264VideoServerMediaSubsession::createNew(env, NULL, this));
+            }
+        }
+        else if (strcmp(value, "video/JPEG") == 0) {
+            if (mSourceType == "stb") {
+                UsageEnvironment& env = server->workers()[0]->env();
+                int trackId = strtol(mTrackId.c_str(), NULL, 10);
+                mSMS->addSubsession(JPEGVideoServerMediaSubsession::createNew(env, NULL, this));
             }
         }
     }
