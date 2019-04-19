@@ -12,22 +12,22 @@ endif()
 
 if(HAVE_XPR_JSON)
 add_executable(json json.c)
-target_link_libraries(json xpr)
+target_link_libraries(json xpr -lpthread)
 endif()
 
 if(HAVE_XPR_MCDEC)
 add_executable(mcdec mcdec.c)
-target_link_libraries(mcdec xpr)
+target_link_libraries(mcdec xpr -lpthread)
 endif()
 
 if(HAVE_XPR_QSORT)
 add_executable(qsort qsort.c)
-target_link_libraries(qsort xpr)
+target_link_libraries(qsort xpr -lpthread)
 endif()
 
 if(HAVE_XPR_REALPATH)
 add_executable(realpath realpath.c)
-target_link_libraries(realpath xpr)
+target_link_libraries(realpath xpr -lpthread)
 endif()
 
 if(HAVE_XPR_RTSP)
@@ -42,7 +42,7 @@ endif()
 
 if(HAVE_XPR_STRUCT)
 add_executable(struct struct.c)
-target_link_libraries(struct xpr)
+target_link_libraries(struct xpr -lpthread)
 endif()
 
 if(HAVE_XPR_THREAD)
@@ -52,16 +52,16 @@ endif()
 
 if(HAVE_XPR_UPS)
 add_executable(ups ups.c)
-target_link_libraries(ups xpr)
+target_link_libraries(ups xpr -lpthread)
 endif()
 
 if(HAVE_XPR_UTILS)
 add_executable(utils utils.c)
-target_link_libraries(utils xpr)
+target_link_libraries(utils xpr -lpthread)
 endif()
 
 if(HAVE_XPR_XML)
 add_executable(xml xml.c)
-target_link_libraries(xml xpr)
+target_link_libraries(xml xpr -lpthread)
 endif()
 
