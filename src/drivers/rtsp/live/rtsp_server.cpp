@@ -450,7 +450,7 @@ H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
     mDoneFlag = 0;
 }
 
-static void afterPlayingDummy(void* clientData)
+void H264VideoServerMediaSubsession::afterPlayingDummy(void* clientData)
 {
     H264VideoServerMediaSubsession* subsess =
         (H264VideoServerMediaSubsession*)clientData;
@@ -470,7 +470,7 @@ void H264VideoServerMediaSubsession::setDoneFlag()
     mDoneFlag = ~0x00;
 }
 
-static void checkForAuxSDPLine(void* clientData)
+void H264VideoServerMediaSubsession::checkForAuxSDPLine(void* clientData)
 {
     H264VideoServerMediaSubsession* subsess =
         (H264VideoServerMediaSubsession*)clientData;
@@ -678,7 +678,7 @@ JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
     mDoneFlag = 0;
 }
 
-static void afterPlayingDummy_JPEG(void* clientData)
+void JPEGVideoServerMediaSubsession::afterPlayingDummy(void* clientData)
 {
     JPEGVideoServerMediaSubsession* subsess =
         (JPEGVideoServerMediaSubsession*)clientData;
@@ -698,7 +698,7 @@ void JPEGVideoServerMediaSubsession::setDoneFlag()
     mDoneFlag = ~0x00;
 }
 
-static void checkForAuxSDPLine_JPEG(void* clientData)
+void JPEGVideoServerMediaSubsession::checkForAuxSDPLine(void* clientData)
 {
     JPEGVideoServerMediaSubsession* subsess =
         (JPEGVideoServerMediaSubsession*)clientData;
@@ -725,7 +725,7 @@ void JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
         // try again after a brief delay:
         int uSecsToDelay = 10000; // 10 ms
         nextTask() = envir().taskScheduler().scheduleDelayedTask(
-            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine_JPEG, this);
+            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
     }
 }
 

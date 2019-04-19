@@ -186,8 +186,8 @@ public:
     static H264VideoServerMediaSubsession* createNew(UsageEnvironment& env,
                                                      FramedSource* source, Stream* stream);
 
-    //static void afterPlayingDummy(void* ptr);
-    //static void chkForAuxSDPLine(void* ptr);
+    static void afterPlayingDummy(void* ptr);
+    static void checkForAuxSDPLine(void* ptr);
 
 protected:
     H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
@@ -261,8 +261,8 @@ public:
     static JPEGVideoServerMediaSubsession* createNew(UsageEnvironment& env,
                                                      FramedSource* source, Stream* stream);
 
-    //static void afterPlayingDummy(void* ptr);
-    //static void chkForAuxSDPLine(void* ptr);
+    static void afterPlayingDummy(void* ptr);
+    static void checkForAuxSDPLine(void* ptr);
 
 protected:
     JPEGVideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
