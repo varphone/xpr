@@ -1,4 +1,4 @@
-#ifndef XPR_RTSP_DRIVER_LIVE_RTSP_HPP
+ï»¿#ifndef XPR_RTSP_DRIVER_LIVE_RTSP_HPP
 #define XPR_RTSP_DRIVER_LIVE_RTSP_HPP
 
 #include <string>
@@ -20,38 +20,38 @@
 #define H264_FLAG_SINGLE_FRAME      0x00000002
 #define H264_FLAG_START_CODE        0x00000004
 
-/// »Øµ÷º¯Êý¼¯
+/// å›žè°ƒå‡½æ•°é›†
 typedef struct Callback {
-    XPR_RTSP_DCB            dcb;            ///< Êý¾Ý»Øµ÷
-    void*                   dcb_opaque;     ///< Êý¾Ý»Øµ÷¹ØÁªÊý¾Ý
-    XPR_RTSP_EVCB           evcb;           ///< ÊÂ¼þ»Øµ÷
-    void*                   evcb_opaque;    ///< ÊÂ¼þ»Øµ÷¹ØÁªÊý¾Ý
+    XPR_RTSP_DCB            dcb;            ///< æ•°æ®å›žè°ƒ
+    void*                   dcb_opaque;     ///< æ•°æ®å›žè°ƒå…³è”æ•°æ®
+    XPR_RTSP_EVCB           evcb;           ///< äº‹ä»¶å›žè°ƒ
+    void*                   evcb_opaque;    ///< äº‹ä»¶å›žè°ƒå…³è”æ•°æ®
 #ifdef HAVE_XPR_RTSP_XD_STREAM_API
-    XD_StreamDataCallback   dcb_xd;         ///< Êý¾Ý»Øµ÷ (XD)
-    void*                   dcb_opaque_xd;  ///< Êý¾Ý»Øµ÷¹ØÁªÊý¾Ý (XD)
-    XD_StreamEventCallback  evcb_xd;        ///< ÊÂ¼þ»Øµ÷ (XD)
-    void*                   evcb_opaque_xd; ///< ÊÂ¼þ»Øµ÷¹ØÁªÊý¾Ý (XD)
+    XD_StreamDataCallback   dcb_xd;         ///< æ•°æ®å›žè°ƒ (XD)
+    void*                   dcb_opaque_xd;  ///< æ•°æ®å›žè°ƒå…³è”æ•°æ® (XD)
+    XD_StreamEventCallback  evcb_xd;        ///< äº‹ä»¶å›žè°ƒ (XD)
+    void*                   evcb_opaque_xd; ///< äº‹ä»¶å›žè°ƒå…³è”æ•°æ® (XD)
 #endif
 } Callback;
 
-/// ¶Ë¿ÚÉÏÏÂÎÄ
+/// ç«¯å£ä¸Šä¸‹æ–‡
 typedef struct PortContext {
-    int                 usr_flags;      ///< ÓÃ»§Éè¶¨±êÖ¾
-    int                 act_flags;      ///< µ±Ç°ÉúÐ§±êÖ¾
-    int64_t             lats;           ///< ×îºó»î¶¯Ê±¼ä
-    int64_t             lvts;           ///< ×îºóÐÄÌøÊ±¼ä
-    uint64_t            total_frames;   ///< ´«ÊäÖ¡ÊýÍ³¼Æ
-    char                url[1024];      ///< Ä¿±êµØÖ·
-    char                username[64];   ///< ÓÃÓÚÈÏÖ¤µÄÓÃ»§Ãû³Æ
-    char                password[64];   ///< ÓÃÓÚÈÏÖ¤µÄÓÃ»§ÃÜÂë
+    int                 usr_flags;      ///< ç”¨æˆ·è®¾å®šæ ‡å¿—
+    int                 act_flags;      ///< å½“å‰ç”Ÿæ•ˆæ ‡å¿—
+    int64_t             lats;           ///< æœ€åŽæ´»åŠ¨æ—¶é—´
+    int64_t             lvts;           ///< æœ€åŽå¿ƒè·³æ—¶é—´
+    uint64_t            total_frames;   ///< ä¼ è¾“å¸§æ•°ç»Ÿè®¡
+    char                url[1024];      ///< ç›®æ ‡åœ°å€
+    char                username[64];   ///< ç”¨äºŽè®¤è¯çš„ç”¨æˆ·åç§°
+    char                password[64];   ///< ç”¨äºŽè®¤è¯çš„ç”¨æˆ·å¯†ç 
     Callback            cbs[XPR_RTSP_MAX_CALLBACKS];
     void*               rtsp_priv;
-    int                 out_fourcc;     ///< RTSP ¿Í»§¶ËÊä³öÊý¾Ý¸ñÊ½
+    int                 out_fourcc;     ///< RTSP å®¢æˆ·ç«¯è¾“å‡ºæ•°æ®æ ¼å¼
 #ifdef HAVE_XPR_RTSP_HKMI
-    HIK_MEDIAINFO       out_pes_hkmi;   ///< º£¿µ PES Í·ÐÅÏ¢
+    HIK_MEDIAINFO       out_pes_hkmi;   ///< æµ·åº· PES å¤´ä¿¡æ¯
 #endif
 
-    XPR_RTSP_TRSPEC     trspec;         ///< RTSP ¿Í»§¶Ë´«Êä·½Ê½
+    XPR_RTSP_TRSPEC     trspec;         ///< RTSP å®¢æˆ·ç«¯ä¼ è¾“æ–¹å¼
 
     uint32_t h264_flags;
 
@@ -70,16 +70,16 @@ typedef struct XPR_RTSP {
     XPR_Thread* threads[XPR_RTSP_MAX_WORKERS];
 } XPR_RTSP;
 
-/// »ñÈ¡¿ÉÓÃµÄ¿Í»§¶Ë¶Ë¿ÚË÷Òý
+/// èŽ·å–å¯ç”¨çš„å®¢æˆ·ç«¯ç«¯å£ç´¢å¼•
 int XPR_RTSP_GetAvailClientPortIndex(void);
 
-/// »ñÈ¡¿ÉÓÃµÄ·þÎñÁ÷¶Ë¿ÚË÷Òý
+/// èŽ·å–å¯ç”¨çš„æœåŠ¡æµç«¯å£ç´¢å¼•
 int XPR_RTSP_GetAvailStreamPortIndex(void);
 
-/// ¸üÐÂ¶Ë¿ÚµÄ×îºó»î¶¯Ê±¼ä
+/// æ›´æ–°ç«¯å£çš„æœ€åŽæ´»åŠ¨æ—¶é—´
 void XPR_RTSP_UpdatePortLATS(int port);
 
-/// ¸üÐÂ¶Ë¿ÚµÄ×îºóÐÄÌøÊ±¼ä
+/// æ›´æ–°ç«¯å£çš„æœ€åŽå¿ƒè·³æ—¶é—´
 void XPR_RTSP_UpdatePortLVTS(int port);
 
 namespace xpr
@@ -88,7 +88,7 @@ namespace xpr
 namespace rtsp
 {
 
-// Ç°ÖÃÉùÃ÷
+// å‰ç½®å£°æ˜Ž
 class Port;
 class PortManager;
 
@@ -311,36 +311,36 @@ public:
         return XPR_ERR_GEN_NOT_SUPPORT;
     }
 
-    /// @brief »ñÈ¡¶Ë¿ÚÉÏÏÂÎÄ
-    /// @param [in] port        ¶Ë¿Ú¾ä±ú
-    /// return ³É¹¦·µ»Ø¶Ë¿ÚµÄÖ¸Õë£¬Ê§°Ü·µ»Ø NULL
+    /// @brief èŽ·å–ç«¯å£ä¸Šä¸‹æ–‡
+    /// @param [in] port        ç«¯å£å¥æŸ„
+    /// return æˆåŠŸè¿”å›žç«¯å£çš„æŒ‡é’ˆï¼Œå¤±è´¥è¿”å›ž NULL
     virtual Port* getPort(int port) const
     {
         return NULL;
     }
 
-    /// @brief »ñÈ¡¶Ë¿ÚÉÏÏÂÎÄ
-    /// @param [in] port        ¶Ë¿Ú¾ä±ú
-    /// return ³É¹¦·µ»Ø¶Ë¿ÚµÄÖ¸Õë£¬Ê§°Ü·µ»Ø NULL
+    /// @brief èŽ·å–ç«¯å£ä¸Šä¸‹æ–‡
+    /// @param [in] port        ç«¯å£å¥æŸ„
+    /// return æˆåŠŸè¿”å›žç«¯å£çš„æŒ‡é’ˆï¼Œå¤±è´¥è¿”å›ž NULL
     virtual Port* getMajorPort(int port) const
     {
         return NULL;
     }
 
-    /// @brief »ñÈ¡¶Ë¿ÚÉÏÏÂÎÄ
-    /// @param [in] port        ¶Ë¿Ú¾ä±ú
-    /// return ³É¹¦·µ»Ø¶Ë¿ÚµÄÖ¸Õë£¬Ê§°Ü·µ»Ø NULL
+    /// @brief èŽ·å–ç«¯å£ä¸Šä¸‹æ–‡
+    /// @param [in] port        ç«¯å£å¥æŸ„
+    /// return æˆåŠŸè¿”å›žç«¯å£çš„æŒ‡é’ˆï¼Œå¤±è´¥è¿”å›ž NULL
     virtual Port* getMinorPort(int port) const
     {
         return NULL;
     }
 
-    /// »ñÈ¡¿ÉÓÃµÄÁ÷¶Ë¿Ú±àºÅ
-    /// @param [in] majorPort       Ö÷¶Ë¿Ú
+    /// èŽ·å–å¯ç”¨çš„æµç«¯å£ç¼–å·
+    /// @param [in] majorPort       ä¸»ç«¯å£
     static int getAvailStreamId(int majorPort);
 
-    /// »ñÈ¡¿ÉÓÃµÄÁ÷¹ìµÀ¶Ë¿Ú±àºÅ
-    /// @param [in] streamPort      Á÷¶Ë¿Ú
+    /// èŽ·å–å¯ç”¨çš„æµè½¨é“ç«¯å£ç¼–å·
+    /// @param [in] streamPort      æµç«¯å£
     static int getAvailStreamTrackId(int streamPort);
 
 protected:
