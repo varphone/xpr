@@ -1,11 +1,11 @@
 ﻿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
 
 #include "rtsp_server.hpp"
+#include <algorithm>
 #include <live/GroupsockHelper.hh>
+#include <map>
 #include <xpr/xpr_rtsp.h>
 #include <xpr/xpr_url.h>
-#include <algorithm>
-#include <map>
 
 #undef min // avoid from cstdlib
 
@@ -21,14 +21,14 @@ static unsigned const samplingFrequencyTable[16] = {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050,
     16000, 12000, 11025, 8000,  7350,  0,     0,     0};
 
-ADTSAudioFramedSource::ADTSAudioFramedSource(
-    UsageEnvironment& env, Stream* stream, u_int8_t profile,
-    u_int8_t samplingFrequencyIndex, u_int8_t channelConfiguration)
+ADTSAudioFramedSource::ADTSAudioFramedSource(UsageEnvironment& env,
+                                             Stream* stream, u_int8_t profile,
+                                             u_int8_t samplingFrequencyIndex,
+                                             u_int8_t channelConfiguration)
     : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4,
-        "ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p",
-        &env, this);
+    DBG(DBG_L4, "ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p", &env,
+        this);
 
     mSamplingFrequency = samplingFrequencyTable[samplingFrequencyIndex];
     mNumChannels = channelConfiguration == 0 ? 2 : channelConfiguration;
@@ -47,8 +47,7 @@ ADTSAudioFramedSource::ADTSAudioFramedSource(
             audioSpecificConfig[1]);
 }
 
-ADTSAudioFramedSource::ADTSAudioFramedSource(
-    const ADTSAudioFramedSource& rhs)
+ADTSAudioFramedSource::ADTSAudioFramedSource(const ADTSAudioFramedSource& rhs)
     : FramedSource(rhs.envir())
     , mStream(rhs.stream())
     , mLastPTS(rhs.mLastPTS)
@@ -61,9 +60,7 @@ ADTSAudioFramedSource::ADTSAudioFramedSource(
 
 ADTSAudioFramedSource::~ADTSAudioFramedSource(void)
 {
-    DBG(DBG_L4,
-        "ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p",
-        this);
+    DBG(DBG_L4, "ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -218,8 +215,7 @@ ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
     mDoneFlag = 0;
 }
 
-void ADTSAudioServerMediaSubsession::afterPlayingDummy(
-    void* clientData)
+void ADTSAudioServerMediaSubsession::afterPlayingDummy(void* clientData)
 {
     ADTSAudioServerMediaSubsession* subsess =
         (ADTSAudioServerMediaSubsession*)clientData;
@@ -239,8 +235,7 @@ void ADTSAudioServerMediaSubsession::setDoneFlag()
     mDoneFlag = ~0x00;
 }
 
-void ADTSAudioServerMediaSubsession::checkForAuxSDPLine(
-    void* clientData)
+void ADTSAudioServerMediaSubsession::checkForAuxSDPLine(void* clientData)
 {
     ADTSAudioServerMediaSubsession* subsess =
         (ADTSAudioServerMediaSubsession*)clientData;
@@ -267,14 +262,13 @@ void ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
         // try again after a brief delay:
         int uSecsToDelay = 10000; // 10 ms
         nextTask() = envir().taskScheduler().scheduleDelayedTask(
-            uSecsToDelay,
-            (TaskFunc*)checkForAuxSDPLine,
-            this);
+            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
     }
 }
 
-char const* ADTSAudioServerMediaSubsession::getAuxSDPLine(
-    RTPSink* rtpSink, FramedSource* inputSource)
+char const*
+ADTSAudioServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink,
+                                              FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
         return mAuxSDPLine;
@@ -296,8 +290,9 @@ char const* ADTSAudioServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* ADTSAudioServerMediaSubsession::createNewStreamSource(
-    unsigned clientSessionId, unsigned& estBitrate)
+FramedSource*
+ADTSAudioServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
+                                                      unsigned& estBitrate)
 {
     estBitrate = 96;
     return new ADTSAudioFramedSource(envir(), mStream, mProfile,
@@ -317,8 +312,7 @@ RTPSink* ADTSAudioServerMediaSubsession::createNewRTPSink(
         adtsSource->configStr(), adtsSource->numChannels());
 }
 
-ADTSAudioServerMediaSubsession*
-ADTSAudioServerMediaSubsession::createNew(
+ADTSAudioServerMediaSubsession* ADTSAudioServerMediaSubsession::createNew(
     UsageEnvironment& env, FramedSource* source, Stream* stream,
     u_int8_t profile, u_int8_t samplingFrequencyIndex,
     u_int8_t channelConfiguration)
@@ -331,27 +325,21 @@ ADTSAudioServerMediaSubsession::createNew(
 // H264VideoFramedSource
 //============================================================================
 H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
-                                                        Stream* stream)
-    : FramedSource(env)
-    , mStream(stream)
-    , mLastPTS(0)
+                                             Stream* stream)
+    : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4, "H264VideoFramedSource::H264VideoFramedSource(%p) = %p",
-        &env, this);
+    DBG(DBG_L4, "H264VideoFramedSource::H264VideoFramedSource(%p) = %p", &env,
+        this);
 }
 
-H264VideoFramedSource::H264VideoFramedSource(
-    const H264VideoFramedSource& rhs)
-    : FramedSource(rhs.envir())
-    , mStream(rhs.stream())
-    , mLastPTS(rhs.mLastPTS)
+H264VideoFramedSource::H264VideoFramedSource(const H264VideoFramedSource& rhs)
+    : FramedSource(rhs.envir()), mStream(rhs.stream()), mLastPTS(rhs.mLastPTS)
 {
 }
 
 H264VideoFramedSource::~H264VideoFramedSource(void)
 {
-    DBG(DBG_L4, "H264VideoFramedSource::~H264VideoFramedSource() = %p",
-        this);
+    DBG(DBG_L4, "H264VideoFramedSource::~H264VideoFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -369,8 +357,8 @@ void H264VideoFramedSource::fetchFrame()
 {
     // Check video queue, if empty, delay for next.
     if (!mStream->hasVideoFrame()) {
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(5000, getNextFrame,
-                                                                 this);
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            5000, getNextFrame, this);
         return;
     }
     // Fetch one block from video queue.
@@ -400,7 +388,8 @@ void H264VideoFramedSource::fetchFrame()
 #endif
         mStream->releaseVideoFrame(ntb);
         if (fNumTruncatedBytes > 0)
-            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n", fNumTruncatedBytes);
+            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
+                    fNumTruncatedBytes);
     }
     else {
         // Should never run here
@@ -441,14 +430,16 @@ H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
     , mAuxSDPLine(NULL)
 {
     DBG(DBG_L4,
-        "H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, %p) = %p",
+        "H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, "
+        "%p) = %p",
         &env, source, this);
 }
 
 H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
 {
     DBG(DBG_L4,
-        "H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = %p",
+        "H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = "
+        "%p",
         this);
     if (mAuxSDPLine) {
         free(mAuxSDPLine);
@@ -497,29 +488,33 @@ void H264VideoServerMediaSubsession::checkForAuxSDPLine1()
     else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
         mAuxSDPLine = strDup(dasl);
         mSink = NULL;
-        DBG(DBG_L4, "H264VideoServerMediaSubsession: AuxSDPLine [%s]", mAuxSDPLine);
+        DBG(DBG_L4, "H264VideoServerMediaSubsession: AuxSDPLine [%s]",
+            mAuxSDPLine);
         // Signal the event loop that we're done:
         setDoneFlag();
     }
     else if (!mDoneFlag) {
         // try again after a brief delay:
         int uSecsToDelay = 10000; // 10 ms
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay,
-                                                                 (TaskFunc*)checkForAuxSDPLine, this);
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
     }
 }
 
-char const* H264VideoServerMediaSubsession::getAuxSDPLine(
-    RTPSink* rtpSink, FramedSource* inputSource)
+char const*
+H264VideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink,
+                                              FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
         return mAuxSDPLine;
     }
     if (mSink == NULL) {
         // we're not already setting it up for another, concurrent stream
-        // Note: For H264 video files, the 'config' information ("profile-level-id" and "sprop-parameter-sets") isn't known
-        // until we start reading the file.  This means that "rtpSink"s "auxSDPLine()" will be NULL initially,
-        // and we need to start reading data from our file until this changes.
+        // Note: For H264 video files, the 'config' information
+        // ("profile-level-id" and "sprop-parameter-sets") isn't known until we
+        // start reading the file.  This means that "rtpSink"s "auxSDPLine()"
+        // will be NULL initially, and we need to start reading data from our
+        // file until this changes.
         mSink = rtpSink;
         // Start reading the file:
         mSink->startPlaying(*inputSource, afterPlayingDummy, this);
@@ -530,8 +525,9 @@ char const* H264VideoServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* H264VideoServerMediaSubsession::createNewStreamSource(
-    unsigned clientSessionId, unsigned& estBitrate)
+FramedSource*
+H264VideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
+                                                      unsigned& estBitrate)
 {
     estBitrate = 5000;
     H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
@@ -539,8 +535,7 @@ FramedSource* H264VideoServerMediaSubsession::createNewStreamSource(
 }
 
 RTPSink* H264VideoServerMediaSubsession::createNewRTPSink(
-    Groupsock* rtpGroupsock,
-    unsigned char rtpPayloadTypeIfDynamic,
+    Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource)
 {
     OutPacketBuffer::maxSize = 320000;
@@ -549,8 +544,8 @@ RTPSink* H264VideoServerMediaSubsession::createNewRTPSink(
 }
 
 H264VideoServerMediaSubsession*
-H264VideoServerMediaSubsession::createNew(
-    UsageEnvironment& env, FramedSource* source, Stream* stream)
+H264VideoServerMediaSubsession::createNew(UsageEnvironment& env,
+                                          FramedSource* source, Stream* stream)
 {
     return new H264VideoServerMediaSubsession(env, source, stream);
 }
@@ -558,27 +553,21 @@ H264VideoServerMediaSubsession::createNew(
 // JPEGVideoFramedSource
 //============================================================================
 JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
-                                                        Stream* stream)
-    : FramedSource(env)
-    , mStream(stream)
-    , mLastPTS(0)
+                                             Stream* stream)
+    : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4, "JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p",
-        &env, this);
+    DBG(DBG_L4, "JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p", &env,
+        this);
 }
 
-JPEGVideoFramedSource::JPEGVideoFramedSource(
-    const JPEGVideoFramedSource& rhs)
-    : FramedSource(rhs.envir())
-    , mStream(rhs.stream())
-    , mLastPTS(rhs.mLastPTS)
+JPEGVideoFramedSource::JPEGVideoFramedSource(const JPEGVideoFramedSource& rhs)
+    : FramedSource(rhs.envir()), mStream(rhs.stream()), mLastPTS(rhs.mLastPTS)
 {
 }
 
 JPEGVideoFramedSource::~JPEGVideoFramedSource(void)
 {
-    DBG(DBG_L4, "JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p",
-        this);
+    DBG(DBG_L4, "JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -596,8 +585,8 @@ void JPEGVideoFramedSource::fetchFrame()
 {
     // Check video queue, if empty, delay for next.
     if (!mStream->hasVideoFrame()) {
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(5000, getNextFrame,
-                                                                 this);
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            5000, getNextFrame, this);
         return;
     }
     // Fetch one block from video queue.
@@ -627,7 +616,8 @@ void JPEGVideoFramedSource::fetchFrame()
 #endif
         mStream->releaseVideoFrame(ntb);
         if (fNumTruncatedBytes > 0)
-            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n", fNumTruncatedBytes);
+            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
+                    fNumTruncatedBytes);
     }
     else {
         // Should never run here
@@ -668,14 +658,16 @@ JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
     , mAuxSDPLine(NULL)
 {
     DBG(DBG_L4,
-        "JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, %p) = %p",
+        "JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, "
+        "%p) = %p",
         &env, source, this);
 }
 
 JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
 {
     DBG(DBG_L4,
-        "JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = %p",
+        "JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = "
+        "%p",
         this);
     if (mAuxSDPLine) {
         free(mAuxSDPLine);
@@ -724,28 +716,31 @@ void JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
     else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
         mAuxSDPLine = strDup(dasl);
         mSink = NULL;
-        DBG(DBG_L4, "JPEGVideoServerMediaSubsession: AuxSDPLine [%s]", mAuxSDPLine);
+        DBG(DBG_L4, "JPEGVideoServerMediaSubsession: AuxSDPLine [%s]",
+            mAuxSDPLine);
         // Signal the event loop that we're done:
         setDoneFlag();
     }
     else if (!mDoneFlag) {
         // try again after a brief delay:
         int uSecsToDelay = 10000; // 10 ms
-        nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay,
-                                                                 (TaskFunc*)checkForAuxSDPLine_JPEG, this);
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine_JPEG, this);
     }
 }
 
-char const* JPEGVideoServerMediaSubsession::getAuxSDPLine(
-    RTPSink* rtpSink, FramedSource* inputSource)
+char const*
+JPEGVideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink,
+                                              FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
         return mAuxSDPLine;
     }
     if (mSink == NULL) {
         // we're not already setting it up for another, concurrent stream
-        // until we start reading the file.  This means that "rtpSink"s "auxSDPLine()" will be NULL initially,
-        // and we need to start reading data from our file until this changes.
+        // until we start reading the file.  This means that "rtpSink"s
+        // "auxSDPLine()" will be NULL initially, and we need to start reading
+        // data from our file until this changes.
         mSink = rtpSink;
         // Start reading the file:
         mSink->startPlaying(*inputSource, afterPlayingDummy, this);
@@ -756,8 +751,9 @@ char const* JPEGVideoServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* JPEGVideoServerMediaSubsession::createNewStreamSource(
-    unsigned clientSessionId, unsigned& estBitrate)
+FramedSource*
+JPEGVideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
+                                                      unsigned& estBitrate)
 {
     estBitrate = 5000;
     JPEGVideoFramedSource* src = new JPEGVideoFramedSource(envir(), mStream);
@@ -767,8 +763,7 @@ FramedSource* JPEGVideoServerMediaSubsession::createNewStreamSource(
 }
 
 RTPSink* JPEGVideoServerMediaSubsession::createNewRTPSink(
-    Groupsock* rtpGroupsock,
-    unsigned char rtpPayloadTypeIfDynamic,
+    Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource)
 {
     OutPacketBuffer::maxSize = XPR_RTSP_JPEG_MAX_FRAME_SIZE;
@@ -776,8 +771,8 @@ RTPSink* JPEGVideoServerMediaSubsession::createNewRTPSink(
 }
 
 JPEGVideoServerMediaSubsession*
-JPEGVideoServerMediaSubsession::createNew(
-    UsageEnvironment& env, FramedSource* source, Stream* stream)
+JPEGVideoServerMediaSubsession::createNew(UsageEnvironment& env,
+                                          FramedSource* source, Stream* stream)
 {
     return new JPEGVideoServerMediaSubsession(env, source, stream);
 }
@@ -876,8 +871,7 @@ int Server::pushData(int port, XPR_StreamBlock* stb)
     //   XPR_RTSP_PORT_MINOR_NUL ||
     //   XPR_RTSP_PORT_MINOR_ALL ||
     //   XPR_RTSP_PORT_MINOR_ANY
-    if (minor == XPR_RTSP_PORT_MINOR_NUL ||
-        minor == XPR_RTSP_PORT_MINOR_ALL ||
+    if (minor == XPR_RTSP_PORT_MINOR_NUL || minor == XPR_RTSP_PORT_MINOR_ALL ||
         minor == XPR_RTSP_PORT_MINOR_ANY)
         return XPR_ERR_GEN_NOT_SUPPORT;
     return mStreams[minor]->pushData(port, stb);
@@ -1141,8 +1135,7 @@ void Server::configStream(int port, const char* query)
 {
 }
 
-void Server::configStream(int port, const char* key,
-                                     const char* value)
+void Server::configStream(int port, const char* key, const char* value)
 {
 }
 
@@ -1209,7 +1202,7 @@ Stream::Stream(int id, Port* parent)
     , mVQL(30)
 {
     DBG(DBG_L4, "Stream::Stream(%d, %p) = %p", id, parent, this);
-    //memset(mFramedSources, 0, sizeof(mFramedSources));
+    // memset(mFramedSources, 0, sizeof(mFramedSources));
 }
 
 Stream::~Stream(void)
@@ -1409,17 +1402,19 @@ void Stream::configStream(const char* key, const char* value)
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
                 int trackId = strtol(mTrackId.c_str(), NULL, 10);
-                //mFramedSources[trackId] = new H264VideoFramedSource(env);
-                //H264VideoFramedSource* src = new H264VideoFramedSource(env, this);
-                //printf("stream %p, src %p\n", this, src);
-                mSMS->addSubsession(H264VideoServerMediaSubsession::createNew(env, NULL, this));
+                // mFramedSources[trackId] = new H264VideoFramedSource(env);
+                // H264VideoFramedSource* src = new H264VideoFramedSource(env,
+                // this); printf("stream %p, src %p\n", this, src);
+                mSMS->addSubsession(
+                    H264VideoServerMediaSubsession::createNew(env, NULL, this));
             }
         }
         else if (strcmp(value, "video/JPEG") == 0) {
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
                 int trackId = strtol(mTrackId.c_str(), NULL, 10);
-                mSMS->addSubsession(JPEGVideoServerMediaSubsession::createNew(env, NULL, this));
+                mSMS->addSubsession(
+                    JPEGVideoServerMediaSubsession::createNew(env, NULL, this));
             }
         }
     }
@@ -1500,8 +1495,7 @@ void Worker::run(void)
 
 int Worker::start(void)
 {
-    if (mScheduler == NULL ||
-        mEnv == NULL)
+    if (mScheduler == NULL || mEnv == NULL)
         return XPR_ERR_GEN_SYS_NOTREADY;
     if (mThread != NULL)
         return XPR_ERR_GEN_BUSY;
