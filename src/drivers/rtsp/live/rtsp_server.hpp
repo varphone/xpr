@@ -9,6 +9,9 @@
 #include <xpr/xpr_fifo.h>
 #include "rtsp.hpp"
 
+#define XPR_RTSP_ADTS_MAX_FRAME_SIZE    96000
+#define XPR_RTSP_ADTS_AUDIO_BUFFER_SIZE (1024*4)
+
 #define XPR_RTSP_H264_MAX_FRAME_SIZE    320000
 #define XPR_RTSP_H264_VIDEO_BUFFER_SIZE (1024*1024*2)
 
@@ -22,6 +25,7 @@ namespace rtsp
 {
 
 // 前置声明
+class ADTSAudioFramedSource;
 class H264VideoFramedSource;
 class H264VideoServerMediaSubsession;
 class JPEGVideoFramedSource;
@@ -30,6 +34,100 @@ class Server;
 class ServerManager;
 class Stream;
 class Worker;
+
+class ADTSAudioFramedSource : public FramedSource {
+public:
+    ADTSAudioFramedSource(UsageEnvironment& env, Stream* stream,
+                          u_int8_t profile, u_int8_t samplingFrequencyIndex,
+                          u_int8_t channelConfiguration);
+    ADTSAudioFramedSource(const ADTSAudioFramedSource& rhs);
+    virtual ~ADTSAudioFramedSource(void);
+
+public:
+    // FramedSource interfaces
+    virtual void doGetNextFrame();
+    virtual unsigned int maxFrameSize() const;
+
+    // Methods
+    void fetchFrame();
+
+    // Properties
+    Stream* stream(void) const;
+
+    unsigned samplingFrequency() const
+    {
+        return mSamplingFrequency;
+    }
+
+    unsigned numChannels() const
+    {
+        return mNumChannels;
+    }
+
+    char const* configStr() const
+    {
+        return mConfigStr;
+    }
+
+    //
+    static void getNextFrame(void* ptr);
+
+private:
+    TaskToken mCurrentTask;
+    Stream* mStream;
+    int64_t mLastPTS;
+    unsigned mSamplingFrequency;
+    unsigned mNumChannels;
+    unsigned mUSecsPerFrame;
+    char mConfigStr[5];
+};
+
+/// ADTS 音频服务媒体会话
+class ADTSAudioServerMediaSubsession : public OnDemandServerMediaSubsession {
+public:
+    virtual ~ADTSAudioServerMediaSubsession(void);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual FramedSource*
+    createNewStreamSource(unsigned clientSessionId, unsigned& estBitrate);
+    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
+                                      unsigned char rtpPayloadTypeIfDynamic,
+                                      FramedSource* inputSource);
+
+    // Used to implement "getAuxSDPLine()":
+    void checkForAuxSDPLine1();
+    void afterPlayingDummy1();
+    void setDoneFlag();
+
+    // Static Methods
+    static ADTSAudioServerMediaSubsession*
+    createNew(UsageEnvironment& env, FramedSource* source, Stream* stream,
+              u_int8_t profile, u_int8_t samplingFrequencyIndex,
+              u_int8_t channelConfiguration);
+
+    static void afterPlayingDummy(void* ptr);
+    static void checkForAuxSDPLine(void* ptr);
+
+protected:
+    ADTSAudioServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
+                                   Stream* stream, u_int8_t profile,
+                                   u_int8_t samplingFrequencyIndex,
+                                   u_int8_t channelConfiguration);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual char const* getAuxSDPLine(RTPSink* rtpSink,
+                                      FramedSource* inputSource);
+
+private:
+    FramedSource* mSource;
+    RTPSink* mSink;
+    Stream* mStream;
+    u_int8_t mProfile;
+    u_int8_t mSamplingFrequencyIndex;
+    u_int8_t mChannelConfiguration;
+    char mDoneFlag;
+    char* mAuxSDPLine;
+};
 
 /// 基于帧的 H264 视频源
 class H264VideoFramedSource : public FramedSource
@@ -312,6 +410,9 @@ private:
     int                 mVQL;
     int                 mAsrcId;
     int                 mVsrcId;
+    int                 mAudioProfile;
+    int                 mAudioFreqIdx;
+    int                 mAudioChannels;
 };
 
 class Worker

@@ -9,6 +9,319 @@
 
 #undef min // avoid from cstdlib
 
+// ADTSAudioFramedSource
+//============================================================================
+static unsigned const samplingFrequencyTable[16] = {
+    96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050,
+    16000, 12000, 11025, 8000,  7350,  0,     0,     0};
+
+xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
+    UsageEnvironment& env, xpr::rtsp::Stream* stream, u_int8_t profile,
+    u_int8_t samplingFrequencyIndex, u_int8_t channelConfiguration)
+    : FramedSource(env), mStream(stream), mLastPTS(0)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p",
+        &env, this);
+
+    mSamplingFrequency = samplingFrequencyTable[samplingFrequencyIndex];
+    mNumChannels = channelConfiguration == 0 ? 2 : channelConfiguration;
+    // uSecsPerFrame = samples-per-frame / samples-per-second
+    mUSecsPerFrame = (1024 * 1000000) / mSamplingFrequency;
+
+    // Construct the 'AudioSpecificConfig', and from it, the corresponding ASCII
+    // string:
+    unsigned char audioSpecificConfig[2];
+    u_int8_t const audioObjectType = profile + 1;
+    audioSpecificConfig[0] =
+        (audioObjectType << 3) | (samplingFrequencyIndex >> 1);
+    audioSpecificConfig[1] =
+        (samplingFrequencyIndex << 7) | (channelConfiguration << 3);
+    sprintf(mConfigStr, "%02X%02x", audioSpecificConfig[0],
+            audioSpecificConfig[1]);
+}
+
+xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
+    const ADTSAudioFramedSource& rhs)
+    : FramedSource(rhs.envir())
+    , mStream(rhs.stream())
+    , mLastPTS(rhs.mLastPTS)
+    , mSamplingFrequency(rhs.mSamplingFrequency)
+    , mNumChannels(rhs.mNumChannels)
+    , mUSecsPerFrame(rhs.mUSecsPerFrame)
+{
+    memcpy(mConfigStr, rhs.mConfigStr, sizeof(mConfigStr));
+}
+
+xpr::rtsp::ADTSAudioFramedSource::~ADTSAudioFramedSource(void)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p",
+        this);
+    envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
+}
+
+void xpr::rtsp::ADTSAudioFramedSource::doGetNextFrame()
+{
+    fetchFrame();
+}
+
+unsigned int xpr::rtsp::ADTSAudioFramedSource::maxFrameSize() const
+{
+    return XPR_RTSP_ADTS_MAX_FRAME_SIZE;
+}
+
+void xpr::rtsp::ADTSAudioFramedSource::fetchFrame()
+{
+    // Check audio queue, if empty, delay for next.
+    if (!mStream->hasAudioFrame()) {
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            5000, getNextFrame, this);
+        return;
+    }
+
+    // Fetch one block from audio queue.
+    XPR_StreamBlock* ntb = mStream->getAudioFrame();
+    if (ntb) {
+#if 0
+        fFrameSize = XPR_StreamBlockLength(ntb);
+        if (fFrameSize > fMaxSize) {
+            fNumTruncatedBytes = fFrameSize - fMaxSize;
+            fFrameSize = fMaxSize;
+        }
+#endif
+#if 1
+        unsigned char* cur = XPR_StreamBlockData(ntb);
+        unsigned char* headers = cur;
+
+        // Extract important fields from the headers:
+        Boolean protection_absent = headers[1] & 0x01;
+
+        u_int16_t frame_length = ((headers[3] & 0x03) << 11) |
+                                 (headers[4] << 3) | ((headers[5] & 0xE0) >> 5);
+        if (0) {
+            u_int16_t syncword = (headers[0] << 4) | (headers[1] >> 4);
+            fprintf(stderr,
+                    "XPR_RTSP: INFO: Read frame: syncword 0x%x, "
+                    "protection_absent %d, frame_length %d\n",
+                    syncword, protection_absent, frame_length);
+            if (syncword != 0xFFF)
+                fprintf(stderr, "XPR_RTSP: WARN: Bad syncword!\n");
+        }
+
+        unsigned numBytesToRead = frame_length > 7 ? frame_length - 7 : 0;
+        int pos = 7;
+
+        // If there's a 'crc_check' field, skip it:
+        if (!protection_absent) {
+            pos += 2;
+            numBytesToRead = numBytesToRead > 2 ? numBytesToRead - 2 : 0;
+        }
+
+        // Next, read the raw frame data into the buffer provided:
+        if (numBytesToRead > fMaxSize) {
+            fNumTruncatedBytes = numBytesToRead - fMaxSize;
+            numBytesToRead = fMaxSize;
+        }
+
+        memcpy(fTo, cur + pos, numBytesToRead);
+
+        int numBytesRead = numBytesToRead;
+        fFrameSize = numBytesRead;
+        fNumTruncatedBytes += numBytesToRead - numBytesRead;
+
+        // Set the 'presentation time':
+        if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
+            // This is the first frame, so use the current time:
+            gettimeofday(&fPresentationTime, NULL);
+        }
+        else {
+            // Increment by the play time of the previous frame:
+            unsigned uSeconds = fPresentationTime.tv_usec + mUSecsPerFrame;
+            fPresentationTime.tv_sec += uSeconds / 1000000;
+            fPresentationTime.tv_usec = uSeconds % 1000000;
+        }
+
+        fDurationInMicroseconds = mUSecsPerFrame;
+#else
+        // Auto filled by AudioRTPSink
+        fPresentationTime.tv_sec = 0;
+        fPresentationTime.tv_usec = 0;
+#endif
+        mStream->releaseAudioFrame(ntb);
+        if (fNumTruncatedBytes > 0)
+            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
+                    fNumTruncatedBytes);
+    }
+    else {
+        // Should never run here
+        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        // Clear
+        fFrameSize = 0;
+        fNumTruncatedBytes = 0;
+    }
+    afterGetting(this);
+}
+
+xpr::rtsp::Stream* xpr::rtsp::ADTSAudioFramedSource::stream(void) const
+{
+    return mStream;
+}
+
+void xpr::rtsp::ADTSAudioFramedSource::getNextFrame(void* ptr)
+{
+    if (ptr) {
+        ((ADTSAudioFramedSource*)ptr)->fetchFrame();
+    }
+}
+
+// ADTSAudioServerMediaSubsession
+//============================================================================
+xpr::rtsp::ADTSAudioServerMediaSubsession::ADTSAudioServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream,
+    u_int8_t profile, u_int8_t samplingFrequencyIndex,
+    u_int8_t channelConfiguration)
+    : OnDemandServerMediaSubsession(env, True)
+    , mSource(source)
+    , mSink(NULL)
+    , mStream(stream)
+    , mProfile(profile)
+    , mSamplingFrequencyIndex(samplingFrequencyIndex)
+    , mChannelConfiguration(channelConfiguration)
+    , mDoneFlag(0)
+    , mAuxSDPLine(NULL)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::ADTSAudioServerMediaSubsession::"
+        "ADTSAudioServerMediaSubsession(%p, %p) = %p",
+        &env, source, this);
+}
+
+xpr::rtsp::ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
+{
+    DBG(DBG_L4,
+        "xpr::rtsp::ADTSAudioServerMediaSubsession::~"
+        "ADTSAudioServerMediaSubsession() = %p",
+        this);
+    if (mAuxSDPLine) {
+        free(mAuxSDPLine);
+        mAuxSDPLine = NULL;
+    }
+    mSource = NULL;
+    mSink = NULL;
+    mDoneFlag = 0;
+}
+
+void xpr::rtsp::ADTSAudioServerMediaSubsession::afterPlayingDummy(
+    void* clientData)
+{
+    xpr::rtsp::ADTSAudioServerMediaSubsession* subsess =
+        (xpr::rtsp::ADTSAudioServerMediaSubsession*)clientData;
+    subsess->afterPlayingDummy1();
+}
+
+void xpr::rtsp::ADTSAudioServerMediaSubsession::afterPlayingDummy1()
+{
+    // Unschedule any pending 'checking' task:
+    envir().taskScheduler().unscheduleDelayedTask(nextTask());
+    // Signal the event loop that we're done:
+    setDoneFlag();
+}
+
+void xpr::rtsp::ADTSAudioServerMediaSubsession::setDoneFlag()
+{
+    mDoneFlag = ~0x00;
+}
+
+void xpr::rtsp::ADTSAudioServerMediaSubsession::checkForAuxSDPLine(
+    void* clientData)
+{
+    xpr::rtsp::ADTSAudioServerMediaSubsession* subsess =
+        (xpr::rtsp::ADTSAudioServerMediaSubsession*)clientData;
+    subsess->checkForAuxSDPLine1();
+}
+
+void xpr::rtsp::ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
+{
+    const char* dasl = NULL;
+    nextTask() = NULL;
+    if (mAuxSDPLine != NULL) {
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
+        mAuxSDPLine = strDup(dasl);
+        mSink = NULL;
+        DBG(DBG_L4, "ADTSAudioServerMediaSubsession: AuxSDPLine [%s]",
+            mAuxSDPLine);
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (!mDoneFlag) {
+        // try again after a brief delay:
+        int uSecsToDelay = 10000; // 10 ms
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            uSecsToDelay,
+            (TaskFunc*)checkForAuxSDPLine,
+            this);
+    }
+}
+
+char const* xpr::rtsp::ADTSAudioServerMediaSubsession::getAuxSDPLine(
+    RTPSink* rtpSink, FramedSource* inputSource)
+{
+    if (mAuxSDPLine) {
+        return mAuxSDPLine;
+    }
+    if (mSink == NULL) {
+        // we're not already setting it up for another, concurrent stream
+        // Note: For H264 video files, the 'config' information
+        // ("profile-level-id" and "sprop-parameter-sets") isn't known until we
+        // start reading the file.  This means that "rtpSink"s "auxSDPLine()"
+        // will be NULL initially, and we need to start reading data from our
+        // file until this changes.
+        mSink = rtpSink;
+        // Start reading the file:
+        mSink->startPlaying(*inputSource, afterPlayingDummy, this);
+        // Check whether the sink's 'auxSDPLine()' is ready:
+        checkForAuxSDPLine(this);
+    }
+    envir().taskScheduler().doEventLoop(&mDoneFlag);
+    return mAuxSDPLine;
+}
+
+FramedSource* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewStreamSource(
+    unsigned clientSessionId, unsigned& estBitrate)
+{
+    estBitrate = 96;
+    return new ADTSAudioFramedSource(envir(), mStream, mProfile,
+                                     mSamplingFrequencyIndex,
+                                     mChannelConfiguration);
+}
+
+RTPSink* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewRTPSink(
+    Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
+    FramedSource* inputSource)
+{
+    OutPacketBuffer::maxSize = XPR_RTSP_ADTS_MAX_FRAME_SIZE;
+    ADTSAudioFramedSource* adtsSource = (ADTSAudioFramedSource*)inputSource;
+    return MPEG4GenericRTPSink::createNew(
+        envir(), rtpGroupsock, rtpPayloadTypeIfDynamic,
+        adtsSource->samplingFrequency(), "audio", "AAC-hbr",
+        adtsSource->configStr(), adtsSource->numChannels());
+}
+
+xpr::rtsp::ADTSAudioServerMediaSubsession*
+xpr::rtsp::ADTSAudioServerMediaSubsession::createNew(
+    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream,
+    u_int8_t profile, u_int8_t samplingFrequencyIndex,
+    u_int8_t channelConfiguration)
+{
+    return new ADTSAudioServerMediaSubsession(env, source, stream, profile,
+                                              samplingFrequencyIndex,
+                                              channelConfiguration);
+}
+
 // H264VideoFramedSource
 //============================================================================
 xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
@@ -1077,6 +1390,15 @@ void xpr::rtsp::Stream::configStream(const char* key, const char* value)
         mTrackId = value;
     }
     else if (strcmp(key, "mime") == 0) {
+        if (strcmp(value, "audio/AAC") == 0) {
+            if (mSourceType == "stb") {
+                UsageEnvironment& env = server->workers()[0]->env();
+                int trackId = strtol(mTrackId.c_str(), NULL, 10);
+                mSMS->addSubsession(ADTSAudioServerMediaSubsession::createNew(
+                    env, NULL, this, mAudioProfile, mAudioFreqIdx,
+                    mAudioChannels));
+            }
+        }
         if (strcmp(value, "video/H264") == 0) {
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
@@ -1106,6 +1428,15 @@ void xpr::rtsp::Stream::configStream(const char* key, const char* value)
     }
     else if (strcmp(key, "vsrc") == 0) {
         mVsrcId = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "audioProfile") == 0) {
+        mAudioProfile = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "audioFreqIdx") == 0) {
+        mAudioFreqIdx = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "audioChannles") == 0) {
+        mAudioChannels = strtol(value, NULL, 10);
     }
     else {
         DBG(DBG_L3, "Server configuration: %s unsupported.", key);
