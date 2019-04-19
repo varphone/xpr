@@ -9,19 +9,25 @@
 
 #undef min // avoid from cstdlib
 
+namespace xpr
+{
+
+namespace rtsp
+{
+
 // ADTSAudioFramedSource
 //============================================================================
 static unsigned const samplingFrequencyTable[16] = {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050,
     16000, 12000, 11025, 8000,  7350,  0,     0,     0};
 
-xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
-    UsageEnvironment& env, xpr::rtsp::Stream* stream, u_int8_t profile,
+ADTSAudioFramedSource::ADTSAudioFramedSource(
+    UsageEnvironment& env, Stream* stream, u_int8_t profile,
     u_int8_t samplingFrequencyIndex, u_int8_t channelConfiguration)
     : FramedSource(env), mStream(stream), mLastPTS(0)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p",
+        "ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p",
         &env, this);
 
     mSamplingFrequency = samplingFrequencyTable[samplingFrequencyIndex];
@@ -41,7 +47,7 @@ xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
             audioSpecificConfig[1]);
 }
 
-xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
+ADTSAudioFramedSource::ADTSAudioFramedSource(
     const ADTSAudioFramedSource& rhs)
     : FramedSource(rhs.envir())
     , mStream(rhs.stream())
@@ -53,25 +59,25 @@ xpr::rtsp::ADTSAudioFramedSource::ADTSAudioFramedSource(
     memcpy(mConfigStr, rhs.mConfigStr, sizeof(mConfigStr));
 }
 
-xpr::rtsp::ADTSAudioFramedSource::~ADTSAudioFramedSource(void)
+ADTSAudioFramedSource::~ADTSAudioFramedSource(void)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p",
+        "ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p",
         this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
-void xpr::rtsp::ADTSAudioFramedSource::doGetNextFrame()
+void ADTSAudioFramedSource::doGetNextFrame()
 {
     fetchFrame();
 }
 
-unsigned int xpr::rtsp::ADTSAudioFramedSource::maxFrameSize() const
+unsigned int ADTSAudioFramedSource::maxFrameSize() const
 {
     return XPR_RTSP_ADTS_MAX_FRAME_SIZE;
 }
 
-void xpr::rtsp::ADTSAudioFramedSource::fetchFrame()
+void ADTSAudioFramedSource::fetchFrame()
 {
     // Check audio queue, if empty, delay for next.
     if (!mStream->hasAudioFrame()) {
@@ -163,12 +169,12 @@ void xpr::rtsp::ADTSAudioFramedSource::fetchFrame()
     afterGetting(this);
 }
 
-xpr::rtsp::Stream* xpr::rtsp::ADTSAudioFramedSource::stream(void) const
+Stream* ADTSAudioFramedSource::stream(void) const
 {
     return mStream;
 }
 
-void xpr::rtsp::ADTSAudioFramedSource::getNextFrame(void* ptr)
+void ADTSAudioFramedSource::getNextFrame(void* ptr)
 {
     if (ptr) {
         ((ADTSAudioFramedSource*)ptr)->fetchFrame();
@@ -177,8 +183,8 @@ void xpr::rtsp::ADTSAudioFramedSource::getNextFrame(void* ptr)
 
 // ADTSAudioServerMediaSubsession
 //============================================================================
-xpr::rtsp::ADTSAudioServerMediaSubsession::ADTSAudioServerMediaSubsession(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream,
+ADTSAudioServerMediaSubsession::ADTSAudioServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, Stream* stream,
     u_int8_t profile, u_int8_t samplingFrequencyIndex,
     u_int8_t channelConfiguration)
     : OnDemandServerMediaSubsession(env, True)
@@ -192,15 +198,15 @@ xpr::rtsp::ADTSAudioServerMediaSubsession::ADTSAudioServerMediaSubsession(
     , mAuxSDPLine(NULL)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::ADTSAudioServerMediaSubsession::"
+        "ADTSAudioServerMediaSubsession::"
         "ADTSAudioServerMediaSubsession(%p, %p) = %p",
         &env, source, this);
 }
 
-xpr::rtsp::ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
+ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::ADTSAudioServerMediaSubsession::~"
+        "ADTSAudioServerMediaSubsession::~"
         "ADTSAudioServerMediaSubsession() = %p",
         this);
     if (mAuxSDPLine) {
@@ -212,15 +218,15 @@ xpr::rtsp::ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
     mDoneFlag = 0;
 }
 
-void xpr::rtsp::ADTSAudioServerMediaSubsession::afterPlayingDummy(
+void ADTSAudioServerMediaSubsession::afterPlayingDummy(
     void* clientData)
 {
-    xpr::rtsp::ADTSAudioServerMediaSubsession* subsess =
-        (xpr::rtsp::ADTSAudioServerMediaSubsession*)clientData;
+    ADTSAudioServerMediaSubsession* subsess =
+        (ADTSAudioServerMediaSubsession*)clientData;
     subsess->afterPlayingDummy1();
 }
 
-void xpr::rtsp::ADTSAudioServerMediaSubsession::afterPlayingDummy1()
+void ADTSAudioServerMediaSubsession::afterPlayingDummy1()
 {
     // Unschedule any pending 'checking' task:
     envir().taskScheduler().unscheduleDelayedTask(nextTask());
@@ -228,20 +234,20 @@ void xpr::rtsp::ADTSAudioServerMediaSubsession::afterPlayingDummy1()
     setDoneFlag();
 }
 
-void xpr::rtsp::ADTSAudioServerMediaSubsession::setDoneFlag()
+void ADTSAudioServerMediaSubsession::setDoneFlag()
 {
     mDoneFlag = ~0x00;
 }
 
-void xpr::rtsp::ADTSAudioServerMediaSubsession::checkForAuxSDPLine(
+void ADTSAudioServerMediaSubsession::checkForAuxSDPLine(
     void* clientData)
 {
-    xpr::rtsp::ADTSAudioServerMediaSubsession* subsess =
-        (xpr::rtsp::ADTSAudioServerMediaSubsession*)clientData;
+    ADTSAudioServerMediaSubsession* subsess =
+        (ADTSAudioServerMediaSubsession*)clientData;
     subsess->checkForAuxSDPLine1();
 }
 
-void xpr::rtsp::ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
+void ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
 {
     const char* dasl = NULL;
     nextTask() = NULL;
@@ -267,7 +273,7 @@ void xpr::rtsp::ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
     }
 }
 
-char const* xpr::rtsp::ADTSAudioServerMediaSubsession::getAuxSDPLine(
+char const* ADTSAudioServerMediaSubsession::getAuxSDPLine(
     RTPSink* rtpSink, FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
@@ -290,7 +296,7 @@ char const* xpr::rtsp::ADTSAudioServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewStreamSource(
+FramedSource* ADTSAudioServerMediaSubsession::createNewStreamSource(
     unsigned clientSessionId, unsigned& estBitrate)
 {
     estBitrate = 96;
@@ -299,7 +305,7 @@ FramedSource* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewStreamSource(
                                      mChannelConfiguration);
 }
 
-RTPSink* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewRTPSink(
+RTPSink* ADTSAudioServerMediaSubsession::createNewRTPSink(
     Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource)
 {
@@ -311,9 +317,9 @@ RTPSink* xpr::rtsp::ADTSAudioServerMediaSubsession::createNewRTPSink(
         adtsSource->configStr(), adtsSource->numChannels());
 }
 
-xpr::rtsp::ADTSAudioServerMediaSubsession*
-xpr::rtsp::ADTSAudioServerMediaSubsession::createNew(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream,
+ADTSAudioServerMediaSubsession*
+ADTSAudioServerMediaSubsession::createNew(
+    UsageEnvironment& env, FramedSource* source, Stream* stream,
     u_int8_t profile, u_int8_t samplingFrequencyIndex,
     u_int8_t channelConfiguration)
 {
@@ -324,17 +330,17 @@ xpr::rtsp::ADTSAudioServerMediaSubsession::createNew(
 
 // H264VideoFramedSource
 //============================================================================
-xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
-                                                        xpr::rtsp::Stream* stream)
+H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
+                                                        Stream* stream)
     : FramedSource(env)
     , mStream(stream)
     , mLastPTS(0)
 {
-    DBG(DBG_L4, "xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(%p) = %p",
+    DBG(DBG_L4, "H264VideoFramedSource::H264VideoFramedSource(%p) = %p",
         &env, this);
 }
 
-xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(
+H264VideoFramedSource::H264VideoFramedSource(
     const H264VideoFramedSource& rhs)
     : FramedSource(rhs.envir())
     , mStream(rhs.stream())
@@ -342,24 +348,24 @@ xpr::rtsp::H264VideoFramedSource::H264VideoFramedSource(
 {
 }
 
-xpr::rtsp::H264VideoFramedSource::~H264VideoFramedSource(void)
+H264VideoFramedSource::~H264VideoFramedSource(void)
 {
-    DBG(DBG_L4, "xpr::rtsp::H264VideoFramedSource::~H264VideoFramedSource() = %p",
+    DBG(DBG_L4, "H264VideoFramedSource::~H264VideoFramedSource() = %p",
         this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
-void xpr::rtsp::H264VideoFramedSource::doGetNextFrame()
+void H264VideoFramedSource::doGetNextFrame()
 {
     fetchFrame();
 }
 
-unsigned int xpr::rtsp::H264VideoFramedSource::maxFrameSize() const
+unsigned int H264VideoFramedSource::maxFrameSize() const
 {
     return XPR_RTSP_H264_MAX_FRAME_SIZE;
 }
 
-void xpr::rtsp::H264VideoFramedSource::fetchFrame()
+void H264VideoFramedSource::fetchFrame()
 {
     // Check video queue, if empty, delay for next.
     if (!mStream->hasVideoFrame()) {
@@ -406,27 +412,27 @@ void xpr::rtsp::H264VideoFramedSource::fetchFrame()
     afterGetting(this);
 }
 
-xpr::rtsp::Stream* xpr::rtsp::H264VideoFramedSource::stream(void) const
+Stream* H264VideoFramedSource::stream(void) const
 {
     return mStream;
 }
 
-void xpr::rtsp::H264VideoFramedSource::getNextFrame(void* ptr)
+void H264VideoFramedSource::getNextFrame(void* ptr)
 {
     if (ptr) {
         ((H264VideoFramedSource*)ptr)->fetchFrame();
     }
 }
 
-Boolean xpr::rtsp::H264VideoFramedSource::isH264VideoStreamFramer() const
+Boolean H264VideoFramedSource::isH264VideoStreamFramer() const
 {
     return True;
 }
 
 // H264VideoServerMediaSubsession
 //============================================================================
-xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, Stream* stream)
     : OnDemandServerMediaSubsession(env, True)
     , mSource(source)
     , mSink(NULL)
@@ -435,14 +441,14 @@ xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
     , mAuxSDPLine(NULL)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, %p) = %p",
+        "H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, %p) = %p",
         &env, source, this);
 }
 
-xpr::rtsp::H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
+H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = %p",
+        "H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = %p",
         this);
     if (mAuxSDPLine) {
         free(mAuxSDPLine);
@@ -455,12 +461,12 @@ xpr::rtsp::H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
 
 static void afterPlayingDummy(void* clientData)
 {
-    xpr::rtsp::H264VideoServerMediaSubsession* subsess =
-        (xpr::rtsp::H264VideoServerMediaSubsession*)clientData;
+    H264VideoServerMediaSubsession* subsess =
+        (H264VideoServerMediaSubsession*)clientData;
     subsess->afterPlayingDummy1();
 }
 
-void xpr::rtsp::H264VideoServerMediaSubsession::afterPlayingDummy1()
+void H264VideoServerMediaSubsession::afterPlayingDummy1()
 {
     // Unschedule any pending 'checking' task:
     envir().taskScheduler().unscheduleDelayedTask(nextTask());
@@ -468,19 +474,19 @@ void xpr::rtsp::H264VideoServerMediaSubsession::afterPlayingDummy1()
     setDoneFlag();
 }
 
-void xpr::rtsp::H264VideoServerMediaSubsession::setDoneFlag()
+void H264VideoServerMediaSubsession::setDoneFlag()
 {
     mDoneFlag = ~0x00;
 }
 
 static void checkForAuxSDPLine(void* clientData)
 {
-    xpr::rtsp::H264VideoServerMediaSubsession* subsess =
-        (xpr::rtsp::H264VideoServerMediaSubsession*)clientData;
+    H264VideoServerMediaSubsession* subsess =
+        (H264VideoServerMediaSubsession*)clientData;
     subsess->checkForAuxSDPLine1();
 }
 
-void xpr::rtsp::H264VideoServerMediaSubsession::checkForAuxSDPLine1()
+void H264VideoServerMediaSubsession::checkForAuxSDPLine1()
 {
     const char* dasl = NULL;
     nextTask() = NULL;
@@ -503,7 +509,7 @@ void xpr::rtsp::H264VideoServerMediaSubsession::checkForAuxSDPLine1()
     }
 }
 
-char const* xpr::rtsp::H264VideoServerMediaSubsession::getAuxSDPLine(
+char const* H264VideoServerMediaSubsession::getAuxSDPLine(
     RTPSink* rtpSink, FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
@@ -524,7 +530,7 @@ char const* xpr::rtsp::H264VideoServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* xpr::rtsp::H264VideoServerMediaSubsession::createNewStreamSource(
+FramedSource* H264VideoServerMediaSubsession::createNewStreamSource(
     unsigned clientSessionId, unsigned& estBitrate)
 {
     estBitrate = 5000;
@@ -532,7 +538,7 @@ FramedSource* xpr::rtsp::H264VideoServerMediaSubsession::createNewStreamSource(
     return H264VideoStreamFramer::createNew(envir(), src, False);
 }
 
-RTPSink* xpr::rtsp::H264VideoServerMediaSubsession::createNewRTPSink(
+RTPSink* H264VideoServerMediaSubsession::createNewRTPSink(
     Groupsock* rtpGroupsock,
     unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource)
@@ -542,26 +548,26 @@ RTPSink* xpr::rtsp::H264VideoServerMediaSubsession::createNewRTPSink(
                                        rtpPayloadTypeIfDynamic);
 }
 
-xpr::rtsp::H264VideoServerMediaSubsession*
-xpr::rtsp::H264VideoServerMediaSubsession::createNew(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+H264VideoServerMediaSubsession*
+H264VideoServerMediaSubsession::createNew(
+    UsageEnvironment& env, FramedSource* source, Stream* stream)
 {
     return new H264VideoServerMediaSubsession(env, source, stream);
 }
 
 // JPEGVideoFramedSource
 //============================================================================
-xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
-                                                        xpr::rtsp::Stream* stream)
+JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
+                                                        Stream* stream)
     : FramedSource(env)
     , mStream(stream)
     , mLastPTS(0)
 {
-    DBG(DBG_L4, "xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p",
+    DBG(DBG_L4, "JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p",
         &env, this);
 }
 
-xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(
+JPEGVideoFramedSource::JPEGVideoFramedSource(
     const JPEGVideoFramedSource& rhs)
     : FramedSource(rhs.envir())
     , mStream(rhs.stream())
@@ -569,24 +575,24 @@ xpr::rtsp::JPEGVideoFramedSource::JPEGVideoFramedSource(
 {
 }
 
-xpr::rtsp::JPEGVideoFramedSource::~JPEGVideoFramedSource(void)
+JPEGVideoFramedSource::~JPEGVideoFramedSource(void)
 {
-    DBG(DBG_L4, "xpr::rtsp::JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p",
+    DBG(DBG_L4, "JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p",
         this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
-void xpr::rtsp::JPEGVideoFramedSource::doGetNextFrame()
+void JPEGVideoFramedSource::doGetNextFrame()
 {
     fetchFrame();
 }
 
-unsigned int xpr::rtsp::JPEGVideoFramedSource::maxFrameSize() const
+unsigned int JPEGVideoFramedSource::maxFrameSize() const
 {
     return XPR_RTSP_JPEG_MAX_FRAME_SIZE;
 }
 
-void xpr::rtsp::JPEGVideoFramedSource::fetchFrame()
+void JPEGVideoFramedSource::fetchFrame()
 {
     // Check video queue, if empty, delay for next.
     if (!mStream->hasVideoFrame()) {
@@ -633,27 +639,27 @@ void xpr::rtsp::JPEGVideoFramedSource::fetchFrame()
     afterGetting(this);
 }
 
-xpr::rtsp::Stream* xpr::rtsp::JPEGVideoFramedSource::stream(void) const
+Stream* JPEGVideoFramedSource::stream(void) const
 {
     return mStream;
 }
 
-void xpr::rtsp::JPEGVideoFramedSource::getNextFrame(void* ptr)
+void JPEGVideoFramedSource::getNextFrame(void* ptr)
 {
     if (ptr) {
         ((JPEGVideoFramedSource*)ptr)->fetchFrame();
     }
 }
 
-Boolean xpr::rtsp::JPEGVideoFramedSource::isJPEGVideoStreamFramer() const
+Boolean JPEGVideoFramedSource::isJPEGVideoStreamFramer() const
 {
     return True;
 }
 
 // JPEGVideoServerMediaSubsession
 //============================================================================
-xpr::rtsp::JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, Stream* stream)
     : OnDemandServerMediaSubsession(env, True)
     , mSource(source)
     , mSink(NULL)
@@ -662,14 +668,14 @@ xpr::rtsp::JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
     , mAuxSDPLine(NULL)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, %p) = %p",
+        "JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, %p) = %p",
         &env, source, this);
 }
 
-xpr::rtsp::JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
+JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
 {
     DBG(DBG_L4,
-        "xpr::rtsp::JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = %p",
+        "JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = %p",
         this);
     if (mAuxSDPLine) {
         free(mAuxSDPLine);
@@ -682,12 +688,12 @@ xpr::rtsp::JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
 
 static void afterPlayingDummy_JPEG(void* clientData)
 {
-    xpr::rtsp::JPEGVideoServerMediaSubsession* subsess =
-        (xpr::rtsp::JPEGVideoServerMediaSubsession*)clientData;
+    JPEGVideoServerMediaSubsession* subsess =
+        (JPEGVideoServerMediaSubsession*)clientData;
     subsess->afterPlayingDummy1();
 }
 
-void xpr::rtsp::JPEGVideoServerMediaSubsession::afterPlayingDummy1()
+void JPEGVideoServerMediaSubsession::afterPlayingDummy1()
 {
     // Unschedule any pending 'checking' task:
     envir().taskScheduler().unscheduleDelayedTask(nextTask());
@@ -695,19 +701,19 @@ void xpr::rtsp::JPEGVideoServerMediaSubsession::afterPlayingDummy1()
     setDoneFlag();
 }
 
-void xpr::rtsp::JPEGVideoServerMediaSubsession::setDoneFlag()
+void JPEGVideoServerMediaSubsession::setDoneFlag()
 {
     mDoneFlag = ~0x00;
 }
 
 static void checkForAuxSDPLine_JPEG(void* clientData)
 {
-    xpr::rtsp::JPEGVideoServerMediaSubsession* subsess =
-        (xpr::rtsp::JPEGVideoServerMediaSubsession*)clientData;
+    JPEGVideoServerMediaSubsession* subsess =
+        (JPEGVideoServerMediaSubsession*)clientData;
     subsess->checkForAuxSDPLine1();
 }
 
-void xpr::rtsp::JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
+void JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
 {
     const char* dasl = NULL;
     nextTask() = NULL;
@@ -730,7 +736,7 @@ void xpr::rtsp::JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
     }
 }
 
-char const* xpr::rtsp::JPEGVideoServerMediaSubsession::getAuxSDPLine(
+char const* JPEGVideoServerMediaSubsession::getAuxSDPLine(
     RTPSink* rtpSink, FramedSource* inputSource)
 {
     if (mAuxSDPLine) {
@@ -750,7 +756,7 @@ char const* xpr::rtsp::JPEGVideoServerMediaSubsession::getAuxSDPLine(
     return mAuxSDPLine;
 }
 
-FramedSource* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewStreamSource(
+FramedSource* JPEGVideoServerMediaSubsession::createNewStreamSource(
     unsigned clientSessionId, unsigned& estBitrate)
 {
     estBitrate = 5000;
@@ -760,7 +766,7 @@ FramedSource* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewStreamSource(
     return src;
 }
 
-RTPSink* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewRTPSink(
+RTPSink* JPEGVideoServerMediaSubsession::createNewRTPSink(
     Groupsock* rtpGroupsock,
     unsigned char rtpPayloadTypeIfDynamic,
     FramedSource* inputSource)
@@ -769,16 +775,16 @@ RTPSink* xpr::rtsp::JPEGVideoServerMediaSubsession::createNewRTPSink(
     return JPEGVideoRTPSink::createNew(envir(), rtpGroupsock);
 }
 
-xpr::rtsp::JPEGVideoServerMediaSubsession*
-xpr::rtsp::JPEGVideoServerMediaSubsession::createNew(
-    UsageEnvironment& env, FramedSource* source, xpr::rtsp::Stream* stream)
+JPEGVideoServerMediaSubsession*
+JPEGVideoServerMediaSubsession::createNew(
+    UsageEnvironment& env, FramedSource* source, Stream* stream)
 {
     return new JPEGVideoServerMediaSubsession(env, source, stream);
 }
 
 // Server
 //============================================================================
-xpr::rtsp::Server::Server(int id, Port* parent)
+Server::Server(int id, Port* parent)
     : Port(id, parent)
     , mBindAddress("0.0.0.0")
     , mBindPort(554)
@@ -790,17 +796,17 @@ xpr::rtsp::Server::Server(int id, Port* parent)
     , mAuthDB(NULL)
     , mRTSPServer(NULL)
 {
-    DBG(DBG_L4, "xpr::rtsp::Server::Server(%d, %p) = %p", id, parent, this);
+    DBG(DBG_L4, "Server::Server(%d, %p) = %p", id, parent, this);
     memset(mStreams, 0, sizeof(mStreams));
     memset(mWorkers, 0, sizeof(mWorkers));
 }
 
-xpr::rtsp::Server::~Server(void)
+Server::~Server(void)
 {
-    DBG(DBG_L4, "xpr::rtsp::Server::~Server(id, %p) = %p", id(), parent(), this);
+    DBG(DBG_L4, "Server::~Server(id, %p) = %p", id(), parent(), this);
 }
 
-int xpr::rtsp::Server::isPortValid(int port)
+int Server::isPortValid(int port)
 {
     uint32_t major = XPR_RTSP_PORT_MAJOR(port);
     uint32_t streamId = XPR_RTSP_PORT_STREAM(port);
@@ -820,7 +826,7 @@ int xpr::rtsp::Server::isPortValid(int port)
     return XPR_FALSE;
 }
 
-int xpr::rtsp::Server::open(int port, const char* url)
+int Server::open(int port, const char* url)
 {
     if (isPortValid(port) == XPR_FALSE || url == NULL) {
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -831,7 +837,7 @@ int xpr::rtsp::Server::open(int port, const char* url)
     return openStream(port, url);
 }
 
-int xpr::rtsp::Server::close(int port)
+int Server::close(int port)
 {
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -841,7 +847,7 @@ int xpr::rtsp::Server::close(int port)
     return closeStream(port);
 }
 
-int xpr::rtsp::Server::start(int port)
+int Server::start(int port)
 {
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -851,7 +857,7 @@ int xpr::rtsp::Server::start(int port)
     return startStream(port);
 }
 
-int xpr::rtsp::Server::stop(int port)
+int Server::stop(int port)
 {
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -861,7 +867,7 @@ int xpr::rtsp::Server::stop(int port)
     return stopStream(port);
 }
 
-int xpr::rtsp::Server::pushData(int port, XPR_StreamBlock* stb)
+int Server::pushData(int port, XPR_StreamBlock* stb)
 {
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -877,82 +883,82 @@ int xpr::rtsp::Server::pushData(int port, XPR_StreamBlock* stb)
     return mStreams[minor]->pushData(port, stb);
 }
 
-RTSPServer* xpr::rtsp::Server::rtspServer(void)
+RTSPServer* Server::rtspServer(void)
 {
     return mRTSPServer;
 }
 
-xpr::rtsp::Stream** xpr::rtsp::Server::streams(void)
+Stream** Server::streams(void)
 {
     return mStreams;
 }
 
-xpr::rtsp::Worker* xpr::rtsp::Server::worker(int index) const
+Worker* Server::worker(int index) const
 {
     return mWorkers[index];
 }
 
-xpr::rtsp::Worker** xpr::rtsp::Server::workers(void)
+Worker** Server::workers(void)
 {
     return mWorkers;
 }
 
-const char* xpr::rtsp::Server::getBindAddress(void) const
+const char* Server::getBindAddress(void) const
 {
     return mBindAddress.c_str();
 }
 
-void xpr::rtsp::Server::setBindAddress(const char* bindAddress)
+void Server::setBindAddress(const char* bindAddress)
 {
     mBindAddress = bindAddress;
 }
 
-uint16_t xpr::rtsp::Server::getBindPort(void) const
+uint16_t Server::getBindPort(void) const
 {
     return mBindPort;
 }
 
-void xpr::rtsp::Server::setBindPort(uint16_t bindPort)
+void Server::setBindPort(uint16_t bindPort)
 {
     mBindPort = bindPort;
 }
 
-size_t xpr::rtsp::Server::getMaxStreams(void) const
+size_t Server::getMaxStreams(void) const
 {
     return mMaxStreams;
 }
 
-void xpr::rtsp::Server::setMaxStreams(size_t maxStreams)
+void Server::setMaxStreams(size_t maxStreams)
 {
     mMaxStreams = MIN(maxStreams, XPR_RTSP_PORT_STREAM_MAX);
 }
 
-size_t xpr::rtsp::Server::getMaxStreamTracks(void) const
+size_t Server::getMaxStreamTracks(void) const
 {
     return mMaxStreamTracks;
 }
 
-void xpr::rtsp::Server::setMaxStreamTracks(size_t maxStreamTracks)
+void Server::setMaxStreamTracks(size_t maxStreamTracks)
 {
     mMaxStreamTracks = MIN(maxStreamTracks, XPR_RTSP_PORT_TRACK_MAX);
 }
 
-size_t xpr::rtsp::Server::getMaxWorkers(void) const
+size_t Server::getMaxWorkers(void) const
 {
     return mMaxWorkers;
 }
 
-void xpr::rtsp::Server::setMaxWorkers(size_t maxWorkers)
+void Server::setMaxWorkers(size_t maxWorkers)
 {
     mMaxWorkers = MIN(maxWorkers, XPR_RTSP_MAX_WORKERS);
 }
 
-bool xpr::rtsp::Server::isValidStreamId(int streamId)
+bool Server::isValidStreamId(int streamId)
 {
     return false;
 }
 
-bool xpr::rtsp::Server::isValidStreamTrackId(int streamTrackId)
+bool Server::isValidStreamTrackId(int streamTrackId)
 {
     return false;
 }
@@ -960,7 +966,7 @@ bool xpr::rtsp::Server::isValidStreamTrackId(int streamTrackId)
 /// 打开服务器
 /// @retval XPR_ERR_GEN_BUSY    服务器正在运行
 /// @retval XPR_ERR_OK          服务器打开成功
-int xpr::rtsp::Server::openServer(const char* url)
+int Server::openServer(const char* url)
 {
     if (activeFlags() != PortFlags::PORT_FLAG_NULL ||
         activeFlags() & PortFlags::PORT_FLAG_CLOSE)
@@ -979,7 +985,7 @@ int xpr::rtsp::Server::openServer(const char* url)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Server::closeServer(void)
+int Server::closeServer(void)
 {
     if (activeFlags() & PortFlags::PORT_FLAG_CLOSE)
         return XPR_ERR_OK;
@@ -997,7 +1003,7 @@ int xpr::rtsp::Server::closeServer(void)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Server::startServer(void)
+int Server::startServer(void)
 {
     if (!(activeFlags() & PortFlags::PORT_FLAG_OPEN))
         return XPR_ERR_GEN_SYS_NOTREADY;
@@ -1010,7 +1016,7 @@ int xpr::rtsp::Server::startServer(void)
     return 0;
 }
 
-int xpr::rtsp::Server::stopServer(void)
+int Server::stopServer(void)
 {
     if (!(activeFlags() & PortFlags::PORT_FLAG_START))
         return XPR_ERR_GEN_SYS_NOTREADY;
@@ -1023,7 +1029,7 @@ int xpr::rtsp::Server::stopServer(void)
     return 0;
 }
 
-int xpr::rtsp::Server::openStream(int port, const char* url)
+int Server::openStream(int port, const char* url)
 {
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
@@ -1032,7 +1038,7 @@ int xpr::rtsp::Server::openStream(int port, const char* url)
     return XPR_ERR_GEN_UNEXIST;
 }
 
-int xpr::rtsp::Server::closeStream(int port)
+int Server::closeStream(int port)
 {
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
@@ -1041,7 +1047,7 @@ int xpr::rtsp::Server::closeStream(int port)
     return XPR_ERR_GEN_UNEXIST;
 }
 
-int xpr::rtsp::Server::startStream(int port)
+int Server::startStream(int port)
 {
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
@@ -1050,7 +1056,7 @@ int xpr::rtsp::Server::startStream(int port)
     return XPR_ERR_GEN_UNEXIST;
 }
 
-int xpr::rtsp::Server::stopStream(int port)
+int Server::stopStream(int port)
 {
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
@@ -1059,7 +1065,7 @@ int xpr::rtsp::Server::stopStream(int port)
     return XPR_ERR_GEN_UNEXIST;
 }
 
-int xpr::rtsp::Server::setupServer(const char* url)
+int Server::setupServer(const char* url)
 {
     // 解析地址参数
     XPR_Url* u = XPR_UrlParse(url, -1);
@@ -1083,7 +1089,7 @@ int xpr::rtsp::Server::setupServer(const char* url)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Server::clearServer(void)
+int Server::clearServer(void)
 {
     mUrl.clear();
     mUsername.clear();
@@ -1092,15 +1098,15 @@ int xpr::rtsp::Server::clearServer(void)
     return XPR_ERR_OK;
 }
 
-void xpr::rtsp::Server::configServer(const char* query)
+void Server::configServer(const char* query)
 {
     if (query) {
         DBG(DBG_L3, "Server configuration query: %s", query);
-        xpr_foreach_s(query, -1, "&", xpr::rtsp::Server::handleServerConfig, this);
+        xpr_foreach_s(query, -1, "&", Server::handleServerConfig, this);
     }
 }
 
-void xpr::rtsp::Server::configServer(const char* key, const char* value)
+void Server::configServer(const char* key, const char* value)
 {
     DBG(DBG_L3, "Server configuration: %s = %s", key, value);
     if (strcmp(key, "maxStreams") == 0)
@@ -1114,14 +1120,14 @@ void xpr::rtsp::Server::configServer(const char* key, const char* value)
     }
 }
 
-void xpr::rtsp::Server::setupStreams(void)
+void Server::setupStreams(void)
 {
     for (size_t i = XPR_RTSP_PORT_STREAM_MIN; i <= mMaxStreams; i++) {
         mStreams[i] = new Stream(i, this);
     }
 }
 
-void xpr::rtsp::Server::clearStreams(void)
+void Server::clearStreams(void)
 {
     for (size_t i = XPR_RTSP_PORT_STREAM_MIN; i <= mMaxStreams; i++) {
         if (mStreams[i]) {
@@ -1131,23 +1137,23 @@ void xpr::rtsp::Server::clearStreams(void)
     }
 }
 
-void xpr::rtsp::Server::configStream(int port, const char* query)
+void Server::configStream(int port, const char* query)
 {
 }
 
-void xpr::rtsp::Server::configStream(int port, const char* key,
+void Server::configStream(int port, const char* key,
                                      const char* value)
 {
 }
 
-void xpr::rtsp::Server::setupWorkers(void)
+void Server::setupWorkers(void)
 {
     for (size_t i = 0; i < mMaxWorkers; i++) {
         mWorkers[i] = new Worker(i, this);
     }
 }
 
-void xpr::rtsp::Server::clearWorkers(void)
+void Server::clearWorkers(void)
 {
     for (size_t i = 0; i < mMaxWorkers; i++) {
         if (mWorkers[i]) {
@@ -1157,7 +1163,7 @@ void xpr::rtsp::Server::clearWorkers(void)
     }
 }
 
-void xpr::rtsp::Server::setupRTSPServer(void)
+void Server::setupRTSPServer(void)
 {
     mAuthDB = new UserAuthenticationDatabase();
 #if defined(DEBUG) || defined(_DEBUG)
@@ -1166,7 +1172,7 @@ void xpr::rtsp::Server::setupRTSPServer(void)
     mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, NULL);
 }
 
-void xpr::rtsp::Server::clearRTSPServer(void)
+void Server::clearRTSPServer(void)
 {
     if (mRTSPServer) {
         for (size_t i = XPR_RTSP_PORT_STREAM_MIN; i <= mMaxStreams; i++) {
@@ -1182,19 +1188,19 @@ void xpr::rtsp::Server::clearRTSPServer(void)
     }
 }
 
-void xpr::rtsp::Server::handleServerConfig(void* opaque, char* seg)
+void Server::handleServerConfig(void* opaque, char* seg)
 {
     if (opaque && seg) {
         char* key = NULL;
         char* value = NULL;
         if (xpr_split_to_kv(seg, &key, &value) == XPR_ERR_OK)
-            ((xpr::rtsp::Server*)opaque)->configServer(key, value);
+            ((Server*)opaque)->configServer(key, value);
     }
 }
 
 // Stream
 //============================================================================
-xpr::rtsp::Stream::Stream(int id, Port* parent)
+Stream::Stream(int id, Port* parent)
     : Port(id, parent)
     , mSMS(NULL)
     , mAudioQ(NULL)
@@ -1202,16 +1208,16 @@ xpr::rtsp::Stream::Stream(int id, Port* parent)
     , mAQL(30)
     , mVQL(30)
 {
-    DBG(DBG_L4, "xpr::rtsp::Stream::Stream(%d, %p) = %p", id, parent, this);
+    DBG(DBG_L4, "Stream::Stream(%d, %p) = %p", id, parent, this);
     //memset(mFramedSources, 0, sizeof(mFramedSources));
 }
 
-xpr::rtsp::Stream::~Stream(void)
+Stream::~Stream(void)
 {
-    DBG(DBG_L4, "xpr::rtsp::Stream::~Stream(%d, %p) = %p", id(), parent(), this);
+    DBG(DBG_L4, "Stream::~Stream(%d, %p) = %p", id(), parent(), this);
 }
 
-int xpr::rtsp::Stream::open(int port, const char* url)
+int Stream::open(int port, const char* url)
 {
     // 解析地址参数
     XPR_Url* u = XPR_UrlParse(url, -1);
@@ -1245,12 +1251,12 @@ int xpr::rtsp::Stream::open(int port, const char* url)
 }
 
 // FIXME:
-int xpr::rtsp::Stream::close(int port)
+int Stream::close(int port)
 {
     return 0;
 }
 
-int xpr::rtsp::Stream::start(int port)
+int Stream::start(int port)
 {
     Server* server = (Server*)parent();
     if (mSMS == NULL || server->rtspServer() == NULL)
@@ -1260,7 +1266,7 @@ int xpr::rtsp::Stream::start(int port)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Stream::stop(int port)
+int Stream::stop(int port)
 {
     Server* server = (Server*)parent();
     if (mSMS == NULL || server->rtspServer() == NULL)
@@ -1270,7 +1276,7 @@ int xpr::rtsp::Stream::stop(int port)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Stream::pushData(int port, XPR_StreamBlock* stb)
+int Stream::pushData(int port, XPR_StreamBlock* stb)
 {
     if (mSourceType == "stb") {
         switch (stb->codec) {
@@ -1291,34 +1297,34 @@ int xpr::rtsp::Stream::pushData(int port, XPR_StreamBlock* stb)
     return XPR_ERR_GEN_UNEXIST;
 }
 
-ServerMediaSession* xpr::rtsp::Stream::sms(void) const
+ServerMediaSession* Stream::sms(void) const
 {
     return mSMS;
 }
 
-bool xpr::rtsp::Stream::hasAudioFrame(void) const
+bool Stream::hasAudioFrame(void) const
 {
     return !XPR_FifoIsEmpty(mAudioQ);
 }
 
-bool xpr::rtsp::Stream::hasVideoFrame(void) const
+bool Stream::hasVideoFrame(void) const
 {
     return !XPR_FifoIsEmpty(mVideoQ);
 }
 
-XPR_StreamBlock* xpr::rtsp::Stream::getAudioFrame(void) const
+XPR_StreamBlock* Stream::getAudioFrame(void) const
 {
     XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mAudioQ);
     return ntb;
 }
 
-XPR_StreamBlock* xpr::rtsp::Stream::getVideoFrame(void) const
+XPR_StreamBlock* Stream::getVideoFrame(void) const
 {
     XPR_StreamBlock* ntb = (XPR_StreamBlock*)XPR_FifoGetAsAtomic(mVideoQ);
     return ntb;
 }
 
-int xpr::rtsp::Stream::putAudioFrame(XPR_StreamBlock* stb)
+int Stream::putAudioFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mAudioQ)
         return XPR_ERR_GEN_NULL_PTR;
@@ -1334,7 +1340,7 @@ int xpr::rtsp::Stream::putAudioFrame(XPR_StreamBlock* stb)
     return err;
 }
 
-int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock* stb)
+int Stream::putVideoFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mVideoQ)
         return XPR_ERR_GEN_NULL_PTR;
@@ -1350,7 +1356,7 @@ int xpr::rtsp::Stream::putVideoFrame(XPR_StreamBlock* stb)
     return err;
 }
 
-void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock* stb)
+void Stream::releaseAudioFrame(XPR_StreamBlock* stb)
 {
     if (!stb)
         return;
@@ -1360,7 +1366,7 @@ void xpr::rtsp::Stream::releaseAudioFrame(XPR_StreamBlock* stb)
         XPR_StreamBlockFree(stb);
 }
 
-void xpr::rtsp::Stream::releaseVideoFrame(XPR_StreamBlock* stb)
+void Stream::releaseVideoFrame(XPR_StreamBlock* stb)
 {
     if (!stb)
         return;
@@ -1370,15 +1376,15 @@ void xpr::rtsp::Stream::releaseVideoFrame(XPR_StreamBlock* stb)
         XPR_StreamBlockFree(stb);
 }
 
-void xpr::rtsp::Stream::configStream(const char* query)
+void Stream::configStream(const char* query)
 {
     if (query) {
         DBG(DBG_L3, "stream configuration: %s", query);
-        xpr_foreach_s(query, -1, "&", xpr::rtsp::Stream::handleStreamConfig, this);
+        xpr_foreach_s(query, -1, "&", Stream::handleStreamConfig, this);
     }
 }
 
-void xpr::rtsp::Stream::configStream(const char* key, const char* value)
+void Stream::configStream(const char* key, const char* value)
 {
     DBG(DBG_L3, "stream configuration: %s = %s", key, value);
     Server* server = (Server*)parent();
@@ -1443,19 +1449,19 @@ void xpr::rtsp::Stream::configStream(const char* key, const char* value)
     }
 }
 
-void xpr::rtsp::Stream::handleStreamConfig(void* opaque, char* seg)
+void Stream::handleStreamConfig(void* opaque, char* seg)
 {
     if (opaque && seg) {
         char* key = NULL;
         char* value = NULL;
         if (xpr_split_to_kv(seg, &key, &value) == XPR_ERR_OK)
-            ((xpr::rtsp::Stream*)opaque)->configStream(key, value);
+            ((Stream*)opaque)->configStream(key, value);
     }
 }
 
 // Worker
 //============================================================================
-xpr::rtsp::Worker::Worker(int id, Server* server)
+Worker::Worker(int id, Server* server)
     : mId(id)
     , mServer(server)
     , mScheduler(NULL)
@@ -1463,14 +1469,14 @@ xpr::rtsp::Worker::Worker(int id, Server* server)
     , mThread(NULL)
     , mExitLoop(false)
 {
-    DBG(DBG_L4, "xpr::rtsp::Worker::Worker(%d, %p) = %p", id, server, this);
+    DBG(DBG_L4, "Worker::Worker(%d, %p) = %p", id, server, this);
     mScheduler = BasicTaskScheduler::createNew();
     mEnv = BasicUsageEnvironment::createNew(*mScheduler);
 }
 
-xpr::rtsp::Worker::~Worker(void)
+Worker::~Worker(void)
 {
-    DBG(DBG_L4, "xpr::rtsp::Worker::~Worker(%d, %p) = %p", mId, mServer, this);
+    DBG(DBG_L4, "Worker::~Worker(%d, %p) = %p", mId, mServer, this);
     stop();
     //
     if (mEnv != NULL) {
@@ -1483,7 +1489,7 @@ xpr::rtsp::Worker::~Worker(void)
     }
 }
 
-void xpr::rtsp::Worker::run(void)
+void Worker::run(void)
 {
     DBG(DBG_L4, "worker [%d @ %p] running ...", id(), this);
     while (!mExitLoop) {
@@ -1492,18 +1498,18 @@ void xpr::rtsp::Worker::run(void)
     DBG(DBG_L4, "worker [%d @ %p] exited.", id(), this);
 }
 
-int xpr::rtsp::Worker::start(void)
+int Worker::start(void)
 {
     if (mScheduler == NULL ||
         mEnv == NULL)
         return XPR_ERR_GEN_SYS_NOTREADY;
     if (mThread != NULL)
         return XPR_ERR_GEN_BUSY;
-    mThread = XPR_ThreadCreate(xpr::rtsp::Worker::thread, 1024 * 1024 * 1, this);
+    mThread = XPR_ThreadCreate(Worker::thread, 1024 * 1024 * 1, this);
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Worker::stop(void)
+int Worker::stop(void)
 {
     if (mThread == NULL)
         return XPR_ERR_GEN_SYS_NOTREADY;
@@ -1517,37 +1523,41 @@ int xpr::rtsp::Worker::stop(void)
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Worker::terminate(void)
+int Worker::terminate(void)
 {
     mExitLoop = true;
     return XPR_ERR_OK;
 }
 
-int xpr::rtsp::Worker::id(void) const
+int Worker::id(void) const
 {
     return mId;
 }
 
-xpr::rtsp::Server& xpr::rtsp::Worker::server(void)
+Server& Worker::server(void)
 {
     return *mServer;
 }
 
-TaskScheduler& xpr::rtsp::Worker::scheduler(void)
+TaskScheduler& Worker::scheduler(void)
 {
     return *mScheduler;
 }
 
-UsageEnvironment& xpr::rtsp::Worker::env(void)
+UsageEnvironment& Worker::env(void)
 {
     return *mEnv;
 }
 
-void* xpr::rtsp::Worker::thread(void* opaque, XPR_Thread* thread)
+void* Worker::thread(void* opaque, XPR_Thread* thread)
 {
     if (opaque)
-        ((xpr::rtsp::Worker*)opaque)->run();
+        ((Worker*)opaque)->run();
     return NULL;
 }
+
+} // namespace rtsp
+
+} // namespace xpr
 
 #endif // defined(HAVE_XPR_RTSP_DRIVER_LIVE)
