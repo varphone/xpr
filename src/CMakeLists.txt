@@ -266,6 +266,9 @@ set_target_properties(${PROJECT_NAME}
 )
 
 if(BUILD_WITH_HUNTER)
+    if(HAVE_XPR_RTSP)
+        set(LIVE_LIBRARIES live::live)
+    endif()
     target_include_directories(${PROJECT_NAME}
         PUBLIC ${LIVE_INCLUDE_DIRS}
     )
