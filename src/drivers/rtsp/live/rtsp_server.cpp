@@ -1,6 +1,7 @@
 ﻿#if defined(HAVE_XPR_RTSP_DRIVER_LIVE)
 
 #include "rtsp_server.hpp"
+#include "rtsp_worker.hpp"
 #include <algorithm>
 #include <live/GroupsockHelper.hh>
 #include <map>
@@ -1452,102 +1453,6 @@ void Stream::handleStreamConfig(void* opaque, char* seg)
         if (xpr_split_to_kv(seg, &key, &value) == XPR_ERR_OK)
             ((Stream*)opaque)->configStream(key, value);
     }
-}
-
-// Worker
-//============================================================================
-Worker::Worker(int id, Server* server)
-    : mId(id)
-    , mServer(server)
-    , mScheduler(NULL)
-    , mEnv(NULL)
-    , mThread(NULL)
-    , mExitLoop(false)
-{
-    DBG(DBG_L4, "Worker::Worker(%d, %p) = %p", id, server, this);
-    mScheduler = BasicTaskScheduler::createNew();
-    mEnv = BasicUsageEnvironment::createNew(*mScheduler);
-}
-
-Worker::~Worker(void)
-{
-    DBG(DBG_L4, "Worker::~Worker(%d, %p) = %p", mId, mServer, this);
-    stop();
-    //
-    if (mEnv != NULL) {
-        mEnv->reclaim();
-        mEnv = NULL;
-    }
-    if (mScheduler != NULL) {
-        delete mScheduler;
-        mScheduler = NULL;
-    }
-}
-
-void Worker::run(void)
-{
-    DBG(DBG_L4, "worker [%d @ %p] running ...", id(), this);
-    while (!mExitLoop) {
-        ((BasicTaskScheduler*)mScheduler)->SingleStep(0);
-    }
-    DBG(DBG_L4, "worker [%d @ %p] exited.", id(), this);
-}
-
-int Worker::start(void)
-{
-    if (mScheduler == NULL || mEnv == NULL)
-        return XPR_ERR_GEN_SYS_NOTREADY;
-    if (mThread != NULL)
-        return XPR_ERR_GEN_BUSY;
-    mThread = XPR_ThreadCreate(Worker::thread, 1024 * 1024 * 1, this);
-    return XPR_ERR_OK;
-}
-
-int Worker::stop(void)
-{
-    if (mThread == NULL)
-        return XPR_ERR_GEN_SYS_NOTREADY;
-    if (mExitLoop != true)
-        mExitLoop = true;
-    if (mThread != NULL) {
-        XPR_ThreadJoin(mThread);
-        XPR_ThreadDestroy(mThread);
-        mThread = NULL;
-    }
-    return XPR_ERR_OK;
-}
-
-int Worker::terminate(void)
-{
-    mExitLoop = true;
-    return XPR_ERR_OK;
-}
-
-int Worker::id(void) const
-{
-    return mId;
-}
-
-Server& Worker::server(void)
-{
-    return *mServer;
-}
-
-TaskScheduler& Worker::scheduler(void)
-{
-    return *mScheduler;
-}
-
-UsageEnvironment& Worker::env(void)
-{
-    return *mEnv;
-}
-
-void* Worker::thread(void* opaque, XPR_Thread* thread)
-{
-    if (opaque)
-        ((Worker*)opaque)->run();
-    return NULL;
 }
 
 } // namespace rtsp

@@ -415,41 +415,6 @@ private:
     int                 mAudioChannels;
 };
 
-class Worker
-{
-public:
-    Worker(int id, Server* server);
-    virtual ~Worker(void);
-
-    // Methods
-    void run(void);
-    int start(void);
-    int stop(void);
-    int terminate(void);
-
-    // Properties
-
-    int id(void) const;
-
-    Server& server(void);
-
-    TaskScheduler& scheduler(void);
-
-    UsageEnvironment& env(void);
-
-private:
-
-    static void* thread(void* opaque, XPR_Thread* thread);
-
-private:
-    int                 mId;
-    Server*             mServer;
-    TaskScheduler*      mScheduler;
-    UsageEnvironment*   mEnv;
-    XPR_Thread*         mThread;
-    bool                mExitLoop;
-};
-
 } // namespace xpr::rtsp
 
 } // namespace xpr
