@@ -17,7 +17,7 @@ Worker::Worker(int id, Port* parent)
     , mThread(NULL)
     , mExitLoop(false)
 {
-    DBG(DBG_L4, "Worker::Worker(%d, %p) = %p", id, parent, this);
+    DBG(DBG_L5, "XPR_RTSP: Worker::Worker(%d, %p) = %p", id, parent, this);
     mScheduler = BasicTaskScheduler::createNew();
     mEnv = BasicUsageEnvironment::createNew(*mScheduler);
     mAsyncTasks = XPR_FifoCreate(sizeof(TaskData), 128);
@@ -25,7 +25,7 @@ Worker::Worker(int id, Port* parent)
 
 Worker::~Worker(void)
 {
-    DBG(DBG_L4, "Worker::~Worker(%d, %p) = %p", mId, mParent, this);
+    DBG(DBG_L5, "XPR_RTSP: Worker::~Worker(%d, %p) = %p", mId, mParent, this);
     stop();
     //
     if (mEnv != NULL) {
@@ -44,7 +44,7 @@ Worker::~Worker(void)
 
 void Worker::run(void)
 {
-    DBG(DBG_L4, "worker [%d @ %p] running ...", id(), this);
+    DBG(DBG_L4, "XPR_RTSP: Worker[%d @ %p]: running ...", id(), this);
     while (!mExitLoop) {
         while (!XPR_FifoIsEmpty(mAsyncTasks)) {
             TaskData td = {0, XPR_RTSP_TASK_NULL};
@@ -54,7 +54,7 @@ void Worker::run(void)
         }
         ((BasicTaskScheduler*)mScheduler)->SingleStep(0);
     }
-    DBG(DBG_L4, "worker [%d @ %p] exited.", id(), this);
+    DBG(DBG_L4, "XPR_RTSP: Worker[%d @ %p]: exited.", id(), this);
 }
 
 int Worker::start(void)
