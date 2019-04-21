@@ -10,6 +10,7 @@ option(BUILD_TOOLS          "Build tools directory"                 OFF)
 option(BUILD_WITH_HUNTER    "Build with hunter package manager"     OFF)
 
 # Module options
+option(HAVE_MP               "Enable multiple processors"            ON)
 option(HAVE_XPR_ADC          "Enable ADC module"                     OFF)
 option(HAVE_XPR_ARP          "Enable ARP module"                     OFF)
 option(HAVE_XPR_ARR          "Enable Audio Rate Resample module"     OFF)

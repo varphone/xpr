@@ -13,6 +13,9 @@
 // unistd.h
 #cmakedefine HAVE_UNISTD_H 1
 
+// Multiple Processors
+#cmakedefine HAVE_MP 1
+
 // XPR_ARP
 #cmakedefine HAVE_XPR_ARP 1
 
