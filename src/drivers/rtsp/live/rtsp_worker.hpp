@@ -31,22 +31,16 @@ public:
     int start(void);
     int stop(void);
     int terminate(void);
-
     // Push an async task to the fifo
     int asyncTask(int port, TaskId task);
 
     // Properties
-
     int id(void) const;
-
     Port* parent(void);
-
     TaskScheduler& scheduler(void);
-
     UsageEnvironment& env(void);
 
-private:
-
+    // Static members
     static void* thread(void* opaque, XPR_Thread* thread);
 
 private:
