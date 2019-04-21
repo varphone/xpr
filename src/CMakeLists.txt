@@ -137,6 +137,10 @@ if(HAVE_XPR_MEM)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_mem.h)
 endif()
 
+if(HAVE_XPR_META)
+    list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_meta.h)
+endif()
+
 if(HAVE_XPR_PES)
     list(APPEND SOURCES xpr_pes.c)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_pes.h)

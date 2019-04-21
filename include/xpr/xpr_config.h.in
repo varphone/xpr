@@ -112,6 +112,9 @@
 // XPR_MEM
 #cmakedefine HAVE_XPR_MEM 1
 
+// XPR_META
+#cmakedefine HAVE_XPR_META 1
+
 // XPR_PES
 #cmakedefine HAVE_XPR_PES 1
 
