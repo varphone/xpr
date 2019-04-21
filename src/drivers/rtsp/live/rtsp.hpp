@@ -314,7 +314,7 @@ public:
     /// @brief 获取端口上下文
     /// @param [in] port        端口句柄
     /// return 成功返回端口的指针，失败返回 NULL
-    virtual Port* getPort(int port) const
+    virtual Port* getPort(int port)
     {
         return NULL;
     }
@@ -322,7 +322,7 @@ public:
     /// @brief 获取端口上下文
     /// @param [in] port        端口句柄
     /// return 成功返回端口的指针，失败返回 NULL
-    virtual Port* getMajorPort(int port) const
+    virtual Port* getMajorPort(int port)
     {
         return NULL;
     }
