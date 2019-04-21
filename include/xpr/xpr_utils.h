@@ -67,6 +67,8 @@ int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSourc
 #endif
 
 XPR_API void xpr_dbg_printf(int level, const char* format, ...);
+XPR_API int xpr_dbg_get_level(void);
+XPR_API void xpr_dbg_set_level(int level);
 
 XPR_API char* xpr_skip_blank(char* s);
 

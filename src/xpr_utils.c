@@ -14,6 +14,13 @@
 #include <xpr/xpr_utils.h>
 
 #define DBG_MAX_PRINT_SIZE 2048
+
+#ifndef DBG_LEVEL
+static int _xpr_dbg_level = 0;
+#else
+static int _xpr_dbg_level = DBG_LEVEL;
+#endif
+
 XPR_API void xpr_dbg_printf(int level, const char* format, ...)
 {
 #ifdef DBG_LEVEL
@@ -21,13 +28,23 @@ XPR_API void xpr_dbg_printf(int level, const char* format, ...)
     va_list va;
 	double ts = (double)XPR_SYS_GetCTS() / 1000000;
 
-    if (level <= DBG_LEVEL) {
+    if (level <= _xpr_dbg_level) {
         va_start(va, format);
         vsnprintf(tmp, DBG_MAX_PRINT_SIZE, format, va);
         va_end(va);
         fprintf(stderr, "[%12.3f] DEBUG[%d] : %s\n", ts, level, tmp);
     }
 #endif
+}
+
+XPR_API int xpr_dbg_get_level(void)
+{
+    return _xpr_dbg_level;
+}
+
+XPR_API void xpr_dbg_set_level(int level)
+{
+    return _xpr_dbg_level = level;
 }
 
 XPR_API char* xpr_skip_blank(char* s)
