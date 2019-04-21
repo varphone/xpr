@@ -99,6 +99,21 @@ const uint32_t PORT_FLAG_OPEN = 0x00000001;
 const uint32_t PORT_FLAG_CLOSE = 0x00000002;
 const uint32_t PORT_FLAG_START = 0x00000004;
 const uint32_t PORT_FLAG_STOP = 0x00000008;
+
+enum StateTransition {
+    // Normal flows
+    XPR_RTSP_STATE_NULL_OPEN,
+    XPR_RTSP_STATE_OPEN_START,
+    XPR_RTSP_STATE_START_PLAYING,
+    XPR_RTSP_STATE_PLAYING_STOP,
+    XPR_RTSP_STATE_STOP_CLOSE,
+    XPR_RTSP_STATE_CLOSE_NULL,
+    // Abnormal flows
+    XPR_RTSP_STATE_OPEN_CLOSE,
+    XPR_RTSP_STATE_STOP_START,
+    XPR_RTSP_STATE_PLAYING_TIMEOUT,
+    XPR_RTSP_STATE_START_STOP,
+    XPR_RTSP_STATE_START_TIMEOUT,
 };
 
 enum TaskId {
@@ -347,6 +362,14 @@ public:
     /// @param [in] port        端口句柄
     /// @param [in] task        任务标识
     virtual int runTask(int port, TaskId task)
+    {
+        return XPR_ERR_GEN_NOT_SUPPORT;
+    }
+
+    /// 处理状态变更事件
+    /// @param [in] port        端口句柄
+    /// @param [in] transition  状态变更
+    virtual int stateChanged(int port, StateTransition transition)
     {
         return XPR_ERR_GEN_NOT_SUPPORT;
     }
