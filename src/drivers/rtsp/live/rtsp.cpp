@@ -96,9 +96,9 @@ int xpr::rtsp::PortManager::open(int port, const char* url)
     int major = XPR_RTSP_PORT_MAJOR(port);
     int minor = XPR_RTSP_PORT_MINOR(port);
 #if defined(HAVE_XPR_RTSP_CLIENT)
-    if (major == XPR_RTSP_PORT_MAJOR_SVR &&
+    if (major == XPR_RTSP_PORT_MAJOR_CLI &&
         minor == XPR_RTSP_PORT_MINOR_NUL)
-        return setupClient(url);
+        return setupConnectionManager(url);
 #endif
 #if defined(HAVE_XPR_RTSP_SERVER)
     if (major == XPR_RTSP_PORT_MAJOR_SVR &&
@@ -116,9 +116,9 @@ int xpr::rtsp::PortManager::close(int port)
     int major = XPR_RTSP_PORT_MAJOR(port);
     int minor = XPR_RTSP_PORT_MINOR(port);
 #if defined(HAVE_XPR_RTSP_CLIENT)
-    if (major == XPR_RTSP_PORT_MAJOR_SVR &&
+    if (major == XPR_RTSP_PORT_MAJOR_CLI &&
         minor == XPR_RTSP_PORT_MINOR_NUL)
-        return clearClient(url);
+        return clearConnectionManager();
 #endif
 #if defined(HAVE_XPR_RTSP_SERVER)
     if (major == XPR_RTSP_PORT_MAJOR_SVR &&
@@ -174,6 +174,35 @@ xpr::rtsp::Port* xpr::rtsp::PortManager::getMinorPort(int port)
     return mp ? mp->getPort(port) : NULL;
 }
 
+#if defined(HAVE_XPR_RTSP_CLIENT)
+int xpr::rtsp::PortManager::setupConnectionManager(const char* url)
+{
+    // 创建客户端管理器
+    xpr::rtsp::ConnectionManager* connectionManager =
+        new xpr::rtsp::ConnectionManager(XPR_RTSP_PORT_MAJOR_CLI, this);
+    if (connectionManager == NULL)
+        return XPR_ERR_GEN_NOMEM;
+    int err =
+        connectionManager->open(XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0), url);
+    if (err == XPR_ERR_OK)
+        mMajorPorts[XPR_RTSP_PORT_MAJOR_CLI] = connectionManager;
+    return XPR_ERR_OK;
+}
+
+int xpr::rtsp::PortManager::clearConnectionManager(void)
+{
+    xpr::rtsp::ConnectionManager* connectionManager =
+        (xpr::rtsp::ConnectionManager*)mMajorPorts[XPR_RTSP_PORT_MAJOR_CLI];
+    if (connectionManager) {
+        connectionManager->close(XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0));
+        delete connectionManager;
+        mMajorPorts[XPR_RTSP_PORT_MAJOR_CLI] = NULL;
+    }
+    return XPR_ERR_OK;
+}
+#endif // defined(HAVE_XPR_RTSP_CLIENT)
+
+#if defined(HAVE_XPR_RTSP_SERVER)
 int xpr::rtsp::PortManager::setupServer(const char* url)
 {
     // 创建服务器
@@ -198,6 +227,7 @@ int xpr::rtsp::PortManager::clearServer(void)
     }
     return XPR_ERR_OK;
 }
+#endif // defined(HAVE_XPR_RTSP_SERVER)
 
 // Public interfaces
 //============================================================================

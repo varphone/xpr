@@ -159,7 +159,10 @@ endif()
 if(HAVE_XPR_RTSP)
     list(APPEND SOURCES
         drivers/rtsp/live/rtsp.cpp
+        drivers/rtsp/live/rtsp_connection.cpp
+        drivers/rtsp/live/rtsp_connectionmanager.cpp
         drivers/rtsp/live/rtsp_server.cpp
+        drivers/rtsp/live/rtsp_worker.cpp
         xpr_rtsp.c
     )
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_rtsp.h)

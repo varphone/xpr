@@ -1,6 +1,8 @@
 #ifndef XPR_RTSP_DRIVER_LIVE_RTSP_CLIENT_HPP
 #define XPR_RTSP_DRIVER_LIVE_RTSP_CLIENT_HPP
 
+#include "rtsp_connectionmanager.hpp"
+
 #include <live/liveMedia.hh>
 
 // Define a class to hold per-stream state that we maintain throughout each stream's lifetime:
@@ -92,11 +94,6 @@ namespace xpr
 {
 namespace rtsp
 {
-
-class ClientManager
-{
-
-};
 
 } // namespace xpr::rtsp
 

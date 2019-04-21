@@ -407,6 +407,7 @@ protected:
     Callback        mCallbacks[XPR_RTSP_MAX_CALLBACKS];
 };
 
+// 端口管理器
 class PortManager : public Port
 {
 public:
@@ -427,8 +428,14 @@ public:
     virtual Port* getMinorPort(int port);
 
 private:
+#if defined(HAVE_XPR_RTSP_CLIENT)
+    int setupConnectionManager(const char* url);
+    int clearConnectionManager(void);
+#endif
+#if defined(HAVE_XPR_RTSP_SERVER)
     int setupServer(const char* url);
     int clearServer(void);
+#endif
 
 private:
     Port*       mMajorPorts[XPR_RTSP_PORT_MAJOR_ALL + 1];
