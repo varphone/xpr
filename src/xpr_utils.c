@@ -44,7 +44,7 @@ XPR_API int xpr_dbg_get_level(void)
 
 XPR_API void xpr_dbg_set_level(int level)
 {
-    return _xpr_dbg_level = level;
+    _xpr_dbg_level = level;
 }
 
 XPR_API char* xpr_skip_blank(char* s)
