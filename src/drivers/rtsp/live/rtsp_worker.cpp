@@ -13,12 +13,14 @@ Worker::Worker(int id, Port* parent)
     , mParent(parent)
     , mScheduler(NULL)
     , mEnv(NULL)
+    , mAsyncTasks(NULL)
     , mThread(NULL)
     , mExitLoop(false)
 {
     DBG(DBG_L4, "Worker::Worker(%d, %p) = %p", id, parent, this);
     mScheduler = BasicTaskScheduler::createNew();
     mEnv = BasicUsageEnvironment::createNew(*mScheduler);
+    mAsyncTasks = XPR_FifoCreate(sizeof(TaskData), 128);
 }
 
 Worker::~Worker(void)
@@ -34,12 +36,22 @@ Worker::~Worker(void)
         delete mScheduler;
         mScheduler = NULL;
     }
+    if (mAsyncTasks) {
+        XPR_FifoDestroy(mAsyncTasks);
+        mAsyncTasks = NULL;
+    }
 }
 
 void Worker::run(void)
 {
     DBG(DBG_L4, "worker [%d @ %p] running ...", id(), this);
     while (!mExitLoop) {
+        while (!XPR_FifoIsEmpty(mAsyncTasks)) {
+            TaskData td = {0, XPR_RTSP_TASK_NULL};
+            if (XPR_FifoGet(mAsyncTasks, &td, 1) < 0)
+                break;
+            mParent->runTask(td.port, td.task);
+        }
         ((BasicTaskScheduler*)mScheduler)->SingleStep(0);
     }
     DBG(DBG_L4, "worker [%d @ %p] exited.", id(), this);
@@ -73,6 +85,13 @@ int Worker::terminate(void)
 {
     mExitLoop = true;
     return XPR_ERR_OK;
+}
+
+int Worker::asyncTask(int port, TaskId task)
+{
+    TaskData td = {port, task};
+    int ret = XPR_FifoPut(mAsyncTasks, &td, 1);
+    return ret > 0 ? XPR_ERR_OK : ret;
 }
 
 int Worker::id(void) const

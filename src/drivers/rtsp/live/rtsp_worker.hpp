@@ -14,6 +14,12 @@ namespace xpr
 namespace rtsp
 {
 
+struct TaskData
+{
+    int port;
+    TaskId task;
+};
+
 class Worker
 {
 public:
@@ -25,6 +31,9 @@ public:
     int start(void);
     int stop(void);
     int terminate(void);
+
+    // Push an async task to the fifo
+    int asyncTask(int port, TaskId task);
 
     // Properties
 
@@ -45,6 +54,7 @@ private:
     Port*               mParent;
     TaskScheduler*      mScheduler;
     UsageEnvironment*   mEnv;
+    XPR_Fifo*           mAsyncTasks;
     XPR_Thread*         mThread;
     bool                mExitLoop;
 };
