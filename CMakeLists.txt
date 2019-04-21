@@ -51,6 +51,10 @@ option(HAVE_XPR_URL          "Enable URL module"                     ON)
 option(HAVE_XPR_UTILS        "Enable Utilities module"               ON)
 option(HAVE_XPR_XML          "Enable Utilities module"               OFF)
 
+# Add DEBUG for debug builds
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
 # Import hunter package manager
 if(BUILD_WITH_HUNTER)
     include("cmake/HunterGate.cmake")
