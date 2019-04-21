@@ -79,6 +79,7 @@ struct XPR_StreamBlock {
     int64_t         dts;            ///< 解码时戳
     int64_t         duration;       ///< 持续时长
     XPR_StreamBlockDeallocator pf_release;   ///< 数据块释放回调
+    const void*     meta;           ///< 元数据
 };
 #pragma pack()
 #endif // XPR_STREAMBLOCK_TYPE_DEFINED
@@ -197,6 +198,9 @@ XPR_API int64_t XPR_StreamBlockDTS(const XPR_StreamBlock* blk);
 
 /// @brief 获取数据块的负载数据的内容持续时长
 XPR_API int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk);
+
+/// @brief 获取数据块的负载数据的元数据
+XPR_API const void* XPR_StreamBlockMeta(const XPR_StreamBlock* blk);
 
 #ifdef __cplusplus
 }

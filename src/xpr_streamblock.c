@@ -98,6 +98,7 @@ XPR_API void XPR_StreamBlockClear(XPR_StreamBlock* blk)
         blk->dts = 0;
         blk->pts = 0;
         blk->duration = 0;
+        blk->meta = 0;
     }
 }
 
@@ -116,6 +117,7 @@ XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to
     to->pts = from->pts;
     to->dts = from->dts;
     to->duration = from->duration;
+    to->meta = from->meta;
     return 0;
 }
 
@@ -140,6 +142,7 @@ XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBl
         to->pts = from->pts;
         to->dts = from->dts;
         to->duration = from->duration;
+        to->meta = from->meta;
     }
 }
 
@@ -221,4 +224,9 @@ XPR_API int64_t XPR_StreamBlockDTS(const XPR_StreamBlock* blk)
 XPR_API int64_t XPR_StreamBlockDuration(const XPR_StreamBlock* blk)
 {
     return blk->duration;
+}
+
+XPR_API const void* XPR_StreamBlockMeta(const XPR_StreamBlock* blk)
+{
+    return blk->meta;
 }
