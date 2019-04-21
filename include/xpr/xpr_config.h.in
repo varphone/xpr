@@ -118,6 +118,9 @@
 // XPR_RTSP
 #cmakedefine HAVE_XPR_RTSP 1
 
+// XPR_RTSP_CLIENT
+#cmakedefine HAVE_XPR_RTSP_CLIENT 1
+
 // XPR_RTSP_SERVER
 #cmakedefine HAVE_XPR_RTSP_SERVER 1
 
