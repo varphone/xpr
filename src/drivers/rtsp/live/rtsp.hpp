@@ -99,6 +99,10 @@ const uint32_t PORT_FLAG_OPEN = 0x00000001;
 const uint32_t PORT_FLAG_CLOSE = 0x00000002;
 const uint32_t PORT_FLAG_START = 0x00000004;
 const uint32_t PORT_FLAG_STOP = 0x00000008;
+const uint32_t PORT_FLAG_FLUSHING = 0x00000010;
+const uint32_t PORT_FLAG_PENDING = 0x00000020;
+const uint32_t PORT_FLAG_PLAYING = 0x00000040;
+};
 
 enum StateTransition {
     // Normal flows
