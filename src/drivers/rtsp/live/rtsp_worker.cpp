@@ -1,10 +1,53 @@
 #include "rtsp_worker.hpp"
+#include <sstream>
 
 namespace xpr
 {
 
 namespace rtsp
 {
+
+class MyBasicUsageEnvironment : public BasicUsageEnvironment {
+public:
+    virtual UsageEnvironment& operator<<(char const* str)
+    {
+        return *this;
+    }
+
+    virtual UsageEnvironment& operator<<(int i)
+    {
+        return *this;
+    }
+
+    virtual UsageEnvironment& operator<<(unsigned u)
+    {
+        return *this;
+    }
+
+    virtual UsageEnvironment& operator<<(double d)
+    {
+        return *this;
+    }
+
+    virtual UsageEnvironment& operator<<(void* p)
+    {
+        return *this;
+    }
+
+    static MyBasicUsageEnvironment* createNew(TaskScheduler& scheduler)
+    {
+        return new MyBasicUsageEnvironment(scheduler);
+    }
+
+protected:
+    explicit MyBasicUsageEnvironment(TaskScheduler& scheduler)
+        : BasicUsageEnvironment(scheduler)
+    {
+    }
+
+private:
+    std::stringstream mStream;
+};
 
 // Worker
 //============================================================================
@@ -19,7 +62,7 @@ Worker::Worker(int id, Port* parent)
 {
     DBG(DBG_L5, "XPR_RTSP: Worker::Worker(%d, %p) = %p", id, parent, this);
     mScheduler = BasicTaskScheduler::createNew();
-    mEnv = BasicUsageEnvironment::createNew(*mScheduler);
+    mEnv = MyBasicUsageEnvironment::createNew(*mScheduler);
     mAsyncTasks = XPR_FifoCreate(sizeof(TaskData), 128);
 }
 
