@@ -7,6 +7,10 @@ ifeq ($(BUILD_SRC),y)
 subdirs += src
 endif
 
+ifeq ($(BUILD_BENCHMARKS),y)
+subdirs += benchmarks
+endif
+
 ifeq ($(BUILD_EXAMPLES),y)
 subdirs += examples
 endif

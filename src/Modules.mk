@@ -44,11 +44,13 @@ XPR_JSON=$(XPR_ALL)
 XPR_MCDEC=$(XPR_ALL)
 XPR_MD5=$(XPR_ALL)
 XPR_MEM=$(XPR_ALL)
+XPR_META=$(XPR_ALL)
 XPR_PES=$(XPR_ALL)
 XPR_PLUGIN=$(XPR_ALL)
 XPR_RTSP=$(XPR_ALL)
 XPR_RTSP_DRIVER_ALL=$(XPR_RTSP)
 XPR_RTSP_DRIVER_LIVE=$(XPR_RTSP_DRIVER_ALL)
+XPR_RTSP_CLIENT=$(XPR_RTSP)
 XPR_RTSP_SERVER=$(XPR_RTSP)
 XPR_SERIAL=$(XPR_ALL)
 XPR_SHA1=$(XPR_ALL)
@@ -150,7 +152,7 @@ xpr_file_unix.c \
 xpr_file.c
 endif
 
-# Fifo
+# Flex Queue
 ###############################################################################
 ifeq ($(XPR_FQ),y)
 libxpr_SRCS += xpr_fq.c
@@ -227,7 +229,7 @@ endif
 # RTSP framework
 ###############################################################################
 ifeq ($(XPR_RTSP),y)
-$(eval $(call add_driver,RTSP,LIVE,$(XPR_RTSP_DRIVER_LIVE),live/rtsp.cpp live/rtsp_server.cpp,,,-lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment))
+$(eval $(call add_driver,RTSP,LIVE,$(XPR_RTSP_DRIVER_LIVE),live/rtsp.cpp live/rtsp_connection.cpp live/rtsp_connectionmanager.cpp live/rtsp_server.cpp live/rtsp_worker.cpp,,,-lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment))
 libxpr_SRCS += xpr_rtsp.c
 endif
 
