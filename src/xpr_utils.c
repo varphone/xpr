@@ -14,7 +14,7 @@
 #include <xpr/xpr_utils.h>
 
 #define DBG_MAX_PRINT_SIZE 2048
-XPR_API void xpr_dbg_printf(int level, char* format, ...)
+XPR_API void xpr_dbg_printf(int level, const char* format, ...)
 {
 #ifdef DBG_LEVEL
     char tmp[DBG_MAX_PRINT_SIZE] = {0};

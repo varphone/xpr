@@ -66,7 +66,7 @@ char* strsep(char** stringp, const char* delim);
 int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource);
 #endif
 
-XPR_API void xpr_dbg_printf(int level, char* format, ...);
+XPR_API void xpr_dbg_printf(int level, const char* format, ...);
 
 XPR_API char* xpr_skip_blank(char* s);
 
