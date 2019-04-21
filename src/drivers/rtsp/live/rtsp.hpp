@@ -101,6 +101,14 @@ const uint32_t PORT_FLAG_START = 0x00000004;
 const uint32_t PORT_FLAG_STOP = 0x00000008;
 };
 
+enum TaskId {
+    XPR_RTSP_TASK_NULL,
+    XPR_RTSP_TASK_OPEN,
+    XPR_RTSP_TASK_CLOSE,
+    XPR_RTSP_TASK_START,
+    XPR_RTSP_TASK_STOP,
+};
+
 class Port
 {
 public:
@@ -333,6 +341,14 @@ public:
     virtual Port* getMinorPort(int port) const
     {
         return NULL;
+    }
+
+    /// @brief 执行任务
+    /// @param [in] port        端口句柄
+    /// @param [in] task        任务标识
+    virtual int runTask(int port, TaskId task)
+    {
+        return XPR_ERR_GEN_NOT_SUPPORT;
     }
 
     /// 获取可用的流端口编号
