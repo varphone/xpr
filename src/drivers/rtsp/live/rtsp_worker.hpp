@@ -1,13 +1,13 @@
 #ifndef XPR_RTSP_DRIVER_LIVE_RTSP_WORKER_HPP
 #define XPR_RTSP_DRIVER_LIVE_RTSP_WORKER_HPP
 
-#include <stdint.h>
-#include <string>
+#include "rtsp.hpp"
 #include <live/BasicUsageEnvironment.hh>
 #include <live/FramedSource.hh>
 #include <live/liveMedia.hh>
 #include <xpr/xpr_fifo.h>
-#include "rtsp.hpp"
+#include <stdint.h>
+#include <string>
 
 namespace xpr
 {
