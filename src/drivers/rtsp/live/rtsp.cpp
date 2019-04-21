@@ -54,6 +54,11 @@ int xpr::rtsp::Port::getAvailStreamTrackId(int streamPort)
     return 0;
 }
 
+void xpr::rtsp::Port::clearCallbacks(void)
+{
+    memset(&mCallbacks, 0, sizeof(mCallbacks));
+}
+
 // PortManager
 //============================================================================
 xpr::rtsp::PortManager::PortManager(void)

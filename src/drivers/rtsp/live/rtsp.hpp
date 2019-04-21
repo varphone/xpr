@@ -387,6 +387,10 @@ public:
     static int getAvailStreamTrackId(int streamPort);
 
 protected:
+    // 清理所有回调
+    void clearCallbacks(void);
+
+protected:
     int             mId;
     Port*           mParent;
     uint32_t        mActiveFlags;
