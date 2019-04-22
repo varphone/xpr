@@ -28,7 +28,8 @@ ADTSAudioFramedSource::ADTSAudioFramedSource(UsageEnvironment& env,
                                              u_int8_t channelConfiguration)
     : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4, "ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p", &env,
+    DBG(DBG_L5,
+        "XPR_RTSP: ADTSAudioFramedSource::ADTSAudioFramedSource(%p) = %p", &env,
         this);
 
     mSamplingFrequency = samplingFrequencyTable[samplingFrequencyIndex];
@@ -61,7 +62,8 @@ ADTSAudioFramedSource::ADTSAudioFramedSource(const ADTSAudioFramedSource& rhs)
 
 ADTSAudioFramedSource::~ADTSAudioFramedSource(void)
 {
-    DBG(DBG_L4, "ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p", this);
+    DBG(DBG_L5,
+        "XPR_RTSP: ADTSAudioFramedSource::~ADTSAudioFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -105,12 +107,14 @@ void ADTSAudioFramedSource::fetchFrame()
                                  (headers[4] << 3) | ((headers[5] & 0xE0) >> 5);
         if (0) {
             u_int16_t syncword = (headers[0] << 4) | (headers[1] >> 4);
-            fprintf(stderr,
-                    "XPR_RTSP: INFO: Read frame: syncword 0x%x, "
-                    "protection_absent %d, frame_length %d\n",
-                    syncword, protection_absent, frame_length);
-            if (syncword != 0xFFF)
-                fprintf(stderr, "XPR_RTSP: WARN: Bad syncword!\n");
+            DBG(DBG_L3,
+                "XPR_RTSP: ADTSAudioFramedSource(%p): Read frame: syncword "
+                "0x%x, protection_absent %d, frame_length %d",
+                this, syncword, protection_absent, frame_length);
+            if (syncword != 0xFFF) {
+                DBG(DBG_L2,
+                    "XPR_RTSP: ADTSAudioFramedSource(%p): Bad syncword!", this);
+            }
         }
 
         unsigned numBytesToRead = frame_length > 7 ? frame_length - 7 : 0;
@@ -153,13 +157,16 @@ void ADTSAudioFramedSource::fetchFrame()
         fPresentationTime.tv_usec = 0;
 #endif
         mStream->releaseAudioFrame(ntb);
-        if (fNumTruncatedBytes > 0)
-            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
-                    fNumTruncatedBytes);
+        if (fNumTruncatedBytes > 0) {
+            DBG(DBG_L2,
+                "XPR_RTSP: ADTSAudioFramedSource(%p): %u bytes truncated.",
+                this, fNumTruncatedBytes);
+        }
     }
     else {
         // Should never run here
-        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        DBG(DBG_L1, "XPR_RTSP: ADTSAudioFramedSource(%p): BUG: %s:%d", this,
+            __FILE__, __LINE__);
         // Clear
         fFrameSize = 0;
         fNumTruncatedBytes = 0;
@@ -195,18 +202,17 @@ ADTSAudioServerMediaSubsession::ADTSAudioServerMediaSubsession(
     , mDoneFlag(0)
     , mAuxSDPLine(NULL)
 {
-    DBG(DBG_L4,
-        "ADTSAudioServerMediaSubsession::"
+    DBG(DBG_L5,
+        "XPR_RTSP: ADTSAudioServerMediaSubsession::"
         "ADTSAudioServerMediaSubsession(%p, %p) = %p",
         &env, source, this);
 }
 
 ADTSAudioServerMediaSubsession::~ADTSAudioServerMediaSubsession(void)
 {
-    DBG(DBG_L4,
-        "ADTSAudioServerMediaSubsession::~"
-        "ADTSAudioServerMediaSubsession() = %p",
-        this);
+    DBG(DBG_L5,
+        "XPR_RTSP: ADTSAudioServerMediaSubsession::~"
+        "ADTSAudioServerMediaSubsession() = %p", this);
     if (mAuxSDPLine) {
         free(mAuxSDPLine);
         mAuxSDPLine = NULL;
@@ -254,8 +260,9 @@ void ADTSAudioServerMediaSubsession::checkForAuxSDPLine1()
     else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
         mAuxSDPLine = strDup(dasl);
         mSink = NULL;
-        DBG(DBG_L4, "ADTSAudioServerMediaSubsession: AuxSDPLine [%s]",
-            mAuxSDPLine);
+        DBG(DBG_L4,
+            "XPR_RTSP: ADTSAudioServerMediaSubsession(%p): AuxSDPLine [%s]",
+            this, mAuxSDPLine);
         // Signal the event loop that we're done:
         setDoneFlag();
     }
@@ -329,7 +336,7 @@ H264VideoFramedSource::H264VideoFramedSource(UsageEnvironment& env,
                                              Stream* stream)
     : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4, "H264VideoFramedSource::H264VideoFramedSource(%p) = %p", &env,
+    DBG(DBG_L5, "XPR_RTSP: H264VideoFramedSource::H264VideoFramedSource(%p) = %p", &env,
         this);
 }
 
@@ -340,7 +347,7 @@ H264VideoFramedSource::H264VideoFramedSource(const H264VideoFramedSource& rhs)
 
 H264VideoFramedSource::~H264VideoFramedSource(void)
 {
-    DBG(DBG_L4, "H264VideoFramedSource::~H264VideoFramedSource() = %p", this);
+    DBG(DBG_L5, "XPR_RTSP: H264VideoFramedSource::~H264VideoFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -430,7 +437,8 @@ H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
     , mDoneFlag(0)
     , mAuxSDPLine(NULL)
 {
-    DBG(DBG_L4,
+    DBG(DBG_L5,
+        "XPR_RTSP: "
         "H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(%p, "
         "%p) = %p",
         &env, source, this);
@@ -438,7 +446,8 @@ H264VideoServerMediaSubsession::H264VideoServerMediaSubsession(
 
 H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession(void)
 {
-    DBG(DBG_L4,
+    DBG(DBG_L5,
+        "XPR_RTSP: "
         "H264VideoServerMediaSubsession::~H264VideoServerMediaSubsession() = "
         "%p",
         this);
@@ -489,8 +498,9 @@ void H264VideoServerMediaSubsession::checkForAuxSDPLine1()
     else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
         mAuxSDPLine = strDup(dasl);
         mSink = NULL;
-        DBG(DBG_L4, "H264VideoServerMediaSubsession: AuxSDPLine [%s]",
-            mAuxSDPLine);
+        DBG(DBG_L4,
+            "XPR_RTSP: H264VideoServerMediaSubsession(%p): AuxSDPLine [%s]",
+            this, mAuxSDPLine);
         // Signal the event loop that we're done:
         setDoneFlag();
     }
@@ -557,7 +567,8 @@ JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
                                              Stream* stream)
     : FramedSource(env), mStream(stream), mLastPTS(0)
 {
-    DBG(DBG_L4, "JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p", &env,
+    DBG(DBG_L5,
+        "XPR_RTSP: JPEGVideoFramedSource::JPEGVideoFramedSource(%p) = %p", &env,
         this);
 }
 
@@ -568,7 +579,8 @@ JPEGVideoFramedSource::JPEGVideoFramedSource(const JPEGVideoFramedSource& rhs)
 
 JPEGVideoFramedSource::~JPEGVideoFramedSource(void)
 {
-    DBG(DBG_L4, "JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p", this);
+    DBG(DBG_L5,
+        "XPR_RTSP: JPEGVideoFramedSource::~JPEGVideoFramedSource() = %p", this);
     envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
 }
 
@@ -658,7 +670,8 @@ JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
     , mDoneFlag(0)
     , mAuxSDPLine(NULL)
 {
-    DBG(DBG_L4,
+    DBG(DBG_L5,
+        "XPR_RTSP: "
         "JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(%p, "
         "%p) = %p",
         &env, source, this);
@@ -666,7 +679,8 @@ JPEGVideoServerMediaSubsession::JPEGVideoServerMediaSubsession(
 
 JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession(void)
 {
-    DBG(DBG_L4,
+    DBG(DBG_L5,
+        "XPR_RTSP: "
         "JPEGVideoServerMediaSubsession::~JPEGVideoServerMediaSubsession() = "
         "%p",
         this);
@@ -717,8 +731,9 @@ void JPEGVideoServerMediaSubsession::checkForAuxSDPLine1()
     else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
         mAuxSDPLine = strDup(dasl);
         mSink = NULL;
-        DBG(DBG_L4, "JPEGVideoServerMediaSubsession: AuxSDPLine [%s]",
-            mAuxSDPLine);
+        DBG(DBG_L4,
+            "XPR_RTSP: JPEGVideoServerMediaSubsession(%p): AuxSDPLine [%s]",
+            this, mAuxSDPLine);
         // Signal the event loop that we're done:
         setDoneFlag();
     }
@@ -792,14 +807,14 @@ Server::Server(int id, Port* parent)
     , mAuthDB(NULL)
     , mRTSPServer(NULL)
 {
-    DBG(DBG_L4, "Server::Server(%d, %p) = %p", id, parent, this);
+    DBG(DBG_L5, "XPR_RTSP: Server::Server(%d, %p) = %p", id, parent, this);
     memset(mStreams, 0, sizeof(mStreams));
     memset(mWorkers, 0, sizeof(mWorkers));
 }
 
 Server::~Server(void)
 {
-    DBG(DBG_L4, "Server::~Server(id, %p) = %p", id(), parent(), this);
+    DBG(DBG_L5, "XPR_RTSP: Server::~Server(id, %p) = %p", id(), parent(), this);
 }
 
 int Server::isPortValid(int port)
@@ -824,6 +839,7 @@ int Server::isPortValid(int port)
 
 int Server::open(int port, const char* url)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): open(%08X,%s)", this, port, url);
     if (isPortValid(port) == XPR_FALSE || url == NULL) {
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     }
@@ -835,6 +851,7 @@ int Server::open(int port, const char* url)
 
 int Server::close(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): close(%08X)", this, port);
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     // Close server if XPR_RTSP_PORT_MINOR_NUL
@@ -845,6 +862,7 @@ int Server::close(int port)
 
 int Server::start(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): start(%08X)", this, port);
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     // Start server if XPR_RTSP_PORT_MINOR_NUL
@@ -855,6 +873,7 @@ int Server::start(int port)
 
 int Server::stop(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): stop(%08X)", this, port);
     if (isPortValid(port) == XPR_FALSE)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     // Stop server if XPR_RTSP_PORT_MINOR_NUL
@@ -963,6 +982,7 @@ bool Server::isValidStreamTrackId(int streamTrackId)
 /// @retval XPR_ERR_OK          服务器打开成功
 int Server::openServer(const char* url)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): openServer(%s)", this, url);
     if (activeFlags() != PortFlags::PORT_FLAG_NULL ||
         activeFlags() & PortFlags::PORT_FLAG_CLOSE)
         return XPR_ERR_GEN_BUSY;
@@ -982,6 +1002,7 @@ int Server::openServer(const char* url)
 
 int Server::closeServer(void)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): closeServer()", this);
     if (activeFlags() & PortFlags::PORT_FLAG_CLOSE)
         return XPR_ERR_OK;
     // Must be stop first
@@ -1000,6 +1021,7 @@ int Server::closeServer(void)
 
 int Server::startServer(void)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): startServer()", this);
     if (!(activeFlags() & PortFlags::PORT_FLAG_OPEN))
         return XPR_ERR_GEN_SYS_NOTREADY;
     for (size_t i = 0; i < mMaxWorkers; i++) {
@@ -1013,6 +1035,7 @@ int Server::startServer(void)
 
 int Server::stopServer(void)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): stopServer()", this);
     if (!(activeFlags() & PortFlags::PORT_FLAG_START))
         return XPR_ERR_GEN_SYS_NOTREADY;
     for (size_t i = 0; i < mMaxWorkers; i++) {
@@ -1026,6 +1049,7 @@ int Server::stopServer(void)
 
 int Server::openStream(int port, const char* url)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): openStream(%08X,%s)", this, port, url);
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
     if (stream)
@@ -1035,6 +1059,7 @@ int Server::openStream(int port, const char* url)
 
 int Server::closeStream(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): closeStream(%08X)", this, port);
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
     if (stream)
@@ -1044,6 +1069,7 @@ int Server::closeStream(int port)
 
 int Server::startStream(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): startStream(%08X)", this, port);
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
     if (stream)
@@ -1053,6 +1079,7 @@ int Server::startStream(int port)
 
 int Server::stopStream(int port)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): stopStream(%08X)", this, port);
     int streamId = XPR_RTSP_PORT_STREAM(port);
     Stream* stream = mStreams[streamId];
     if (stream)
@@ -1062,6 +1089,7 @@ int Server::stopStream(int port)
 
 int Server::setupServer(const char* url)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): setupServer(%s)", this, url);
     // 解析地址参数
     XPR_Url* u = XPR_UrlParse(url, -1);
     if (u == NULL)
@@ -1086,6 +1114,7 @@ int Server::setupServer(const char* url)
 
 int Server::clearServer(void)
 {
+    DBG(DBG_L4, "XPR_RTSP: Server(%p): clearServer()", this);
     mUrl.clear();
     mUsername.clear();
     mPassword.clear();
@@ -1095,15 +1124,17 @@ int Server::clearServer(void)
 
 void Server::configServer(const char* query)
 {
-    if (query) {
-        DBG(DBG_L3, "Server configuration query: %s", query);
+    if (query && query[0]) {
+        DBG(DBG_L3, "XPR_RTSP: Server(%p): configuration query: \"%s\"", this,
+            query);
         xpr_foreach_s(query, -1, "&", Server::handleServerConfig, this);
     }
 }
 
 void Server::configServer(const char* key, const char* value)
 {
-    DBG(DBG_L3, "Server configuration: %s = %s", key, value);
+    DBG(DBG_L3, "XPR_RTSP: Server(%p): configuration: \"%s\"=\"%s\"", this, key,
+        value);
     if (strcmp(key, "maxStreams") == 0)
         setMaxStreams(strtol(value, NULL, 10));
     else if (strcmp(key, "maxStreamTracks") == 0)
@@ -1111,7 +1142,8 @@ void Server::configServer(const char* key, const char* value)
     else if (strcmp(key, "maxWorkers") == 0)
         setMaxWorkers(strtol(value, NULL, 10));
     else {
-        DBG(DBG_L3, "Server configuration: %s unsupported.", key);
+        DBG(DBG_L3, "XPR_RTSP: Server(%p): configuration: \"%s\" unsupported.",
+            this, key);
     }
 }
 
@@ -1134,10 +1166,12 @@ void Server::clearStreams(void)
 
 void Server::configStream(int port, const char* query)
 {
+    // FIXME:
 }
 
 void Server::configStream(int port, const char* key, const char* value)
 {
+    // FIXME:
 }
 
 void Server::setupWorkers(void)
@@ -1164,6 +1198,12 @@ void Server::setupRTSPServer(void)
     mAuthDB->addUserRecord("test", "test");
 #endif
     mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, NULL);
+    if (mRTSPServer == NULL) {
+        DBG(DBG_L1,
+            "XPR_RTSP: Server(%p): Failed to create RTSPServer, you "
+            "should try to run in root again!",
+            this);
+    }
 }
 
 void Server::clearRTSPServer(void)
@@ -1229,7 +1269,7 @@ int Stream::open(int port, const char* url)
     // 跳过起始 '/'
     if (*path == '/')
         path++;
-    DBG(DBG_L4, "stream name: %s", path);
+    DBG(DBG_L4, "XPR_RTSP: Stream(%p): Stream Name: %s", this, path);
     // 创建服务流会话
     mSMS = ServerMediaSession::createNew(server->worker(0)->env(), path, NULL,
                                          path);
@@ -1256,7 +1296,8 @@ int Stream::start(int port)
     if (mSMS == NULL || server->rtspServer() == NULL)
         return XPR_ERR_GEN_SYS_NOTREADY;
     server->rtspServer()->addServerMediaSession(mSMS);
-    DBG(DBG_L4, "stream url: %s", server->rtspServer()->rtspURL(mSMS));
+    DBG(DBG_L4, "XPR_RTSP: Stream(%p): Streaming Url: %s", this,
+        server->rtspServer()->rtspURL(mSMS));
     return XPR_ERR_OK;
 }
 
@@ -1372,15 +1413,16 @@ void Stream::releaseVideoFrame(XPR_StreamBlock* stb)
 
 void Stream::configStream(const char* query)
 {
-    if (query) {
-        DBG(DBG_L3, "stream configuration: %s", query);
+    if (query && query[0]) {
+        DBG(DBG_L3, "XPR_RTSP: Stream(%p): configuration: \"%s\"", this, query);
         xpr_foreach_s(query, -1, "&", Stream::handleStreamConfig, this);
     }
 }
 
 void Stream::configStream(const char* key, const char* value)
 {
-    DBG(DBG_L3, "stream configuration: %s = %s", key, value);
+    DBG(DBG_L3, "XPR_RTSP: Stream(%p): configuration: \"%s\"=\"%s\"", this, key,
+        value);
     Server* server = (Server*)parent();
     if (strcmp(key, "sourceType") == 0) {
         mSourceType = value;
@@ -1441,7 +1483,8 @@ void Stream::configStream(const char* key, const char* value)
         mAudioChannels = strtol(value, NULL, 10);
     }
     else {
-        DBG(DBG_L3, "Server configuration: %s unsupported.", key);
+        DBG(DBG_L3, "XPR_RTSP: Stream(%p): configuration: \"%s\" unsupported.",
+            this, key);
     }
 }
 
