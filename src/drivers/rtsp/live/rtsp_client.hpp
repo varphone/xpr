@@ -53,7 +53,7 @@ class DummySink : public MediaSink
 {
 public:
     static DummySink* createNew(UsageEnvironment& env, ourRTSPClient* client,
-                                MediaSubsession& subsession, int port, int trackId = NULL);
+                                MediaSubsession& subsession, int port, int trackId = 0);
 
 private:
     DummySink(UsageEnvironment& env, ourRTSPClient* client,
