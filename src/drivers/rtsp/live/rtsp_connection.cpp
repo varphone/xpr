@@ -529,12 +529,22 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     XPR_StreamBlock stb;
     stb.buffer = mBuffer;
     stb.bufferSize = mMaxFrameSize;
-    stb.data = mBuffer;
+    stb.data = mBuffer + 4;
     stb.dataSize = frameSize;
     stb.codec = mFourcc;
     stb.track = mTrackId;
     stb.pts = stb.dts = pts;
     stb.meta = mMeta;
+
+    // If H264 data without start code,
+    // Rewind the stb.data to head of the buffer.
+    if (mFourcc == AV_FOURCC_H264) {
+        uint8_t* p = stb.data;
+        if (p[0] != 0x00 && p[1] != 0x00 && p[2] != 0x00 & p[3] != 0x01) {
+            stb.data = mBuffer;
+            stb.dataSize += 4;
+        }
+    }
 
     // Push data to callbacks
     Connection* conn = mClient->getParent();
@@ -559,6 +569,7 @@ Boolean DummySink::continuePlaying()
         return False; // sanity check (should not happen)
     }
 
+    // Pre-Buffered start code for H264
     mBuffer[0] = 0x00;
     mBuffer[1] = 0x00;
     mBuffer[2] = 0x00;
