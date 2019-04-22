@@ -12,6 +12,9 @@ target_link_libraries(rtsp-mgr-open-close xpr -lpthread)
 
 add_executable(rtsp-mgr-start-stop benchmark.c rtsp-mgr-start-stop.c)
 target_link_libraries(rtsp-mgr-start-stop xpr -lpthread)
+
+add_executable(rtsp-svr-tx-aac benchmark.c rtsp-svr-tx-aac.c)
+target_link_libraries(rtsp-svr-tx-aac xpr -lpthread)
 endif()
 
 if(HAVE_XPR_THREAD)
