@@ -157,11 +157,6 @@ private:
 private:
     TaskToken   mCurrentTask;
     Stream*     mStream;
-    uint8_t*    mBuffer;
-    size_t      mBufferOffset;
-    size_t      mBufferSize;
-    XPR_Fifo*   mFreeList;
-    XPR_Fifo*   mDataList;
     int64_t     mLastPTS;
 };
 
@@ -232,11 +227,6 @@ private:
 private:
     TaskToken   mCurrentTask;
     Stream*     mStream;
-    uint8_t*    mBuffer;
-    size_t      mBufferOffset;
-    size_t      mBufferSize;
-    XPR_Fifo*   mFreeList;
-    XPR_Fifo*   mDataList;
     int64_t     mLastPTS;
 };
 

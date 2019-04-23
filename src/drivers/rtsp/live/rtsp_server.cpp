@@ -977,9 +977,6 @@ bool Server::isValidStreamTrackId(int streamTrackId)
     return false;
 }
 
-/// 打开服务器
-/// @retval XPR_ERR_GEN_BUSY    服务器正在运行
-/// @retval XPR_ERR_OK          服务器打开成功
 int Server::openServer(const char* url)
 {
     DBG(DBG_L4, "XPR_RTSP: Server(%p): openServer(%s)", this, url);
@@ -1248,7 +1245,6 @@ Stream::Stream(int id, Port* parent)
     , mAudioChannels(2)
 {
     DBG(DBG_L4, "Stream::Stream(%d, %p) = %p", id, parent, this);
-    // memset(mFramedSources, 0, sizeof(mFramedSources));
 }
 
 Stream::~Stream(void)
@@ -1450,9 +1446,6 @@ void Stream::configStream(const char* key, const char* value)
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
                 int trackId = strtol(mTrackId.c_str(), NULL, 10);
-                // mFramedSources[trackId] = new H264VideoFramedSource(env);
-                // H264VideoFramedSource* src = new H264VideoFramedSource(env,
-                // this); printf("stream %p, src %p\n", this, src);
                 mSMS->addSubsession(
                     H264VideoServerMediaSubsession::createNew(env, NULL, this));
             }
