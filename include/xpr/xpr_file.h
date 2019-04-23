@@ -24,7 +24,7 @@ typedef enum XPR_FileSeekWhence {
 #endif // XPR_FILESEEKWHENCE_TYPE_DEFINED
 
 #if defined(__unix__) || defined(_linux_)
-#define XPR_FIEL_IS_NULL(x)     ((int)(x) < 0)
+#define XPR_FIEL_IS_NULL(x)     (((int)(intptr_t)(x)) < 0)
 #elif defined(WIN32) || defined(WIN64)
 #define XPR_FIEL_IS_NULL(x)     ((x) == 0)
 #else
