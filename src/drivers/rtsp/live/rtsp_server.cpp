@@ -1294,6 +1294,14 @@ int Stream::open(int port, const char* url)
 // FIXME:
 int Stream::close(int port)
 {
+    if (mAudioQ) {
+        XPR_FifoDestroy(mAudioQ);
+        mAudioQ = NULL;
+    }
+    if (mVideoQ) {
+        XPR_FifoDestroy(mVideoQ);
+        mVideoQ = NULL;
+    }
     return 0;
 }
 
