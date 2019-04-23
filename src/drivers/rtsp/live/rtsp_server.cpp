@@ -1241,6 +1241,11 @@ Stream::Stream(int id, Port* parent)
     , mVideoQ(NULL)
     , mAQL(30)
     , mVQL(30)
+    , mAsrcId(1)
+    , mVsrcId(2)
+    , mAudioProfile(1)
+    , mAudioFreqIdx(4)
+    , mAudioChannels(2)
 {
     DBG(DBG_L4, "Stream::Stream(%d, %p) = %p", id, parent, this);
     // memset(mFramedSources, 0, sizeof(mFramedSources));
