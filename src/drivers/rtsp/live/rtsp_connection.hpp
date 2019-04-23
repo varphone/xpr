@@ -142,6 +142,7 @@ private:
     void* mMeta;
     int64_t mPTS;
     int mTrackId;
+    XPR_StreamBlock mStreamBlock;
 };
 
 class Connection : public Port {

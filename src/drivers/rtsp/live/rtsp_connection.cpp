@@ -422,6 +422,20 @@ StreamClientState::~StreamClientState()
 
 // Implementation of "DummySink":
 
+static inline bool isAudioFourcc(uint32_t fourcc)
+{
+    return fourcc == AV_FOURCC_AAC || fourcc == AV_FOURCC_G711A ||
+           fourcc == AV_FOURCC_G711U || fourcc == AV_FOURCC_PCMA ||
+           fourcc == AV_FOURCC_PCMU || fourcc == AV_FOURCC_S16B ||
+           fourcc == AV_FOURCC_S16L;
+}
+
+static inline bool isVideoFourcc(uint32_t fourcc)
+{
+    return fourcc == AV_FOURCC_H264 || fourcc == AV_FOURCC_H265 ||
+           fourcc == AV_FOURCC_HEVC || fourcc == AV_FOURCC_JPEG;
+}
+
 DummySink* DummySink::createNew(UsageEnvironment& env, MyRTSPClient* client,
                                 MediaSubsession* subsession, int trackId)
 {
@@ -439,10 +453,12 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     , mMeta(NULL)
     , mPTS(0)
     , mTrackId(trackId)
+    , mStreamBlock()
 {
     DBG(DBG_L5, "XPR_RTSP: DummySink::DummySink(%p,%p,%p,%d) = %p", &env,
         client, subsession, trackId, this);
     mBuffer = new uint8_t[mMaxFrameSize];
+    memset(&mStreamBlock, 0, sizeof(mStreamBlock));
     const char* cn = subsession->codecName();
     DBG(DBG_L4, "XPR_RTSP: DummySink(%p): codecName = %s", this, cn);
     if (strcmp(cn, "AAC") == 0)
@@ -470,6 +486,13 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         meta->samplingFrequency = subsession->rtpTimestampFrequency();
         mMeta = meta;
     }
+    mStreamBlock.codec = mFourcc;
+    mStreamBlock.track = mTrackId;
+    mStreamBlock.meta = mMeta;
+    if (isAudioFourcc(mFourcc))
+        mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_AUDIO_FRAME;
+    if (isVideoFourcc(mFourcc))
+        mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_VIDEO_FRAME;
 }
 
 DummySink::~DummySink()
@@ -526,29 +549,25 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     mClient->updateLATS();
 
     // Fill stream block
-    XPR_StreamBlock stb;
-    stb.buffer = mBuffer;
-    stb.bufferSize = mMaxFrameSize;
-    stb.data = mBuffer + 4;
-    stb.dataSize = frameSize;
-    stb.codec = mFourcc;
-    stb.track = mTrackId;
-    stb.pts = stb.dts = pts;
-    stb.meta = mMeta;
+    mStreamBlock.buffer = mBuffer;
+    mStreamBlock.bufferSize = mMaxFrameSize;
+    mStreamBlock.data = mBuffer + 4;
+    mStreamBlock.dataSize = frameSize;
+    mStreamBlock.dts = mStreamBlock.pts = pts;
 
     // If H264 data without start code,
     // Rewind the stb.data to head of the buffer.
     if (mFourcc == AV_FOURCC_H264) {
-        uint8_t* p = stb.data;
+        uint8_t* p = mStreamBlock.data;
         if (p[0] != 0x00 && p[1] != 0x00 && p[2] != 0x00 & p[3] != 0x01) {
-            stb.data = mBuffer;
-            stb.dataSize += 4;
+            mStreamBlock.data = mBuffer;
+            mStreamBlock.dataSize += 4;
         }
     }
 
     // Push data to callbacks
     Connection* conn = mClient->getParent();
-    conn->pushData(id_to_port(conn->id()), &stb);
+    conn->pushData(id_to_port(conn->id()), &mStreamBlock);
 
     // Replace the new buffer and size
     if (newBuffer && newMaxFrameSize) {
