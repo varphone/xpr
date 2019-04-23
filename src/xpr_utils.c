@@ -21,18 +21,40 @@ static int _xpr_dbg_level = 0;
 static int _xpr_dbg_level = DBG_LEVEL;
 #endif
 
+static const char* _ansi_colors[] = {
+    "\x1B[31m", // Red
+    "\x1B[33m", // Yellow
+    "\x1B[35m", // Magenta
+    "\x1B[32m", // Green
+    "\x1B[36m", // Cyan
+    "\x1B[34m", // Blue
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+    "\x1B[37m", // White
+};
+
+static const char* _ansi_color_reset = "\x1B[0m";
+
 XPR_API void xpr_dbg_printf(int level, const char* format, ...)
 {
 #ifdef DBG_LEVEL
     char tmp[DBG_MAX_PRINT_SIZE] = {0};
     va_list va;
-	double ts = (double)XPR_SYS_GetCTS() / 1000000;
+    double ts = (double)XPR_SYS_GetCTS() / 1000000;
 
     if (level <= _xpr_dbg_level) {
         va_start(va, format);
         vsnprintf(tmp, DBG_MAX_PRINT_SIZE, format, va);
         va_end(va);
-        fprintf(stderr, "[%12.3f] DEBUG[%d] : %s\n", ts, level, tmp);
+        fprintf(stderr, "%s[%12.3f] [%d] : %s\x1B[0m\n",
+                _ansi_colors[level & 0x0F], ts, level, tmp);
     }
 #endif
 }
