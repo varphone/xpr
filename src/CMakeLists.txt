@@ -159,6 +159,7 @@ endif()
 if(HAVE_XPR_RTSP)
     list(APPEND SOURCES
         drivers/rtsp/live/rtsp.cpp
+        drivers/rtsp/live/rtsp_client.cpp
         drivers/rtsp/live/rtsp_connection.cpp
         drivers/rtsp/live/rtsp_connectionmanager.cpp
         drivers/rtsp/live/rtsp_server.cpp
