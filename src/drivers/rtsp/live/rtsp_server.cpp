@@ -1250,12 +1250,12 @@ Stream::Stream(int id, Port* parent)
     , mAudioFreqIdx(4)
     , mAudioChannels(2)
 {
-    DBG(DBG_L4, "Stream::Stream(%d, %p) = %p", id, parent, this);
+    DBG(DBG_L5, "XPR_RTSP: Stream::Stream(%d, %p) = %p", id, parent, this);
 }
 
 Stream::~Stream(void)
 {
-    DBG(DBG_L4, "Stream::~Stream(%d, %p) = %p", id(), parent(), this);
+    DBG(DBG_L5, "XPR_RTSP: Stream::~Stream(%d, %p) = %p", id(), parent(), this);
 }
 
 int Stream::open(int port, const char* url)
