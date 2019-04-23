@@ -395,13 +395,16 @@ void H264VideoFramedSource::fetchFrame()
         fPresentationTime.tv_usec = 0;
 #endif
         mStream->releaseVideoFrame(ntb);
-        if (fNumTruncatedBytes > 0)
-            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
-                    fNumTruncatedBytes);
+        if (fNumTruncatedBytes > 0) {
+            DBG(DBG_L2,
+                "XPR_RTSP: H264VideoFramedSource(%p): %u bytes truncated.",
+                this, fNumTruncatedBytes);
+        }
     }
     else {
         // Should never run here
-        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        DBG(DBG_L1, "XPR_RTSP: H264VideoFramedSource(%p): BUG: %s:%d\n", this,
+            __FILE__, __LINE__);
         // Clear
         fFrameSize = 0;
         fNumTruncatedBytes = 0;
@@ -628,13 +631,16 @@ void JPEGVideoFramedSource::fetchFrame()
         fPresentationTime.tv_usec = 0;
 #endif
         mStream->releaseVideoFrame(ntb);
-        if (fNumTruncatedBytes > 0)
-            fprintf(stderr, "XPR_RTSP: WARN: %u bytes truncated.\n",
-                    fNumTruncatedBytes);
+        if (fNumTruncatedBytes > 0) {
+            DBG(DBG_L2,
+                "XPR_RTSP: JPEGVideoFramedSource(%p): %u bytes truncated.",
+                this, fNumTruncatedBytes);
+        }
     }
     else {
         // Should never run here
-        fprintf(stderr, "XPR_RTSP: BUG: %s:%d\n", __FILE__, __LINE__);
+        DBG(DBG_L1, "XPR_RTSP: JPEGVideoFramedSource(%p): BUG: %s:%d\n", this,
+            __FILE__, __LINE__);
         // Clear
         fFrameSize = 0;
         fNumTruncatedBytes = 0;
