@@ -40,7 +40,9 @@ static const char* _ansi_colors[] = {
     "\x1B[37m", // White
 };
 
+#if 0
 static const char* _ansi_color_reset = "\x1B[0m";
+#endif
 
 XPR_API void xpr_dbg_printf(int level, const char* format, ...)
 {
@@ -416,7 +418,6 @@ XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, in
     static int8_t hexTable[] = "0123456789ABCDEF";
     int i = 0;
     int c = 0;
-    int ulen = 0;
     int bsize = 0;
     int8_t* ptr = 0;
     if (length < 0)
@@ -462,9 +463,7 @@ XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, in
 
 XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer, int* size)
 {
-    int i = 0;
     int c = 0;
-    int ulen = 0;
     int bsize = 0;
     uint8_t* ptr = 0;
     const int8_t* uriep = 0;
@@ -814,6 +813,7 @@ static int UTF8C_UTF32BEC(const uint8_t* utf8, int length, uint32_t* utf32, int 
     return retval;
 }
 
+#if 0
 static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8, int size)
 {
     uint32_t v = 0;
@@ -868,6 +868,7 @@ static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8, int si
     }
     return retval;
 }
+#endif
 
 XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
 {
@@ -1268,8 +1269,6 @@ XPR_API int XPR_TemplateBuild(XPR_Template* tmpl)
     char* p2 = 0;
     char* src_data = tmpl->src_buffer;
     int src_data_size = tmpl->src_data_size;
-    char* dst_data = tmpl->dst_buffer;
-    int dst_data_size = 0;
     if (src_data_size <= 0)
         return -1;
     while (src_data_size > 0) {

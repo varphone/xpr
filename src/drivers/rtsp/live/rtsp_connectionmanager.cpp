@@ -35,7 +35,6 @@ ConnectionManager::~ConnectionManager(void)
 
 int ConnectionManager::isPortValid(int port)
 {
-    uint32_t major = XPR_RTSP_PORT_MAJOR(port);
     uint32_t streamId = XPR_RTSP_PORT_STREAM(port);
     uint32_t trackId = XPR_RTSP_PORT_TRACK(port);
     if (streamId == XPR_RTSP_PORT_TRACK_ALL ||
@@ -183,7 +182,7 @@ Worker* ConnectionManager::getPreferWorker(int streamId)
 
 bool ConnectionManager::isValidStreamId(int streamId)
 {
-    return (streamId > 0) && (streamId <= mMaxConnections);
+    return (streamId > 0) && (streamId <= static_cast<int>(mMaxConnections));
 }
 
 bool ConnectionManager::isValidStreamTrackId(int streamTrackId)

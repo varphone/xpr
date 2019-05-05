@@ -106,7 +106,6 @@ XPR_API void XPR_UrlDestroy(XPR_Url* url)
 static void ParseHostPart(XPR_Url* u, const char* s, int length)
 {
     int n = 0;
-    char ctmp = 0;
     char tmp[256] = {0};
     const char* p1 = 0;
     const char* p2 = 0;

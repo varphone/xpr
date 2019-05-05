@@ -41,7 +41,6 @@ XPR_API int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
 XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
                             XPR_H264_FrameInfo* fi)
 {
-    int i = 0;
     int n = 0;
     XPR_H264_NALU nalus[16];
     //

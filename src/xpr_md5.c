@@ -345,7 +345,6 @@ XPR_API char* XPR_MD5Data(const uint8_t* data, size_t dataLength, char* strBuf)
 
 XPR_API char* XPR_MD5File(const char* path, char* strBuf)
 {
-	int n = 0;
 	uint8_t tmp[4096];
 	XPR_MD5Context ctx;
 	XPR_File* f;

@@ -786,7 +786,6 @@ void Connection::configConnection(const char* key, const char* value)
 {
     DBG(DBG_L4, "XPR_RTSP: Connection(%p): configuration: \"%s\"=\"%s\"", this,
         key, value);
-    ConnectionManager* connMgr = (ConnectionManager*)parent();
     if (strcmp(key, "rtspOverTcp") == 0) {
         mRtpOverTcp = strtol(value, NULL, 10);
     }

@@ -29,11 +29,14 @@
 #  endif
 #endif
 
+#if 0
 static void segment(void* opaque, char* seg)
 {
 	printf("SEGMENT: [%s]\n", seg);
 }
+#endif
 
+#ifdef TEST_OPEN_SERVER
 static void Test_OpenServer()
 {
 	int i;
@@ -52,7 +55,9 @@ static void Test_OpenServer()
 	}
 	XPR_RTSP_Fini();
 }
+#endif
 
+#ifdef TEST_START_STOP
 static void Test_StartStop()
 {
 	int err;
@@ -79,6 +84,7 @@ static void Test_StartStop()
 	}
 	XPR_RTSP_Fini();
 }
+#endif
 
 struct FrameInfo {
 	uint32_t offset;
@@ -158,8 +164,12 @@ static void Test_H264Video(const char* path)
 
 int main(int argc, char** argv)
 {
-	//Test_OpenServer();
-	//Test_StartStop();
+#ifdef TEST_OPEN_SERVER
+	Test_OpenServer();
+#endif
+#ifdef TEST_START_STOP
+	Test_StartStop();
+#endif
 	Test_H264Video(argv[1]);
 	system("pause");
 	return 0;

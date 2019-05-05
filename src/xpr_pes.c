@@ -887,7 +887,7 @@ int XPR_PES_WriteFrame(XPR_PES* p, const uint8_t* data, int length,
     default:
         break;
     }
-    return 0;
+    return result;
 }
 
 int XPR_PES_WriteFramePartial(XPR_PES* p, const uint8_t* data, int length,
@@ -918,7 +918,7 @@ int XPR_PES_WriteFramePartial(XPR_PES* p, const uint8_t* data, int length,
     default:
         break;
     }
-    return 0;
+    return result;
 }
 
 int XPR_PES_WriteTailer(XPR_PES* p)

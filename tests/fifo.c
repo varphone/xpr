@@ -62,6 +62,7 @@ static void TestFifo(void)
     while (1) {
         XPR_ThreadSleep(50000000);
     }
+    (void)ths;
 }
 
 int main(int argc, char** argv)

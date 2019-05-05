@@ -825,7 +825,6 @@ Server::~Server(void)
 
 int Server::isPortValid(int port)
 {
-    uint32_t major = XPR_RTSP_PORT_MAJOR(port);
     uint32_t streamId = XPR_RTSP_PORT_STREAM(port);
     uint32_t trackId = XPR_RTSP_PORT_TRACK(port);
     if (streamId == XPR_RTSP_PORT_TRACK_ALL ||
@@ -1450,7 +1449,6 @@ void Stream::configStream(const char* key, const char* value)
         if (strcmp(value, "audio/AAC") == 0) {
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
-                int trackId = strtol(mTrackId.c_str(), NULL, 10);
                 mSMS->addSubsession(ADTSAudioServerMediaSubsession::createNew(
                     env, NULL, this, mAudioProfile, mAudioFreqIdx,
                     mAudioChannels));
@@ -1459,7 +1457,6 @@ void Stream::configStream(const char* key, const char* value)
         if (strcmp(value, "video/H264") == 0) {
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
-                int trackId = strtol(mTrackId.c_str(), NULL, 10);
                 mSMS->addSubsession(
                     H264VideoServerMediaSubsession::createNew(env, NULL, this));
             }
@@ -1467,7 +1464,6 @@ void Stream::configStream(const char* key, const char* value)
         else if (strcmp(value, "video/JPEG") == 0) {
             if (mSourceType == "stb") {
                 UsageEnvironment& env = server->workers()[0]->env();
-                int trackId = strtol(mTrackId.c_str(), NULL, 10);
                 mSMS->addSubsession(
                     JPEGVideoServerMediaSubsession::createNew(env, NULL, this));
             }

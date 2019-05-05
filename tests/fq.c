@@ -37,7 +37,6 @@ static void* PutData(void* opaque, XPR_Thread* t)
     int         err = XPR_ERR_ERROR;
     int         len = 0;
     XPR_FQ*     fq  = (XPR_FQ*)opaque;
-    uint32_t    crc = 0;
     while (1) {
         len = rand() % 64;
         testData.crc = XPR_CRC32(0, testData.str, len);
@@ -83,6 +82,7 @@ static void TestFQ(void)
     ths[2] = XPR_ThreadCreate(GetData, 0, fq);
     ths[3] = XPR_ThreadCreate(GetData, 0, fq);
     ths[4] = XPR_ThreadCreate(GetData, 0, fq);
+    (void)ths;
 }
 
 int main(int argc, char** argv)

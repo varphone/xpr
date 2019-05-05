@@ -51,6 +51,7 @@ static int DeliverPacket(XPR_RTSP_IDD* idd, int channel, int dataType,
     return 0;
 }
 
+#if 0
 static void dump(const uint8_t* data, int len)
 {
     int i = 0;
@@ -61,6 +62,7 @@ static void dump(const uint8_t* data, int len)
     }
     printf("\n");
 }
+#endif
 
 int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
 {
