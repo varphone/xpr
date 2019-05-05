@@ -471,7 +471,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         const char* mode = subsession->attrVal_strToLower("mode");
         if (mode) {
             if (strncmp(mode, "aac", 3) == 0)
-                mFourcc == AV_FOURCC_AAC;
+                mFourcc = AV_FOURCC_AAC;
         }
     }
     else if (strcmp(cn, "PCMA") == 0)
@@ -559,7 +559,7 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     // Rewind the stb.data to head of the buffer.
     if (mFourcc == AV_FOURCC_H264) {
         uint8_t* p = mStreamBlock.data;
-        if (p[0] != 0x00 && p[1] != 0x00 && p[2] != 0x00 & p[3] != 0x01) {
+        if (p[0] != 0x00 && p[1] != 0x00 && p[2] != 0x00 && p[3] != 0x01) {
             mStreamBlock.data = mBuffer;
             mStreamBlock.dataSize += 4;
         }
