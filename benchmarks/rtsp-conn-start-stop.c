@@ -26,10 +26,10 @@ void benchmark(void)
 {
     XPR_RTSP_Init();
     int ret;
-    int mgrPport = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0);
-    ret = XPR_RTSP_Open(mgrPport, "dummy://any");
+    int mgrPort = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0);
+    ret = XPR_RTSP_Open(mgrPort, "dummy://any");
     XPR_ERR_ASSERT(ret);
-    ret =XPR_RTSP_Start(mgrPport);
+    ret =XPR_RTSP_Start(mgrPort);
     XPR_ERR_ASSERT(ret);
     uint32_t n = 0;
     while (1) {
@@ -55,7 +55,7 @@ void benchmark(void)
         XPR_ThreadSleep(100000);
     }
     getchar();
-    ret = XPR_RTSP_Close(mgrPport);
+    ret = XPR_RTSP_Close(mgrPort);
     XPR_ERR_ASSERT(ret);
     XPR_RTSP_Fini();
 }

@@ -44,10 +44,10 @@ void benchmark(void)
     XPR_RTSP_Init();
 
     // Open and start the rtsp manager
-    int mgrPport = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0);
-    ret = XPR_RTSP_Open(mgrPport, "dummy://any");
+    int mgrPort = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 0, 0);
+    ret = XPR_RTSP_Open(mgrPort, "dummy://any");
     XPR_ERR_ASSERT(ret);
-    ret = XPR_RTSP_Start(mgrPport);
+    ret = XPR_RTSP_Start(mgrPort);
     XPR_ERR_ASSERT(ret);
 
     // Open and start the rtsp connection
@@ -70,9 +70,9 @@ void benchmark(void)
     XPR_ERR_ASSERT(ret);
 
     // Stop and close rtsp manager
-    ret = XPR_RTSP_Stop(mgrPport);
+    ret = XPR_RTSP_Stop(mgrPort);
     XPR_ERR_ASSERT(ret);
-    ret = XPR_RTSP_Close(mgrPport);
+    ret = XPR_RTSP_Close(mgrPort);
     XPR_ERR_ASSERT(ret);
 
     // Cleanup the XPR_RTSP module
