@@ -362,7 +362,7 @@ bool MyRTSPClient::isPlaying() const
 
 void MyRTSPClient::setPlaying(bool yes)
 {
-    StateTransition tr;
+    StateTransition tr = XPR_RTSP_STATE_NULL_OPEN;
     if (!mIsPlaying && yes)
         tr = XPR_RTSP_STATE_START_PLAYING;
     else if (mIsPlaying && !yes)
