@@ -42,6 +42,8 @@ public:
 
     bool isStreamUsingTCP(void) const;
     void setStreamUsingTCP(bool streamUsingTCP);
+    void setConnectTiemout(int conTimeout);
+    void setReceiveTimeout(int rxTimeout);
 
     Connection* getParent(void);
 
@@ -106,8 +108,11 @@ public:
     Authenticator* mAuth;
     StreamClientState mScs;
     bool mStreamUsingTCP;
+    int mConTimeout;
+    int mRxTimeout;
     bool mIsPlaying;
     int64_t mLastActiveTS;
+    TaskToken mKeepAliveTask;
 };
 
 class DummySink : public MediaSink {
@@ -180,6 +185,8 @@ private:
     Worker* mWorker;
     // Cached configurations
     bool mRtpOverTcp;
+    int mConTimeout; // Connect timeout in us
+    int mRxTimeout; // Receive timeout in us
 };
 
 } // namespace xpr::rtsp

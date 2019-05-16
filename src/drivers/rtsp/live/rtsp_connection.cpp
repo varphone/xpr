@@ -154,8 +154,8 @@ void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
                                      char* resultString)
 {
     Boolean success = False;
+    UsageEnvironment& env = rtspClient->envir();
     do {
-        UsageEnvironment& env = rtspClient->envir();
         StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
         if (resultCode != 0) {
             DBG(DBG_L4,
@@ -185,17 +185,42 @@ void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
     ((MyRTSPClient*)rtspClient)->setPlaying(success);
     // Update last active timestamp
     ((MyRTSPClient*)rtspClient)->updateLATS();
+    // Setup keep alive timer task
+    ((MyRTSPClient*)rtspClient)->mKeepAliveTask =
+        env.taskScheduler().scheduleDelayedTask(
+            ((MyRTSPClient*)rtspClient)->mRxTimeout, (TaskFunc*)keepAlive,
+            rtspClient);
 }
 
 void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
                                               int resultCode,
                                               char* resultString)
 {
-    (void)resultCode;
-    if (rtspClient) {
-        // printf("GET_PARAMETER %d, %s\n", resultCode, resultString);
-        // Update last active timestamp
-        ((MyRTSPClient*)rtspClient)->updateLATS();
+    UsageEnvironment& env = rtspClient->envir();
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+
+    if (!my)
+        return;
+
+    if (resultCode != 0) {
+        DBG(DBG_L4,
+            "XPR_RTSP: MyRTSPClient(%p): continueAfterGET_PARAMETER(): code = %d, "
+            "result = \"%s\"",
+            rtspClient, resultCode, resultString);
+        my->mKeepAliveTask = nullptr;
+        streamError(rtspClient, ETIMEDOUT);
+    }
+    else {
+        if (my->isTimeouted()) {
+            DBG(DBG_L3, "XPR_RTSP: MyRTSPClient(%p): timeouted!");
+            my->mKeepAliveTask = nullptr;
+            streamError(rtspClient, ETIMEDOUT);
+        }
+        else {
+            // Setup keep alive timer task
+            my->mKeepAliveTask = env.taskScheduler().scheduleDelayedTask(
+                my->mConTimeout, (TaskFunc*)keepAlive, rtspClient);
+        }
     }
     delete[] resultString;
 }
@@ -239,8 +264,14 @@ void MyRTSPClient::streamTimerHandler(void* clientData)
 void MyRTSPClient::shutdownStream(RTSPClient* rtspClient, int exitCode)
 {
     (void)exitCode;
-    StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
-    Connection* conn = ((MyRTSPClient*)rtspClient)->getParent();
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    StreamClientState& scs = my->mScs;
+    Connection* conn = my->getParent();
+    if (my->mKeepAliveTask) {
+        rtspClient->envir().taskScheduler().unscheduleDelayedTask(
+            my->mKeepAliveTask);
+        my->mKeepAliveTask = nullptr;
+    }
     // First, check whether any subsessions have still to be closed:
     if (scs.session != NULL) {
         Boolean someSubsessionsWereActive = False;
@@ -259,9 +290,8 @@ void MyRTSPClient::shutdownStream(RTSPClient* rtspClient, int exitCode)
         if (someSubsessionsWereActive) {
             // Send a RTSP "TEARDOWN" command, to tell the server to shutdown
             // the stream. Don't bother handling the response to the "TEARDOWN".
-            rtspClient->sendTeardownCommand(
-                *scs.session, NULL,
-                ((MyRTSPClient*)rtspClient)->getAuthenticator());
+            rtspClient->sendTeardownCommand(*scs.session, NULL,
+                                            my->getAuthenticator());
         }
     }
     Medium::close(rtspClient);
@@ -343,6 +373,16 @@ void MyRTSPClient::setStreamUsingTCP(bool streamUsingTCP)
 Connection* MyRTSPClient::getParent(void)
 {
     return mParent;
+}
+
+void MyRTSPClient::setConnectTiemout(int conTimeout)
+{
+    mConTimeout = conTimeout;
+}
+
+void MyRTSPClient::setReceiveTimeout(int rxTimeout)
+{
+    mRxTimeout = rxTimeout;
 }
 
 void MyRTSPClient::handleError(int err)
@@ -605,7 +645,12 @@ Boolean DummySink::continuePlaying()
 // Connection
 //============================================================================
 Connection::Connection(int id, Port* parent)
-    : Port(id, parent), mError(0), mWorker(nullptr), mRtpOverTcp(false)
+    : Port(id, parent)
+    , mError(0)
+    , mWorker(nullptr)
+    , mRtpOverTcp(false)
+    , mConTimeout(CS_TMO)
+    , mRxTimeout(RX_TMO)
 {
     DBG(DBG_L5, "XPR_RTSP: Connection::Connection(%d, %p) = %p", id, parent,
         this);
@@ -763,6 +808,11 @@ int Connection::stateChanged(int port, StateTransition transition)
         postEvent(port, &evd);
         break;
     }
+    case XPR_RTSP_STATE_PLAYING_TIMEOUT: {
+        XPR_RTSP_EVD evd = {XPR_RTSP_EVT_TIMEOUT, NULL, 0};
+        postEvent(port, &evd);
+        break;
+    }
     default:
         break;
     }
@@ -789,6 +839,12 @@ void Connection::configConnection(const char* key, const char* value)
     if (strcmp(key, "rtspOverTcp") == 0) {
         mRtpOverTcp = strtol(value, NULL, 10);
     }
+    else if (strcmp(key, "conTimeout") == 0) {
+        mConTimeout = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "rxTimeout") == 0) {
+        mRxTimeout = strtol(value, NULL, 10);
+    }
     else {
         DBG(DBG_L4,
             "XPR_RTSP: Connection(%p): configuration: \"%s\" unsupported.",
@@ -803,6 +859,8 @@ int Connection::startInTask(int port)
     if (mClient) {
         mClient->setAuthenticator(mUsername.c_str(), mPassword.c_str());
         mClient->setStreamUsingTCP(mRtpOverTcp);
+        mClient->setConnectTiemout(mConTimeout);
+        mClient->setReceiveTimeout(mRxTimeout);
         // Prepare the timestamp for timeout detection
         mClient->updateLATS();
         // Send DESCRIBE command first
