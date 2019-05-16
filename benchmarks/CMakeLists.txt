@@ -4,6 +4,9 @@ if(HAVE_XPR_RTSP)
 add_executable(rtsp-conn-open-close benchmark.c rtsp-conn-open-close.c)
 target_link_libraries(rtsp-conn-open-close xpr -lpthread)
 
+add_executable(rtsp-conn-rx-aac benchmark.c rtsp-conn-rx-aac.c)
+target_link_libraries(rtsp-conn-rx-aac xpr -lpthread)
+
 add_executable(rtsp-conn-start-stop benchmark.c rtsp-conn-start-stop.c)
 target_link_libraries(rtsp-conn-start-stop xpr -lpthread)
 
