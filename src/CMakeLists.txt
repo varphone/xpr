@@ -162,6 +162,7 @@ if(HAVE_XPR_RTSP)
         drivers/rtsp/live/rtsp_client.cpp
         drivers/rtsp/live/rtsp_connection.cpp
         drivers/rtsp/live/rtsp_connectionmanager.cpp
+        drivers/rtsp/live/rtsp_framemerger.cpp
         drivers/rtsp/live/rtsp_server.cpp
         drivers/rtsp/live/rtsp_worker.cpp
         xpr_rtsp.c

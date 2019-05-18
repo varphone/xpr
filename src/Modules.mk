@@ -229,7 +229,7 @@ endif
 # RTSP framework
 ###############################################################################
 ifeq ($(XPR_RTSP),y)
-$(eval $(call add_driver,RTSP,LIVE,$(XPR_RTSP_DRIVER_LIVE),live/rtsp.cpp live/rtsp_connection.cpp live/rtsp_connectionmanager.cpp live/rtsp_server.cpp live/rtsp_worker.cpp,,,-lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment))
+$(eval $(call add_driver,RTSP,LIVE,$(XPR_RTSP_DRIVER_LIVE),live/rtsp.cpp live/rtsp_connection.cpp live/rtsp_connectionmanager.cpp live/rtsp_framemerger.cpp live/rtsp_server.cpp live/rtsp_worker.cpp,,,-lliveMedia -lBasicUsageEnvironment -lgroupsock -lUsageEnvironment))
 libxpr_SRCS += xpr_rtsp.c
 endif
 
