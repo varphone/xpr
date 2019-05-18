@@ -47,6 +47,8 @@ void GenericFrameMerger::merge(XPR_StreamBlock const& stb)
     size_t ncopy = std::min(avail, static_cast<size_t>(stb.dataSize));
     std::memcpy(mBuffer + mMergedSize, stb.data, ncopy);
     mMergedSize += ncopy;
+    // Use flags of the last fragment as merged flags.
+    mStreamBlock.flags = stb.flags;
 }
 
 void GenericFrameMerger::setMaxFrameSize(size_t size)
