@@ -19,6 +19,7 @@ GenericFrameMerger::GenericFrameMerger(void)
     , mStreamBlock()
 {
     mBuffer = new uint8_t[mMaxFrameSize];
+    memset(&mStreamBlock, 0, sizeof(mStreamBlock));
 }
 
 GenericFrameMerger::~GenericFrameMerger(void)
@@ -27,6 +28,9 @@ GenericFrameMerger::~GenericFrameMerger(void)
         delete[] mBuffer;
         mBuffer = nullptr;
     }
+    mMergedSize = 0;
+    mMergedCallback = nullptr;
+    mMergedCallbackOpaque = nullptr;
 }
 
 void GenericFrameMerger::merge(XPR_StreamBlock const& stb)
