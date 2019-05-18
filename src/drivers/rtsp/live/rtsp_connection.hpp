@@ -17,6 +17,7 @@ namespace rtsp
 {
 
 class Connection;
+class GenericFrameMerger;
 class Worker;
 
 // Define a class to hold per-stream state that we maintain throughout each
@@ -44,6 +45,7 @@ public:
     void setStreamUsingTCP(bool streamUsingTCP);
     void setConnectTiemout(int conTimeout);
     void setReceiveTimeout(int rxTimeout);
+    void setUseFrameMerger(bool useFrameMerger);
 
     Connection* getParent(void);
 
@@ -110,6 +112,7 @@ public:
     bool mStreamUsingTCP;
     int mConTimeout;
     int mRxTimeout;
+    bool mUseFrameMerger;
     bool mIsPlaying;
     int64_t mLastActiveTS;
     TaskToken mKeepAliveTask;
@@ -124,6 +127,8 @@ public:
                                   unsigned numTruncatedBytes,
                                   struct timeval presentationTime,
                                   unsigned durationInMicroseconds);
+    static void afterMergedFrame(void* clientData, XPR_StreamBlock const& stb);
+
 private:
     DummySink(UsageEnvironment& env, MyRTSPClient* client,
               MediaSubsession* subsession, int trackId);
@@ -133,6 +138,7 @@ private:
     void afterGettingFrame(unsigned frameSize, unsigned numTruncatedBytes,
                            struct timeval presentationTime,
                            unsigned durationInMicroseconds);
+    void afterMergedFrame(XPR_StreamBlock const& stb);
 
     // MediaSink interfaces
 private:
@@ -141,6 +147,7 @@ private:
 private:
     MyRTSPClient* mClient;
     MediaSubsession* mSubsession;
+    GenericFrameMerger* mFrameMerger;
     uint8_t* mBuffer;
     uint32_t mMaxFrameSize;
     uint32_t mFourcc;
@@ -187,6 +194,7 @@ private:
     bool mRtpOverTcp;
     int mConTimeout; // Connect timeout in us
     int mRxTimeout; // Receive timeout in us
+    bool mUseFrameMerger; // Use FrameMerger to merge same pts frames
 };
 
 } // namespace xpr::rtsp

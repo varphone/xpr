@@ -1,5 +1,6 @@
 #include "rtsp_connection.hpp"
 #include "rtsp_connectionmanager.hpp"
+#include "rtsp_framemerger.hpp"
 #include "rtsp_worker.hpp"
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_meta.h>
@@ -332,6 +333,7 @@ MyRTSPClient::MyRTSPClient(UsageEnvironment& env, const char* url,
     , mParent(parent)
     , mAuth(nullptr)
     , mScs()
+    , mUseFrameMerger(false)
     , mIsPlaying(false)
     , mLastActiveTS(0)
 {
@@ -383,6 +385,11 @@ void MyRTSPClient::setConnectTiemout(int conTimeout)
 void MyRTSPClient::setReceiveTimeout(int rxTimeout)
 {
     mRxTimeout = rxTimeout;
+}
+
+void MyRTSPClient::setUseFrameMerger(bool useFrameMerger)
+{
+    mUseFrameMerger = useFrameMerger;
 }
 
 void MyRTSPClient::handleError(int err)
@@ -487,6 +494,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     : MediaSink(env)
     , mClient(client)
     , mSubsession(subsession)
+    , mFrameMerger(nullptr)
     , mBuffer(nullptr)
     , mMaxFrameSize(64512)
     , mFourcc(0)
@@ -533,11 +541,19 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_AUDIO_FRAME;
     if (isVideoFourcc(mFourcc))
         mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_VIDEO_FRAME;
+    if (mFourcc == AV_FOURCC_H264 || mFourcc == AV_FOURCC_H265) {
+        mFrameMerger = new GenericFrameMerger();
+        mFrameMerger->setMaxFrameSize(mMaxFrameSize);
+        mFrameMerger->setMergedCallback(&DummySink::afterMergedFrame, this);
+    }
 }
 
 DummySink::~DummySink()
 {
     DBG(DBG_L5, "XPR_RTSP: DummySink::~DummySink(%p)", this);
+    if (mFrameMerger) {
+        delete mFrameMerger;
+    }
     if (mBuffer) {
         delete mBuffer;
     }
@@ -554,6 +570,12 @@ void DummySink::afterGettingFrame(void* clientData, unsigned frameSize,
     DummySink* sink = (DummySink*)clientData;
     sink->afterGettingFrame(frameSize, numTruncatedBytes, presentationTime,
                             durationInMicroseconds);
+}
+
+void DummySink::afterMergedFrame(void* clientData, XPR_StreamBlock const& stb)
+{
+    DummySink* sink = reinterpret_cast<DummySink*>(clientData);
+    sink->afterMergedFrame(stb);
 }
 
 static inline unsigned alignUpTo16K(unsigned val)
@@ -605,9 +627,14 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         }
     }
 
-    // Push data to callbacks
-    Connection* conn = mClient->getParent();
-    conn->pushData(id_to_port(conn->id()), &mStreamBlock);
+    if (mFrameMerger) {
+        mFrameMerger->merge(mStreamBlock);
+    }
+    else {
+        // Push data to callbacks
+        Connection* conn = mClient->getParent();
+        conn->pushData(id_to_port(conn->id()), &mStreamBlock);
+    }
 
     // Replace the new buffer and size
     if (newBuffer && newMaxFrameSize) {
@@ -618,6 +645,13 @@ void DummySink::afterGettingFrame(unsigned frameSize,
 
     // Then continue, to request the next frame of data:
     continuePlaying();
+}
+
+void DummySink::afterMergedFrame(XPR_StreamBlock const& stb)
+{
+    // Push data to callbacks
+    Connection* conn = mClient->getParent();
+    conn->pushData(id_to_port(conn->id()), const_cast<XPR_StreamBlock*>(&stb));
 }
 
 Boolean DummySink::continuePlaying()
@@ -651,6 +685,7 @@ Connection::Connection(int id, Port* parent)
     , mRtpOverTcp(false)
     , mConTimeout(CS_TMO)
     , mRxTimeout(RX_TMO)
+    , mUseFrameMerger(false)
 {
     DBG(DBG_L5, "XPR_RTSP: Connection::Connection(%d, %p) = %p", id, parent,
         this);
@@ -845,6 +880,9 @@ void Connection::configConnection(const char* key, const char* value)
     else if (strcmp(key, "rxTimeout") == 0) {
         mRxTimeout = strtol(value, NULL, 10);
     }
+    else if (strcmp(key, "useFrameMerger") == 0) {
+        mUseFrameMerger = str2bool(value);
+    }
     else {
         DBG(DBG_L4,
             "XPR_RTSP: Connection(%p): configuration: \"%s\" unsupported.",
@@ -861,6 +899,7 @@ int Connection::startInTask(int port)
         mClient->setStreamUsingTCP(mRtpOverTcp);
         mClient->setConnectTiemout(mConTimeout);
         mClient->setReceiveTimeout(mRxTimeout);
+        mClient->setUseFrameMerger(mUseFrameMerger);
         // Prepare the timestamp for timeout detection
         mClient->updateLATS();
         // Send DESCRIBE command first
