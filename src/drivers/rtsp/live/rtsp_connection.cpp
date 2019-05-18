@@ -28,13 +28,14 @@ inline int id_to_port(int id)
 void MyRTSPClient::continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode,
                                          char* resultString)
 {
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
     do {
         DBG(DBG_L4,
             "XPR_RTSP: MyRTSPClient(%p): continueAfterDESCRIBE(): code = %d, "
             "result = \"%s\"",
             rtspClient, resultCode, resultString);
         UsageEnvironment& env = rtspClient->envir();
-        StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
+        StreamClientState& scs = my->mScs;
         if (resultCode != 0) {
             delete[] resultString;
             break;
@@ -58,7 +59,7 @@ void MyRTSPClient::continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode,
         scs.iter = new MediaSubsessionIterator(*scs.session);
         setupNextSubsession(rtspClient);
         // Update last active timestamp
-        ((MyRTSPClient*)rtspClient)->updateLATS();
+        my->updateLATS();
         return;
     } while (0);
     // An unrecoverable error occurred with this stream.
@@ -67,8 +68,9 @@ void MyRTSPClient::continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode,
 
 void MyRTSPClient::setupNextSubsession(RTSPClient* rtspClient)
 {
-    StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
-    Boolean streamUsingTCP = ((MyRTSPClient*)rtspClient)->isStreamUsingTCP();
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    StreamClientState& scs = my->mScs;
+    Boolean streamUsingTCP = my->isStreamUsingTCP();
     scs.subsession = scs.iter->next();
     if (scs.subsession != NULL) {
 #if 0
@@ -89,38 +91,37 @@ void MyRTSPClient::setupNextSubsession(RTSPClient* rtspClient)
             else {
                 // FIXME:
             }
-            rtspClient->sendSetupCommand(
-                *scs.subsession, continueAfterSETUP, False, streamUsingTCP,
-                False, ((MyRTSPClient*)rtspClient)->getAuthenticator());
+            rtspClient->sendSetupCommand(*scs.subsession, continueAfterSETUP,
+                                         False, streamUsingTCP, False,
+                                         my->getAuthenticator());
         }
         scs.tracks++;
         // Update last active timestamp
-        ((MyRTSPClient*)rtspClient)->updateLATS();
+        my->updateLATS();
         return;
     }
     if (scs.session->absStartTime() != NULL) {
         rtspClient->sendPlayCommand(
             *scs.session, continueAfterPLAY, scs.session->absStartTime(),
-            scs.session->absEndTime(), 1.0f,
-            ((MyRTSPClient*)rtspClient)->getAuthenticator());
+            scs.session->absEndTime(), 1.0f, my->getAuthenticator());
     }
     else {
         scs.duration =
             scs.session->playEndTime() - scs.session->playStartTime();
-        rtspClient->sendPlayCommand(
-            *scs.session, continueAfterPLAY, 0.0f, -1.0f, 1.0f,
-            ((MyRTSPClient*)rtspClient)->getAuthenticator());
+        rtspClient->sendPlayCommand(*scs.session, continueAfterPLAY, 0.0f,
+                                    -1.0f, 1.0f, my->getAuthenticator());
     }
     // Update last active timestamp
-    ((MyRTSPClient*)rtspClient)->updateLATS();
+    my->updateLATS();
 }
 
 void MyRTSPClient::continueAfterSETUP(RTSPClient* rtspClient, int resultCode,
                                       char* resultString)
 {
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
     do {
         UsageEnvironment& env = rtspClient->envir();
-        StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
+        StreamClientState& scs = my->mScs;
         if (resultCode != 0) {
             DBG(DBG_L4,
                 "XPR_RTSP: MyRTSPClient(%p): continueAfterSETUP(): code = "
@@ -134,8 +135,8 @@ void MyRTSPClient::continueAfterSETUP(RTSPClient* rtspClient, int resultCode,
         else {
             // FIXME:
         }
-        scs.subsession->sink = DummySink::createNew(
-            env, (MyRTSPClient*)rtspClient, scs.subsession, scs.tracks);
+        scs.subsession->sink =
+            DummySink::createNew(env, my, scs.subsession, scs.tracks);
         if (scs.subsession->sink == NULL) {
             break;
         }
@@ -152,16 +153,17 @@ void MyRTSPClient::continueAfterSETUP(RTSPClient* rtspClient, int resultCode,
     // Set up the next subsession, if any:
     setupNextSubsession(rtspClient);
     // Update last active timestamp
-    ((MyRTSPClient*)rtspClient)->updateLATS();
+    my->updateLATS();
 }
 
 void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
                                      char* resultString)
 {
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
     Boolean success = False;
     UsageEnvironment& env = rtspClient->envir();
     do {
-        StreamClientState& scs = ((MyRTSPClient*)rtspClient)->mScs;
+        StreamClientState& scs = my->mScs;
         if (resultCode != 0) {
             DBG(DBG_L4,
                 "XPR_RTSP: MyRTSPClient(%p): continueAfterPLAY(): code = %d, "
@@ -187,13 +189,12 @@ void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
         streamError(rtspClient, resultCode);
     }
     // Mark as playing
-    ((MyRTSPClient*)rtspClient)->setPlaying(success);
+    my->setPlaying(success);
     // Update last active timestamp
-    ((MyRTSPClient*)rtspClient)->updateLATS();
+    my->updateLATS();
     // Setup keep alive timer task
-    ((MyRTSPClient*)rtspClient)->mKeepAliveTask =
-        env.taskScheduler().scheduleDelayedTask(KA_TMO, (TaskFunc*)keepAlive,
-                                                rtspClient);
+    my->mKeepAliveTask = env.taskScheduler().scheduleDelayedTask(
+        KA_TMO, (TaskFunc*)keepAlive, rtspClient);
 }
 
 void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
@@ -258,11 +259,11 @@ void MyRTSPClient::subsessionByeHandler(void* clientData)
 
 void MyRTSPClient::streamTimerHandler(void* clientData)
 {
-    MyRTSPClient* rtspClient = (MyRTSPClient*)clientData;
-    StreamClientState& scs = rtspClient->mScs;
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(clientData);
+    StreamClientState& scs = my->mScs;
     scs.streamTimerTask = NULL;
     // Shut down the stream:
-    streamError(rtspClient, ETIMEDOUT);
+    streamError(my, ETIMEDOUT);
 }
 
 void MyRTSPClient::shutdownStream(RTSPClient* rtspClient, int exitCode)
@@ -306,14 +307,14 @@ void MyRTSPClient::shutdownStream(RTSPClient* rtspClient, int exitCode)
 
 void MyRTSPClient::keepAlive(RTSPClient* rtspClient)
 {
-    if (!rtspClient)
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    if (!my)
         return;
-    StreamClientState& scs = dynamic_cast<MyRTSPClient*>(rtspClient)->mScs;
+    StreamClientState& scs = my->mScs;
     if (!scs.session)
         return;
     rtspClient->sendGetParameterCommand(
-        *scs.session, continueAfterGET_PARAMETER, NULL,
-        ((MyRTSPClient*)rtspClient)->getAuthenticator());
+        *scs.session, continueAfterGET_PARAMETER, NULL, my->getAuthenticator());
 }
 
 void MyRTSPClient::streamError(RTSPClient* rtspClient, int err)
