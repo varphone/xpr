@@ -13,7 +13,7 @@
 
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
-    "rtsp://127.0.0.1:8554/example.264?useFrameMerger=true",
+    "rtsp://127.0.0.1:8554/example.264??useFrameMerger=true",
 };
 
 const int numUrls = sizeof(urls) / sizeof(urls[0]);
