@@ -585,6 +585,134 @@ static inline unsigned alignUpTo16K(unsigned val)
     return ((val >> 14) + 1) << 14;
 }
 
+// Detect H264 slice type from NALU (without startcode 00000001)
+// FIXME: some bugs for bitstream compitable
+//
+static int H264_DetectSliceType(const uint8_t* data, size_t size)
+{
+    int i = 0;
+    int n = 32;
+    int first_mb_in_slice = 0;
+    int first_mb_in_slice_zn = 0;
+    int slice_type = 0;
+    int slice_type_zn = 0;
+    uint32_t b = 0;
+
+    b |= size > 1 ? (uint32_t)data[0] << 24 : 0;
+    b |= size > 2 ? (uint32_t)data[1] << 16 : 0;
+    b |= size > 3 ? (uint32_t)data[2] << 0 : 0;
+    b |= size > 4 ? (uint32_t)data[3] : 0;
+
+    if ((b & 0xfffffff) == b && (b & 0x8000000))
+        first_mb_in_slice_zn = 4;
+    else if ((b & 0x1fffffff) == b && (b & 0x10000000))
+        first_mb_in_slice_zn = 3;
+    else if ((b & 0x3fffffff) == b && (b & 0x20000000))
+        first_mb_in_slice_zn = 2;
+    else if ((b & 0x7fffffff) == b && (b & 0x40000000))
+        first_mb_in_slice_zn = 1;
+    else if (b & 0x80000000)
+        first_mb_in_slice_zn = 0;
+    if (first_mb_in_slice_zn)
+        first_mb_in_slice = (b >> (n - first_mb_in_slice_zn * 2 - 1)) - 1;
+
+    if (first_mb_in_slice_zn == 0) {
+        if ((b & 0x87ffffff) == b)
+            slice_type_zn = 4;
+        else if ((b & 0x8fffffff) == b)
+            slice_type_zn = 3;
+        else if ((b & 0x9fffffff) == b)
+            slice_type_zn = 2;
+        else if ((b & 0xbfffffff) == b)
+            slice_type_zn = 1;
+        else if (b & 0x40000000)
+            slice_type_zn = 0;
+    }
+    else if (first_mb_in_slice_zn == 1) {
+        if ((b & 0xe1ffffff) == b)
+            slice_type_zn = 4;
+        else if ((b & 0xe3ffffff) == b)
+            slice_type_zn = 3;
+        else if ((b & 0xe7ffffff) == b)
+            slice_type_zn = 2;
+        else if ((b & 0xefffffff) == b)
+            slice_type_zn = 1;
+        else if (b & 0x10000000)
+            slice_type_zn = 0;
+    }
+    else if (first_mb_in_slice_zn == 2) {
+        if ((b & 0xf87fffff) == b)
+            slice_type_zn = 4;
+        else if ((b & 0xf8ffffff) == b)
+            slice_type_zn = 3;
+        else if ((b & 0xf9ffffff) == b)
+            slice_type_zn = 2;
+        else if ((b & 0xfbffffff) == b)
+            slice_type_zn = 1;
+        else if (b & 0x4000000)
+            slice_type_zn = 0;
+    }
+    else if (first_mb_in_slice_zn == 3) {
+        if ((b & 0xfe1fffff) == b)
+            slice_type_zn = 4;
+        else if ((b & 0xfe3fffff) == b)
+            slice_type_zn = 3;
+        else if ((b & 0xfe7fffff) == b)
+            slice_type_zn = 2;
+        else if ((b & 0xfeffffff) == b)
+            slice_type_zn = 1;
+        else if (b & 0x1000000)
+            slice_type_zn = 0;
+    }
+    else if (first_mb_in_slice_zn == 4) {
+        if ((b & 0xff87ffff) == b)
+            slice_type_zn = 4;
+        else if ((b & 0xff8fffff) == b)
+            slice_type_zn = 3;
+        else if ((b & 0xff9fffff) == b)
+            slice_type_zn = 2;
+        else if ((b & 0xffbfffff) == b)
+            slice_type_zn = 1;
+        else if (b & 0x400000)
+            slice_type_zn = 0;
+    }
+
+    if (slice_type_zn) {
+        b &= (0xffffffff >> (first_mb_in_slice_zn * 2 + 1));
+        slice_type =
+            (b >> (n - first_mb_in_slice_zn * 2 - 1 - slice_type_zn * 2 - 1)) -
+            1;
+    }
+
+    slice_type &= 0xf;
+
+    return slice_type;
+}
+
+static int H264_SliceTypeToFrameType(int slice_type)
+{
+    int frame_type = XPR_STREAMBLOCK_FLAG_TYPE_I;
+    switch (slice_type & 0xf) {
+    case 0:
+    case 3:
+    case 5:
+    case 8:
+        frame_type = XPR_STREAMBLOCK_FLAG_TYPE_P;
+        break;
+    case 1:
+    case 6:
+        frame_type = XPR_STREAMBLOCK_FLAG_TYPE_B;
+        break;
+    case 2:
+    case 4:
+    case 7:
+    case 9:
+        frame_type = XPR_STREAMBLOCK_FLAG_TYPE_I;
+        break;
+    }
+    return frame_type;
+}
+
 void DummySink::afterGettingFrame(unsigned frameSize,
                                   unsigned numTruncatedBytes,
                                   struct timeval presentationTime,
@@ -627,6 +755,15 @@ void DummySink::afterGettingFrame(unsigned frameSize,
             mStreamBlock.data = mBuffer;
             mStreamBlock.dataSize += 4;
         }
+        // Clear the frame type flags.
+        mStreamBlock.flags &=
+            ~(XPR_STREAMBLOCK_FLAG_TYPE_I | XPR_STREAMBLOCK_FLAG_TYPE_P |
+              XPR_STREAMBLOCK_FLAG_TYPE_B);
+        // Detect frame type (P/I) from NALU
+        int slt = H264_DetectSliceType(mStreamBlock.data + 4,
+                                       mStreamBlock.dataSize - 4);
+        // Set new frame type flag for current.
+        mStreamBlock.flags |= H264_SliceTypeToFrameType(slt);
     }
 
     if (mFrameMerger) {
