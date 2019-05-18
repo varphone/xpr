@@ -541,7 +541,9 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_AUDIO_FRAME;
     if (isVideoFourcc(mFourcc))
         mStreamBlock.flags |= XPR_STREAMBLOCK_FLAG_VIDEO_FRAME;
-    if (mFourcc == AV_FOURCC_H264 || mFourcc == AV_FOURCC_H265) {
+    if (mClient->mUseFrameMerger &&
+        (mFourcc == AV_FOURCC_H264 || mFourcc == AV_FOURCC_H265)) {
+        DBG(DBG_L4, "XPR_RTSP: DummySink(%p): FrameMeger enabled!", this);
         mFrameMerger = new GenericFrameMerger();
         mFrameMerger->setMaxFrameSize(mMaxFrameSize);
         mFrameMerger->setMergedCallback(&DummySink::afterMergedFrame, this);
