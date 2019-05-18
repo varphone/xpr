@@ -195,6 +195,9 @@ void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
     // Setup keep alive timer task
     my->mKeepAliveTask = env.taskScheduler().scheduleDelayedTask(
         KA_TMO, (TaskFunc*)keepAlive, rtspClient);
+    // Setup timeout check task
+    my->mTimeoutCheckTask = env.taskScheduler().scheduleDelayedTask(
+        my->mRxTimeout, (TaskFunc*)timeoutCheck, rtspClient);
 }
 
 void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
@@ -213,12 +216,14 @@ void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
             "result = \"%s\"",
             rtspClient, resultCode, resultString);
         my->mKeepAliveTask = nullptr;
+        timeoutCheckCancel(my);
         streamError(rtspClient, ETIMEDOUT);
     }
     else {
         if (my->isTimeouted()) {
-            DBG(DBG_L3, "XPR_RTSP: MyRTSPClient(%p): timeouted!");
+            DBG(DBG_L3, "XPR_RTSP: MyRTSPClient(%p): timeouted by KA!");
             my->mKeepAliveTask = nullptr;
+            timeoutCheckCancel(my);
             streamError(rtspClient, ETIMEDOUT);
         }
         else {
@@ -272,11 +277,9 @@ void MyRTSPClient::shutdownStream(RTSPClient* rtspClient, int exitCode)
     MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
     StreamClientState& scs = my->mScs;
     Connection* conn = my->getParent();
-    if (my->mKeepAliveTask) {
-        rtspClient->envir().taskScheduler().unscheduleDelayedTask(
-            my->mKeepAliveTask);
-        my->mKeepAliveTask = nullptr;
-    }
+    // Cancel all delayed tasks first.
+    keepAliveCancel(my);
+    timeoutCheckCancel(my);
     // First, check whether any subsessions have still to be closed:
     if (scs.session != NULL) {
         Boolean someSubsessionsWereActive = False;
@@ -317,9 +320,46 @@ void MyRTSPClient::keepAlive(RTSPClient* rtspClient)
         *scs.session, continueAfterGET_PARAMETER, NULL, my->getAuthenticator());
 }
 
+void MyRTSPClient::keepAliveCancel(RTSPClient* rtspClient)
+{
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    if (my->mKeepAliveTask) {
+        my->envir().taskScheduler().unscheduleDelayedTask(
+            my->mKeepAliveTask);
+        my->mKeepAliveTask = nullptr;
+    }
+}
+
 void MyRTSPClient::streamError(RTSPClient* rtspClient, int err)
 {
     dynamic_cast<MyRTSPClient*>(rtspClient)->handleError(err);
+}
+
+void MyRTSPClient::timeoutCheck(RTSPClient* rtspClient)
+{
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    if (!my)
+        return;
+    if (my->isTimeouted()) {
+        DBG(DBG_L3, "XPR_RTSP: MyRTSPClient(%p): timeouted by TS!", my);
+        my->mTimeoutCheckTask = nullptr;
+        keepAliveCancel(my);
+        streamError(my, ETIMEDOUT);
+    }
+    else {
+        my->mTimeoutCheckTask = my->envir().taskScheduler().scheduleDelayedTask(
+            my->mRxTimeout, (TaskFunc*)timeoutCheck, rtspClient);
+    }
+}
+
+void MyRTSPClient::timeoutCheckCancel(RTSPClient* rtspClient)
+{
+    MyRTSPClient* my = reinterpret_cast<MyRTSPClient*>(rtspClient);
+    if (my->mTimeoutCheckTask) {
+        my->envir().taskScheduler().unscheduleDelayedTask(
+            my->mTimeoutCheckTask);
+        my->mTimeoutCheckTask = nullptr;
+    }
 }
 
 // Implementation of "MyRTSPClient":
@@ -427,7 +467,7 @@ void MyRTSPClient::setPlaying(bool yes)
 
 bool MyRTSPClient::isTimeouted() const
 {
-    int64_t tmo = mIsPlaying ? RX_TMO : CS_TMO;
+    int64_t tmo = mIsPlaying ? mRxTimeout : mConTimeout;
     int64_t late = XPR_SYS_GetCTS() - mLastActiveTS;
     return late > tmo;
 }

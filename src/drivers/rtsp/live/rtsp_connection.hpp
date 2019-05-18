@@ -97,8 +97,17 @@ public:
     // Used to keep connection alive
     static void keepAlive(RTSPClient* rtspClient);
 
+    // Used to cancel keep alive task
+    static void keepAliveCancel(RTSPClient* rtspClient);
+
     // Used to mark the stream error status
     static void streamError(RTSPClient* rtspClient, int err);
+
+    // Use to check timeout
+    static void timeoutCheck(RTSPClient* rtspClient);
+
+    // Use to cancel timeout check task
+    static void timeoutCheckCancel(RTSPClient* rtspClient);
 
 protected:
     explicit MyRTSPClient(UsageEnvironment& env, const char* url,
@@ -116,6 +125,7 @@ public:
     bool mIsPlaying;
     int64_t mLastActiveTS;
     TaskToken mKeepAliveTask;
+    TaskToken mTimeoutCheckTask;
 };
 
 class DummySink : public MediaSink {
