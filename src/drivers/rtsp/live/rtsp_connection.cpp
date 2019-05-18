@@ -712,7 +712,6 @@ int Connection::open(int port, const char* url)
     XPR_Url* u = XPR_UrlParse(url, -1);
     if (u == NULL)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
-    mUrl = url;
     const char* path = XPR_UrlGetPath(u);
     if (!path) {
         XPR_UrlDestroy(u);
@@ -722,8 +721,20 @@ int Connection::open(int port, const char* url)
     if (*path == '/')
         path++;
     DBG(DBG_L4, "XPR_RTSP: Connection(%p): name: %s", this, path);
-    // 使用 Query 参数来配置
-    configConnection(XPR_UrlGetQuery(u));
+    // 分离出原始地址及用于配置连接的扩展查询，其格式为：
+    // rtsp://host[:port]/path[?query][??ext-query]
+    std::string str(url);
+    std::string extQuery;
+    size_t pos = str.find_last_of("??");
+    if (pos == std::string::npos) {
+        mUrl = str;
+    }
+    else {
+        mUrl = str.substr(0, pos-1);
+        extQuery = str.substr(pos+1);
+    }
+    // 使用 extQuery 参数来配置
+    configConnection(extQuery.c_str());
     XPR_UrlDestroy(u);
     activeFlags(PortFlags::PORT_FLAG_OPEN);
     return XPR_ERR_OK;
