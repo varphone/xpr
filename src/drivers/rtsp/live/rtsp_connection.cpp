@@ -377,9 +377,14 @@ MyRTSPClient::MyRTSPClient(UsageEnvironment& env, const char* url,
     , mParent(parent)
     , mAuth(nullptr)
     , mScs()
+    , mStreamUsingTCP(false)
+    , mConTimeout(CS_TMO)
+    , mRxTimeout(RX_TMO)
     , mUseFrameMerger(false)
     , mIsPlaying(false)
     , mLastActiveTS(0)
+    , mKeepAliveTask(nullptr)
+    , mTimeoutCheckTask(nullptr)
 {
     DBG(DBG_L5, "XPR_RTSP: MyRTSPClient::MyRTSPClient(%p,%s,%p) = %p", &env,
         url, parent, this);
