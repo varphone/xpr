@@ -13,6 +13,10 @@ namespace xpr
 namespace rtsp
 {
 
+#define CS_TMO 65000000
+#define KA_TMO 30000000
+#define RX_TMO 5000000
+
 // Convert port id to port
 inline int id_to_port(int id)
 {
@@ -188,9 +192,8 @@ void MyRTSPClient::continueAfterPLAY(RTSPClient* rtspClient, int resultCode,
     ((MyRTSPClient*)rtspClient)->updateLATS();
     // Setup keep alive timer task
     ((MyRTSPClient*)rtspClient)->mKeepAliveTask =
-        env.taskScheduler().scheduleDelayedTask(
-            ((MyRTSPClient*)rtspClient)->mRxTimeout, (TaskFunc*)keepAlive,
-            rtspClient);
+        env.taskScheduler().scheduleDelayedTask(KA_TMO, (TaskFunc*)keepAlive,
+                                                rtspClient);
 }
 
 void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
@@ -220,7 +223,7 @@ void MyRTSPClient::continueAfterGET_PARAMETER(RTSPClient* rtspClient,
         else {
             // Setup keep alive timer task
             my->mKeepAliveTask = env.taskScheduler().scheduleDelayedTask(
-                my->mConTimeout, (TaskFunc*)keepAlive, rtspClient);
+                KA_TMO, (TaskFunc*)keepAlive, rtspClient);
         }
     }
     delete[] resultString;
@@ -420,9 +423,6 @@ void MyRTSPClient::setPlaying(bool yes)
     if (mParent)
         mParent->stateChanged(id_to_port(mParent->id()), tr);
 }
-
-#define CS_TMO 65000000
-#define RX_TMO 5000000
 
 bool MyRTSPClient::isTimeouted() const
 {
