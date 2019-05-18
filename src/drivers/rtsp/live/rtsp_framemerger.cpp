@@ -31,9 +31,6 @@ GenericFrameMerger::~GenericFrameMerger(void)
 
 void GenericFrameMerger::merge(XPR_StreamBlock const& stb)
 {
-    if (mMergedSize == 0) {
-        mStreamBlock = stb;
-    }
     if (mMergedSize > 0 && mStreamBlock.pts != stb.pts) {
         mStreamBlock.buffer = mBuffer;
         mStreamBlock.bufferSize = mMaxFrameSize;
@@ -42,6 +39,9 @@ void GenericFrameMerger::merge(XPR_StreamBlock const& stb)
         if (mMergedCallback)
             mMergedCallback(mMergedCallbackOpaque, mStreamBlock);
         mMergedSize = 0;
+    }
+    if (mMergedSize == 0) {
+        mStreamBlock = stb;
     }
     size_t avail = mMaxFrameSize - mMergedSize;
     size_t ncopy = std::min(avail, static_cast<size_t>(stb.dataSize));
