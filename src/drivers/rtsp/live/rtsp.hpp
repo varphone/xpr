@@ -441,6 +441,11 @@ private:
     Port*       mMajorPorts[XPR_RTSP_PORT_MAJOR_ALL + 1];
 };
 
+// Convert string to bool
+//  - true = "1", "true", "TRUE", "y", "yes"
+//  - false = "0", "false", "FALSE", "n", "no"
+bool str2bool(const char* s);
+
 } // namespace xpr::rtsp
 
 } // namespace xpr

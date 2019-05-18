@@ -229,6 +229,17 @@ int xpr::rtsp::PortManager::clearServer(void)
 }
 #endif // defined(HAVE_XPR_RTSP_SERVER)
 
+bool xpr::rtsp::str2bool(const char* s)
+{
+    if (s == nullptr)
+        return false;
+    std::string str(s);
+    if (str == "1" || str == "true" || str == "TRUE" || str == "y" ||
+        str == "yes")
+        return true;
+    return false;
+}
+
 // Public interfaces
 //============================================================================
 XPR_API int XPR_RTSP_Init(void)
