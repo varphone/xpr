@@ -11,9 +11,13 @@
         abort();                                                               \
     }
 
+// NOTE:
+// The contents after "??" is use to config the connection working params.
+// - rxTimeout: Set rtp receive timeout in us
+// - useFrameMerger: Enable frame merger on 264/265 fragments
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
-    "rtsp://127.0.0.1:8554/example.264??useFrameMerger=true",
+    "rtsp://127.0.0.1:8554/example.264??rxTimeout=3000000&useFrameMerger=true",
 };
 
 const int numUrls = sizeof(urls) / sizeof(urls[0]);
