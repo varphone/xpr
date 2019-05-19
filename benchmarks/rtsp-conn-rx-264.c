@@ -13,11 +13,20 @@
 
 // NOTE:
 // The contents after "??" is use to config the connection working params.
+// - autoRestart: Enable auto restart when src stopped or timeouted
+// - restartDelay: Set auto restart delay in us
 // - rxTimeout: Set rtp receive timeout in us
 // - useFrameMerger: Enable frame merger on 264/265 fragments
+#define CONN_CFG                                                                \
+    "??"                                                                       \
+    "autoRestart=true&"                                                        \
+    "restartDelay=1000000&"                                                    \
+    "rxTimeout=2000000&"                                                       \
+    "useFrameMerger=true"
+
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
-    "rtsp://127.0.0.1:8554/example.264??rxTimeout=3000000&useFrameMerger=true",
+    "rtsp://127.0.0.1:8554/example.264" CONN_CFG,
 };
 
 const int numUrls = sizeof(urls) / sizeof(urls[0]);
