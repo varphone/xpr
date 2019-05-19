@@ -102,6 +102,7 @@ const uint32_t PORT_FLAG_STOP = 0x00000008;
 const uint32_t PORT_FLAG_FLUSHING = 0x00000010;
 const uint32_t PORT_FLAG_PENDING = 0x00000020;
 const uint32_t PORT_FLAG_PLAYING = 0x00000040;
+const uint32_t PORT_FLAG_RESTART = 0x00000080;
 };
 
 enum StateTransition {
@@ -127,6 +128,7 @@ enum TaskId {
     XPR_RTSP_TASK_CLOSE,
     XPR_RTSP_TASK_START,
     XPR_RTSP_TASK_STOP,
+    XPR_RTSP_TASK_RESTART,
 };
 
 class Port

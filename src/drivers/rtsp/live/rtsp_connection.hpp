@@ -185,6 +185,7 @@ public:
     virtual int stateChanged(int port, StateTransition transition);
 
     // Methods
+    int restart(int port);
 
     // Properties
     Worker* worker(void);
@@ -195,18 +196,23 @@ private:
 
     int startInTask(int port);
     int stopInTask(int port);
+    int restartInTask(int port);
 
+    static void afterRestart(void* clientData);
     static void handleConnectionConfig(void* opaque, char* seg);
 
 private:
     int mError;
     MyRTSPClient* mClient;
     Worker* mWorker;
+    TaskToken mRestartTask;
     // Cached configurations
     bool mRtpOverTcp;
     int mConTimeout; // Connect timeout in us
     int mRxTimeout; // Receive timeout in us
     bool mUseFrameMerger; // Use FrameMerger to merge same pts frames
+    bool mAutoRestart; // Auto restart when src stopped or timeouted
+    int mRestartDelay; // Auto restart delay in us
 };
 
 } // namespace xpr::rtsp

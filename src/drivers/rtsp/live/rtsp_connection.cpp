@@ -876,10 +876,13 @@ Connection::Connection(int id, Port* parent)
     : Port(id, parent)
     , mError(0)
     , mWorker(nullptr)
+    , mRestartTask(nullptr)
     , mRtpOverTcp(false)
     , mConTimeout(CS_TMO)
     , mRxTimeout(RX_TMO)
     , mUseFrameMerger(false)
+    , mAutoRestart(false)
+    , mRestartDelay(5000000)
 {
     DBG(DBG_L5, "XPR_RTSP: Connection::Connection(%d, %p) = %p", id, parent,
         this);
@@ -968,6 +971,13 @@ int Connection::start(int port)
 int Connection::stop(int port)
 {
     DBG(DBG_L4, "XPR_RTSP: Connection(%p): stop(%08X)", this, port);
+    // Disable auto restart to prevent dead-loop.
+    mAutoRestart = false;
+    // Cancel delayed restart task if exists.
+    if (mRestartTask) {
+        worker()->scheduler().unscheduleDelayedTask(mRestartTask);
+        mRestartTask = nullptr;
+    }
     if (!(activeFlags() & PortFlags::PORT_FLAG_START))
         return XPR_ERR_GEN_SYS_NOTREADY;
     if (activeFlags() & PortFlags::PORT_FLAG_PENDING)
@@ -1011,6 +1021,8 @@ int Connection::runTask(int port, TaskId task)
         return startInTask(port);
     case XPR_RTSP_TASK_STOP:
         return stopInTask(port);
+    case XPR_RTSP_TASK_RESTART:
+        return restartInTask(port);
     default:
         return XPR_ERR_GEN_NOT_SUPPORT;
     }
@@ -1020,6 +1032,7 @@ int Connection::stateChanged(int port, StateTransition transition)
 {
     DBG(DBG_L4, "XPR_RTSP: Connection(%p): stateChanged(%08X, %d)", this, port,
         transition);
+    bool needRestart = false;
     switch (transition) {
     case XPR_RTSP_STATE_START_PLAYING: {
         activeFlags(PortFlags::PORT_FLAG_START, PortFlags::PORT_FLAG_PENDING);
@@ -1030,6 +1043,7 @@ int Connection::stateChanged(int port, StateTransition transition)
     case XPR_RTSP_STATE_PLAYING_STOP: {
         XPR_RTSP_EVD evd = {XPR_RTSP_EVT_SRC_STOPPED, NULL, 0};
         postEvent(port, &evd);
+        needRestart = mAutoRestart;
         break;
     }
     case XPR_RTSP_STATE_START_STOP: {
@@ -1051,15 +1065,40 @@ int Connection::stateChanged(int port, StateTransition transition)
     case XPR_RTSP_STATE_PLAYING_TIMEOUT: {
         XPR_RTSP_EVD evd = {XPR_RTSP_EVT_TIMEOUT, NULL, 0};
         postEvent(port, &evd);
+        needRestart = mAutoRestart;
         break;
     }
     case XPR_RTSP_STATE_START_UNREACHED: {
         XPR_RTSP_EVD evd = {XPR_RTSP_EVT_UNREACHABLE, NULL, 0};
         postEvent(port, &evd);
+        needRestart = mAutoRestart;
         break;
     }
     default:
         break;
+    }
+    if (needRestart)
+        return restart(port);
+    return XPR_ERR_OK;
+}
+
+struct RestartTaskData
+{
+    Connection* conn;
+    int port;
+
+    RestartTaskData(Connection* conn_, int port_) : conn(conn_), port(port_)
+    {
+    }
+};
+
+int Connection::restart(int port)
+{
+    RestartTaskData* d = new RestartTaskData(this, port);
+    mRestartTask = worker()->scheduler().scheduleDelayedTask(
+                mRestartDelay, (TaskFunc*)afterRestart, d);
+    if (mRestartTask != nullptr) {
+        activeFlags(PortFlags::PORT_FLAG_RESTART, 0);
     }
     return XPR_ERR_OK;
 }
@@ -1092,6 +1131,12 @@ void Connection::configConnection(const char* key, const char* value)
     }
     else if (strcmp(key, "useFrameMerger") == 0) {
         mUseFrameMerger = str2bool(value);
+    }
+    else if (strcmp(key, "autoRestart") == 0) {
+        mAutoRestart = str2bool(value);
+    }
+    else if (strcmp(key, "restartDelay") == 0) {
+        mRestartDelay = strtol(value, NULL, 10);
     }
     else {
         DBG(DBG_L4,
@@ -1130,6 +1175,25 @@ int Connection::stopInTask(int port)
     mClient = NULL;
     // The activeFlags changed in stateChanged()
     return XPR_ERR_OK;
+}
+
+int Connection::restartInTask(int port)
+{
+DBG(DBG_L4, "XPR_RTSP: Connection(%p): restartInTask(%08X)", this, port);
+    int err;
+    activeFlags(0, PortFlags::PORT_FLAG_PENDING);
+    err = stopInTask(port);
+    if (err == XPR_ERR_OK)
+        err = startInTask(port);
+    activeFlags(0, PortFlags::PORT_FLAG_RESTART);
+    return err;
+}
+
+void Connection::afterRestart(void* opaque)
+{
+    RestartTaskData* d = reinterpret_cast<RestartTaskData*>(opaque);
+    d->conn->restartInTask(d->port);
+    delete d;
 }
 
 void Connection::handleConnectionConfig(void* opaque, char* seg)
