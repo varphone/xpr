@@ -252,6 +252,8 @@ void MyRTSPClient::subsessionAfterPlaying(void* clientData)
     }
     // All subsessions' streams have now been closed, so shutdown the client:
     // shutdownStream(rtspClient);
+    keepAliveCancel(rtspClient);
+    timeoutCheckCancel(rtspClient);
     streamError(rtspClient, ENODATA);
 }
 
