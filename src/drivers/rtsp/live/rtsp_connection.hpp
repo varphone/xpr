@@ -57,6 +57,8 @@ public:
     bool isTimeouted(void) const;
     void setTimeouted(bool yes = true);
 
+    void setUnreached(bool yes);
+
     void updateLATS(void);
 
     // Static functions

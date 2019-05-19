@@ -449,8 +449,8 @@ void MyRTSPClient::handleError(int err)
         setPlaying(false);
     else if (err == ETIMEDOUT)
         setTimeouted(true);
-    else if (err == 404)
-        setPlaying(false);
+    else if (err == 404 || EINPROGRESS)
+        setUnreached(true);
 }
 
 bool MyRTSPClient::isPlaying() const
@@ -483,6 +483,13 @@ void MyRTSPClient::setTimeouted(bool yes)
 {
     StateTransition tr = mIsPlaying ? XPR_RTSP_STATE_PLAYING_TIMEOUT
                                     : XPR_RTSP_STATE_START_TIMEOUT;
+    if (yes && mParent)
+        mParent->stateChanged(id_to_port(mParent->id()), tr);
+}
+
+void MyRTSPClient::setUnreached(bool yes)
+{
+    StateTransition tr = XPR_RTSP_STATE_START_UNREACHED;
     if (yes && mParent)
         mParent->stateChanged(id_to_port(mParent->id()), tr);
 }
@@ -1043,6 +1050,11 @@ int Connection::stateChanged(int port, StateTransition transition)
     }
     case XPR_RTSP_STATE_PLAYING_TIMEOUT: {
         XPR_RTSP_EVD evd = {XPR_RTSP_EVT_TIMEOUT, NULL, 0};
+        postEvent(port, &evd);
+        break;
+    }
+    case XPR_RTSP_STATE_START_UNREACHED: {
+        XPR_RTSP_EVD evd = {XPR_RTSP_EVT_UNREACHABLE, NULL, 0};
         postEvent(port, &evd);
         break;
     }
