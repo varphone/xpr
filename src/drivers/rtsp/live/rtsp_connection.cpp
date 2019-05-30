@@ -16,6 +16,7 @@ namespace rtsp
 #define CS_TMO 65000000
 #define KA_TMO 30000000
 #define RX_TMO 5000000
+#define H264_HISI_FRAME_TYPE 1
 
 // Convert port id to port
 inline int id_to_port(int id)
@@ -640,6 +641,7 @@ static inline unsigned alignUpTo16K(unsigned val)
     return ((val >> 14) + 1) << 14;
 }
 
+#ifndef H264_HISI_FRAME_TYPE
 // Detect H264 slice type from NALU (without startcode 00000001)
 // FIXME: some bugs for bitstream compitable
 //
@@ -767,6 +769,22 @@ static int H264_SliceTypeToFrameType(int slice_type)
     }
     return frame_type;
 }
+#else
+// Detect H264 frame type from NALU (without startcode 00000001)
+static int H264_DetectFrameTypeForHisi(const uint8_t* data, size_t size)
+{
+    int nalType = data[0] & 0x1f;
+    switch (nalType) {
+    case 1:
+        return XPR_STREAMBLOCK_FLAG_TYPE_P;
+    case 5:
+        return XPR_STREAMBLOCK_FLAG_TYPE_I;
+    default:
+        break;
+    }
+    return 0;
+}
+#endif
 
 void DummySink::afterGettingFrame(unsigned frameSize,
                                   unsigned numTruncatedBytes,
@@ -814,11 +832,24 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         mStreamBlock.flags &=
             ~(XPR_STREAMBLOCK_FLAG_TYPE_I | XPR_STREAMBLOCK_FLAG_TYPE_P |
               XPR_STREAMBLOCK_FLAG_TYPE_B);
+#if 0
+        DBG(DBG_L4,
+            "XPR_RTSP: DummySink(%p): hex dump: [%02X %02X %02X %02X %02X %02X "
+            "%02X %02X]",
+            this, mStreamBlock.data[0], mStreamBlock.data[1],
+            mStreamBlock.data[2], mStreamBlock.data[3], mStreamBlock.data[4],
+            mStreamBlock.data[5], mStreamBlock.data[6], mStreamBlock.data[7]);
+#endif
+#ifndef H264_HISI_FRAME_TYPE
         // Detect frame type (P/I) from NALU
         int slt = H264_DetectSliceType(mStreamBlock.data + 4,
                                        mStreamBlock.dataSize - 4);
         // Set new frame type flag for current.
         mStreamBlock.flags |= H264_SliceTypeToFrameType(slt);
+#else
+        mStreamBlock.flags |= H264_DetectFrameTypeForHisi(
+            mStreamBlock.data + 4, mStreamBlock.dataSize - 4);
+#endif
     }
 
     if (mFrameMerger) {
