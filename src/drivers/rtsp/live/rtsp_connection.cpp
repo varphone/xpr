@@ -655,7 +655,7 @@ static int H264_DetectSliceType(const uint8_t* data, size_t size)
 
     b |= size > 1 ? (uint32_t)data[0] << 24 : 0;
     b |= size > 2 ? (uint32_t)data[1] << 16 : 0;
-    b |= size > 3 ? (uint32_t)data[2] << 0 : 0;
+    b |= size > 3 ? (uint32_t)data[2] << 8 : 0;
     b |= size > 4 ? (uint32_t)data[3] : 0;
 
     if ((b & 0xfffffff) == b && (b & 0x8000000))
