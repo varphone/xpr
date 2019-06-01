@@ -1151,8 +1151,8 @@ void Connection::configConnection(const char* key, const char* value)
 {
     DBG(DBG_L4, "XPR_RTSP: Connection(%p): configuration: \"%s\"=\"%s\"", this,
         key, value);
-    if (strcmp(key, "rtspOverTcp") == 0) {
-        mRtpOverTcp = strtol(value, NULL, 10);
+    if (strcmp(key, "rtpOverTcp") == 0) {
+        mRtpOverTcp = str2bool(value);
     }
     else if (strcmp(key, "conTimeout") == 0) {
         mConTimeout = strtol(value, NULL, 10);
