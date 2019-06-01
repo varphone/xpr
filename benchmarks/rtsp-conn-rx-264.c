@@ -17,12 +17,14 @@
 // - restartDelay: Set auto restart delay in us
 // - rxTimeout: Set rtp receive timeout in us
 // - useFrameMerger: Enable frame merger on 264/265 fragments
-#define CONN_CFG                                                                \
+// - rtpOverTcp: Enable/Disable RTP transimition over TCP
+#define CONN_CFG                                                               \
     "??"                                                                       \
     "autoRestart=true&"                                                        \
     "restartDelay=1000000&"                                                    \
     "rxTimeout=2000000&"                                                       \
-    "useFrameMerger=true"
+    "useFrameMerger=true&"                                                     \
+    "rtpOverTcp=true"
 
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
