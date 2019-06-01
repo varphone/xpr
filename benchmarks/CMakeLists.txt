@@ -4,6 +4,9 @@ if(HAVE_XPR_RTSP)
 add_executable(rtsp-conn-open-close benchmark.c rtsp-conn-open-close.c)
 target_link_libraries(rtsp-conn-open-close xpr -lpthread)
 
+add_executable(rtsp-conn-rx-264-with-log benchmark.c rtsp-conn-rx-264-with-log.c)
+target_link_libraries(rtsp-conn-rx-264-with-log xpr -lpthread)
+
 add_executable(rtsp-conn-rx-264 benchmark.c rtsp-conn-rx-264.c)
 target_link_libraries(rtsp-conn-rx-264 xpr -lpthread)
 
@@ -18,6 +21,9 @@ target_link_libraries(rtsp-mgr-open-close xpr -lpthread)
 
 add_executable(rtsp-mgr-start-stop benchmark.c rtsp-mgr-start-stop.c)
 target_link_libraries(rtsp-mgr-start-stop xpr -lpthread)
+
+add_executable(rtsp-svr-tx-264-with-log benchmark.c rtsp-svr-tx-264-with-log.c)
+target_link_libraries(rtsp-svr-tx-264-with-log xpr -lpthread)
 
 add_executable(rtsp-svr-tx-264 benchmark.c rtsp-svr-tx-264.c)
 target_link_libraries(rtsp-svr-tx-264 xpr -lpthread)
