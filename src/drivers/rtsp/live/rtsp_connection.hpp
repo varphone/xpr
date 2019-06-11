@@ -46,6 +46,7 @@ public:
     void setConnectTiemout(int conTimeout);
     void setReceiveTimeout(int rxTimeout);
     void setUseFrameMerger(bool useFrameMerger);
+    void setOutputFormats(const std::string& outputFormats);
 
     Connection* getParent(void);
 
@@ -124,6 +125,7 @@ public:
     int mConTimeout;
     int mRxTimeout;
     bool mUseFrameMerger;
+    std::string mOutputFormats;
     bool mIsPlaying;
     int64_t mLastActiveTS;
     TaskToken mKeepAliveTask;
@@ -160,6 +162,7 @@ private:
     MyRTSPClient* mClient;
     MediaSubsession* mSubsession;
     GenericFrameMerger* mFrameMerger;
+    bool mOutputAdts;
     uint8_t* mBuffer;
     uint32_t mMaxFrameSize;
     uint32_t mFourcc;
@@ -213,6 +216,7 @@ private:
     bool mUseFrameMerger; // Use FrameMerger to merge same pts frames
     bool mAutoRestart; // Auto restart when src stopped or timeouted
     int mRestartDelay; // Auto restart delay in us
+    std::string mOutputFormats; // Set output formats: adts or ...
 };
 
 } // namespace xpr::rtsp

@@ -384,6 +384,7 @@ MyRTSPClient::MyRTSPClient(UsageEnvironment& env, const char* url,
     , mConTimeout(CS_TMO)
     , mRxTimeout(RX_TMO)
     , mUseFrameMerger(false)
+    , mOutputFormats()
     , mIsPlaying(false)
     , mLastActiveTS(0)
     , mKeepAliveTask(nullptr)
@@ -442,6 +443,11 @@ void MyRTSPClient::setReceiveTimeout(int rxTimeout)
 void MyRTSPClient::setUseFrameMerger(bool useFrameMerger)
 {
     mUseFrameMerger = useFrameMerger;
+}
+
+void MyRTSPClient::setOutputFormats(const std::string& outputFormats)
+{
+    mOutputFormats = outputFormats;
 }
 
 void MyRTSPClient::handleError(int err)
@@ -539,6 +545,11 @@ static inline bool isVideoFourcc(uint32_t fourcc)
            fourcc == AV_FOURCC_HEVC || fourcc == AV_FOURCC_JPEG;
 }
 
+static inline bool contains(const std::string& str, const char* what)
+{
+    return str.find(what) != std::string::npos;
+}
+
 DummySink* DummySink::createNew(UsageEnvironment& env, MyRTSPClient* client,
                                 MediaSubsession* subsession, int trackId)
 {
@@ -551,6 +562,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     , mClient(client)
     , mSubsession(subsession)
     , mFrameMerger(nullptr)
+    , mOutputAdts(true)
     , mBuffer(nullptr)
     , mMaxFrameSize(64512)
     , mFourcc(0)
@@ -588,6 +600,14 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
             reinterpret_cast<XPR_AudioMeta*>(malloc(sizeof(XPR_AudioMeta)));
         meta->numOfChannels = subsession->numChannels();
         meta->samplingFrequency = subsession->rtpTimestampFrequency();
+        const char* cfg = subsession->attrVal_strToLower("config");
+        if (cfg) {
+            uint8_t cv[2];
+            sscanf(cfg, "%02hhx%02hhx", &cv[0], &cv[1]);
+            meta->channelConfig = (cv[1] & 0x78) >> 3;
+            meta->profile = ((cv[0] & 0xF8) >> 3) - 1;
+            meta->sampleRateIndex = ((cv[0] & 0x07) << 1) | ((cv[1] & 0x80) >> 7);
+        }
         mMeta = meta;
     }
     mStreamBlock.codec = mFourcc;
@@ -603,6 +623,9 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         mFrameMerger = new GenericFrameMerger();
         mFrameMerger->setMaxFrameSize(mMaxFrameSize);
         mFrameMerger->setMergedCallback(&DummySink::afterMergedFrame, this);
+    }
+    if (mFourcc == AV_FOURCC_AAC && contains(mClient->mOutputFormats, "adts")) {
+        mOutputAdts = true;
     }
 }
 
@@ -634,6 +657,131 @@ void DummySink::afterMergedFrame(void* clientData, XPR_StreamBlock const& stb)
 {
     DummySink* sink = reinterpret_cast<DummySink*>(clientData);
     sink->afterMergedFrame(stb);
+}
+
+#define FF_PROFILE_AAC_MAIN 0
+#define FF_PROFILE_AAC_LOW 1
+#define FF_PROFILE_AAC_SSR 2
+#define FF_PROFILE_AAC_LTP 3
+#define FF_PROFILE_AAC_HE 4
+#define FF_PROFILE_AAC_HE_V2 28
+#define FF_PROFILE_AAC_LD 22
+#define FF_PROFILE_AAC_ELD 38
+
+// Creates an ADTS header and stores in |hdr|
+// Assumes |hdr| points to an array of length |kAdtsHeaderSize|
+// Returns false if parameter values are for an unsupported configuration.
+static bool generateAdtsHeader(int audio_profile, int sample_rate_index,
+                               int private_stream, int channel_configuration,
+                               int originality, int home,
+                               int copyrighted_stream, int copyright_start,
+                               int frame_length, int buffer_fullness,
+                               int number_of_frames_minus_one, uint8_t* hdr)
+{
+    memset(reinterpret_cast<void*>(hdr), 0, 7);
+    // Ref: http://wiki.multimedia.cx/index.php?title=ADTS
+    // ADTS header structure is the following
+    // AAAAAAAA  AAAABCCD  EEFFFFGH  HHIJKLMM  MMMMMMMM  MMMOOOOO  OOOOOOPP
+    //
+    // A    Syncword 0xFFF, all bits must be 1
+    // B    MPEG Version: 0 for MPEG-4, 1 for MPEG-2
+    // C    Layer: always 0
+    // D    Protection absent: Set to 1 if no CRC and 0 if there is CRC.
+    // E    Profile: the MPEG-4 Audio Object Type minus 1.
+    // F    MPEG-4 Sampling Frequency Index (15 is forbidden)
+    // G    Private stream:
+    // H    MPEG-4 Channel Configuration
+    // I    Originality
+    // J    Home
+    // K    Copyrighted Stream
+    // L    Copyright_ start
+    // M    Frame length. This must include the ADTS header length.
+    // O    Buffer fullness
+    // P    Number of AAC frames in ADTS frame minus 1.
+    //      For maximum compatibility always use 1 AAC frame per ADTS frame.
+    // Syncword
+    hdr[0] = 0xFF;
+    hdr[1] = 0xF0;
+    // Layer is always 0. No further action required.
+    // Protection absent (no CRC) is always 1.
+    hdr[1] |= 1;
+    switch (audio_profile) {
+    case FF_PROFILE_AAC_MAIN:
+        break;
+    case FF_PROFILE_AAC_HE:
+    case FF_PROFILE_AAC_HE_V2:
+    case FF_PROFILE_AAC_LOW:
+        hdr[2] |= (1 << 6);
+        break;
+    case FF_PROFILE_AAC_SSR:
+        hdr[2] |= (2 << 6);
+        break;
+    case FF_PROFILE_AAC_LTP:
+        hdr[2] |= (3 << 6);
+        break;
+    default:
+        DBG(DBG_L3, "XPR_RTSP: unsupported audio profile: %d", audio_profile);
+        return false;
+    }
+    hdr[2] |= ((sample_rate_index & 0xf) << 2);
+    if (private_stream)
+        hdr[2] |= (1 << 1);
+    switch (channel_configuration) {
+    case 1:
+        // front-center
+        hdr[3] |= (1 << 6);
+        break;
+    case 2:
+        // front-left, front-right
+        hdr[3] |= (2 << 6);
+        break;
+    case 3:
+        // front-center, front-left, front-right
+        hdr[3] |= (3 << 6);
+        break;
+    case 4:
+        // front-center, front-left, front-right, back-center
+        hdr[2] |= 1;
+        break;
+    case 5:
+        // front-center, front-left, front-right, back-left, back-right
+        hdr[2] |= 1;
+        hdr[3] |= (1 << 6);
+        break;
+    case 6:
+        // front-center, front-left, front-right, back-left, back-right,
+        // LFE-channel
+        hdr[2] |= 1;
+        hdr[3] |= (2 << 6);
+        break;
+    case 8:
+        // front-center, front-left, front-right, side-left, side-right,
+        // back-left, back-right, LFE-channel
+        hdr[2] |= 1;
+        hdr[3] |= (3 << 6);
+        break;
+    default:
+        DBG(DBG_L3, "XPR_RTSP: unsupported number of audio channels: %d",
+            channel_configuration);
+        return false;
+    }
+    if (originality)
+        hdr[3] |= (1 << 5);
+    if (home)
+        hdr[3] |= (1 << 4);
+    if (copyrighted_stream)
+        hdr[3] |= (1 << 3);
+    if (copyright_start)
+        hdr[3] |= (1 << 2);
+    // frame length
+    hdr[3] |= (frame_length >> 11) & 0x03;
+    hdr[4] = (frame_length >> 3) & 0xFF;
+    hdr[5] |= (frame_length & 7) << 5;
+    // buffer fullness
+    hdr[5] |= (buffer_fullness >> 6) & 0x1F;
+    hdr[6] |= (buffer_fullness & 0x3F) << 2;
+    hdr[6] |= number_of_frames_minus_one & 0x3;
+    return true;
 }
 
 static inline unsigned alignUpTo16K(unsigned val)
@@ -813,10 +961,23 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     // Update last active timestamp
     mClient->updateLATS();
 
+    size_t offset = 0;
+    switch (mFourcc) {
+    case AV_FOURCC_H264:
+    case AV_FOURCC_H265:
+        offset = 4;
+        break;
+    case AV_FOURCC_AAC:
+        offset = mOutputAdts ? 7 : 0;
+        break;
+    default:
+        break;
+    }
+
     // Fill stream block
     mStreamBlock.buffer = mBuffer;
     mStreamBlock.bufferSize = mMaxFrameSize;
-    mStreamBlock.data = mBuffer + 4;
+    mStreamBlock.data = mBuffer + offset;
     mStreamBlock.dataSize = frameSize;
     mStreamBlock.dts = mStreamBlock.pts = pts;
 
@@ -850,6 +1011,23 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         mStreamBlock.flags |= H264_DetectFrameTypeForHisi(
             mStreamBlock.data + 4, mStreamBlock.dataSize - 4);
 #endif
+    }
+    if (mFourcc == AV_FOURCC_AAC && mOutputAdts) {
+        XPR_AudioMeta* meta = reinterpret_cast<XPR_AudioMeta*>(mMeta);
+        if (meta) {
+            mStreamBlock.data -= 7;
+            mStreamBlock.dataSize += 7;
+            generateAdtsHeader(
+                meta->profile, meta->sampleRateIndex, 0, meta->channelConfig, 0,
+                0, 0, 0, mStreamBlock.dataSize, 0x7ff, 0, mStreamBlock.data);
+#if 0
+            uint8_t* p = mStreamBlock.data;
+            DBG(DBG_L4,
+                "XPR_RTSP: DummySink(%p): hex dump: [%02X %02X %02X %02X %02X "
+                "%02X %02X]",
+                this, p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
+#endif
+        }
     }
 
     if (mFrameMerger) {
@@ -887,16 +1065,26 @@ Boolean DummySink::continuePlaying()
         return False; // sanity check (should not happen)
     }
 
-    // Pre-Buffered start code for H264
-    mBuffer[0] = 0x00;
-    mBuffer[1] = 0x00;
-    mBuffer[2] = 0x00;
-    mBuffer[3] = 0x01;
+    size_t offset = 0;
+
+    // Pre-Buffered start code for H264,H265
+    if (mFourcc == AV_FOURCC_H264 || mFourcc == AV_FOURCC_H265) {
+        mBuffer[0] = 0x00;
+        mBuffer[1] = 0x00;
+        mBuffer[2] = 0x00;
+        mBuffer[3] = 0x01;
+        offset = 4;
+    }
+
+    // Fill extra header for AAC
+    if (mFourcc == AV_FOURCC_AAC && mOutputAdts > 0) {
+        offset = 7;
+    }
 
     // Request the next frame of data from our input source.
     // "afterGettingFrame()" will get called later, when it arrives:
-    fSource->getNextFrame(mBuffer + 4, mMaxFrameSize - 4, afterGettingFrame,
-                          this, onSourceClosure, this);
+    fSource->getNextFrame(mBuffer + offset, mMaxFrameSize - offset,
+                          afterGettingFrame, this, onSourceClosure, this);
 
     return True;
 }
@@ -914,6 +1102,7 @@ Connection::Connection(int id, Port* parent)
     , mUseFrameMerger(false)
     , mAutoRestart(false)
     , mRestartDelay(5000000)
+    , mOutputFormats()
 {
     DBG(DBG_L5, "XPR_RTSP: Connection::Connection(%d, %p) = %p", id, parent,
         this);
@@ -1169,6 +1358,9 @@ void Connection::configConnection(const char* key, const char* value)
     else if (strcmp(key, "restartDelay") == 0) {
         mRestartDelay = strtol(value, NULL, 10);
     }
+    else if (strcmp(key, "outputFormats") == 0) {
+        mOutputFormats.assign(value);
+    }
     else {
         DBG(DBG_L4,
             "XPR_RTSP: Connection(%p): configuration: \"%s\" unsupported.",
@@ -1186,6 +1378,7 @@ int Connection::startInTask(int port)
         mClient->setConnectTiemout(mConTimeout);
         mClient->setReceiveTimeout(mRxTimeout);
         mClient->setUseFrameMerger(mUseFrameMerger);
+        mClient->setOutputFormats(mOutputFormats);
         // Prepare the timestamp for timeout detection
         mClient->updateLATS();
         // Send DESCRIBE command first
