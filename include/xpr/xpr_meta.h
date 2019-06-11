@@ -16,8 +16,11 @@ typedef struct XPR_AudioMeta XPR_AudioMeta;
 struct XPR_AudioMeta {
     uint32_t bitrate;
     uint8_t bitsPerSample;
+    uint8_t channelConfig;
     uint8_t numOfChannels;
+    uint8_t profile;
     uint32_t samplingFrequency;
+    uint8_t sampleRateIndex;
 };
 
 #ifdef __cplusplus
