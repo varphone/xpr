@@ -1142,13 +1142,13 @@ int Connection::open(int port, const char* url)
     // rtsp://host[:port]/path[?query][??ext-query]
     std::string str(url);
     std::string extQuery;
-    size_t pos = str.find_last_of("??");
+    size_t pos = str.rfind("??");
     if (pos == std::string::npos) {
         mUrl = str;
     }
     else {
-        mUrl = str.substr(0, pos-1);
-        extQuery = str.substr(pos+1);
+        mUrl = str.substr(0, pos);
+        extQuery = str.substr(pos+2);
     }
     // 使用 extQuery 参数来配置
     configConnection(extQuery.c_str());
