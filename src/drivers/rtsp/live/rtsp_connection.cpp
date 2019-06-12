@@ -562,7 +562,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     , mClient(client)
     , mSubsession(subsession)
     , mFrameMerger(nullptr)
-    , mOutputAdts(true)
+    , mOutputAdts(false)
     , mBuffer(nullptr)
     , mMaxFrameSize(64512)
     , mFourcc(0)
@@ -1077,7 +1077,7 @@ Boolean DummySink::continuePlaying()
     }
 
     // Fill extra header for AAC
-    if (mFourcc == AV_FOURCC_AAC && mOutputAdts > 0) {
+    if (mFourcc == AV_FOURCC_AAC && mOutputAdts) {
         offset = 7;
     }
 
