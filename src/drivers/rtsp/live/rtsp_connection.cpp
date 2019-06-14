@@ -634,12 +634,15 @@ DummySink::~DummySink()
     DBG(DBG_L5, "XPR_RTSP: DummySink::~DummySink(%p)", this);
     if (mFrameMerger) {
         delete mFrameMerger;
+        mFrameMerger = nullptr;
     }
     if (mBuffer) {
-        delete mBuffer;
+        delete [] mBuffer;
+        mBuffer = nullptr;
     }
     if (mMeta) {
         free(mMeta);
+        mMeta = nullptr;
     }
 }
 
