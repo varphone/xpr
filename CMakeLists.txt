@@ -69,7 +69,7 @@ endif()
 
 # Setup project informations
 project(xpr
-    VERSION 2.2.5
+    VERSION 2.2.6
     LANGUAGES C CXX
 )
 
