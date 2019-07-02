@@ -151,6 +151,9 @@
 // XPR_THREAD
 #cmakedefine HAVE_XPR_THREAD 1
 
+// XPR_TIMER
+#cmakedefine HAVE_XPR_TIMER 1
+
 // XPR_UPS
 #cmakedefine HAVE_XPR_UPS
 

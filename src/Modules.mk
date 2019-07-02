@@ -59,6 +59,7 @@ XPR_STREAMBLOCK=$(XPR_ALL)
 XPR_SYNC=$(XPR_ALL)
 XPR_SYS=$(XPR_ALL)
 XPR_THREAD=$(XPR_ALL)
+XPR_TIMER=$(XPR_ALL)
 XPR_UPS=$(XPR_ALL)
 XPR_URL=$(XPR_ALL)
 XPR_UTILS=$(XPR_ALL)
@@ -275,6 +276,12 @@ endif
 ###############################################################################
 ifeq ($(XPR_THREAD),y)
 libxpr_SRCS += xpr_thread.c xpr_thread_unix.c
+endif
+
+# Timer
+###############################################################################
+ifeq ($(XPR_TIMTER),y)
+libxpr_SRCS += xpr_timer_unix.c
 endif
 
 # Universal Preference Settings framework
