@@ -117,6 +117,11 @@ if(HAVE_XPR_JSON)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_json.h)
 endif()
 
+if(HAVE_XPR_LIST)
+    list(APPEND SOURCES xpr_list.c)
+    list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_list.h)
+endif()
+
 if(HAVE_XPR_MCDEC)
     list(APPEND SOURCES xpr_mcdec.c)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_mcdec.h)

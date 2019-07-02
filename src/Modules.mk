@@ -41,6 +41,7 @@ XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
 XPR_H264=$(XPR_ALL)
 XPR_ICMP=$(XPR_ALL)
 XPR_JSON=$(XPR_ALL)
+XPR_LIST=$(XPR_ALL)
 XPR_MCDEC=$(XPR_ALL)
 XPR_MD5=$(XPR_ALL)
 XPR_MEM=$(XPR_ALL)
@@ -193,6 +194,12 @@ deps/jansson/strconv.c \
 deps/jansson/utf.c \
 deps/jansson/value.c \
 xpr_json.c
+endif
+
+# List
+###############################################################################
+ifeq ($(XPR_LIST),y)
+libxpr_SRCS += xpr_list.c
 endif
 
 # MCDEC

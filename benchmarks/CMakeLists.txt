@@ -1,5 +1,10 @@
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+if(HAVE_XPR_LIST)
+add_executable(list-basic benchmark.c list-basic.c)
+target_link_libraries(list-basic xpr -lpthread)
+endif()
+
 if(HAVE_XPR_RTSP)
 add_executable(rtsp-conn-open-close benchmark.c rtsp-conn-open-close.c)
 target_link_libraries(rtsp-conn-open-close xpr -lpthread)
