@@ -174,6 +174,13 @@ XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare);
 
+/// Take the element out from the list and not free the memory.
+/// \param [in] list        The list to access.
+/// \param [in] node        The element to taked.
+/// \retval XPR_ERR_OK      Success.
+/// \retval XPR_ERR_ERROR   Undefined error.
+XPR_API int XPR_ListTake(XPR_List* list, void* node);
+
 /*! \example
 #include <xpr/xpr_list.h>
 #include <xpr/xpr_mem.h>

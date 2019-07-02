@@ -144,6 +144,22 @@ static void slnSort(XPR_ListNode** head, XPR_ListNodeCompare compare,
     }
 }
 
+static int slnTake(XPR_ListNode** head, XPR_ListNode* node)
+{
+    XPR_ListNode* temp = NULL;
+    while (*head) {
+        if (*head == node) {
+            *head = node->next;
+            node->next = NULL;
+            node = NULL;
+            break;
+        }
+        temp = *head;
+        head = &temp->next;
+    }
+    return node == NULL ? XPR_ERR_OK : XPR_ERR_GEN_UNEXIST;
+}
+
 static int slistAppend(XPR_List* list, XPR_ListNode* node)
 {
     node->next = NULL;
@@ -433,6 +449,24 @@ XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare)
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         slnSort(&list->head, compare, 0);
+        break;
+    default:
+        err = XPR_ERR_GEN_NOT_SUPPORT;
+        break;
+    }
+    XPR_MutexUnlock(&list->mutex);
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_ListTake(XPR_List* list, void* node)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
+    XPR_MutexLock(&list->mutex);
+    switch (list->type) {
+    case XPR_LIST_SINGLY_LINKED:
+        err = slnTake(&list->head, node);
         break;
     default:
         err = XPR_ERR_GEN_NOT_SUPPORT;
