@@ -96,6 +96,12 @@ XPR_API XPR_List* XPR_ListCreate(XPR_ListType type, XPR_ListNodeAlloc alloc,
 /// \return
 XPR_API void XPR_ListDestroy(XPR_List* list);
 
+/// Free a standalone element.
+/// \param [in] list        The list to reference.
+/// \param [in] node        The node to free.
+/// \sa #XPR_ListTake, #XPR_ListTakeNl
+XPR_API void XPR_ListFree(XPR_List* list, void* node);
+
 /// Append pre-allocated element to list, the owner transfer to the list.
 /// \param [in] list        The list to add.
 /// \param [in] node        The pre-allocated element.

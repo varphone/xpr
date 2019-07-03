@@ -229,6 +229,14 @@ XPR_API void XPR_ListDestroy(XPR_List* list)
     XPR_Free(list);
 }
 
+XPR_API void XPR_ListFree(XPR_List* list, void* node)
+{
+    if (!list || !node)
+        return;
+    if (list->free)
+        list->free(node);
+}
+
 XPR_API int XPR_ListAppend(XPR_List* list, void* node)
 {
     if (!list || !node)
