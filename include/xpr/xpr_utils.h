@@ -1,4 +1,23 @@
-﻿#ifndef XPR_UTILS_H
+﻿/*
+ * File: xpr_utils.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 杂项辅助接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:28:28 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_UTILS_H
 #define XPR_UTILS_H
 
 #include <stdint.h>
@@ -25,13 +44,13 @@
 #define DBG_L9  9
 
 #if (defined(DEBUG) || defined(_DEBUG)) && !defined(DBG_LEVEL)
-#define DBG_LEVEL		DBG_L5
+#define DBG_LEVEL       DBG_L5
 #endif
 
 #ifdef DBG_LEVEL
 #define ASSERT(x)       do { if (!(x)) xpr_debug_break(); } while (0)
 #define ASSERT_PTR(x)   do { if (!(x) || !(((uintptr_t)(x)) & 0xffff0000)) xpr_debug_break(); } while (0)
-#define DBG				xpr_dbg_printf
+#define DBG             xpr_dbg_printf
 #else
 #define ASSERT(x)                   do { } while (0)
 #define ASSERT_PTR(x)               do { } while (0)
@@ -95,8 +114,8 @@ XPR_API const char* xpr_get_next_line(const char** sp);
 /// @param [in] opaque  回调函数关联数据
 /// return 无
 XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
-						   void (*filter)(void* opaque, char* segment),
-						   void* opaque);
+                           void (*filter)(void* opaque, char* segment),
+                           void* opaque);
 
 // IntRange
 //==============================================================================
@@ -121,8 +140,8 @@ XPR_API char* XPR_IntRangeToString(XPR_IntRange rng);
 /// @param [in] buffer  Buffer to save packed data
 /// @param [in] size    Buffer size
 /// @return bytes of packed data
-XPR_API int XPR_PackBits(unsigned char* data, int length,
-				         unsigned char* buffer, int size);
+XPR_API int XPR_PackBits(unsigned char* data, int length, unsigned char* buffer,
+                         int size);
 
 /// @brief PackBits decode
 /// @param [in] data    Packed data
@@ -131,7 +150,7 @@ XPR_API int XPR_PackBits(unsigned char* data, int length,
 /// @param [in] size    Buffer size
 /// @return bytes of unpacked data
 XPR_API int XPR_UnPackBits(unsigned char* data, int length,
-				           unsigned char* buffer, int size);
+                           unsigned char* buffer, int size);
 
 // Rect
 //==============================================================================
@@ -155,7 +174,8 @@ typedef struct XPR_Rect {
 /// @param [in,out] size    接收 URI 编码后的字符串的缓冲区长度, 且用于返回编码后的字符串字节数
 /// @return 返回编码后的字符串地址, 当 buffer = NULL 时, 返回的是动态分配的内存地址
 /// @note 当使用 buffer = NULL 方式的返回值时, 需要在返回值不再使用调用 XPR_Free() 来释放其所分配的资源
-XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, int* size);
+XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer,
+                              int* size);
 
 /// @brief URI 解码
 /// @param [in] uri         要进行 URI 解码的字符串
@@ -164,39 +184,54 @@ XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, in
 /// @param [in,out] size    接收 URI 解码后的字符串的缓冲区长度, 且用于返回解码后的字符串字节数
 /// @return 返回解码后的字符串地址, 当 buffer = NULL 时, 返回的是动态分配的内存地址
 /// @note 当使用 buffer = NULL 方式的返回值时, 需要在返回值不再使用调用 XPR_Free() 来释放其所分配的资源
-XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer, int* size);
+XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer,
+                               int* size);
 
 // Unicode
 //==============================================================================
-XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf16, int* size);
+XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length,
+                                 uint16_t* utf16, int* size);
 
-XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* utf16, int* size);
+XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length,
+                                   uint16_t* utf16, int* size);
 
-XPR_API uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length, uint16_t* utf16, int* size);
+XPR_API uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length,
+                                   uint16_t* utf16, int* size);
 
-XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf32, int* size);
+XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length,
+                                 uint32_t* utf32, int* size);
 
-XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* utf32, int* size);
+XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length,
+                                   uint32_t* utf32, int* size);
 
-XPR_API uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length, uint32_t* utf32, int* size);
+XPR_API uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length,
+                                   uint32_t* utf32, int* size);
 
 XPR_API int XPR_UTF8_GetChars(const uint8_t* utf8, int length);
 
-XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs, int* size);
+XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs,
+                                  int* size);
 
-XPR_API uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length,
+                                uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_UTF16BE_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF16BE_UTF8(const uint16_t* utf16, int length,
+                                  uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_UTF16LE_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF16LE_UTF8(const uint16_t* utf16, int length,
+                                  uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length,
+                                uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_UTF32BE_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF32BE_UTF8(const uint32_t* utf32, int length,
+                                  uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_UTF32LE_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_UTF32LE_UTF8(const uint32_t* utf32, int length,
+                                  uint8_t* utf8, int size);
 
-XPR_API uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8, int size);
+XPR_API uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8,
+                                  int size);
 
 // Byte Order Marker
 //==============================================================================
@@ -239,4 +274,3 @@ XPR_API int XPR_TemplateGetSpaceSize(XPR_Template* tmpl);
 #endif
 
 #endif // XPR_UTILS_H
-

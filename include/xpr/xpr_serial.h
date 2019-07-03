@@ -1,4 +1,23 @@
-﻿#ifndef XPR_SERIAL_H
+﻿/*
+ * File: xpr_serial.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 串口操作
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2017-05-10 07:22:04 Wednesday, 10 May
+ * Last Modified : 2019-07-03 04:39:40 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_SERIAL_H
 #define XPR_SERIAL_H
 
 #include <stdio.h>

@@ -1,22 +1,26 @@
-﻿#ifndef XPR_ERRNO_H
+﻿/*
+ * File: xpr_errno.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 错误代码
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:18:01 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_ERRNO_H
 #define XPF_ERRNO_H
 
 #include <stdint.h>
-
-/// @defgroup xprerrno 错误代码 
-/// @brief     错误代码定义
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/4/1
-///
-/// @{
-///
-
-/// @page xprerrno-changes 变更日志
-///
-/// @par 1.0.0 (2012/12/20)
-///   - 初始版本建立
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,8 +30,6 @@ extern "C" {
 
 #ifndef XPR_ERRORLEVEL_TYPE_DEFINED
 #define XPR_ERRORLEVEL_TYPE_DEFINED
-/// @ingroup xprerrno
-/// @brief 错误等级
 ///
 ///   定义错误等级，值越大表示错误越致命
 ///
@@ -46,8 +48,6 @@ typedef enum XPR_ErrorLevel {
 
 #ifndef XPR_MODULEID_TYPE_DEFINED
 #define XPR_MODULEID_TYPE_DEFINED
-/// @ingroup xprerrno
-/// @brief 模块编号
 ///
 ///   定义每个内置模块的编号
 ///
@@ -61,7 +61,6 @@ typedef enum XPR_ModuleId {
 /// @brief 检测是否错误返回值
 #define XPR_IS_ERROR(e)		((e) & 0x80000000)
 
-/// @ingroup xprerrno
 /// @brief 定义错误代码
 /// @param module       模块编号, see [#XPR_ModuleId]
 /// @param level        错误等级, see [#XPR_ErrorLevel]
@@ -76,7 +75,6 @@ typedef enum XPR_ModuleId {
 
 #ifndef XPR_ERRORCODE_TYPE_DEFINED
 #define XPR_ERRORCODE_TYPE_DEFINED
-/// @ingroup xprerrno
 /// @brief 错误代码
 ///
 ///   下面定义的为通用错误号，每个模块都有这些错误，具体的可以需要那些就定义那些
@@ -207,8 +205,5 @@ typedef enum XPR_ErrorCode {
 #ifdef __cplusplus
 }
 #endif
-
-/// @}
-///
 
 #endif //XPR_ERRNO_H

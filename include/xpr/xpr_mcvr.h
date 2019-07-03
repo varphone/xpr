@@ -1,77 +1,37 @@
-﻿#ifndef XPR_MCVR_H
+﻿/*
+ * File: xpr_mcvr.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 多通道视频渲染接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-11-25 11:25:25 Friday, 25 November
+ * Last Modified : 2019-07-03 05:01:04 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_MCVR_H
 #define XPR_MCVR_H
 
 #include <stddef.h>
-#include "xpr_common.h"
-#include "xpr_avframe.h"
-#include "xpr_streamblock.h"
-
-
-/// @defgroup xpr-mcvr 多通道视频渲染器库
-/// @brief Multiple Channel Video Renderer library.
-/// @author Shower Young [yfh@pingfon.com]
-/// @version 4.1.6
-/// @date 2014/5/21
-///
-/// @{
-///
-
-/// @defgroup xpr-mcvr-changes 变更日志
-/// @{
-///
-/// @par 4.1.6 (2014/5/21)
-/// - 以宏的方式替代被外部间接调用的接口函数
-///
-/// @par 4.1.5 (2014/5/13)
-/// - 增加XPR_MCVR_SetRate接口
-///
-/// @par 4.1.4 (2014/4/25)
-///   - 增加XPR_MCVR_GetStringState接口
-///
-/// @par 4.1.3 (2014/4//24)
-///   - 删除XPR_MCVR_BindCamera接口
-///
-/// @par 4.1.2 (2014/4/11)
-///   - 增加XPR_MCVR_GetRenderLevel接口
-///   - 增加XPR_MCVR_GetTitleFlag接口
-///   - 增加XPR_MCVR_ResetStateString接口
-///   - 增加XPR_MCVR_GetAlarmFlag接口
-///   - 增加XPR_MCVR_SetChannelState, XPR_MCVR_GetChannelState接口
-///   - 增加XPR_MCVR_GetRendererType接口
-///   - 增加XPR_MCVR_Snapshot接口
-///   - 增加XPR_MCVR_GetVideoSize接口
-///   - 增加XPR_MCVR_SetAspectRatio, XPR_MCVR_GetAspectRatio接口
-///   - 增加XPR_MCVR_SetScale, XPR_MCVR_GetScale接口
-///
-/// @par 4.1.1 (2014/4/10)
-///   - 增加XPR_MCVR_GetCurrentPort, XPR_MCVR_SetAlarmFlag接口
-///   - 增加XPR_MCVR_EventCallback声明
-///   - 增加XPR_MCVR_AddEventCallback, XPR_MCVR_DelEventCallback接口
-///   - 增加XPR_MCVR_AttachEvent, XPR_MCVR_DetachEvent接口
-///   - 增加XPR_MCVR_AttachAllEvents, XPR_MCVR_DetachAllEvents接口
-///   - 增加XPR_MCVR_SetRenderLevel, XPR_MCVR_SetTitleFlag接口
-///
-/// @par 4.1 (2014/4/4)
-///   - 增加XPR_MCVR_BindCamera接口
-///
-/// @par 4.0 (2014/2/19)
-///   - 初始版本建立
-///
-/// @}
-///
+#include <xpr/xpr_avframe.h>
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_streamblock.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define XPR_MCVR_PORT(major, minor) (((major)<<16)|(minor))
 #define XPR_MCVR_PORT_MAJOR(port)   (((port)>>16) & 0xffff)
 #define XPR_MCVR_PORT_MINOR(port)   ((port) & 0xffff)
-
-/// @addtogroup xpr-mcvr-enums 枚举类型
-/// @{
-///
 
 /// 错误码
 typedef enum XPR_MCVR_ErrorCode {
@@ -198,13 +158,6 @@ typedef enum XPR_MCVR_OptimizeLevel {
 	XPR_MCVR_OPTIMIZE_REDUCING = 2,
 } XPR_MCVR_OptimizeLevel;
 
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-init 库初始化
-/// @{
-///
-
 /// @brief 初始化渲染器实例，每个播放库对应一个渲染器实例
 /// @param [in] hwnd 主窗口句柄
 /// @param [in] type 渲染器类型，参加 #XPR_MCVR_RendererType
@@ -220,13 +173,6 @@ int XPR_MCVR_Fini(void);
 /// @return 当前视频渲染器类型
 XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
 
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-set-port 绑定、划分通道及摄像机属性
-/// @{
-///
-
 /// @brief 绑定窗口与主通道号
 /// @param [in] port    主通道号 0x0001~0x0100
 /// @param [in] hwnd    窗口句柄，NULL为删除主通道
@@ -235,13 +181,6 @@ XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
 /// @retval 1 成功
 /// @retval 0 失败
 int XPR_MCVR_BindWindow(int port, void* hwnd, int rows, int cols);
-
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-ctrl 渲染控制
-/// @{
-///
 
 /// @brief 向指定通道输入图像数据
 /// @param [in] port       通道号（包含主通道号及子通道号）
@@ -307,9 +246,9 @@ int XPR_MCVR_GetVideoSize(int port, int *width, int *height);
 /// @par 宽高比定义
 /// Value                                | Description
 /// -------------------------------------|------------------
-/// XPR_MCVR_ASPECT_RATIO_ORIGINAL(0.0) | 保持视频原有宽高比
+/// XPR_MCVR_ASPECT_RATIO_ORIGINAL(0.0)  | 保持视频原有宽高比
 /// 0.001 ~ 10.000                       | 指定宽高比
-/// XPR_MCVR_ASPECT_RATIO_TILED(100.0)  | 铺满区域
+/// XPR_MCVR_ASPECT_RATIO_TILED(100.0)   | 铺满区域
 /// @retval 1 成功
 /// @retval 0 失败
 int XPR_MCVR_SetAspectRatio(float ratio);
@@ -337,13 +276,6 @@ float XPR_MCVR_GetScale(int port);
 /// @retval 1 成功
 /// @retval 0 失败
 int XPR_MCVR_SetRate(int port, float rate);
-
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-set-state 设置状态
-/// @{
-///
 
 /// @brief 设置渲染级别
 /// @param [in] level 渲染级别，参见 #XPR_MCVR_RenderLevel
@@ -381,8 +313,8 @@ int XPR_MCVR_SetStrings(int port, XPR_MCVR_StringType type, char **strings, int 
 /// @retval 1 成功
 /// @retval 0 失败
 /// @par 字符串类型及状态有效组合定义
-/// State                         |XPR_MCVR_STRING_TYPE_TITLE | XPR_MCVR_STRING_TYPE_HINT 
-/// ------------------------------|----------------------------|---------------------------
+/// State                        | XPR_MCVR_STRING_TYPE_TITLE | XPR_MCVR_STRING_TYPE_HINT 
+/// -----------------------------|----------------------------|---------------------------
 /// XPR_MCVR_STRING_STATE_HIDE   | Valid (Port is invalid)    | Valid (Port is invalid)
 /// XPR_MCVR_STRING_STATE_SHOW   | Valid (Port is invalid)    | Valid (Port is invalid)
 /// XPR_MCVR_STRING_STATE_SHOW_1 | Invalid                    | Valid (Port is Valid)
@@ -390,8 +322,8 @@ int XPR_MCVR_SetStrings(int port, XPR_MCVR_StringType type, char **strings, int 
 /// XPR_MCVR_STRING_STATE_SHOW_3 | Invalid                    | Valid (Port is Valid)
 /// XPR_MCVR_STRING_STATE_SHOW_4 | Invalid                    | Valid (Port is Valid)
 /// @par 多项式字符串状态对应 #XPR_MCVR_STRING_TYPE_HINT类型的定义
-/// String State                  | Camera State
-/// ------------------------------|---------------------
+/// String State                 | Camera State
+/// -----------------------------|---------------------
 /// XPR_MCVR_STRING_STATE_SHOW_1 | No Device
 /// XPR_MCVR_STRING_STATE_SHOW_2 | Buffering
 /// XPR_MCVR_STRING_STATE_SHOW_3 | Disconnected
@@ -407,13 +339,6 @@ XPR_MCVR_StringState XPR_MCVR_GetStringState(int port, XPR_MCVR_StringType type)
 /// @brief 获得当前选中通道号
 /// @return 当前通道号
 int XPR_MCVR_GetCurrentPort(void);
-
-/// @}
-///
-
-/// @addtogroup xdplayer-effect 视频效果
-/// @{
-///
 
 /// @brief 设置通道指定效果类型的值
 /// @param [in] port   通道号
@@ -443,13 +368,6 @@ int XPR_MCVR_GetEffect(int port, XPR_MCVR_EffectType effect);
 /// @return 效果值
 float XPR_MCVR_GetEffectF(int port, XPR_MCVR_EffectType effect);
 
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-events
-/// @{
-///
-
 /// @brief 事件回调函数定义
 /// @param [in] ev   事件类型
 /// @param [in] user 用户关联数据
@@ -458,12 +376,13 @@ float XPR_MCVR_GetEffectF(int port, XPR_MCVR_EffectType effect);
 /// @retval 1 成功
 /// @retval 0 失败
 /// @par 附带数据定义
-///   Event Type           | Data type | Range                 | Description
-///   ---------------------|-----------|-----------------------|-----------
+///   Event Type            | Data type | Range                 | Description
+///   ----------------------|-----------|-----------------------|-----------
 ///   XPR_MCVR_LEFT_CLICK   | int*      | Depends               | 点击坐标，低字为X坐标，高字为Y坐标
 ///   XPR_MCVR_RIGHT_CLICK  | int*      | Depends               | 点击坐标，低字为X坐标，高字为Y坐标
 ///   XPR_MCVR_LEFT_DBCLICK | int*      | Depends               | 点击坐标，低字为X坐标，高字为Y坐标
-typedef int (*XPR_MCVR_EventCallback)(XPR_MCVR_EventType ev, void *user, int port, const void *data);
+typedef int (*XPR_MCVR_EventCallback)(XPR_MCVR_EventType ev, void* user,
+                                      int port, const void* data);
 
 /// @brief 注册事件回调函数
 /// @param [in] callback 事件回调函数
@@ -510,13 +429,6 @@ int XPR_MCVR_DetachEvent(XPR_MCVR_EventType ev);
 /// @sa XPR_MCVR_AttachAllEvents()
 int XPR_MCVR_DetachAllEvents(void);
 
-/// @}
-///
-
-/// @addtogroup xpr-mcvr-error 错误信息
-/// @{
-///
-
 /// @brief  获得最新错误码
 /// @return 当前错误码，参加 #_XPR_MCVR_ErrorType
 int XPR_MCVR_GetLastError(void); 
@@ -529,14 +441,8 @@ char *XPR_MCVR_GetErrorString(void);
 /// @return 当前错误字符串(调用者需要释放该字符串资源)(XPR_Free或XPR_Feeep)
 wchar_t *XPR_MCVR_GetErrorStringW(void);
 
-/// @}
-///
-
 #ifdef __cplusplus
 }
 #endif
-
-/// @}
-///
 
 #endif // XPR_MCVR

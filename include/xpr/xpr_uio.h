@@ -1,4 +1,23 @@
-﻿#ifndef XPR_UIO_H
+﻿/*
+ * File: xpr_uio.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Universal IO 接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-11-25 11:20:21 Friday, 25 November
+ * Last Modified : 2019-07-03 04:33:42 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_UIO_H
 #define XPR_UIO_H
 
 #include <stdint.h>

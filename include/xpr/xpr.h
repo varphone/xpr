@@ -1,3 +1,22 @@
+﻿/*
+ * File: xpr.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 跨平台运行库
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-12-13 10:39:16 Tuesday, 13 December
+ * Last Modified : 2019-07-03 05:42:54 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_XPR_H
 #define XPR_XPR_H
 
@@ -64,6 +83,10 @@
 #include "xpr_file.h"
 #endif /* HAVE_XPR_FILE */
 
+#ifdef HAVE_XPR_FQ
+#include "xpr_fq.h"
+#endif /* HAVE_XPR_FQ */
+
 #ifdef HAVE_XPR_GPIO
 #include "xpr_GPIO.h"
 #endif /* HAVE_XPR_GPIO */
@@ -79,6 +102,10 @@
 #ifdef HAVE_XPR_JSON
 #include "xpr_json.h"
 #endif /* HAVE_XPR_JSON */
+
+#ifdef HAVE_XPR_LIST
+#include "xpr_list.h"
+#endif /* HAVE_XPR_LIST */
 
 #ifdef HAVE_XPR_MCDEC
 #include "xpr_mcdec.h"
@@ -96,6 +123,10 @@
 #include "xpr_mem.h"
 #endif /* HAVE_XPR_MEM */
 
+#ifdef HAVE_XPR_META
+#include "xpr_meta.h"
+#endif /* HAVE_XPR_META */
+
 #ifdef HAVE_XPR_ONVIF
 #include "xpr_onvif.h"
 #endif /* HAVE_XPR_ONVIF */
@@ -107,6 +138,10 @@
 #ifdef HAVE_XPR_PES
 #include "xpr_pes.h"
 #endif /* HAVE_XPR_PES */
+
+#ifdef HAVE_XPR_PLUGIN
+#include "xpr_plugin.h"
+#endif /* HAVE_XPR_PLUGIN */
 
 #ifdef HAVE_XPR_RTSP
 #include "xpr_rtsp.h"
@@ -135,6 +170,10 @@
 #ifdef HAVE_XPR_THREAD
 #include "xpr_thread.h"
 #endif /* HAVE_XPR_THREAD */
+
+#ifdef HAVE_XPR_TIMER
+#include "xpr_timer.h"
+#endif /* HAVE_XPR_TIMER */
 
 #ifdef HAVE_XPR_UIO
 #include "xpr_uio.h"

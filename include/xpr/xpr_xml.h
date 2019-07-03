@@ -1,4 +1,23 @@
-﻿#ifndef XPR_XML_H
+﻿/*
+ * File: xpr_xml.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * XML 文档读写接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:22:36 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_XML_H
 #define XPR_XML_H
 
 #include <stdint.h>
@@ -88,7 +107,8 @@ XPR_API char* XPR_XML_GetName(XPR_XML_Node* node, char* buffer, int size);
 XPR_API char* XPR_XML_GetContent(XPR_XML_Node* node, char* buffer, int* size);
 XPR_API void XPR_XML_SetContent(XPR_XML_Node* node, char* content);
 
-XPR_API XPR_XML_Node* XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name, int nth);
+XPR_API XPR_XML_Node* XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name,
+                                       int nth);
 XPR_API int XPR_XML_GetNodesNB(XPR_XML_Node* node, int type);
 
 XPR_API XPR_XML_Node* XPR_XML_GetAttr(XPR_XML_Node* node, char* name, int nth);
@@ -145,10 +165,12 @@ XPR_API int XPR_XML_GetNodePosition(XPR_XML_Node* node);
 /// @return 无
 XPR_API void XPR_XML_Release(void* data);
 
-XPR_API XPR_XML_Node* XPR_XML_AddNode(XPR_XML_Node* parent, int position, int type, char* name, char* value);
+XPR_API XPR_XML_Node* XPR_XML_AddNode(XPR_XML_Node* parent, int position,
+                                      int type, char* name, char* value);
 XPR_API void XPR_XML_DelNode(XPR_XML_Node* node);
 
-XPR_API int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer, int human);
+XPR_API int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer,
+                                  int human);
 
 XPR_API void XPR_XML_Dump(XPR_XML_Node* node);
 
@@ -178,7 +200,8 @@ XPR_API int XPR_XML_XGetNodeNB(XPR_XML_Node* node, char* path);
 /// @retval XPR_ERR_OK      获取成功
 /// @retval XPR_ERR_ERROR   获取失败
 /// @sa XPR_XML_XGetInt()
-XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char* buffer, int* size);
+XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth,
+                                  char* buffer, int* size);
 
 ///
 /// 通过 XPath 获取指定节点内容, 并将内容转为 int 数值
@@ -206,7 +229,8 @@ XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char*
 /// }
 /// @endcode
 ///
-XPR_API int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth, int* value);
+XPR_API int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth,
+                            int* value);
 
 ///
 /// 通过 XPath 获取指定节点内容, 并将内容转为 int64_t 数值
@@ -218,7 +242,8 @@ XPR_API int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth, int* value)
 /// @retval XPR_ERR_OK      获取成功
 /// @retval XPR_ERR_ERROR   获取失败
 /// @sa XPR_XML_XGetInt()
-XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* value);
+XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth,
+                              int64_t* value);
 
 ///
 /// 通过 XPath 获取指定节点内容, 并将内容转为 float 数值
@@ -230,7 +255,8 @@ XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* 
 /// @retval XPR_ERR_OK      获取成功
 /// @retval XPR_ERR_ERROR   获取失败
 /// @sa XPR_XML_XGetInt()
-XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* value);
+XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth,
+                              float* value);
 
 ///
 /// 通过 XPath 获取指定节点内容, 并将内容转为 double 数值
@@ -242,7 +268,8 @@ XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* va
 /// @retval XPR_ERR_OK      获取成功
 /// @retval XPR_ERR_ERROR   获取失败
 /// @sa XPR_XML_XGetInt()
-XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* value);
+XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth,
+                               double* value);
 
 ///
 /// 通过 XPath 获取指定节点内容, 并将内容转为 boolean 数值
@@ -254,11 +281,11 @@ XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* 
 /// @retval XPR_ERR_OK      获取成功
 /// @retval XPR_ERR_ERROR   获取失败
 /// @sa XPR_XML_XGetInt()
-XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth, int* value);
+XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth,
+                                int* value);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // XPR_XML_H
-

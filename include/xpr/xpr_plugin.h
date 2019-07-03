@@ -1,10 +1,24 @@
+﻿/*
+ * File: xpr_plugin.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 插件框架接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:49:36 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_PLUGIN_H
 #define XPR_PLUGIN_H
-
-/// @defgroup xprplugin 插件框架
-/// @brief 用于 XPR 的插件框架
-/// @{
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,14 +125,11 @@ int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer, int* size);
 /// @param [in] size        Data size
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data, int size);
+int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data,
+                       int size);
 
 #ifdef __cplusplus
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_PLUGIN_H
-

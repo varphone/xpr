@@ -1,36 +1,39 @@
+﻿/*
+ * File: xpr_dpu.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 数据处理单元
+ * 
+ * 处理或提供实时或非实时性各类数据, 如获取或播放音视频 ES 流,
+ * 获取系统各类报警事件等等
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:21:28 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_DPU_H
 #define XPR_DPU_H
 
 #include <stdint.h>
-#include "xpr_common.h"
-#include "xpr_avframe.h"
-#include "xpr_streamblock.h"
-
-/// @defgroup xprdpu 数据处理单元
-/// @brief 数据处理单元
-///
-/// 处理或提供实时或非实时性各类数据, 如获取或播放音视频 ES 流, 获取系统各类报警事件等等
-///
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/12/1
-///
-/// @{
-///
-
-/// @page xprdpu-changes 变更日志
-///
-/// @par 2013/12/1
-///   - Initial version crated
-///
-///
-
-#define XPR_DPU_CTS_UNITS      1000000
-#define XPR_DPU_MAX_CALLBACKS  16
+#include <xpr/xpr_avframe.h>
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_streamblock.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define XPR_DPU_CTS_UNITS      1000000
+#define XPR_DPU_MAX_CALLBACKS  16
 
 // Forwards
 struct XPR_DPU;
@@ -84,8 +87,7 @@ int XPR_DPU_Stop(XPR_DPU* dpu);
 /// @param [in] opaque      User context data
 /// @retval 0   continue
 /// @retval -1  break
-typedef int (*XPR_DPU_AVFrameCallback)(XPR_DPU* dpu,
-                                       const XPR_AVFrame* frame,
+typedef int (*XPR_DPU_AVFrameCallback)(XPR_DPU* dpu, const XPR_AVFrame* frame,
                                        void* opaque);
 
 /// @brief Stream block callback
@@ -104,8 +106,8 @@ typedef int (*XPR_DPU_StreamBlockCallback)(XPR_DPU* dpu,
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_AddAVFrameCallback(XPR_DPU* dpu,
-                               XPR_DPU_AVFrameCallback cb, void* opaque);
+int XPR_DPU_AddAVFrameCallback(XPR_DPU* dpu, XPR_DPU_AVFrameCallback cb,
+                               void* opaque);
 
 /// @brief Add a stream block callback
 /// @param [in] dpu         DPU instance
@@ -113,8 +115,8 @@ int XPR_DPU_AddAVFrameCallback(XPR_DPU* dpu,
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_AddStreamBlockCallback(XPR_DPU* dpu,
-                                   XPR_DPU_StreamBlockCallback cb, void* opaque);
+int XPR_DPU_AddStreamBlockCallback(XPR_DPU* dpu, XPR_DPU_StreamBlockCallback cb,
+                                   void* opaque);
 
 /// @brief Delete an audio/video frame callback
 /// @param [in] dpu         DPU instance
@@ -122,8 +124,8 @@ int XPR_DPU_AddStreamBlockCallback(XPR_DPU* dpu,
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* dpu,
-                                  XPR_DPU_AVFrameCallback cb, void* opaque);
+int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* dpu, XPR_DPU_AVFrameCallback cb,
+                                  void* opaque);
 
 /// @brief Delete a stream block callback
 /// @param [in] dpu         DPU instance
@@ -132,7 +134,8 @@ int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* dpu,
 /// @retval 0   success
 /// @retval -1  failure
 int XPR_DPU_DeleteStreamBlockCallback(XPR_DPU* dpu,
-                                      XPR_DPU_StreamBlockCallback cb, void* opaque);
+                                      XPR_DPU_StreamBlockCallback cb,
+                                      void* opaque);
 
 /// @brief Data process unit event callback
 /// @param [in] dpu         DPU instance
@@ -141,9 +144,8 @@ int XPR_DPU_DeleteStreamBlockCallback(XPR_DPU* dpu,
 /// @retval 0   success
 /// @retval -1  failure
 typedef int (*XPR_DPU_EventCallback)(XPR_DPU* dpu, int event,
-                                    const void* eventData,
-                                    int eventDataSize,
-                                    void* opaque);
+                                     const void* eventData, int eventDataSize,
+                                     void* opaque);
 
 /// @brief Add an event callback
 /// @param [in] dpu         DPU instance
@@ -151,8 +153,8 @@ typedef int (*XPR_DPU_EventCallback)(XPR_DPU* dpu, int event,
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_AddEventCallback(XPR_DPU* dpu,
-                             XPR_DPU_EventCallback cb, void* opaque);
+int XPR_DPU_AddEventCallback(XPR_DPU* dpu, XPR_DPU_EventCallback cb,
+                             void* opaque);
 
 /// @brief Delete an event callback
 /// @param [in] dpu         DPU instance
@@ -160,8 +162,8 @@ int XPR_DPU_AddEventCallback(XPR_DPU* dpu,
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_DeleteEventCallback(XPR_DPU* dpu,
-                                XPR_DPU_EventCallback cb, void* opaque);
+int XPR_DPU_DeleteEventCallback(XPR_DPU* dpu, XPR_DPU_EventCallback cb,
+                                void* opaque);
 
 /// @brief Reference clock callback
 /// @param [in] opaque      User context data
@@ -174,8 +176,8 @@ typedef int64_t (*XPR_DPU_RefClockCallback)(void* opaque);
 /// @param [in] opaque      User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_SetRefClockCallback(XPR_DPU* dpu,
-                                XPR_DPU_RefClockCallback cb, void* opaque);
+int XPR_DPU_SetRefClockCallback(XPR_DPU* dpu, XPR_DPU_RefClockCallback cb,
+                                void* opaque);
 
 /// @brief Get reference clock callback
 /// @param [in] dpu         DPU instance
@@ -183,8 +185,8 @@ int XPR_DPU_SetRefClockCallback(XPR_DPU* dpu,
 /// @param [in] opaque      To obtain User context data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_GetRefClockCallback(XPR_DPU* dpu,
-                                XPR_DPU_RefClockCallback* cb, void** opaque);
+int XPR_DPU_GetRefClockCallback(XPR_DPU* dpu, XPR_DPU_RefClockCallback* cb,
+                                void** opaque);
 
 /// @brief Set current timestamp
 /// @param [in] dpu         DPU instance
@@ -210,8 +212,8 @@ int64_t XPR_DPU_GetSystemCTS(int units);
 /// @param [in] name        Option's name
 /// @param [in] data        Option's value data
 /// @param [in] length      Option's value data length
-int XPR_DPU_SetOption(XPR_DPU* dpu, const char* name,
-                      const void* data, int length);
+int XPR_DPU_SetOption(XPR_DPU* dpu, const char* name, const void* data,
+                      int length);
 
 /// @brief Get option value
 /// @param [in] dpu         DPU instance
@@ -220,8 +222,7 @@ int XPR_DPU_SetOption(XPR_DPU* dpu, const char* name,
 /// @param [in] size        Size of the Buffer to obtain the option value data
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_DPU_GetOption(XPR_DPU* dpu, const char* name,
-                      void* buffer, int* size);
+int XPR_DPU_GetOption(XPR_DPU* dpu, const char* name, void* buffer, int* size);
 
 /// @brief Print all options to stdout
 /// @param [in] dpu         DPU instance
@@ -261,8 +262,5 @@ int XPR_DPU_DeliverStreamBlock(XPR_DPU* ctx, const XPR_StreamBlock* block);
 #ifdef __cplusplus
 }
 #endif
-
-/// @}
-///
 
 #endif // XPR_DPU_H

@@ -1,4 +1,23 @@
-﻿#ifndef XPR_RTSP_H
+﻿/*
+ * File: xpr_rtsp.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * RTSP 服务器及客户端接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-11-25 11:20:21 Friday, 25 November
+ * Last Modified : 2019-07-03 04:44:54 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_RTSP_H
 #define XPR_RTSP_H
 
 #include <stdint.h>
@@ -9,15 +28,14 @@
 extern "C" {
 #endif
 
-
 //==============================================================================
 // PORT 的解析
 //
 // 本库的所有操作都是基于 PORT 来实现, PORT 的意思是端口, 在本库中代表着目标、通道的含义
 // PORT 有 4 部分构成：
-//     major			主目标, 用来区分实例化对象类型, 1 =  RTSP 客户端, 2 = RTSP 服务端
-//     minor(stream)	次目标, 用来指定实例化对象(流)
-//     track			轨道目标, 用来指定实例化对象的流的轨道
+//     major            主目标, 用来区分实例化对象类型, 1 =  RTSP 客户端, 2 = RTSP 服务端
+//     minor(stream)    次目标, 用来指定实例化对象(流)
+//     track            轨道目标, 用来指定实例化对象的流的轨道
 //
 // 例如：
 //     PORT = 0x01000100 = RTSP 客户端实例的第一个目标
@@ -32,10 +50,10 @@ extern "C" {
 //
 //==============================================================================
  
-#define XPR_RTSP_PORT(major, minor, track)				((((major)<<24))|((minor)<<8)|(track))
+#define XPR_RTSP_PORT(major, minor, track)              ((((major)<<24))|((minor)<<8)|(track))
 #define XPR_RTSP_PORT_MAJOR(port)                       (((port)>>24) & 0x0000007f)
 #define XPR_RTSP_PORT_MINOR(port)                       (((port)>>8) & 0x0000ffff)
-#define XPR_RTSP_PORT_STREAM							XPR_RTSP_PORT_MINOR
+#define XPR_RTSP_PORT_STREAM                            XPR_RTSP_PORT_MINOR
 #define XPR_RTSP_PORT_TRACK(port)                       ((port) & 0x000000ff)
 
 #define XPR_RTSP_PORT_MAJOR_ALL                         0x7f
@@ -124,20 +142,20 @@ typedef enum XPR_RTSP_FLAG {
 /// 参数类型定义
 ///
 typedef enum XPR_RTSP_PARAM {
-    XPR_RTSP_PARAM_UNKNOWN,         ///< 未知参数
-    XPR_RTSP_PARAM_CACHE_TIME,      ///< 缓冲时长, 单位为秒
-    XPR_RTSP_PARAM_FOURCC,          ///< 编码格式
-    XPR_RTSP_PARAM_CHANNELS,        ///< 通道数
-    XPR_RTSP_PARAM_SAMPLERATE,      ///< 采样率
-    XPR_RTSP_PARAM_PPS_DATA,        ///< H264 PPS 数据
-    XPR_RTSP_PARAM_SPS_DATA,        ///< H264 SPS 数据
-    XPR_RTSP_PARAM_AUTO_SDP,        ///< 自动检测并生成 SDP
-    XPR_RTSP_PARAM_JPEG_QFACTOR,    ///< JPEG 编码质量, 有效值为 0 ~ 100
-    XPR_RTSP_PARAM_MAX_SESSIONS,    ///< RTSP 服务器对象最大会话数
-	XPR_RTSP_PARAM_H264_ADD_AUD,	///< 添加 H264 AUD 单元
-	XPR_RTSP_PARAM_H264_SINGLE_FRAME, ///< 是否合为单帧输出
-	XPR_RTSP_PARAM_H264_STARTCODE,	///< 是否包含起始码
-	XPR_RTSP_PARAM_H264_SA_SPS_PPS, ///< 是否独立输出 SPS 及 PPS
+    XPR_RTSP_PARAM_UNKNOWN,      ///< 未知参数
+    XPR_RTSP_PARAM_CACHE_TIME,   ///< 缓冲时长, 单位为秒
+    XPR_RTSP_PARAM_FOURCC,       ///< 编码格式
+    XPR_RTSP_PARAM_CHANNELS,     ///< 通道数
+    XPR_RTSP_PARAM_SAMPLERATE,   ///< 采样率
+    XPR_RTSP_PARAM_PPS_DATA,     ///< H264 PPS 数据
+    XPR_RTSP_PARAM_SPS_DATA,     ///< H264 SPS 数据
+    XPR_RTSP_PARAM_AUTO_SDP,     ///< 自动检测并生成 SDP
+    XPR_RTSP_PARAM_JPEG_QFACTOR, ///< JPEG 编码质量, 有效值为 0 ~ 100
+    XPR_RTSP_PARAM_MAX_SESSIONS, ///< RTSP 服务器对象最大会话数
+    XPR_RTSP_PARAM_H264_ADD_AUD, ///< 添加 H264 AUD 单元
+    XPR_RTSP_PARAM_H264_SINGLE_FRAME, ///< 是否合为单帧输出
+    XPR_RTSP_PARAM_H264_STARTCODE,    ///< 是否包含起始码
+    XPR_RTSP_PARAM_H264_SA_SPS_PPS,   ///< 是否独立输出 SPS 及 PPS
     XPR_RTSP_PARAM_MAX,
 } XPR_RTSP_PARAM;
 #endif // XPR_RTSP_PARAM_TYPE_DEFINED
@@ -161,18 +179,18 @@ typedef enum XPR_RTSP_TRSPEC {
 /// 事件数据定义
 ///
 typedef struct XPR_RTSP_EVD {
-    XPR_RTSP_EVT event;      ///< 事件编号, 参见 [XPR_RTSP_EVT]
-    void* data;     ///< 事件数据地址 [可选]
-    int data_size;   ///< 事件数据长度 [可选]
+    XPR_RTSP_EVT event; ///< 事件编号, 参见 [XPR_RTSP_EVT]
+    void* data;         ///< 事件数据地址 [可选]
+    int data_size;      ///< 事件数据长度 [可选]
 } XPR_RTSP_EVD;
 #endif // XPR_RTSP_EVD_TYPE_DEFINED
 
 ///
 /// 流数据数据回调函数定义
 ///
-/// @param [in] opaque	    用户关联数据
+/// @param [in] opaque      用户关联数据
 /// @param [in] port        产生数据的端口句柄
-/// @param [in] block		数据块信息
+/// @param [in] block       数据块信息
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
 /// @warning 切勿在此回调函数中调用任何带有 XPR_RTSP_ 前缀的接口
@@ -181,9 +199,9 @@ typedef int (*XPR_RTSP_DCB)(void* opaque, int port, const XPR_StreamBlock* block
 /// 
 /// 流事件通知回调函数
 ///
-/// @param [in] opaque		用户关联数据
+/// @param [in] opaque      用户关联数据
 /// @param [in] port        产生事件的端口句柄
-/// @param [in] evd   		消息事件数据
+/// @param [in] evd         消息事件数据
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
 /// @warning 切勿在此回调函数中调用任何带有 XPR_RTSP_ 前缀的接口
@@ -298,8 +316,9 @@ XPR_API int XPR_RTSP_EnableRTPPacket(int port, int yes);
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
 /// @note 本接口必须在 XPR_RTSP_Start() 之前调用方可生效
-XPR_API int XPR_RTSP_SetAuth(int port, const char* username, const char* password, int pwdIsMD5);
-    
+XPR_API int XPR_RTSP_SetAuth(int port, const char* username,
+                             const char* password, int pwdIsMD5);
+
 ///
 /// 设置输出数据格式
 ///
@@ -335,7 +354,8 @@ XPR_API int XPR_RTSP_SetTrSpec(int port, XPR_RTSP_TRSPEC trspec);
 /// @param [in,out] size    保存参数值的缓冲区容量, 返回会实际的数据长度
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-XPR_API int XPR_RTSP_GetParam(int port, XPR_RTSP_PARAM param, void* buffer, int* size);
+XPR_API int XPR_RTSP_GetParam(int port, XPR_RTSP_PARAM param, void* buffer,
+                              int* size);
 
 ///
 /// 设定指定端口参数
@@ -345,7 +365,8 @@ XPR_API int XPR_RTSP_GetParam(int port, XPR_RTSP_PARAM param, void* buffer, int*
 /// @param [in,out] length  参数值的数据长度
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-XPR_API int XPR_RTSP_SetParam(int port, XPR_RTSP_PARAM param, const void* data, int length);
+XPR_API int XPR_RTSP_SetParam(int port, XPR_RTSP_PARAM param, const void* data,
+                              int length);
 
 ///
 /// 添加一个新的流

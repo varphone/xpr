@@ -1,56 +1,38 @@
-﻿#ifndef XPR_JSON_H
+﻿/*
+ * File: xpr_json.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * JSON 操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:07:21 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_JSON_H
 #define XPR_JSON_H
-
-/// @defgroup xprdjsonc JSON
-/// @brief     采用 C 语言规范编写的一套接口, 用于操作基于 JavaScript 语言的轻量级的数据交换格式
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.6.1
-/// @date      2015/4/16
-///
-/// @{
-///
 
 #include <stddef.h> // for size_t;
 #include <stdint.h> // for int64_t;
 #include <stdio.h> // for FILE*;
 #include <xpr/xpr_common.h> // for XPR_API;
 
-/// @page xprjsonc-changes 变更日志
-///
-/// @par 1.6.1 (2015/4/16)
-///   - 增加 XPR_JSON_ObjectRemove(), XPR_JSON_ObjectClear(), XPR_JSON_ArrayRemove(), XPR_JSON_ArrayClear()
-///
-/// @par 1.2.1 (2015/2/3)
-///   - 增加 XPR_JSON_Copy(), XPR_JSON_DeepCopy() 接口
-///
-/// @par 1.1.1 (2013/7/30)
-///   - 增加 XPR_JSON_RefCount() 用于获取被引用的数量
-///
-/// @par 1.1.0 (2013/6/24)
-///   - 修改 XPR_JSON_UNDEFINED 值为 -1, 应用程序需要重新编译
-///
-/// @par 1.0.2 (2013/6/19)
-///   - 增加 XPR_JSON_Integer64(), XPR_JSON_Integer64Set(), XPR_JSON_Integer64Value() 64 位整数支持接口
-///
-/// @par 1.0.1 (2013/4/8)
-///   - 增加 #LIBXPR_JSON_VERSION
-///   - 增加 libXPR_JSON_Version()
-///   - 增加 libXPR_JSON_VersionNumber()
-///
-/// @par 1.0 (2012/12/20)
-///   - 初始本版建立
-///
-///
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
 /// 当前定义版本号
 ///
 #define XPR_JSON_VERSION XPR_MakeVersion(1,6,1)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #ifndef XPR_JSON_TYPE_DEFINED
 #define XPR_JSON_TYPE_DEFINED
@@ -89,7 +71,7 @@ XPR_API const char* XPR_JSON_Version(void);
 /// @brief 获取 XPR_JSON 库版本号
 /// @return 返回整数形式的版本号数字
 /// @remark 版本号说明
-///   数据位  | 说明
+///   数据位 | 说明
 ///   -------|----------
 ///   31~24  | 主版本号
 ///   23~16  | 子版本号
@@ -242,11 +224,11 @@ XPR_API XPR_JSON* XPR_JSON_Object(void);
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，需要调用 #XPR_JSON_DecRef 释放对象
+/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，
+///       需要调用 #XPR_JSON_DecRef 释放对象
 /// @sa XPR_JSON_Object(), XPR_JSON_LoadString()
 /// @warning 非线程安全
-XPR_API int XPR_JSON_ObjectSet(XPR_JSON* json, const char* key,
-				               XPR_JSON* val);
+XPR_API int XPR_JSON_ObjectSet(XPR_JSON* json, const char* key, XPR_JSON* val);
 
 /// @brief 往 Object 类型的 JSON 对象中追加成员(借用方式)
 /// @param [in] json    #XPR_JSON 对象实例(#XPR_JSON_OBJECT)
@@ -254,11 +236,12 @@ XPR_API int XPR_JSON_ObjectSet(XPR_JSON* json, const char* key,
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用 #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
+/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用
+///       #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
 /// @sa XPR_JSON_Object(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ObjectSetNew(XPR_JSON* json, const char* key,
-				                  XPR_JSON* val);
+                                  XPR_JSON* val);
 
 /// @brief 获取 Object 对象中的值
 /// @param [in] json    #XPR_JSON 实例
@@ -341,7 +324,8 @@ XPR_API XPR_JSON* XPR_JSON_ObjectIterValue(void* iter);
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，需要调用 #XPR_JSON_DecRef 释放对象
+/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，
+///       需要调用 #XPR_JSON_DecRef 释放对象
 /// @sa XPR_JSON_Object(), XPR_JSON_ObjectIter(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ObjectIterSet(XPR_JSON* json, void* iter, XPR_JSON* val);
@@ -352,7 +336,8 @@ XPR_API int XPR_JSON_ObjectIterSet(XPR_JSON* json, void* iter, XPR_JSON* val);
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用 #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
+/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用
+///       #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
 /// @sa XPR_JSON_Object(), XPR_JSON_ObjectIter(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ObjectIterSetNew(XPR_JSON* json, void* iter,
@@ -370,7 +355,8 @@ XPR_API XPR_JSON* XPR_JSON_Array(void);
 /// @param [in] val     要设置的值
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，需要调用 #XPR_JSON_DecRef 释放对象
+/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，
+//        需要调用 #XPR_JSON_DecRef 释放对象
 /// @sa XPR_JSON_Array(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ArraySet(XPR_JSON* json, size_t index, XPR_JSON* val);
@@ -381,7 +367,8 @@ XPR_API int XPR_JSON_ArraySet(XPR_JSON* json, size_t index, XPR_JSON* val);
 /// @param [in] val     要设置的值
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用 #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
+/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用
+///       #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
 /// @sa XPR_JSON_Array(), XPR_JSON_LoadString()
 /// @warning 非线程安全
 XPR_API int XPR_JSON_ArraySetNew(XPR_JSON* json, size_t index, XPR_JSON* val);
@@ -406,7 +393,8 @@ XPR_API size_t XPR_JSON_ArraySize(XPR_JSON* json);
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，需要调用 #XPR_JSON_DecRef 释放对象
+/// @note 本接口会增加对 val 的引用，因此在调用此接口调用后且此对象不再使用时，
+///       需要调用 #XPR_JSON_DecRef 释放对象
 /// @code
 /// XPR_JSON* js = XPR_JSON_String("Hello, JSON");
 /// XPR_JSON* ja = XPR_JSON_Array();
@@ -427,7 +415,8 @@ XPR_API int XPR_JSON_ArrayAppend(XPR_JSON* json, XPR_JSON* val);
 /// @param [in] val     #XPR_JSON 对象实例(Any)
 /// @retval 0   成功
 /// @retval -1  失败
-/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用 #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
+/// @note 本接口不会增加对 val 的引用，因此在调用此接口调用后切勿使用
+///       #XPR_JSON_DecRef 释放对象，否则可能导致异常出现
 /// @code
 /// XPR_JSON* js = XPR_JSON_String("Hello, JSON");
 /// XPR_JSON* ja = XPR_JSON_Array();
@@ -446,7 +435,8 @@ XPR_API int XPR_JSON_ArrayAppendNew(XPR_JSON* json, XPR_JSON* val);
 
 /// @brief  往 Array 类型的 JSON 对象中插入成员(借用方式)
 ///
-XPR_API int XPR_JSON_ArrayInsertNew(XPR_JSON* json, size_t index, XPR_JSON* val);
+XPR_API int XPR_JSON_ArrayInsertNew(XPR_JSON* json, size_t index,
+                                    XPR_JSON* val);
 
 ///
 /// 移除指定索引的对象
@@ -487,7 +477,8 @@ XPR_API int XPR_JSON_StringSet(XPR_JSON* json, const char* val);
 /// @retval NULL    对象不能存在或类型不匹配
 /// @retval !NULL   对象关联的字符串指针
 /// @sa XPR_JSON_String(), XPR_JSON_LoadString()
-/// @warning 返回值指针所指向的内存资源会随着 json 对象释放而释放，因此如果需要长期保存返回值内容请保存副本而非保存指针引用
+/// @warning 返回值指针所指向的内存资源会随着 json 对象释放而释放，
+///          因此如果需要长期保存返回值内容请保存副本而非保存指针引用
 /// @warning 非线程安全
 XPR_API const char* XPR_JSON_StringValue(XPR_JSON* json);
 
@@ -639,7 +630,8 @@ XPR_API XPR_JSON* XPR_JSON_DeepCopy(XPR_JSON* src);
 XPR_API XPR_JSON* XPR_JSON_XPathGet(XPR_JSON* json, const char* xpath);
 
 /// @brief 以 XPath 方式设置键值（引用）
-/// @note 本接口会增加 `value` 的引用计数，如果你在调用本接口后，如果没有对 `value` 调用 XPR_JSON_DecRef()，可能会导致内存泄漏。
+/// @note 本接口会增加 `value` 的引用计数，如果你在调用本接口后，
+///       如果没有对 `value` 调用 XPR_JSON_DecRef()，可能会导致内存泄漏。
 XPR_API int XPR_JSON_XPathSet(XPR_JSON* json, const char* xpath, XPR_JSON* value);
 
 /// @brief 以 XPath 方式设置键值（借用）
@@ -684,7 +676,8 @@ XPR_API int64_t XPR_JSON_XPathGetInt64(XPR_JSON* json, const char* xpath);
 /// @brief 以 XPath 方式直接设置整形值（64位）
 /// @return XPR_ERR_xxx
 /// @see XPR_JSON_XPathGetInt64()
-XPR_API int XPR_JSON_XPathSetInt64(XPR_JSON* json, const char* xpath, int64_t value);
+XPR_API int XPR_JSON_XPathSetInt64(XPR_JSON* json, const char* xpath,
+                                   int64_t value);
 
 /// @brief 以 XPath 方式直接获取浮点值（32位）
 /// @param [in] json	目标根（父）节点
@@ -696,7 +689,8 @@ XPR_API float XPR_JSON_XPathGetFloat(XPR_JSON* json, const char* xpath);
 /// @brief 以 XPath 方式直接设置浮点值（32位）
 /// @return XPR_ERR_xxx
 /// @see XPR_JSON_XPathGetFloat()
-XPR_API int XPR_JSON_XPathSetFloat(XPR_JSON* json, const char* xpath, float value);
+XPR_API int XPR_JSON_XPathSetFloat(XPR_JSON* json, const char* xpath,
+                                   float value);
 
 /// @brief 以 XPath 方式直接获取浮点值（64位）
 /// @param [in] json	目标根（父）节点
@@ -708,7 +702,8 @@ XPR_API double XPR_JSON_XPathGetDouble(XPR_JSON* json, const char* xpath);
 /// @brief 以 XPath 方式直接设置浮点值（32位）
 /// @return XPR_ERR_xxx
 /// @see XPR_JSON_XPathGetDouble()
-XPR_API int XPR_JSON_XPathSetDouble(XPR_JSON* json, const char* xpath, double value);
+XPR_API int XPR_JSON_XPathSetDouble(XPR_JSON* json, const char* xpath,
+                                    double value);
 
 /// @brief 以 XPath 方式获取数值。
 /// @note 本接口会自动将 True/False, Int/Int64, Number String 转换为 double 型值。
@@ -727,14 +722,11 @@ XPR_API const char* XPR_JSON_XPathGetString(XPR_JSON* json, const char* xpath);
 /// @brief 以 XPath 方式直接设置字符串值
 /// @return XPR_ERR_xxx
 /// @see XPR_JSON_XPathGetString()
-XPR_API int XPR_JSON_XPathSetString(XPR_JSON* json, const char* xpath, const char* value);
+XPR_API int XPR_JSON_XPathSetString(XPR_JSON* json, const char* xpath,
+                                    const char* value);
 
 #ifdef __cplusplus
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_JSON_H
-

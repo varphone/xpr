@@ -1,24 +1,29 @@
-﻿#ifndef XPR_AVFRAME_H
+﻿/*
+ * File: xpr_avframe.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 音视频原始数据
+ * 
+ * 音频及视频原始数据容器及相关操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:30:27 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_AVFRAME_H
 #define XPR_AVFFAME_H
 
 #include <stdint.h>
 #include <xpr/xpr_common.h>
-
-/// @defgroup xpravframe 音视频原始数据
-/// @brief     音频及视频原始数据容器及相关操作接口
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/12/1
-///
-/// @{
-///
-
-/// @page xpravframe-changes 变更日志
-///
-/// @par 2013/12/1
-///   - Initial version crated
-///
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -273,8 +278,4 @@ XPR_API int XPR_AVFrameCopy(const XPR_AVFrame* src, XPR_AVFrame* dst);
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_AVFRAME_H
-

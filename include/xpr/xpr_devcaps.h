@@ -1,11 +1,29 @@
-﻿#ifndef XPR_DEVCAPS_H
+﻿/*
+ * File: xpr_devcaps.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 设备能力操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:24:14 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_DEVCAPS_H
 #define XPR_DEVCAPS_H
 
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 ///
@@ -120,12 +138,13 @@ const char** XPR_DevCapsGetStrings(int capId, int devId);
 /// @retval XPR_ERR_ERROR   失败
 int XPR_DevCapsUpdate(const void* data, int size);
 
-#define XPR_DevCapsGetVersion()     XPR_DevCapsGetInteger(XPR_DEVCAPS_ID_VERSION, XPR_DEVCAPS_DEVID_DEF)
-#define XPR_DevCapsGetDateTime()    XPR_DevCapsGetInt64(XPR_DEVCAPS_ID_DATETIME, XPR_DEVCAPS_DEVID_DEF)
+#define XPR_DevCapsGetVersion()                                                \
+    XPR_DevCapsGetInteger(XPR_DEVCAPS_ID_VERSION, XPR_DEVCAPS_DEVID_DEF)
+#define XPR_DevCapsGetDateTime()                                               \
+    XPR_DevCapsGetInt64(XPR_DEVCAPS_ID_DATETIME, XPR_DEVCAPS_DEVID_DEF)
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // XPR_DEVCAPS_H
-

@@ -82,6 +82,9 @@
 // XPR_FILE
 #cmakedefine HAVE_XPR_FILE 1
 
+// XPR_FQ
+#cmakedefine HAVE_XPR_FQ 1
+
 // XPR_GPIO
 #cmakedefine HAVE_XPR_GPIO 1
 

@@ -1,30 +1,32 @@
+﻿/*
+ * File: xpr_ups.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 采用 K/V 形式的通用参数设定操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:11:00 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2012-12-20   varphone    初始版本建立
+ */
 #ifndef XPR_UPS_H
 #define XPR_UPS_H
 
 #include <stdint.h>
-#include "xpr_common.h"
-#include "xpr_json.h"
-#include "xpr_errno.h"
-
-/// @defgroup xprups 通用参数设定
-/// @brief     采用 K/V 形式的通用参数设定操作接口集
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/4/1
-///
-/// @{
-///
-
-/// @page xprups-changes 变更日志
-///
-/// @par 1.0.0 (2012/12/20)
-///   - 初始版本建立
-///
-///
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_errno.h>
+#include <xpr/xpr_json.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define XPR_UPS_MAX_KEY_LEN 1024    ///< 键最大长度
@@ -35,7 +37,6 @@ extern "C"
 struct XPR_UPS_Entry; ///< XPR_UPS 前置声明
 typedef struct XPR_UPS_Entry XPR_UPS_Entry; ///< XPR_UPS 类型声明
 #endif // XPR_UPS_ENTRY_TYPE_DEFINED
-
 
 #ifndef XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 #define XPR_UPS_ENTRYTYPE_TYPE_DEFINED
@@ -72,7 +73,8 @@ typedef int (*XPR_UPS_Finalizer)(XPR_UPS_Entry* ent);
 /// @param [in,out] size    指示用于接受获取到的数据的缓冲区大小，返回实际获取到的字节数
 /// @retval XPR_ERR_OK  获取成功
 /// @retval Other       获取发生异常, 请查看 [#XPR_ErrorCode]
-typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size);
+typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json,
+                              const char* key, void* buffer, int* size);
 
 /// @brief 设定项数据设定函数
 /// @param [in] ent         设定项指针
@@ -82,7 +84,8 @@ typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* ke
 /// @param [in,out] size    用于设定的数据字节数
 /// @retval XPR_ERR_OK  设定成功
 /// @retval Other       设定发生异常, 请查看 [#XPR_ErrorCode]
-typedef int (*XPR_UPS_Setter)(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, const void* data, int size);
+typedef int (*XPR_UPS_Setter)(XPR_UPS_Entry* ent, XPR_JSON* json,
+                              const char* key, const void* data, int size);
 
 ///
 /// 设定项数据结构
@@ -310,8 +313,4 @@ int XPR_UPS_Sync(void);
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_UPS_H
-

@@ -1,10 +1,29 @@
-﻿#ifndef XPR_MCDEC_H
+﻿/*
+ * File: xpr_mcdec.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 多通道解码接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-11-25 11:25:25 Friday, 25 November
+ * Last Modified : 2019-07-03 05:03:58 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_MCDEC_H
 #define XPR_MCDEC_H
 
 #include <stdint.h>
-#include "xpr_common.h"
-#include "xpr_avframe.h"
-#include "xpr_streamblock.h"
+#include <xpr/xpr_avframe.h>
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_streamblock.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,20 +106,22 @@ extern "C" {
 ///
 /// 音/视频原始帧数据回调函数
 ///
-/// @param [in] opaque		用户关联数据
-/// @param [in] port		产生回调的端口
-/// @param [in] avf			音/视频原始帧数据
+/// @param [in] opaque      用户关联数据
+/// @param [in] port        产生回调的端口
+/// @param [in] avf         音/视频原始帧数据
 /// return 目前忽略返回值
-typedef int (*XPR_MCDEC_AVF_FXN)(void* opaque, int port, const XPR_AVFrame* avf);
+typedef int (*XPR_MCDEC_AVF_FXN)(void* opaque, int port,
+                                 const XPR_AVFrame* avf);
 
 ///
 /// 音/视频码流帧数据回调函数
 ///
-/// @param [in] opaque		用户关联数据
-/// @param [in] port		产生回调的端口
-/// @param [in] stb			音/视频码流帧数据
+/// @param [in] opaque      用户关联数据
+/// @param [in] port        产生回调的端口
+/// @param [in] stb         音/视频码流帧数据
 /// return 目前忽略返回值
-typedef int (*XPR_MCDEC_STB_FXN)(void* opaque, int port, const XPR_StreamBlock* stb);
+typedef int (*XPR_MCDEC_STB_FXN)(void* opaque, int port,
+                                 const XPR_StreamBlock* stb);
 
 ///
 /// Print no output.
@@ -147,28 +168,28 @@ typedef int (*XPR_MCDEC_STB_FXN)(void* opaque, int port, const XPR_StreamBlock* 
 #define XPR_MCDEC_LOG_LEVEL_DEBUG    48
 
 typedef enum XPR_MCDEC_CFG {
-	XPR_MCDEC_CFG_C4WGA,
-	XPR_MCDEC_CFG_LOG_LEVEL,		///< 日志打印等级, 数据类型: int, 值: 见 XPR_MCDEC_LOG_LEVEL_xxx 
+    XPR_MCDEC_CFG_C4WGA,
+    XPR_MCDEC_CFG_LOG_LEVEL,        ///< 日志打印等级, 数据类型: int, 值: 见 XPR_MCDEC_LOG_LEVEL_xxx 
     XPR_MCDEC_CFG_MAX,
 } XPR_MCDEC_CFG;
 
 typedef enum XPR_MCDEC_FLAG {
-	XPR_MCDEC_FLAG_BLKED = 0x00000001,
-	XPR_MCDEC_FLAG_CLOSE = 0x00000002,
-	XPR_MCDEC_FLAG_PNDNG = 0x00000004,
-	XPR_MCDEC_FLAG_SYNRQ = 0x00000008,
+    XPR_MCDEC_FLAG_BLKED = 0x00000001,
+    XPR_MCDEC_FLAG_CLOSE = 0x00000002,
+    XPR_MCDEC_FLAG_PNDNG = 0x00000004,
+    XPR_MCDEC_FLAG_SYNRQ = 0x00000008,
 } XPR_MCDEC_FLAG;
 
 typedef enum XPR_MCDEC_PARAM {
-	XPR_MCDEC_PARAM_NULL,
-	XPR_MCDEC_PARAM_BLOCK,			///< data: int, value: 0 = unblock, 1 = block
-	XPR_MCDEC_PARAM_DEINTERLANCE,	///< data: int, value: 0 = off, 1 = odd, 2 = even
-	XPR_MCDEC_PARAM_SKIP_FRAME,		///< data: int, value: 0 = none, 1 = B, 2 = P, 3 = BP, 4 = I, 5 = BI, 6 = PI, 7 = BPI
-	XPR_MCDEC_PARAM_FORCE_FOURCC,	///< data: uint32_t, value: FourCC
+    XPR_MCDEC_PARAM_NULL,
+    XPR_MCDEC_PARAM_BLOCK,          ///< data: int, value: 0 = unblock, 1 = block
+    XPR_MCDEC_PARAM_DEINTERLANCE,   ///< data: int, value: 0 = off, 1 = odd, 2 = even
+    XPR_MCDEC_PARAM_SKIP_FRAME,     ///< data: int, value: 0 = none, 1 = B, 2 = P, 3 = BP, 4 = I, 5 = BI, 6 = PI, 7 = BPI
+    XPR_MCDEC_PARAM_FORCE_FOURCC,   ///< data: uint32_t, value: FourCC
     XPR_MCDEC_PARAM_IMAGE_WIDTH,
     XPR_MCDEC_PARAM_IMAGE_HEIGHT,
     XPR_MCDEC_PARAM_IMAGE_QUALITY,
-	XPR_MCDEC_PARAM_MAX,
+    XPR_MCDEC_PARAM_MAX,
 } XPR_MCDEC_PARAM;
 
 ///
@@ -264,9 +285,11 @@ XPR_API void XPR_MCDEC_DeliverStreamBlock(int port, const XPR_StreamBlock* stb);
 /// @retval XPR_ERR_ERROR   失败
 /// @note 此接口端口可以为：编码器组或编码器组中的特定目标
 ///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
-XPR_API int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_AddAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler,
+                                        void* opaque);
 
-XPR_API int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler,
+                                        void* opaque);
 
 ///
 /// 向指定端口添加处理音/视频码流数据的回调函数
@@ -278,9 +301,11 @@ XPR_API int XPR_MCDEC_DelAVFrameHandler(int port, XPR_MCDEC_AVF_FXN handler, voi
 /// @retval XPR_ERR_ERROR   失败
 /// @note 此接口端口可以为：编码器组或编码器组中的特定目标
 ///       当端口为 编码器组 时, 编码器组中的所有目标都会调用此回调函数
-XPR_API int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_AddStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler,
+                                            void* opaque);
 
-XPR_API int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler, void* opaque);
+XPR_API int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler,
+                                            void* opaque);
 
 ///
 /// 设置指定端口的参数
@@ -290,7 +315,8 @@ XPR_API int XPR_MCDEC_DelStreamBlockHandler(int port, XPR_MCDEC_STB_FXN handler,
 /// @param [in] size        要设置的参数值/数据字节数
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-XPR_API int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data, int size);
+XPR_API int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param,
+                               const void* data, int size);
 
 ///
 /// 获取指定端口的参数
@@ -300,11 +326,11 @@ XPR_API int XPR_MCDEC_SetParam(int port, XPR_MCDEC_PARAM param, const void* data
 /// @param [in,out] size    要获取的参数值/数据接收缓冲区字节数, 并返回实际数据长度
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-XPR_API int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data, int* size);
+XPR_API int XPR_MCDEC_GetParam(int port, XPR_MCDEC_PARAM param, void* data,
+                               int* size);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // XPR_MCDEC_H
-

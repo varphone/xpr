@@ -1,3 +1,22 @@
+﻿/*
+ * File: xpr_osd.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 通用 OSD 绘制接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-12-29 04:03:10 Monday, 29 December
+ * Last Modified : 2019-07-03 04:52:23 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_OSD_H
 #define XPR_OSD_H
 
@@ -246,7 +265,8 @@ int XPR_OSD_Clear(int port, const XPR_Rect* rect, unsigned int color);
 /// @param [in] flags       绘制标志
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_DrawImage(int port, const XPR_Rect* rect, const XPR_Image* image, int flags);
+int XPR_OSD_DrawImage(int port, const XPR_Rect* rect, const XPR_Image* image,
+                      int flags);
 
 ///
 /// 绘制矩形
@@ -268,7 +288,8 @@ int XPR_OSD_DrawRect(int port, const XPR_Rect* rect, unsigned int color);
 /// @param [in] flags       绘制标志
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_DrawText(int port, const XPR_Rect* rect, const char* text, unsigned int flags);
+int XPR_OSD_DrawText(int port, const XPR_Rect* rect, const char* text,
+                     unsigned int flags);
 
 ///
 /// 填充矩形
@@ -294,4 +315,3 @@ int XPR_OSD_Update(int port, const XPR_Rect* rect);
 #endif
 
 #endif // XPR_OSD_H
-

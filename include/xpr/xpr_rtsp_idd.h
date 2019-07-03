@@ -1,12 +1,26 @@
+ï»¿ /*
+ * File: xpr_rtsp_idd.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * é€šç”¨ RTSP äº¤é”™æ•°æ®åˆ†ç¦»å™¨
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2016-11-25 11:25:25 Friday, 25 November
+ * Last Modified : 2019-07-03 04:46:02 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    æ›´æ–°ç‰ˆæƒä¿¡æ¯
+ * 2014-11-21   varphone    åˆå§‹ç‰ˆæœ¬å»ºç«‹
+ */
 #ifndef XPR_RTSP_IDD_H
 #define XPR_RTSP_IDD_H
 
 #include <stdint.h>
-
-/// @defgroup xpr_rtsp_idd RTSP ½»´íÊı¾İ·ÖÀëÆ÷
-/// @brief Í¨ÓÃRTSP ½»´íÊı¾İ·ÖÀëÆ÷
-/// @{
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,62 +37,61 @@ typedef struct XPR_RTSP_IDD XPR_RTSP_IDD;
 #ifndef XPR_RTSP_IDD_DATA_TYPE_TYPE_DEFINED
 #define XPR_RTSP_IDD_DATA_TYPE_TYPE_DEFINED
 ///
-/// RTSP ÒÑ·ÖÀëÊı¾İÀàĞÍ
+/// RTSP å·²åˆ†ç¦»æ•°æ®ç±»å‹
 ///
 typedef enum XPR_RTSP_IDD_DataType {
-    XPR_RTSP_IDD_DATA_TYPE_BIN,     ///< ¶ş½øÖÆÊı¾İ, ÀıÈç: rtp, rtcp ..
-    XPR_RTSP_IDD_DATA_TYPE_HDR,     ///< RTSP ÇëÇó»òÏìÓ¦Í·
-    XPR_RTSP_IDD_DATA_TYPE_SDP,     ///< SDP Êı¾İ
+    XPR_RTSP_IDD_DATA_TYPE_BIN,     ///< äºŒè¿›åˆ¶æ•°æ®, ä¾‹å¦‚: rtp, rtcp ..
+    XPR_RTSP_IDD_DATA_TYPE_HDR,     ///< RTSP è¯·æ±‚æˆ–å“åº”å¤´
+    XPR_RTSP_IDD_DATA_TYPE_SDP,     ///< SDP æ•°æ®
 } XPR_RTSP_IDD_DataType;
 #endif //XPR_RTSP_IDD_DATA_TYPE_TYPE_DEFINED
 
 ///
-/// RTSP ½»´íÊı¾İ·ÖÀëÆ÷ÒÑ·ÖÀëÊı¾İ´¦Àíº¯Êı
+/// RTSP äº¤é”™æ•°æ®åˆ†ç¦»å™¨å·²åˆ†ç¦»æ•°æ®å¤„ç†å‡½æ•°
 ///
-/// @param [in] opaque      ÓÃ»§¹ØÁªÊı¾İ
-/// @param [in] channel     Êı¾İËùÊôÍ¨µÀ
-/// @param [in] dataType    Êı¾İÀàĞÍ
-/// @param [in] data        ÒÑ·ÖÀëÊı¾İ
-/// @param [in] length      ÒÑ·ÖÀëÊı¾İ×Ö½ÚÊı
-/// @retval XPR_ERR_OK      ´¦Àí³É¹¦
-/// @retval XPR_ERR_ERROR   ´¦ÀíÊ§°Ü
+/// @param [in] opaque      ç”¨æˆ·å…³è”æ•°æ®
+/// @param [in] channel     æ•°æ®æ‰€å±é€šé“
+/// @param [in] dataType    æ•°æ®ç±»å‹
+/// @param [in] data        å·²åˆ†ç¦»æ•°æ®
+/// @param [in] length      å·²åˆ†ç¦»æ•°æ®å­—èŠ‚æ•°
+/// @retval XPR_ERR_OK      å¤„ç†æˆåŠŸ
+/// @retval XPR_ERR_ERROR   å¤„ç†å¤±è´¥
 typedef int (*XPR_RTSP_IDD_DataHandler)(void* opaque, int channel, int dataType,
                                         uint8_t* data, int length);
 
 #ifndef XPR_RTSP_IDD_PARAM_TYPE_TYPE_DEFINED
 #define XPR_RTSP_IDD_PARAM_TYPE_TYPE_DEFINED
 ///
-/// RTSP ½»´íÊı¾İ·ÖÀëÆ÷²ÎÊıÀàĞÍ
+/// RTSP äº¤é”™æ•°æ®åˆ†ç¦»å™¨å‚æ•°ç±»å‹
 ///
 typedef enum XPR_RTSP_IDD_ParamType {
-    XPR_RTSP_IDD_PARAM_DATA_HANDLER,    ///< Êı¾İ´¦Àí»Øµ÷º¯Êı
-    XPR_RTSP_IDD_PARAM_OPAQUE,          ///< ÓÃ»§¹ØÁªÊı¾İ
+    XPR_RTSP_IDD_PARAM_DATA_HANDLER,    ///< æ•°æ®å¤„ç†å›è°ƒå‡½æ•°
+    XPR_RTSP_IDD_PARAM_OPAQUE,          ///< ç”¨æˆ·å…³è”æ•°æ®
 } XPR_RTSP_IDD_ParamType;
 #endif // XPR_RTSP_IDD_PARAM_TYPE_TYPE_DEFINED
 
 ///
-/// ´´½¨Ò»¸ö RTSP ½»´íÊı¾İ·ÖÀëÆ÷
+/// åˆ›å»ºä¸€ä¸ª RTSP äº¤é”™æ•°æ®åˆ†ç¦»å™¨
 ///
-/// @retval NULL    ´´½¨Ê§°Ü
-/// @retval Other   ÒÑ´´½¨ºÃµÄÊı¾İ·ÖÀëÆ÷¾ä±ú
+/// @retval NULL    åˆ›å»ºå¤±è´¥
+/// @retval Other   å·²åˆ›å»ºå¥½çš„æ•°æ®åˆ†ç¦»å™¨å¥æŸ„
 XPR_RTSP_IDD* XPR_RTSP_IDD_New(void);
 
 ///
-/// Ïú»ÙÒ»¸öÒÑ´´½¨µÄ RTSP ½»´íÊı¾İ·ÖÀëÆ÷
+/// é”€æ¯ä¸€ä¸ªå·²åˆ›å»ºçš„ RTSP äº¤é”™æ•°æ®åˆ†ç¦»å™¨
 ///
 int XPR_RTSP_IDD_Destroy(XPR_RTSP_IDD* idd);
 
 int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length);
 
-int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param, const void* data, int length);
+int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param, const void* data,
+                          int length);
 
-int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer, int* size);
+int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer,
+                          int* size);
 
 #ifdef __cplusplus
 }
 #endif
-
-/// @}
-///
 
 #endif // XPR_RTSP_IDD_H

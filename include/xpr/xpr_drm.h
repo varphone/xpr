@@ -1,18 +1,31 @@
+﻿/*
+ * File: xpr_drm.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 数字版权管理
+ * 
+ * 提供各种数字版权管理接口, 例如: 硬件验证, 获取序列号等等
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:19:52 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_DRM_H
 #define XPR_DRM_H
 
 #include <stdint.h>
 
-/// @defgroup xpr-drm 数字版权管理
-///
-/// 提供各种数字版权管理接口, 例如: 硬件验证, 获取序列号等等
-///
-/// @{
-///
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 ///
@@ -108,4 +121,3 @@ int XPR_DRM_InstallSerial(const uint8_t* data, int length);
 #endif
 
 #endif // XPR_DRM_H
-

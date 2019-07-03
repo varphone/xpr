@@ -1,23 +1,23 @@
-/**********
-This library is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation; either version 2.1 of the License, or (at your
-option) any later version. (See <http://www.gnu.org/copyleft/lesser.html>.)
-
-This library is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
-more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with this library; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
-**********/
-// "liveMedia"
-// Copyright (c) 1996-2014 Live Networks, Inc.  All rights reserved.
-// Base64 encoding and decoding
-// C++ header
-
+﻿/*
+ * File: xpr_base64.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * BASE64 操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:28:07 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 1996 - 2014 Live Networks, Inc.
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
 #ifndef XPR_BASE64_H
 #define XPR_BASE64_H
 
@@ -27,16 +27,20 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 extern "C" {
 #endif
 
-/// @brief returns a newly allocated array - of size "resultSize" - that
-///        the caller is responsible for delete[]ing.
-///        As above, but includes the size of the input string (i.e., the number of bytes to decode) as a parameter.
-///        This saves an extra call to "strlen()" if we already know the length of the input string.
+/// @brief returns a newly allocated array - of size "resultSize"
+///        that the caller is responsible for delete[]ing.
+///        As above, but includes the size of the input string
+///        (i.e., the number of bytes to decode) as a parameter.
+///        This saves an extra call to "strlen()" if we already know
+///        the length of the input string.
 XPR_API unsigned char* XPR_Base64Decode(const char* in, unsigned int inSize,
-									    unsigned int* resultSize, int trimTrailingZeros);
+                                        unsigned int* resultSize,
+                                        int trimTrailingZeros);
 
-/// @brief returns a 0-terminated string that
-/// the caller is responsible for delete[]ing.
-XPR_API char* XPR_Base64Encode(const unsigned char* orig, unsigned int origLength);
+/// @brief returns a 0-terminated string
+///        that the caller is responsible for delete[]ing.
+XPR_API char* XPR_Base64Encode(const unsigned char* orig,
+                               unsigned int origLength);
 
 #ifdef __cplusplus
 }

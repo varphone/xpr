@@ -1,13 +1,27 @@
-﻿#ifndef XPR_THREAD_H
+﻿/*
+ * File: xpr_thread.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 多线程操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:35:00 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_THREAD_H
 #define XPR_THREAD_H
 
 #include <stdint.h>
 #include <xpr/xpr_common.h>
-
-/// @defgroup xprthread 线程
-/// @brief 多线程操作接口
-/// @{
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +57,7 @@ typedef void (*XPR_ThreadEndRoutine)(void* opaque, XPR_Thread* thread);
 /// @param [in] opaque      用户关联数据
 /// @return 线程对象
 XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine,
-									 unsigned int stackSize, void* opaque);
+                                     unsigned int stackSize, void* opaque);
 
 ///
 /// 创建一个新线程
@@ -55,9 +69,9 @@ XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine,
 /// @param [in] opaque          用户关联数据
 /// @return 线程对象
 XPR_API XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
-									   XPR_ThreadEndRoutine endRoutine,
-									   unsigned int flags, unsigned int stackSize,
-									   void* opaque);
+                                       XPR_ThreadEndRoutine endRoutine,
+                                       unsigned int flags,
+                                       unsigned int stackSize, void* opaque);
 
 /// @brief 销毁一个线程
 /// @param [in] thread      线程对象
@@ -105,8 +119,4 @@ XPR_API void* XPR_ThreadGetUserData(const XPR_Thread* thread);
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_THREAD_H
-

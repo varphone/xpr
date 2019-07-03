@@ -1,25 +1,28 @@
-﻿#ifndef XPR_STREAMBLOCK_H
+﻿/*
+ * File: xpr_streamblock.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 各种流式数据的容器接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 04:41:47 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_STREAMBLOCK_H
 #define XPR_STREAMBLOCK_H
 
 #include <stddef.h>
 #include <stdint.h>
 #include <xpr/xpr_common.h>
-
-/// @defgroup xprstreamblock 流式数据块
-/// @brief     各种流式数据的容器
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/12/1
-///
-/// @{
-///
-
-/// @page xprstreamblock-changes 变更日志
-///
-/// @par 2013/12/1
-///   - Initial version crated
-///
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,7 +102,8 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size);
 /// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，否则要释放资源必须调用 XPR_StreamBlockFree() 来完成
 /// @warning 此接口只能用于 XPR_StreamBlockAlloc() 分配出来的对象，切勿用于用户自定义分配的对象
 /// @sa XPR_StreamBlockFree(), XPR_StreamBlockRelease()
-XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size);
+XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk,
+                                                size_t size);
 
 /// @brief 释放流数据块资源
 /// @param [in] blk     已分配到的数据块内存地址
@@ -148,14 +152,16 @@ XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to
 /// @retval -1  失败
 /// @retval 0   成功
 /// @note 当目的数据块缓冲区容量不足时会拷贝失败
-XPR_API int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to);
+XPR_API int XPR_StreamBlockCopyData(const XPR_StreamBlock* from,
+                                    XPR_StreamBlock* to);
 
 /// @brief 复制数据块头部信息
 ///        复制除缓冲区地址、缓冲区长度、负载数据地址、负载数据长度外的一切信息
 /// @param [in] from    源数据块
 /// @param [in] to      目的数据块
 /// @return 无返回值
-XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to);
+XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from,
+                                       XPR_StreamBlock* to);
 
 /// @brief 复制数据块
 ///        复制除缓冲区地址外的一切数据
@@ -206,8 +212,4 @@ XPR_API const void* XPR_StreamBlockMeta(const XPR_StreamBlock* blk);
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_STREAMBLOCK_H
-

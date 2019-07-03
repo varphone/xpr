@@ -1,17 +1,27 @@
-﻿#ifndef XPR_ARR_H
+﻿/*
+ * File: xpr_arr.h
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 音频重采样操作接口
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Project       : xpr
+ * Author        : Varphone Wong <varphone@qq.com>
+ * File Created  : 2014-11-21 12:50:43 Friday, 21 November
+ * Last Modified : 2019-07-03 05:32:16 Wednesday, 3 July
+ * Modified By   : Varphone Wong <varphone@qq.com>
+ * ---------------------------------------------------------------------------
+ * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
+ * Copyright (C) 2012 - 2019 Varphone Wong, Varphone.com.
+ * All rights reserved.
+ * ---------------------------------------------------------------------------
+ * HISTORY:
+ * 2019-07-03   varphone    更新版权信息
+ * 2014-11-21   varphone    初始版本建立
+ */
+#ifndef XPR_ARR_H
 #define XPR_ARR_H
 
 #include <stdint.h>
 #include <xpr/xpr_common.h>
-
-/// @defgroup xprarr 音频重采样
-/// @brief     转换音频采样率
-/// @author    Varphone Wong [varphone@163.com]
-/// @version   1.0.0
-/// @date      2013/4/1
-///
-/// @{
-///
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +57,4 @@ XPR_API int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst);
 }
 #endif
 
-/// @}
-///
-
 #endif // XPR_ARR_H
-
