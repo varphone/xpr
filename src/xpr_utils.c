@@ -55,8 +55,8 @@ XPR_API void xpr_dbg_printf(int level, const char* format, ...)
         va_start(va, format);
         vsnprintf(tmp, DBG_MAX_PRINT_SIZE, format, va);
         va_end(va);
-        fprintf(stderr, "%s[%12.3f] [%d] : %s\x1B[0m\n",
-                _ansi_colors[level & 0x0F], ts, level, tmp);
+        fprintf(stderr, "%s<%d>[%12.3f] : %s\x1B[0m\n",
+                _ansi_colors[level & 0x0F], level, ts, tmp);
     }
 #endif
 }
