@@ -169,10 +169,21 @@ XPR_API int XPR_FifoPutAsAtomic(XPR_Fifo* f, uintptr_t data)
     return XPR_ERR_OK;
 }
 
-// FIXME:
 XPR_API uintptr_t XPR_FifoPeekAsAtomic(XPR_Fifo* f, int offset)
 {
-    return 0;
+    int n = 0;
+    uintptr_t v = 0;
+    if (!f)
+        return 0;
+    XPR_FIFO_LOCK(f);
+    if (XPR_FifoIsEmpty(f)) {
+        XPR_FIFO_UNLOCK(f);
+        return 0;
+    }
+    n = (f->tail + offset) % f->maxElements;
+    v = *(uintptr_t*)(f->data + n * f->elementSize);
+    XPR_FIFO_UNLOCK(f);
+    return v;
 }
 
 XPR_API int XPR_FifoDrain(XPR_Fifo* f, int size)
