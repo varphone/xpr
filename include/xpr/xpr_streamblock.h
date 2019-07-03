@@ -91,7 +91,8 @@ struct XPR_StreamBlock {
 /// @param [in] size    数据块大小，以字节为单位
 /// @retval NULL    分配失败
 /// @retval !NULL   已分配到的数据块内存地址
-/// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，否则要释放资源必须调用 XPR_StreamBlockFree() 来完成
+/// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，
+///       否则要释放资源必须调用 XPR_StreamBlockFree() 来完成。
 /// @sa XPR_StreamBlockFree(), XPR_StreamBlockRelease()
 XPR_API XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size);
 
@@ -99,8 +100,10 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size);
 /// @param [in] size    数据块大小，以字节为单位
 /// @retval NULL    分配失败
 /// @retval !NULL   已分配到的数据块内存地址
-/// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，否则要释放资源必须调用 XPR_StreamBlockFree() 来完成
-/// @warning 此接口只能用于 XPR_StreamBlockAlloc() 分配出来的对象，切勿用于用户自定义分配的对象
+/// @note 本接口分配的数据块并不会设定释放回调函数，除非用户手工设定，
+///       否则要释放资源必须调用 XPR_StreamBlockFree() 来完成。
+/// @warning 此接口只能用于 XPR_StreamBlockAlloc() 分配出来的对象，
+///          切勿用于用户自定义分配的对象。
 /// @sa XPR_StreamBlockFree(), XPR_StreamBlockRelease()
 XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk,
                                                 size_t size);
@@ -115,7 +118,8 @@ XPR_API void XPR_StreamBlockFree(XPR_StreamBlock* blk);
 /// @brief 释放流数据块资源
 /// @param [in] blk     已分配到的数据块内存地址
 /// @return 无返回值
-/// @note 可用于 XPR_StreamBlockAlloc() 或其他自定义方式分配的数据块，当数据块内不指定释放回调时将不会执行任何操作
+/// @note 可用于 XPR_StreamBlockAlloc() 或其他自定义方式分配的数据块，
+///       当数据块内不指定释放回调时将不会执行任何操作。
 /// @sa XPR_StreamBlockAlloc(), XPR_StreamBlockFree()
 XPR_API void XPR_StreamBlockRelease(XPR_StreamBlock* blk);
 
@@ -124,7 +128,8 @@ XPR_API void XPR_StreamBlockRelease(XPR_StreamBlock* blk);
 /// @param [in] data    数据地址
 /// @param [in] length  数据长度
 /// @return 返回包含了新数据的数据块地址
-/// @note 当数据块内缓冲长度足够时返回原来的数据块地址， 否则将返回调用 XPR_StreamBlockRealloc() 重新分配空间后的数据块地址
+/// @note 当数据块内缓冲长度足够时返回原来的数据块地址，
+///       否则将返回调用 XPR_StreamBlockRealloc() 重新分配空间后的数据块地址。
 /// @note XPR_StreamBlockFree()
 XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk,
 		                                       uint8_t* data, size_t length);
@@ -132,7 +137,7 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk,
 /// @brief 清空数据块
 /// @param [in] blk     已分配到的数据块内存地址
 /// @return 无返回值
-/// @warning 仅用于 XPR_StreamBlockAlloc()， XPR_StreamBlockRealloc() 分配的对象
+/// @warning 仅用于 XPR_StreamBlockAlloc()、XPR_StreamBlockRealloc() 分配的对象
 /// @sa XPR_StreamBlockAlloc(), XPR_StreamBlockRealloc()
 XPR_API void XPR_StreamBlockClear(XPR_StreamBlock* blk);
 

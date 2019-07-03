@@ -5,7 +5,6 @@
 #include <xpr/xpr_utils.h>
 #include <xpr/xpr_xml.h>
 
-
 XPR_API XPR_XML_Node* XPR_XML_LoadBuf(char* buffer)
 {
     return (XPR_XML_Node*)roxml_load_buf(buffer);
@@ -76,10 +75,7 @@ XPR_API int XPR_XML_GetChildNB(XPR_XML_Node* node)
     return roxml_get_chld_nb((node_t*)node);
 }
 
-/// @brief Process-Instruction getter function
-///
 /// This function returns the nth process-instruction of a node
-///
 XPR_API XPR_XML_Node* XPR_XML_GetPi(XPR_XML_Node* node, int nth)
 {
     return (XPR_XML_Node*)roxml_get_pi((node_t*)node, nth);

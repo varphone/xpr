@@ -2,22 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #if defined(WIN32) || defined(_WIN32)
-#include <crtdbg.h>
 #include <Windows.h>
+#include <crtdbg.h>
 #endif
 #include <string.h>
 #include <xpr/xpr_url.h>
 #include <xpr/xpr_utils.h>
 
 #ifndef MIN
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 #ifndef MAX
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
-enum UrlFlags {
+enum UrlFlags
+{
     URL_HAVE_NOTHING = 0,
     URL_HAVE_PROTOCOL = 1 << 1,
     URL_HAVE_PROTOCOL_MAJOR = 1 << 2,
@@ -32,7 +33,8 @@ enum UrlFlags {
     URL_HAVE_CHANGED = 1 << 11,
 };
 
-enum UrlParsingStage {
+enum UrlParsingStage
+{
     URL_PRS_NULL,
     URL_PRS_FOUND_PROTOCOL,
     URL_PRS_FOUND_PROTOCOL_MAJOR,
@@ -48,7 +50,8 @@ enum UrlParsingStage {
     URL_PRS_FOUND_QUERY,
 };
 
-struct XPR_Url {
+struct XPR_Url
+{
     char protocol[64];
     char protocolMajor[64];
     char protocolMinor[64];
@@ -75,9 +78,10 @@ static const char* strnchr(const char* s, int c, int n)
 }
 
 #if _MSC_VER < 1600
-static int strncpy_s(char* strDest, size_t numberOfElements, const char* strSource, size_t count)
+static int strncpy_s(char* strDest, size_t numberOfElements,
+                     const char* strSource, size_t count)
 {
-    size_t n = MIN(numberOfElements-1, count);
+    size_t n = MIN(numberOfElements - 1, count);
     memcpy(strDest, strSource, n);
     strDest[n] = 0;
     return n;
@@ -114,7 +118,7 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         length = (int)strlen(s);
 
     // Save and Change
-    //ctmp = *(char*)(s+length);
+    // ctmp = *(char*)(s+length);
     //*(char*)(s+length) = 0;
     //
     ep = s + length;
@@ -124,9 +128,10 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         p2 = strnchr(s, ':', (int)(p1 - s));
         if (p2) {
             strncpy_s(u->username, sizeof(u->username), s, p2 - s);
-            strncpy_s(u->password, sizeof(u->password), p2 + 1, p1 - p2 -1);
-            u->flags |= URL_HAVE_USERNAME|URL_HAVE_PASSWORD;
-        } else {
+            strncpy_s(u->password, sizeof(u->password), p2 + 1, p1 - p2 - 1);
+            u->flags |= URL_HAVE_USERNAME | URL_HAVE_PASSWORD;
+        }
+        else {
             strncpy_s(u->username, sizeof(u->username), s, p2 - s);
             u->password[0] = 0;
             u->flags |= URL_HAVE_USERNAME;
@@ -136,10 +141,11 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         p2 = strnchr(p1, ':', (int)(ep - p1));
         if (p2) {
             strncpy_s(u->host, sizeof(u->host), p1, p2 - p1);
-            strncpy_s(tmp, sizeof(tmp), p2+1, ep - p2);
+            strncpy_s(tmp, sizeof(tmp), p2 + 1, ep - p2);
             u->port = strtol(tmp, 0, 10);
             u->flags |= URL_HAVE_HOST | URL_HAVE_PORT;
-        } else {
+        }
+        else {
             strncpy_s(u->host, sizeof(u->host), p1, ep - p2);
             u->port = 0;
             u->flags |= URL_HAVE_HOST;
@@ -150,10 +156,11 @@ static void ParseHostPart(XPR_Url* u, const char* s, int length)
         p2 = strnchr(s, ':', length);
         if (p2) {
             strncpy_s(u->host, sizeof(u->host), s, p2 - s);
-            strncpy_s(tmp, sizeof(tmp), p2+1, ep - p2);
+            strncpy_s(tmp, sizeof(tmp), p2 + 1, ep - p2);
             u->port = strtol(tmp, 0, 0);
             u->flags |= URL_HAVE_HOST | URL_HAVE_PORT;
-        } else {
+        }
+        else {
             strncpy_s(u->host, sizeof(u->host), s, ep - s);
             u->port = 0;
             u->flags |= URL_HAVE_HOST;
@@ -210,18 +217,19 @@ XPR_API XPR_Url* XPR_UrlParse(const char* url, int length)
         goto lastPart;
     }
 
-	p = strchr(url, '/');
-	if (!p)
-		p = strchr(url, '?');
+    p = strchr(url, '/');
+    if (!p)
+        p = strchr(url, '?');
     if (!p) {
         ParseHostPart(u, url, -1);
         return u;
     }
     else if (p > (url + 1)) {
         ParseHostPart(u, url, (int)(p - url));
-		if (*p != '?')
-			url = p + 1;
-    } else {
+        if (*p != '?')
+            url = p + 1;
+    }
+    else {
         u->host[0] = 0;
         url = p;
     }
@@ -229,9 +237,10 @@ lastPart:
     p = strchr(url, '?');
     if (p) {
         memcpy(u->path, url, p - url);
-        strcpy_s(u->query, sizeof(u->query), p+1);
-        u->flags |= URL_HAVE_PATH|URL_HAVE_QUERY;
-    } else {
+        strcpy_s(u->query, sizeof(u->query), p + 1);
+        u->flags |= URL_HAVE_PATH | URL_HAVE_QUERY;
+    }
+    else {
         strcpy_s(u->path, sizeof(u->path), url);
         u->query[0] = 0;
         u->flags |= URL_HAVE_PATH;
@@ -351,7 +360,8 @@ XPR_API void XPR_UrlReplaceProtocol(XPR_Url* url, const char* value)
         return;
     if (value && value[0]) {
         strcpy_s(url->protocol, sizeof(url->protocol), value);
-        n = sscanf(url->protocol, "%[^.].%s", url->protocolMajor, url->protocolMinor);
+        n = sscanf(url->protocol, "%[^.].%s", url->protocolMajor,
+                   url->protocolMinor);
         url->flags |= URL_HAVE_PROTOCOL;
         url->flags &= ~URL_HAVE_PROTOCOL_MINOR;
         if (n > 0)
@@ -360,7 +370,8 @@ XPR_API void XPR_UrlReplaceProtocol(XPR_Url* url, const char* value)
             url->flags |= URL_HAVE_PROTOCOL_MINOR;
     }
     else
-        url->flags &= ~(URL_HAVE_PROTOCOL|URL_HAVE_PROTOCOL_MAJOR|URL_HAVE_PROTOCOL_MINOR);
+        url->flags &= ~(URL_HAVE_PROTOCOL | URL_HAVE_PROTOCOL_MAJOR |
+                        URL_HAVE_PROTOCOL_MINOR);
     url->flags |= URL_HAVE_CHANGED;
 }
 
@@ -465,48 +476,57 @@ XPR_API const char* XPR_UrlGetFullString(XPR_Url* url)
     }
 
     if (url->flags & URL_HAVE_PROTOCOL_MINOR)
-        size += (int)(strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor));
+        size +=
+            (int)(strlen(url->protocolMajor) + 1 + strlen(url->protocolMinor));
     else if (url->flags & URL_HAVE_PROTOCOL_MAJOR)
-		size += (int)strlen(url->protocolMajor);
+        size += (int)strlen(url->protocolMajor);
     if (url->flags & URL_HAVE_USERNAME)
-		size += (int)strlen(url->username);
+        size += (int)strlen(url->username);
     if (url->flags & URL_HAVE_PASSWORD)
-		size += (int)strlen(url->password);
+        size += (int)strlen(url->password);
     if (XPR_UrlHaveHost(url))
-		size += (int)strlen(url->host);
+        size += (int)strlen(url->host);
     if (XPR_UrlHavePort(url))
         size += 5;
     if (XPR_UrlHavePath(url))
-		size += (int)strlen(url->path);
+        size += (int)strlen(url->path);
     if (XPR_UrlHaveQuery(url))
-		size += (int)strlen(url->query);
-    p = url->fullString = (char*)malloc(size+32);
-    bufferSize = size+32;
+        size += (int)strlen(url->query);
+    p = url->fullString = (char*)malloc(size + 32);
+    bufferSize = size + 32;
     if (XPR_UrlHaveProtocolMinor(url)) {
-        size = snprintf(p, bufferSize, "%s.%s://",
-                        XPR_UrlGetProtocolMajor(url),
+        size = snprintf(p, bufferSize, "%s.%s://", XPR_UrlGetProtocolMajor(url),
                         XPR_UrlGetProtocolMinor(url));
-        p += size; bufferSize -= size;
+        p += size;
+        bufferSize -= size;
     }
     else {
         size = snprintf(p, bufferSize, "%s://", XPR_UrlGetProtocolMajor(url));
-        p += size; bufferSize -= size;
+        p += size;
+        bufferSize -= size;
     }
     if (XPR_UrlHaveUsername(url) || XPR_UrlHavePassword(url)) {
-        size = snprintf(p, bufferSize, "%s:%s@", XPR_UrlGetUsername(url), XPR_UrlGetPassword(url));
-        p += size; bufferSize -= size;
+        size = snprintf(p, bufferSize, "%s:%s@", XPR_UrlGetUsername(url),
+                        XPR_UrlGetPassword(url));
+        p += size;
+        bufferSize -= size;
     }
     if (XPR_UrlHaveHost(url)) {
         size = snprintf(p, bufferSize, "%s", XPR_UrlGetHost(url));
-        p += size; bufferSize -= size;
+        p += size;
+        bufferSize -= size;
     }
     if (XPR_UrlHavePort(url)) {
         size = snprintf(p, bufferSize, ":%d", XPR_UrlGetPort(url));
-        p += size; bufferSize -= size;
+        p += size;
+        bufferSize -= size;
     }
     if (XPR_UrlHavePath(url)) {
-        size = snprintf(p, bufferSize, "%s%s", url->flags & URL_HAVE_FILE_PROTOCOL ? "" : "/", url->path);
-        p += size; bufferSize -= size;
+        size =
+            snprintf(p, bufferSize, "%s%s",
+                     url->flags & URL_HAVE_FILE_PROTOCOL ? "" : "/", url->path);
+        p += size;
+        bufferSize -= size;
     }
     else {
         *p++ = '/';
@@ -515,7 +535,8 @@ XPR_API const char* XPR_UrlGetFullString(XPR_Url* url)
     }
     if (XPR_UrlHaveQuery(url)) {
         size = snprintf(p, bufferSize, "?%s", url->query);
-        p += size; bufferSize -= size;
+        p += size;
+        bufferSize -= size;
     }
 
     url->flags &= ~URL_HAVE_CHANGED;

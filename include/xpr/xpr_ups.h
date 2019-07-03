@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 
-#define XPR_UPS_MAX_KEY_LEN 1024    ///< 键最大长度
-#define XPR_UPS_VERSION     XPR_MakeVersion(1,0,0)
+#define XPR_UPS_MAX_KEY_LEN 1024 ///< 键最大长度
+#define XPR_UPS_VERSION XPR_MakeVersion(1, 0, 0)
 
 #ifndef XPR_UPS_ENTRY_TYPE_DEFINED
 #define XPR_UPS_ENTRY_TYPE_DEFINED
@@ -40,7 +40,7 @@ typedef struct XPR_UPS_Entry XPR_UPS_Entry; ///< XPR_UPS 类型声明
 
 #ifndef XPR_UPS_ENTRYTYPE_TYPE_DEFINED
 #define XPR_UPS_ENTRYTYPE_TYPE_DEFINED
-/// @brief XPR_UPS 条目类型
+/// XPR_UPS 条目类型
 enum XPR_UPS_EntryType {
     XPR_UPS_ENTRY_TYPE_UNKNOWN, ///< 未知
     XPR_UPS_ENTRY_TYPE_INIT,    ///< 初始化使用的特殊节点
@@ -87,9 +87,7 @@ typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, XPR_JSON* json,
 typedef int (*XPR_UPS_Setter)(XPR_UPS_Entry* ent, XPR_JSON* json,
                               const char* key, const void* data, int size);
 
-///
 /// 设定项数据结构
-///
 struct XPR_UPS_Entry {
     const char** names; ///< 设定项名称, 可包含多个, 最后一个必须以 NULL 作为结束
     const char** descs; ///< 设定项描述, 可包含多个, 最后一个必须以 NULL 作为结束
@@ -217,7 +215,7 @@ XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...);
 
 #ifndef XPR_UPS_BLOB_TYPE_DEFINED
 #define XPR_UPS_BLOB_TYPE_DEFINED
-/// @brief 二进制型设定项数据
+/// 二进制型设定项数据
 struct XPR_UPS_Blob {
     void* data; ///< 数据指针
     int size;   ///< 数据大小
@@ -245,7 +243,8 @@ XPR_API int XPR_UPS_GetBlobVK(XPR_UPS_Blob* value, const char* key, ...);
 /// @param [in] json        要读取的设定项所对于的 JSON 对象
 /// @param [in] key         要读取的设定项的键值
 /// @param [in,out] buffer  用于接受读取到的数据的缓冲区
-/// @param [in,out] size    指示用于接受读取到的数据的缓冲区大小，返回实际读取到的字节数
+/// @param [in,out] size    指示用于接受读取到的数据的缓冲区大小，
+///                         返回实际读取到的字节数
 /// @retval XPR_ERR_OK  读取成功
 /// @retval Other       读取发生异常, 请查看 [#XPR_ErrorCode]
 XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,

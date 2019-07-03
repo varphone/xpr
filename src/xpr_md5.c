@@ -103,7 +103,7 @@ static void Encode(unsigned char* output, uint32_t* input, unsigned int len)
     unsigned int i, j;
 
 #if 0
-	ASSERT((len % 4) == 0);
+    ASSERT((len % 4) == 0);
 #endif
 
     for (i = 0, j = 0; j < len; i++, j += 4) {

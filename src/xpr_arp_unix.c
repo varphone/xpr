@@ -1,27 +1,29 @@
-﻿#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
+﻿#include <arpa/inet.h>
+#include <errno.h>
 #include <net/ethernet.h>
 #include <net/if.h>
 #include <net/if_arp.h>
+#include <netinet/if_ether.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-#include <netinet/if_ether.h>
 #include <netpacket/packet.h>
-#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <xpr/xpr_arp.h>
 #include <xpr/xpr_common.h>
 #include <xpr/xpr_errno.h>
-#include <xpr/xpr_arp.h>
+#include <xpr/xpr_utils.h>
 
 #define ETH_ARP_LEN 42
 
-struct XPR_ARP {
+struct XPR_ARP
+{
     int sock;
     int if_index;
     unsigned char if_hwaddr[6];
@@ -34,20 +36,20 @@ static int XPR_ARP_Init(XPR_ARP* arp, const char* dev)
 {
     struct sockaddr_ll sa;
     struct ifreq ifr;
-    struct timeval tmo = { 0, 300000 };
+    struct timeval tmo = {0, 300000};
     //
     arp->sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
     if (arp->sock < 0) {
-        fprintf(stderr, "XPR_ARP: socket() failure, errno: %d\n", errno);
+        DBG(DBG_L2, "XPR_ARP: socket() failure, errno: %d", errno);
         return -1;
     }
     //
     if (setsockopt(arp->sock, SOL_SOCKET, SO_SNDTIMEO, &tmo, sizeof(tmo)) < 0) {
-        fprintf(stderr, "XPR_ARP: setsockopt() failure, errno: %d\n", errno);
+        DBG(DBG_L2, "XPR_ARP: setsockopt() failure, errno: %d", errno);
         return -1;
     }
     if (setsockopt(arp->sock, SOL_SOCKET, SO_RCVTIMEO, &tmo, sizeof(tmo)) < 0) {
-        fprintf(stderr, "XPR_ARP: setsockopt() failure, errno: %d\n", errno);
+        DBG(DBG_L2, "XPR_ARP: setsockopt() failure, errno: %d", errno);
         return -1;
     }
     //
@@ -94,7 +96,7 @@ static int XPR_ARP_Fini(XPR_ARP* arp)
     return XPR_ERR_OK;
 }
 
-XPR_ARP* XPR_ARP_New(const char* dev)
+XPR_API XPR_ARP* XPR_ARP_New(const char* dev)
 {
     XPR_ARP* arp = (XPR_ARP*)calloc(sizeof(*arp), 1);
     if (arp) {
@@ -103,7 +105,7 @@ XPR_ARP* XPR_ARP_New(const char* dev)
     return arp;
 }
 
-int XPR_ARP_Destroy(XPR_ARP* arp)
+XPR_API int XPR_ARP_Destroy(XPR_ARP* arp)
 {
     if (arp) {
         if (arp->sock > 0)
@@ -113,9 +115,9 @@ int XPR_ARP_Destroy(XPR_ARP* arp)
     return 0;
 }
 
-int XPR_ARP_Ask(XPR_ARP* arp, const char* host)
+XPR_API int XPR_ARP_Ask(XPR_ARP* arp, const char* host)
 {
-    static unsigned char bcast_mac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+    static unsigned char bcast_mac[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     int n = 0;
     struct ether_header* eth = 0;
     struct ether_arp* eth_arp = 0;
@@ -143,12 +145,12 @@ int XPR_ARP_Ask(XPR_ARP* arp, const char* host)
     memcpy(eth_arp->arp_tpa, &target_addr, 4);
     sa.sll_family = PF_PACKET;
     sa.sll_ifindex = arp->if_index;
-    n = sendto(arp->sock, arp->tx_buf, ETH_ARP_LEN, 0,
-               (struct sockaddr*)&sa, sizeof(sa));
+    n = sendto(arp->sock, arp->tx_buf, ETH_ARP_LEN, 0, (struct sockaddr*)&sa,
+               sizeof(sa));
     return 0;
 }
 
-int XPR_ARP_Poll(XPR_ARP* arp)
+XPR_API int XPR_ARP_Poll(XPR_ARP* arp)
 {
     int n = 0;
     n = recvfrom(arp->sock, arp->rx_buf, sizeof(arp->rx_buf), 0, NULL, NULL);
@@ -159,15 +161,16 @@ static int XPR_ARP_IsHostExists(XPR_ARP* arp, const char* host)
 {
     char tmp[128];
     struct ether_header* eth = (struct ether_header*)arp->rx_buf;
-    struct ether_arp* eth_arp = (struct ether_arp*)(arp->rx_buf + sizeof(struct ether_header));
-    struct in_addr host_addr = { 0 };
+    struct ether_arp* eth_arp =
+        (struct ether_arp*)(arp->rx_buf + sizeof(struct ether_header));
+    struct in_addr host_addr = {0};
     inet_pton(AF_INET, host, &host_addr);
     if (memcmp(&host_addr, eth_arp->arp_spa, 4) == 0)
         return XPR_TRUE;
     return XPR_FALSE;
 }
 
-int XPR_ARP_Scan(XPR_ARP* arp, const char* host)
+XPR_API int XPR_ARP_Scan(XPR_ARP* arp, const char* host)
 {
     if (XPR_ARP_Ask(arp, host) < 0)
         return XPR_ERR_ERROR;

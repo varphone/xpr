@@ -1,11 +1,12 @@
-﻿#include <stdio.h>
+﻿#include <dirent.h>
+#include <dlfcn.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dlfcn.h>
 #include <sys/types.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <xpr/xpr_plugin.h>
+#include <xpr/xpr_utils.h>
 
 static XPR_PluginModule* pluginRoot = 0;
 
@@ -51,20 +52,21 @@ static void HoldPluginModule(XPR_PluginModule* pm)
             if (p->next == 0) {
                 p->next = pm;
                 pm->prev = p;
-				return;
+                return;
             }
             p = p->next;
         }
     }
 }
 
-XPR_PluginModule* XPR_PluginLoad(const char* name)
+XPR_API XPR_PluginModule* XPR_PluginLoad(const char* name)
 {
     XPR_PluginModule* pm = calloc(sizeof(*pm), 1);
     if (pm) {
         pm->libHandle = dlopen(name, RTLD_LAZY);
         if (!pm->libHandle) {
-            fprintf(stderr, "%s\n", dlerror());
+            DBG(DBG_L1, "XPR_Plugin: dlopen(%s) failed, erro: %s", name,
+                dlerror());
             goto fail;
         }
         pm->prev = 0;
@@ -73,8 +75,8 @@ XPR_PluginModule* XPR_PluginLoad(const char* name)
         pm->fini = dlsym(pm->libHandle, "XPR_PluginFini");
         if (pm->init) {
             pm->pluginHandle = pm->init();
-            if(pm->pluginHandle == NULL) {
-                fprintf(stderr, "load [%s] failed\n", name);
+            if (pm->pluginHandle == NULL) {
+                DBG(DBG_L1, "XPR_Plugin: load [%s] failed", name);
                 goto fail;
             }
         }
@@ -91,7 +93,7 @@ static int comp(const void* a, const void* b)
     return strcmp(*(char**)a, *(char**)b);
 }
 
-int XPR_PluginLoadAll(const char* dir)
+XPR_API int XPR_PluginLoadAll(const char* dir)
 {
     int i = 0;
     int n = 0;
@@ -127,7 +129,7 @@ int XPR_PluginLoadAll(const char* dir)
     return n;
 }
 
-int XPR_PluginUnload(XPR_PluginModule* handle)
+XPR_API int XPR_PluginUnload(XPR_PluginModule* handle)
 {
     XPR_PluginModule* pm = (XPR_PluginModule*)handle;
     if (pm) {
@@ -146,30 +148,30 @@ int XPR_PluginUnload(XPR_PluginModule* handle)
     return 0;
 }
 
-XPR_Plugin* XPR_PluginFind(const char* name)
+XPR_API XPR_Plugin* XPR_PluginFind(const char* name)
 {
     XPR_PluginModule* pm = FindPluginModule(name);
     return pm ? pm->pluginHandle : 0;
 }
 
-const char* XPR_PluginGetName(const XPR_Plugin* plugin)
+XPR_API const char* XPR_PluginGetName(const XPR_Plugin* plugin)
 {
     return plugin ? ((XPR_Plugin*)plugin)->name : 0;
 }
 
-const char* XPR_PluginGetDesc(const XPR_Plugin* plugin)
+XPR_API const char* XPR_PluginGetDesc(const XPR_Plugin* plugin)
 {
     return plugin ? ((XPR_Plugin*)plugin)->desc : 0;
 }
 
-int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer, int* size)
+XPR_API int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer,
+                               int* size)
 {
     return 0;
 }
 
-int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data, int size)
+XPR_API int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data,
+                               int size)
 {
     return 0;
 }
-
-

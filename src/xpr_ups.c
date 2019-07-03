@@ -1,31 +1,32 @@
-﻿#include <stdio.h>
+﻿#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
-#include <xpr/xpr_ups.h>
 #include <xpr/xpr_json.h>
+#include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
-#define MAX_KEY_LEN  16
-#define CHECK_KVS(k,v,s) \
-        if(!k||!v||!s)\
-            return XPR_ERR_UPS_NULL_PTR
+#define MAX_KEY_LEN 16
+#define CHECK_KVS(k, v, s)                                                     \
+    if (!k || !v || !s)                                                        \
+        return XPR_ERR_UPS_NULL_PTR
 
-#define CHECK_KV(k,v) \
-        if(!k||!v)\
-            return XPR_ERR_UPS_NULL_PTR
+#define CHECK_KV(k, v)                                                         \
+    if (!k || !v)                                                              \
+        return XPR_ERR_UPS_NULL_PTR
 
 static XPR_UPS_Entry* root = 0;
-static XPR_JSON*      root_json = 0;
+static XPR_JSON* root_json = 0;
 
-//查找给定节点，成功返回节点指针，失败返回NULL.
-//需要注意的是传进来的key要注意末尾是不是有'/',
-//如/sysem/network/ /system/network是不一样的，前者表示目录，后者表示具体的项
+// 查找给定节点，成功返回节点指针，失败返回 NULL。
+// 需要注意的是传进来的 key 要注意末尾是不是有 '/',
+// 如 "/sysem/network/" "/system/network" 是不一样的，
+// 前者表示目录，后者表示具体的项。
 XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
                               XPR_UPS_Entry** entry)
 {
     int i = 0, j = 0, len = 0, leaf = 0, count = 0;
-    char* saveptr, *s, *name;
+    char *saveptr, *s, *name;
     char* names[MAX_KEY_LEN];
     XPR_JSON* child_json = 0;
     XPR_JSON* parent_json = root_json;
@@ -38,7 +39,7 @@ XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
         return XPR_ERR_SUCCESS;
     }
     len = strlen(key);
-    leaf = key[len - 1] == '/' ? 0 : 1 ;
+    leaf = key[len - 1] == '/' ? 0 : 1;
     s = malloc(len + 1);
     if (!s)
         return XPR_ERR_UPS_NOMEM;
@@ -63,7 +64,7 @@ XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
     while (p && i < count) {
         // 只有是叶子节点的时候，也就是最后一层的时候，才会有多个名字存在需要遍历，其他情况不需要
         if (leaf && (i == count - 1)) {
-            child_json  =  XPR_JSON_ObjectGet(parent_json, names[i]);
+            child_json = XPR_JSON_ObjectGet(parent_json, names[i]);
             while (p) {
                 for (j = 0, name = (char*)p->names[j]; name != 0;
                      j++, name = (char*)p->names[j]) {
@@ -83,7 +84,7 @@ XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
         // 树形的目录检索
         else if (strcmp(names[i], p->names[0]) == 0) {
             if (i != 0) {
-                parent_json =  XPR_JSON_ObjectGet(parent_json, names[i]);
+                parent_json = XPR_JSON_ObjectGet(parent_json, names[i]);
                 child_json = parent_json;
             }
             if (++i == count) {
@@ -96,7 +97,7 @@ XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
         }
         // 检索他的兄弟节点
         else {
-            child_json  =  XPR_JSON_ObjectGet(parent_json, names[i]);
+            child_json = XPR_JSON_ObjectGet(parent_json, names[i]);
             p = p->next;
         }
     }
@@ -154,7 +155,7 @@ XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
     else {
         ret = XPR_UPS_FindEntry(ent->root, &json, &entry);
         if (XPR_ERR_SUCCESS != ret) {
-            printf("ret = %X, cant not find:%s\n", ret, ent->root);
+            DBG(DBG_L2, "XPR_UPS: Root \"%s\" does not exists", ent->root);
             return XPR_ERR_UPS_UNEXIST;
         }
         if (!entry->subs) {
@@ -163,9 +164,9 @@ XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
         else {
             entry = entry->subs;
             while (entry) {
-                if (ent->type ==
-                    XPR_UPS_ENTRY_TYPE_DIR  // 如果目录已存在则直接退出，不做挂载
-                    && strcmp(entry->names[0], ent->names[0]) == 0)
+                // 如果目录已存在则直接退出，不做挂载
+                if (ent->type == XPR_UPS_ENTRY_TYPE_DIR &&
+                    strcmp(entry->names[0], ent->names[0]) == 0)
                     return XPR_ERR_SUCCESS;
                 if (!entry->next) {
                     entry->next = ent;
@@ -198,7 +199,7 @@ static void XPR_UPS_RegisterAll(void)
                      xpr_ups_driver_system_network_count);
     XPR_UPS_Register(xpr_ups_driver_system_information,
                      xpr_ups_driver_system_information_count);
-    // register other....
+    // Register other ...
 }
 
 XPR_API int XPR_UPS_Init(void)
@@ -208,7 +209,6 @@ XPR_API int XPR_UPS_Init(void)
     root_json = XPR_JSON_LoadFileName("./configuration.json");
     if (!root_json)
         return XPR_ERR_UPS_UNEXIST;
-    //printf("%s\n", XPR_JSON_DumpString(root_json));
     XPR_UPS_RegisterAll();
     return XPR_ERR_SUCCESS;
 }
@@ -221,18 +221,16 @@ XPR_API int XPR_UPS_Fini(void)
     return XPR_ERR_SUCCESS;
 }
 
-/// @brief
 XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 {
     int i = 0, result;
     for (; i < count; i++) {
         result = XPR_UPS_RegisterSingle(&ents[i]);
-        //printf("register ents[%d].root=%s result:%d\n", i, ents[i].root, result);
+        DBG(DBG_L5, "XPR_UPS: Register %s result: %d", ents[i].root, result);
     }
     return XPR_ERR_SUCCESS;
 }
 
-/// @brief
 XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
     return XPR_ERR_SUCCESS;
@@ -255,10 +253,8 @@ XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value,
-                           size);
+    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
-
 
 XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size)
 {
@@ -276,8 +272,7 @@ XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value,
-                           size);
+    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
 XPR_API int XPR_UPS_SetInteger(const char* key, int value)
@@ -338,7 +333,7 @@ XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return  XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
+    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
@@ -421,7 +416,6 @@ XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
-
 XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
 {
     if (!key)
@@ -490,11 +484,10 @@ XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
     const char* s = NULL;
     switch (ent->type) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        *(int*)buffer = XPR_JSON_IntegerValue(
-                            json);//not support boolean set now 20140924
+        *(int*)buffer = XPR_JSON_IntegerValue(json);
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
-        // not support yet...
+        // FIXME: Not support yet ...
         break;
     case XPR_UPS_ENTRY_TYPE_INT:
         *(int*)buffer = XPR_JSON_IntegerValue(json);
@@ -527,11 +520,10 @@ XPR_API int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
     int result = XPR_ERR_OK;
     switch (ent->type) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        result = XPR_JSON_IntegerSet(json,
-                                     *(int*)data);//not support boolean set now 20140924
+        result = XPR_JSON_IntegerSet(json, *(int*)data);
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
-        // not support yet...
+        // FIXME: Not support yet ...
         break;
     case XPR_UPS_ENTRY_TYPE_INT:
         result = XPR_JSON_IntegerSet(json, *(int*)data);
@@ -575,10 +567,12 @@ XPR_API const char* XPR_UPS_NextKey(const char* key)
 
 XPR_API void XPR_UPS_BeginGroup(const char* group)
 {
+    // FIXME:
 }
 
 XPR_API void XPR_UPS_EndGroup(const char* group)
 {
+    // FIXME:
 }
 
 XPR_API int XPR_UPS_Export(const char* url)

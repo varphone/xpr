@@ -46,9 +46,9 @@ static inline uint16_t crc16_byte(uint16_t crc, const uint16_t data)
 
 /**
 * crc16 - compute the CRC-16 for the data buffer
-* @crc:	previous CRC value
-* @buffer:	data pointer
-* @len:	number of bytes in the buffer
+* @crc:     previous CRC value
+* @buffer:  data pointer
+* @len:     number of bytes in the buffer
 *
 * Returns the updated CRC value.
 */

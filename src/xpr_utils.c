@@ -123,7 +123,7 @@ char* strsep(char** stringp, const char* delim)
 #endif
 
 #if !defined(_MSC_VER)
-XPR_API int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource)
+int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource)
 {
     char* p = strDestination;
     size_t available = numberOfElements;
@@ -203,29 +203,29 @@ XPR_API const char* xpr_get_next_line(const char** sp)
 }
 
 XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
-						   void(*filter)(void* opaque, char* segment),
-						   void* opaque)
+                           void (*filter)(void* opaque, char* segment),
+                           void* opaque)
 {
-	char* tok = NULL;
-	char* tmp = NULL;
-	char* ptr = NULL;
-	if (length > 0) {
-		tmp = malloc(length + 1);
-		memcpy(tmp, str, length);
-		tmp[length] = 0;
-	}
-	else {
+    char* tok = NULL;
+    char* tmp = NULL;
+    char* ptr = NULL;
+    if (length > 0) {
+        tmp = malloc(length + 1);
+        memcpy(tmp, str, length);
+        tmp[length] = 0;
+    }
+    else {
 #if defined(_MSC_VER)
-		tmp = _strdup(str);
+        tmp = _strdup(str);
 #else
-		tmp = strdup(str);
+        tmp = strdup(str);
 #endif
-	}
- 	ptr = tmp;
-	for (tok = strsep(&ptr, delim); tok != NULL; tok = strsep(&ptr, delim)) {
-		filter(opaque, tok);
-	}
-	free(tmp);
+    }
+    ptr = tmp;
+    for (tok = strsep(&ptr, delim); tok != NULL; tok = strsep(&ptr, delim)) {
+        filter(opaque, tok);
+    }
+    free(tmp);
 }
 
 XPR_API XPR_IntRange XPR_IntRangeParse(const char* s)
@@ -258,9 +258,9 @@ XPR_API char* XPR_IntRangeToString(XPR_IntRange rng)
 /// @param [in] size    Buffer size
 /// @return bytes of packed data
 XPR_API int XPR_PackBitse(unsigned char* data, int length,
-						  unsigned char* buffer, int size)
+                          unsigned char* buffer, int size)
 {
-    unsigned char* p, *q, *run, *dataend;
+    unsigned char *p, *q, *run, *dataend;
     int count, maxrun;
     dataend = data + length;
 
@@ -277,21 +277,27 @@ XPR_API int XPR_PackBitse(unsigned char* data, int length,
 
             count = p - run;
             // replace this run in output with two bytes:
-            *q++ = 1 + 256 - count; /* flag byte, which encodes count (129..254) */
-            *q++ = run[0];      /* byte value that is duplicated */
-        } else {
+            /* flag byte, which encodes count (129..254) */
+            *q++ = 1 + 256 - count;
+            /* byte value that is duplicated */
+            *q++ = run[0];
+        }
+        else {
             // If the input doesn't begin with at least 3 duplicated values,
             // then copy the input block, up to the run length limit,
             // end of input, or until we see three duplicated values:
             for (p = run; p < (run + maxrun);)
+                // 3 bytes repeated end verbatim run
                 if (p <= (dataend - 3) && p[1] == p[0] && p[2] == p[0])
-                    break; // 3 bytes repeated end verbatim run
+                    break;
                 else
                     ++p;
 
             count = p - run;
-            *q++ = count - 1;      /* flag byte, which encodes count (0..127) */
-            memcpy(q, run, count); /* followed by the bytes in the run */
+            /* flag byte, which encodes count (0..127) */
+            *q++ = count - 1;
+            /* followed by the bytes in the run */
+            memcpy(q, run, count);
             q += count;
         }
     }
@@ -306,7 +312,7 @@ XPR_API int XPR_PackBitse(unsigned char* data, int length,
 /// @param [in] size    Buffer size
 /// @return bytes of unpacked data
 XPR_API int XPR_UnPackBits(unsigned char* data, int length,
-				           unsigned char* buffer, int size)
+                           unsigned char* buffer, int size)
 {
     int i, len;
     int val;
@@ -317,8 +323,9 @@ XPR_API int XPR_UnPackBits(unsigned char* data, int length,
         len = *data++;
         --length;
 
-        if (len == 128) /* ignore this flag value */
-            ; // warn_msg("RLE flag byte=128 ignored");
+        /* ignore this flag value */
+        if (len == 128)
+            DBG(DBG_L2, "XPR_UnPackBits: RLE flag byte=128 ignored");
         else {
             if (len > 128) {
                 len = 1 + 256 - len;
@@ -329,25 +336,34 @@ XPR_API int XPR_UnPackBits(unsigned char* data, int length,
                 if ((i + len) <= size)
                     memset(buffer, val, len);
                 else {
-                    memset(buffer, val, size - i); // fill enough to complete row
-                    //printf("unpacked RLE data would overflow row (run)\n");
-                    len = 0; // effectively ignore this run, probably corrupt flag byte
+                    // fill enough to complete row
+                    memset(buffer, val, size - i);
+                    DBG(DBG_L2, "XPR_UnPackBits: unpacked RLE data would "
+                                "overflow row (run)");
+                    // effectively ignore this run, probably corrupt flag byte
+                    len = 0;
                 }
-            } else {
+            }
+            else {
                 ++len;
 
                 if ((i + len) <= size) {
+                     // abort - ran out of input data
                     if (len > length)
-                        break; // abort - ran out of input data
+                        break;
 
                     /* copy verbatim run */
                     memcpy(buffer, data, len);
                     data += len;
                     length -= len;
-                } else {
-                    memcpy(buffer, data, size - i); // copy enough to complete row
-                    //printf("unpacked RLE data would overflow row (copy)\n");
-                    len = 0; // effectively ignore
+                }
+                else {
+                    // copy enough to complete row
+                    memcpy(buffer, data, size - i);
+                    DBG(DBG_L2, "XPR_UnPackBits: unpacked RLE data would "
+                                "overflow row (copy)");
+                    // effectively ignore
+                    len = 0;
                 }
             }
 
@@ -357,7 +373,7 @@ XPR_API int XPR_UnPackBits(unsigned char* data, int length,
     }
 
     if (i < size) {
-        //printf("not enough RLE data for row\n");
+        DBG(DBG_L2, "XPR_UnPackBits: not enough RLE data for row");
     }
 
     return i;
@@ -413,7 +429,8 @@ static int htoi(int8_t hc)
     return 0;
 }
 
-XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, int* size)
+XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer,
+                              int* size)
 {
     static int8_t hexTable[] = "0123456789ABCDEF";
     int i = 0;
@@ -461,7 +478,8 @@ XPR_API int8_t* XPR_UriEncode(const uint8_t* uri, int length, int8_t* buffer, in
     return buffer;
 }
 
-XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer, int* size)
+XPR_API uint8_t* XPR_UriDecode(const int8_t* uri, int length, uint8_t* buffer,
+                               int* size)
 {
     int c = 0;
     int bsize = 0;
@@ -528,7 +546,8 @@ uint8_t XPR_UTF16LE_BOM[] = {0xFF, 0xFE};
 uint8_t XPR_UTF32BE_BOM[] = {0x00, 0x00, 0xFE, 0xFF};
 uint8_t XPR_UTF32LE_BOM[] = {0xFF, 0xFE, 0x00, 0x00};
 
-static int UTF8C_UTF16C(const uint8_t* utf8, int length, uint16_t* utf16, int size)
+static int UTF8C_UTF16C(const uint8_t* utf8, int length, uint16_t* utf16,
+                        int size)
 {
     uint32_t v = 0;
     int retval = 1;
@@ -543,54 +562,54 @@ static int UTF8C_UTF16C(const uint8_t* utf8, int length, uint16_t* utf16, int si
         *utf16 = v;
         break;
     case 3:
-        v   = utf8[0] & 0x0f;
+        v = utf8[0] & 0x0f;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         *utf16 = v;
         break;
     case 4:
-        v   = utf8[0] & 0x07;
+        v = utf8[0] & 0x07;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[3] & 0x3f;
+        v -= 0x10000;
         *utf16++ = 0xD800 | ((v >> 10) & 0x3ff);
         *utf16++ = 0xDC00 | (v & 0x3ff);
         retval = 2;
         break;
     case 5:
-        v   = utf8[0] & 0x03;
+        v = utf8[0] & 0x03;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[4] & 0x3f;
+        v -= 0x10000;
         *utf16++ = 0xD800 | ((v >> 10) & 0x3ff);
         *utf16++ = 0xDC00 | (v & 0x3ff);
         retval = 2;
         break;
     case 6:
-        v   = utf8[0] & 0x01;
+        v = utf8[0] & 0x01;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
+        v |= utf8[4] & 0x3f;
         v <<= 6;
-        v  |= utf8[5] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[5] & 0x3f;
+        v -= 0x10000;
         *utf16++ = 0xD800 + ((v >> 10) & 0x3ff);
         *utf16++ = 0xDC00 + (v & 0x3ff);
         retval = 2;
@@ -602,7 +621,8 @@ static int UTF8C_UTF16C(const uint8_t* utf8, int length, uint16_t* utf16, int si
     return retval;
 }
 
-static int UTF8C_UTF16BEC(const uint8_t* utf8, int length, uint16_t* utf16, int size)
+static int UTF8C_UTF16BEC(const uint8_t* utf8, int length, uint16_t* utf16,
+                          int size)
 {
     uint32_t v = 0;
     int retval = 0;
@@ -619,55 +639,55 @@ static int UTF8C_UTF16BEC(const uint8_t* utf8, int length, uint16_t* utf16, int 
         retval = 1;
         break;
     case 3:
-        v   = utf8[0] & 0x0f;
+        v = utf8[0] & 0x0f;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         *utf16 = swap16(v);
         retval = 1;
         break;
     case 4:
-        v   = utf8[0] & 0x07;
+        v = utf8[0] & 0x07;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[3] & 0x3f;
+        v -= 0x10000;
         *utf16++ = swap16(0xD800 | ((v >> 10) & 0x3ff));
         *utf16++ = swap16(0xDC00 | (v & 0x3ff));
         retval = 2;
         break;
     case 5:
-        v   = utf8[0] & 0x03;
+        v = utf8[0] & 0x03;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[4] & 0x3f;
+        v -= 0x10000;
         *utf16++ = swap16(0xD800 | ((v >> 10) & 0x3ff));
         *utf16++ = swap16(0xDC00 | (v & 0x3ff));
         retval = 2;
         break;
     case 6:
-        v   = utf8[0] & 0x01;
+        v = utf8[0] & 0x01;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
+        v |= utf8[4] & 0x3f;
         v <<= 6;
-        v  |= utf8[5] & 0x3f;
-        v  -= 0x10000;
+        v |= utf8[5] & 0x3f;
+        v -= 0x10000;
         *utf16++ = swap16(0xD800 + ((v >> 10) & 0x3ff));
         *utf16++ = swap16(0xDC00 + (v & 0x3ff));
         retval = 2;
@@ -679,7 +699,8 @@ static int UTF8C_UTF16BEC(const uint8_t* utf8, int length, uint16_t* utf16, int 
     return retval;
 }
 
-static int UTF8C_UTF32C(const uint8_t* utf8, int length, uint32_t* utf32, int size)
+static int UTF8C_UTF32C(const uint8_t* utf8, int length, uint32_t* utf32,
+                        int size)
 {
     uint32_t v = 0;
     int retval = 1;
@@ -694,49 +715,49 @@ static int UTF8C_UTF32C(const uint8_t* utf8, int length, uint32_t* utf32, int si
         *utf32 = v;
         break;
     case 3:
-        v   = utf8[0] & 0x0f;
+        v = utf8[0] & 0x0f;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         *utf32 = v;
         break;
     case 4:
-        v   = utf8[0] & 0x07;
+        v = utf8[0] & 0x07;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         *utf32 = v;
         break;
     case 5:
-        v   = utf8[0] & 0x03;
+        v = utf8[0] & 0x03;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
-        //v  -= 0x10000;
+        v |= utf8[4] & 0x3f;
+        // v  -= 0x10000;
         *utf32 = v;
         break;
     case 6:
-        v   = utf8[0] & 0x01;
+        v = utf8[0] & 0x01;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
+        v |= utf8[4] & 0x3f;
         v <<= 6;
-        v  |= utf8[5] & 0x3f;
-        //v  -= 0x10000;
+        v |= utf8[5] & 0x3f;
+        // v  -= 0x10000;
         *utf32 = v;
         break;
     default:
@@ -746,7 +767,8 @@ static int UTF8C_UTF32C(const uint8_t* utf8, int length, uint32_t* utf32, int si
     return retval;
 }
 
-static int UTF8C_UTF32BEC(const uint8_t* utf8, int length, uint32_t* utf32, int size)
+static int UTF8C_UTF32BEC(const uint8_t* utf8, int length, uint32_t* utf32,
+                          int size)
 {
     uint32_t v = 0;
     int retval = 1;
@@ -761,49 +783,49 @@ static int UTF8C_UTF32BEC(const uint8_t* utf8, int length, uint32_t* utf32, int 
         *utf32 = swap32(v);
         break;
     case 3:
-        v   = utf8[0] & 0x0f;
+        v = utf8[0] & 0x0f;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         *utf32 = swap32(v);
         break;
     case 4:
-        v   = utf8[0] & 0x07;
+        v = utf8[0] & 0x07;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         *utf32 = swap32(v);
         break;
     case 5:
-        v   = utf8[0] & 0x03;
+        v = utf8[0] & 0x03;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
-        //v  -= 0x10000;
+        v |= utf8[4] & 0x3f;
+        // v  -= 0x10000;
         *utf32 = swap32(v);
         break;
     case 6:
-        v   = utf8[0] & 0x01;
+        v = utf8[0] & 0x01;
         v <<= 6;
-        v  |= utf8[1] & 0x3f;
+        v |= utf8[1] & 0x3f;
         v <<= 6;
-        v  |= utf8[2] & 0x3f;
+        v |= utf8[2] & 0x3f;
         v <<= 6;
-        v  |= utf8[3] & 0x3f;
+        v |= utf8[3] & 0x3f;
         v <<= 6;
-        v  |= utf8[4] & 0x3f;
+        v |= utf8[4] & 0x3f;
         v <<= 6;
-        v  |= utf8[5] & 0x3f;
-        //v  -= 0x10000;
+        v |= utf8[5] & 0x3f;
+        // v  -= 0x10000;
         *utf32 = swap32(v);
         break;
     default:
@@ -814,15 +836,16 @@ static int UTF8C_UTF32BEC(const uint8_t* utf8, int length, uint32_t* utf32, int 
 }
 
 #if 0
-static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8, int size)
+static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8,
+                        int size)
 {
     uint32_t v = 0;
     int retval = 0;
     if (length == 2) {
-        v   = (utf16[0] - 0xD800) & 0x3ff;
+        v = (utf16[0] - 0xD800) & 0x3ff;
         v <<= 10;
-        v  |= (utf16[1] - 0xDC00) & 0x3ff;
-        v  += 10000;
+        v |= (utf16[1] - 0xDC00) & 0x3ff;
+        v += 10000;
     }
     else {
         v = *utf16;
@@ -870,7 +893,8 @@ static int UTF16C_UTF8C(const uint16_t* utf16, int length, uint8_t* utf8, int si
 }
 #endif
 
-XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length,
+                                 uint16_t* utf16, int* size)
 {
     int n8 = 0;
     int n16 = 0;
@@ -883,7 +907,7 @@ XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf1
         length = strlen((const char*)utf8);
     //
     if (!utf16) {
-        u16size = length+1;
+        u16size = length + 1;
         utf16 = malloc(sizeof(uint16_t) * u16size);
     }
     else {
@@ -928,11 +952,11 @@ XPR_API uint16_t* XPR_UTF8_UTF16(const uint8_t* utf8, int length, uint16_t* utf1
             n16 = UTF8C_UTF16C(utf8, 6, utf16, u16size);
         }
         //
-        utf16   += n16;
-        u16len  += n16;
+        utf16 += n16;
+        u16len += n16;
         u16size -= n16;
-next:
-        utf8   += n8;
+    next:
+        utf8 += n8;
         length -= n8;
     }
     // Make NULL terminated
@@ -944,7 +968,8 @@ next:
     return u16;
 }
 
-XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length,
+                                   uint16_t* utf16, int* size)
 {
     int n8 = 0;
     int n16 = 0;
@@ -957,7 +982,7 @@ XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* ut
         length = strlen((const char*)utf8);
     //
     if (!utf16) {
-        u16size = length+1;
+        u16size = length + 1;
         utf16 = malloc(sizeof(uint16_t) * u16size);
     }
     else {
@@ -1000,11 +1025,11 @@ XPR_API uint16_t* XPR_UTF8_UTF16BE(const uint8_t* utf8, int length, uint16_t* ut
             n16 = UTF8C_UTF16BEC(utf8, 6, utf16, u16size);
         }
         //
-        utf16   += n16;
-        u16len  += n16;
+        utf16 += n16;
+        u16len += n16;
         u16size -= n16;
-next:
-        utf8   += n8;
+    next:
+        utf8 += n8;
         length -= n8;
     }
     //
@@ -1016,12 +1041,14 @@ next:
     return u16;
 }
 
-XPR_API uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length, uint16_t* utf16, int* size)
+XPR_API uint16_t* XPR_UTF8_UTF16LE(const uint8_t* utf8, int length,
+                                   uint16_t* utf16, int* size)
 {
     return XPR_UTF8_UTF16(utf8, length, utf16, size);
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length,
+                                 uint32_t* utf32, int* size)
 {
     int n8 = 0;
     int n32 = 0;
@@ -1034,7 +1061,7 @@ XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf3
         length = strlen((const char*)utf8);
     //
     if (!utf32) {
-        u32size = length+1;
+        u32size = length + 1;
         utf32 = malloc(sizeof(uint32_t) * u32size);
     }
     else {
@@ -1077,11 +1104,11 @@ XPR_API uint32_t* XPR_UTF8_UTF32(const uint8_t* utf8, int length, uint32_t* utf3
             n32 = UTF8C_UTF32C(utf8, 6, utf32, u32size);
         }
         //
-        utf32   += n32;
-        u32len  += n32;
+        utf32 += n32;
+        u32len += n32;
         u32size -= n32;
-next:
-        utf8   += n8;
+    next:
+        utf8 += n8;
         length -= n8;
     }
     //
@@ -1093,7 +1120,8 @@ next:
     return u32;
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length,
+                                   uint32_t* utf32, int* size)
 {
     int n8 = 0;
     int n32 = 0;
@@ -1106,7 +1134,7 @@ XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* ut
         length = strlen((const char*)utf8);
     //
     if (!utf32) {
-        u32size = length+1;
+        u32size = length + 1;
         utf32 = malloc(sizeof(uint32_t) * u32size);
     }
     else {
@@ -1149,11 +1177,11 @@ XPR_API uint32_t* XPR_UTF8_UTF32BE(const uint8_t* utf8, int length, uint32_t* ut
             n32 = UTF8C_UTF32BEC(utf8, 6, utf32, u32size);
         }
         //
-        utf32   += n32;
-        u32len  += n32;
+        utf32 += n32;
+        u32len += n32;
         u32size -= n32;
-next:
-        utf8   += n8;
+    next:
+        utf8 += n8;
         length -= n8;
     }
     //
@@ -1165,7 +1193,8 @@ next:
     return u32;
 }
 
-XPR_API uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length, uint32_t* utf32, int* size)
+XPR_API uint32_t* XPR_UTF8_UTF32LE(const uint8_t* utf8, int length,
+                                   uint32_t* utf32, int* size)
 {
     return XPR_UTF8_UTF32(utf8, length, utf32, size);
 }
@@ -1195,7 +1224,8 @@ XPR_API int XPR_UTF8_GetChars(const uint8_t* utf8, int length)
     return chars;
 }
 
-XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs, int* size)
+XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs,
+                                  int* size)
 {
     if (sizeof(wchar_t) == sizeof(uint16_t))
         return (wchar_t*)XPR_UTF8_UTF16(utf8, length, (uint16_t*)wcs, size);
@@ -1204,17 +1234,20 @@ XPR_API wchar_t* XPR_UTF8_Unicode(const uint8_t* utf8, int length, wchar_t* wcs,
     return 0;
 }
 
-XPR_API uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length, uint8_t* utf8, int size)
+XPR_API uint8_t* XPR_UTF16_UTF8(const uint16_t* utf16, int length,
+                                uint8_t* utf8, int size)
 {
     return 0;
 }
 
-XPR_API uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length, uint8_t* utf8, int size)
+XPR_API uint8_t* XPR_UTF32_UTF8(const uint32_t* utf32, int length,
+                                uint8_t* utf8, int size)
 {
     return 0;
 }
 
-XPR_API uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8, int size)
+XPR_API uint8_t* XPR_Unicode_UTF8(const wchar_t* wcs, int length, uint8_t* utf8,
+                                  int size)
 {
     return 0;
 }
@@ -1312,18 +1345,19 @@ XPR_API int XPR_TemplateBuild(XPR_Template* tmpl)
 
 XPR_API int XPR_TemplateLoad(XPR_Template* tmpl, const char* file)
 {
-	XPR_File* f = NULL;
+    XPR_File* f = NULL;
     //
     tmpl->handler = 0;
     tmpl->opaque = 0;
     tmpl->dst_data_size = 0;
     tmpl->src_data_size = 0;
     //
-	f = XPR_FileOpen(file, "rb");
+    f = XPR_FileOpen(file, "rb");
     if (f == NULL)
         return -1;
-    tmpl->src_data_size = XPR_FileRead(f, (uint8_t*)tmpl->src_buffer, tmpl->src_buffer_size - 4);
-	XPR_FileClose(f);
+    tmpl->src_data_size =
+        XPR_FileRead(f, (uint8_t*)tmpl->src_buffer, tmpl->src_buffer_size - 4);
+    XPR_FileClose(f);
     if (tmpl->src_data_size <= 0)
         return -1;
     tmpl->src_buffer[tmpl->src_data_size] = 0;

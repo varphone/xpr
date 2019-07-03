@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #if defined(WIN32) || defined(_WIN32)
 #include <crtdbg.h>
-#endif
 #include <Windows.h>
 #include <process.h>
+#endif
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_thread.h>
 
