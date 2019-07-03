@@ -1,31 +1,19 @@
-/** \file roxml-defines.h
- *  \brief internal header for libroxml.so
+/**
+ * \file roxml_defines.h
+ * \brief Defines used trhoughout the sources
  *
- * This is the internal header file used by roxml.c
- * \author blunderer <blunderer@blunderer.org>
- * \date 23 Dec 2008
+ * (C) Copyright 2014
+ * Tristan Lelong <tristan.lelong@libroxml.net>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * SPDX-Licence-Identifier:     LGPL-2.1+
  * The author added a static linking exception, see License.txt.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifndef ROXML_DEF_H
 #define ROXML_DEF_H
 
 #ifndef ROXML_TUNE_H
-#error "roxml-tune.h must be included before roxml-def.h to tune it."
+#error "roxml_tune.h must be included before roxml_defines.h to tune it."
 #endif
 
 #define ROXML_PATH_OR	"|"
@@ -57,11 +45,13 @@
 #define ROXML_FUNC_PI		9
 #define ROXML_FUNC_XPATH	10
 #define ROXML_FUNC_NSURI	11
+#define ROXML_FUNC_LNAME	12
 
 #define ROXML_FUNC_POS_STR	"position()"
 #define ROXML_FUNC_FIRST_STR	"first()"
 #define ROXML_FUNC_LAST_STR	"last()"
 #define ROXML_FUNC_NSURI_STR	"namespace-uri()"
+#define ROXML_FUNC_LNAME_STR	"local-name()"
 
 #define ROXML_FUNC_TEXT_STR	"text()"
 #define ROXML_FUNC_NODE_STR	"node()"
@@ -69,15 +59,15 @@
 #define ROXML_FUNC_PI_STR	"processing-instruction()"
 
 /**
- * \def MAX_NS_LEN
- * 
+ * \def MAX_NAME_LEN
+ *
  * constant for namespace lenght
  */
-#define MAX_NS_LEN		128
+#define MAX_NAME_LEN		128
 
 /**
  * \def ROXML_BULK_READ
- * 
+ *
  * This is the internal buffer size for chunk of xml files
  */
 #if(CONFIG_XML_SMALL_BUFFER==1)
@@ -88,7 +78,7 @@
 
 /**
  * \def ROXML_BASE_LEN
- * 
+ *
  * This is the max size for XML objects (node name, attribute name and values...)
  * It is caused by the split of the XML file for parsing:
  * 512 bytes are reserved as security to handle splitting inside an XML object.
@@ -291,7 +281,7 @@
 #define STATE_NODE_ARGVAL	6
 
 /**
- * \def STATE_NODE_SEP	
+ * \def STATE_NODE_SEP
  *
  * state for the state machine for separator reading
  */
@@ -333,14 +323,14 @@
 #define STATE_NODE_COMMENT_BEG		12
 
 /**
- * \def STATE_NODE_COMMENT	
+ * \def STATE_NODE_COMMENT
  *
  * state for the state machine for separator reading
  */
 #define STATE_NODE_COMMENT		14
 
 /**
- * \def STATE_NODE_COMMENT_END	
+ * \def STATE_NODE_COMMENT_END
  *
  * state for the state machine for separator reading
  */

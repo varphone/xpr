@@ -252,9 +252,17 @@ endif()
 
 if(HAVE_XPR_XML)
     list(APPEND SOURCES
-        deps/roxml/roxml.c
-        deps/roxml/roxml-internal.c
-        deps/roxml/roxml-parse-engine.c
+        deps/roxml/roxml_buff.c
+        deps/roxml/roxml_content.c 
+        deps/roxml/roxml_commit.c
+        deps/roxml/roxml_core.c
+        deps/roxml/roxml_edit.c 
+        deps/roxml/roxml_file.c 
+        deps/roxml/roxml_nav.c
+        deps/roxml/roxml_mem.c
+        deps/roxml/roxml_parser.c
+        deps/roxml/roxml_stub.c
+        deps/roxml/roxml_xpath.c
         xpr_xml.c
     )
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_xml.h)

@@ -1,43 +1,24 @@
-/** \file roxml-types.h
- *  \brief internal header for libroxml.so
+/**
+ * \file roxml_types.c
+ * \brief Type definition for libroxml
  *
- * This is the internal header file used by roxml.c
- * \author blunderer <blunderer@blunderer.org>
- * \date 23 Dec 2008
+ * (C) Copyright 2014
+ * Tristan Lelong <tristan.lelong@libroxml.net>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * SPDX-Licence-Identifier:     LGPL-2.1+
  * The author added a static linking exception, see License.txt.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifndef ROXML_TYPES_H
 #define ROXML_TYPES_H
 
-/** \typedef roxml_parse_func 
- *
- * \brief parser callback functions
- * 
- * This is the prototype for a parser callback function. It receive as argument
- * the chunk that matched the key, and the context as a void. It should return the 
- * number of handled bytes or 0 if doesn't want to handle this key
- */
-typedef int (*roxml_parse_func) (char *chunk, void *data);
+#include <stdio.h>
+#include "roxml_defines.h"
 
 /** \typedef roxml_pos_t
  *
  * \brief type for node indexes in raw tree
- * 
+ *
  * this is the type used for node indexes in raw tree.
  * this type induce a maximum size for XML document
  * that can be handled (both from file or buffer)
@@ -51,7 +32,7 @@ typedef unsigned int roxml_pos_t;
 /** \struct memory_cell_t
  *
  * \brief memory cell structure
- * 
+ *
  * This is the structure for a memory cell. It contains the
  * pointer info and type. It also contains the caller id so that
  * it can free without reference to a specific pointer
@@ -60,7 +41,7 @@ typedef struct memory_cell {
 	int type;		/*!< pointer type from PTR_NODE, PTR_CHAR... */
 	int occ;		/*!< number of element */
 	void *ptr;		/*!< pointer */
-	pthread_t id;		/*!< thread id of allocator */
+	unsigned long int id;	/*!< thread id of allocator */
 	struct memory_cell *next;	/*!< next memory cell */
 	struct memory_cell *prev;	/*!< prev memory cell */
 } memory_cell_t;
@@ -68,7 +49,7 @@ typedef struct memory_cell {
 /** \struct xpath_cond_t
  *
  * \brief xpath cond structure
- * 
+ *
  * This is the structure for a xpath cond. It contains the
  * node condition
  */
@@ -88,7 +69,7 @@ typedef struct _xpath_cond {
 /** \struct xpath_node_t
  *
  * \brief xpath node structure
- * 
+ *
  * This is the structure for a xpath node. It contains the
  * node axes and conditions
  */
@@ -105,21 +86,21 @@ typedef struct _xpath_node {
 /** \struct xpath_tok_table_t
  *
  * \brief xpath token structure
- * 
+ *
  * This is the structure for a xpath token. It contains the
  * xpath id
  */
 typedef struct _xpath_tok_table {
 	unsigned char id;	/*!< token id == ROXML_REQTABLE_ID */
 	unsigned char ids[256];	/*!< token id table */
-	pthread_mutex_t mut;	/*!< token table allocation mutex */
+	void *lock;		/*!< token table allocation mutex */
 	struct _xpath_tok *next;	/*!< next xpath token */
 } xpath_tok_table_t;
 
 /** \struct xpath_tok_t
  *
  * \brief xpath token structure
- * 
+ *
  * This is the structure for a xpath token. It contains the
  * xpath id
  */
@@ -131,7 +112,7 @@ typedef struct _xpath_tok {
 /** \struct roxml_ns_t
  *
  * \brief namespace structure
- * 
+ *
  * This is the structure for a namespace. It contains the
  * namespace alias
  */
@@ -144,7 +125,7 @@ typedef struct _roxml_ns {
 /** \struct node_t
  *
  * \brief node_t structure
- * 
+ *
  * This is the structure for a node. This struct is very
  * little as it only contains offset for node in file and
  * tree links
@@ -170,37 +151,38 @@ typedef struct node {
 /** \struct roxml_load_ctx_t
  *
  * \brief xml parsing context
- * 
+ *
  * obscure structure that contains all the xml
  * parsing variables
  */
 typedef struct _roxml_load_ctx {
-	int pos;		/*!< position in file */
-	int empty_text_node;	/*!< if text node is empty (only contains tabs, spaces, carriage return and line feed */
-	int state;		/*!< state (state machine main var) */
-	int previous_state;	/*!< previous state */
-	int mode;		/*!< mode quoted or normal */
-	int inside_node_state;	/*!< sub state for attributes */
-	int content_quoted;	/*!< content of attribute was quoted */
-	int type;		/*!< source type (file or buffer) */
-	int nsdef;		/*!< indicate if this is a nsdef */
-	int ns;			/*!< indicate if a ns is used for this node */
-	void *src;		/*!< source (file or buffer) */
-	node_t *candidat_node;	/*!< node being processed */
-	node_t *candidat_txt;	/*!< text node being processed */
-	node_t *candidat_arg;	/*!< attr node being processed */
-	node_t *candidat_val;	/*!< attr value being processed */
-	node_t *current_node;	/*!< current node */
-	node_t *namespaces;	/*!< available namespaces */
-	node_t *last_ns;	/*!< last declared namespaces */
-	char *curr_name;	/*!< current node name (attr or elm) */
-	int curr_name_len;	/*!< current node name (attr or elm) lenght */
-	int doctype;		/*!< nested doctype count */
+	int pos;			/*!< position in file */
+	int lvl;			/*!< nested elem count */
+	int empty_text_node;		/*!< if text node is empty (only contains tabs, spaces, carriage return and line feed */
+	int state;			/*!< state (state machine main var) */
+	int previous_state;		/*!< previous state */
+	int mode;			/*!< mode quoted or normal */
+	int inside_node_state;		/*!< sub state for attributes */
+	int content_quoted;		/*!< content of attribute was quoted */
+	int type;			/*!< source type (file or buffer) */
+	int nsdef;			/*!< indicate if this is a nsdef */
+	int ns;				/*!< indicate if a ns is used for this node */
+	void *src;			/*!< source (file or buffer) */
+	node_t *candidat_node;		/*!< node being processed */
+	node_t *candidat_txt;		/*!< text node being processed */
+	node_t *candidat_arg;		/*!< attr node being processed */
+	node_t *candidat_val;		/*!< attr value being processed */
+	node_t *current_node;		/*!< current node */
+	node_t *namespaces;		/*!< available namespaces */
+	node_t *last_ns;		/*!< last declared namespaces */
+	char curr_name[MAX_NAME_LEN+1];	/*!< current node name (attr or elm) */
+	int curr_name_len;		/*!< current node name (attr or elm) lenght */
+	int doctype;			/*!< nested doctype count */
 } roxml_load_ctx_t;
 
 /** \struct roxml_xpath_ctx_t
  * \brief xpath parsing context
- * 
+ *
  * obscure structure that contains all the xapth
  * parsing variables
  */
@@ -221,18 +203,26 @@ typedef struct _roxml_xpath_ctx {
 	xpath_cond_t *new_cond;	/*!< current xpath cond */
 } roxml_xpath_ctx_t;
 
+/** \typedef roxml_parse_func
+ *
+ * \brief parser callback functions
+ *
+ * This is the prototype for a parser callback function. It receive as argument
+ * the chunk that matched the key, and the context as a void. It should return the
+ * number of handled bytes or 0 if doesn't want to handle this key
+ */
+typedef struct _roxml_parser_item roxml_parser_item_t;
+typedef int (*roxml_parse_func) (roxml_parser_item_t *parser, char *chunk, void *data);
+
 /** \struct roxml_parser_item_t
  *
  * \brief the parser item struct
- * 
+ *
  * this struct contains the key and callback.
  */
-typedef struct _roxml_parser_item {
-	int count;		/*!< number of parser item with non null key (only for head) */
-	int def_count;		/*!< total number of parser item (only for head) */
-	char chunk;		/*!< key to match */
-	roxml_parse_func func;	/*!< callback function */
-	struct _roxml_parser_item *next;	/*!< next item */
-} roxml_parser_item_t;
+struct _roxml_parser_item {
+	roxml_parse_func func;			/*!< callback function */
+	struct _roxml_parser_item *next;	/*!< next item (default or multiple) */
+};
 
 #endif /* ROXML_TYPES_H */
