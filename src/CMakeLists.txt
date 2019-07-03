@@ -225,7 +225,7 @@ if(HAVE_XPR_THREAD)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_thread.h)
 endif()
 
-if(HAVE_XPR_THREAD)
+if(HAVE_XPR_TIMER)
     if(UNIX)
         list(APPEND SOURCES xpr_timer_unix.c)
     endif()
