@@ -17,6 +17,7 @@ XPR_API int XPR_SYS_EnableThreadRealtimeSchedule(int64_t tid);
 XPR_API int XPR_SYS_EnableProcessRealtimeSchedule(int64_t pid);
 XPR_API int XPR_SYS_SetAudioClockFrequency(int freq);
 XPR_API int64_t XPR_SYS_GetCTS(void);
+XPR_API int XPR_SYS_WaitKey(int timeout);
 
 #ifdef __cplusplus
 }

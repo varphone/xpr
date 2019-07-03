@@ -1,9 +1,12 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/reboot.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <xpr/xpr_sys.h>
+
 
 void XPR_SYS_Poweroff(void)
 {
@@ -121,3 +124,15 @@ XPR_API int64_t XPR_SYS_GetCTS(void)
 	return 0;
 }
 #endif // defined(HAVE_TIME_H)
+
+XPR_API int XPR_SYS_WaitKey(int timeout)
+{
+    fd_set rfds;
+    struct timeval tv;
+    FD_ZERO(&rfds);
+    tv.tv_sec = timeout / XPR_SYS_CTS_UNIT;
+    tv.tv_usec = timeout % XPR_SYS_CTS_UNIT;
+    FD_SET(STDIN_FILENO, &rfds);
+    int n = select(STDIN_FILENO + 1, &rfds, NULL, NULL, &tv);
+    return n == 0 ? 0 : 1;
+}
