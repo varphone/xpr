@@ -58,6 +58,14 @@ option(HAVE_XPR_XML          "Enable XML module"                     OFF)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
+# Convert to upper case
+string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
+
+# Enable DBG_LEVEL=3 if not DEBUG build
+if(NOT BUILD_TYPE STREQUAL "DEBUG")
+    add_definitions(-DDBG_LEVEL=3)
+endif()
+
 # Import hunter package manager
 if(BUILD_WITH_HUNTER)
     include("cmake/HunterGate.cmake")
