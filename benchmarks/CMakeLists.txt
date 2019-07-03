@@ -41,3 +41,8 @@ if(HAVE_XPR_THREAD)
 add_executable(thread-create-destroy benchmark.c thread-create-destroy.c)
 target_link_libraries(thread-create-destroy xpr -lpthread)
 endif()
+
+if(HAVE_XPR_TIMER)
+add_executable(timer-basic benchmark.c timer-basic.c)
+target_link_libraries(timer-basic xpr -lpthread)
+endif()
