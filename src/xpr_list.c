@@ -235,6 +235,16 @@ XPR_API int XPR_ListAppend(XPR_List* list, void* node)
         return XPR_ERR_GEN_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_MutexLock(&list->mutex);
+    err = XPR_ListAppendNl(list, node);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListAppendNl(XPR_List* list, void* node)
+{
+    if (!list || !node)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         err = slistAppend(list, node);
@@ -245,8 +255,7 @@ XPR_API int XPR_ListAppend(XPR_List* list, void* node)
     }
     if (err == XPR_ERR_OK)
         list->length++;
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API void* XPR_ListAppendNew(XPR_List* list)
@@ -263,12 +272,36 @@ XPR_API void* XPR_ListAppendNew(XPR_List* list)
     return node;
 }
 
+XPR_API void* XPR_ListAppendNewNl(XPR_List* list)
+{
+    if (!list)
+        return NULL;
+    void* node = list->alloc ? list->alloc() : NULL; 
+    if (node) {
+        if (XPR_ListAppendNl(list, node) != XPR_ERR_OK) {
+            list->free(node);
+            node = NULL;
+        }
+    }
+    return node;
+}
+
 XPR_API void* XPR_ListAt(XPR_List* list, int pos)
 {
     if (!list)
         return NULL;
     XPR_ListNode* node = NULL;
     XPR_MutexLock(&list->mutex);
+    node = XPR_ListAtNl(list, pos);
+    XPR_MutexUnlock(&list->mutex);
+    return node;
+}
+
+XPR_API void* XPR_ListAtNl(XPR_List* list, int pos)
+{
+    if (!list)
+        return NULL;
+    XPR_ListNode* node = NULL;
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         node = slnFindAt(list->head, pos, list->length);
@@ -276,7 +309,6 @@ XPR_API void* XPR_ListAt(XPR_List* list, int pos)
     default:
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
     return node;
 }
 
@@ -286,6 +318,16 @@ XPR_API int XPR_ListClear(XPR_List* list)
         return XPR_ERR_GEN_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_MutexLock(&list->mutex);
+    err = XPR_ListClearNl(list);
+    XPR_MutexUnlock(&list->mutex);
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_ListClearNl(XPR_List* list)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
     switch (list->type) {
     case XPR_LIST_DOUBLE_LINKED:
     case XPR_LIST_SINGLY_LINKED:
@@ -298,8 +340,7 @@ XPR_API int XPR_ListClear(XPR_List* list)
     list->head = NULL;
     list->tail = NULL;
     list->length = 0;
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API void* XPR_ListFirst(XPR_List* list)
@@ -308,6 +349,16 @@ XPR_API void* XPR_ListFirst(XPR_List* list)
         return NULL;
     XPR_ListNode* node = NULL;
     XPR_MutexLock(&list->mutex);
+    node = XPR_ListFirstNl(list);
+    XPR_MutexUnlock(&list->mutex);
+    return node;
+}
+
+XPR_API void* XPR_ListFirstNl(XPR_List* list)
+{
+    if (!list)
+        return NULL;
+    XPR_ListNode* node = NULL;
     switch (list->type) {
     case XPR_LIST_DOUBLE_LINKED:
     case XPR_LIST_SINGLY_LINKED:
@@ -316,7 +367,6 @@ XPR_API void* XPR_ListFirst(XPR_List* list)
     default:
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
     return node;
 }
 
@@ -326,6 +376,16 @@ XPR_API void* XPR_ListLast(XPR_List* list)
         return NULL;
     XPR_ListNode* node = NULL;
     XPR_MutexLock(&list->mutex);
+    node = XPR_ListLastNl(list);
+    XPR_MutexUnlock(&list->mutex);
+    return node;
+}
+
+XPR_API void* XPR_ListLastNl(XPR_List* list)
+{
+    if (!list)
+        return NULL;
+    XPR_ListNode* node = NULL;
     switch (list->type) {
     case XPR_LIST_DOUBLE_LINKED:
     case XPR_LIST_SINGLY_LINKED:
@@ -334,7 +394,6 @@ XPR_API void* XPR_ListLast(XPR_List* list)
     default:
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
     return node;
 }
 
@@ -342,8 +401,18 @@ XPR_API void* XPR_ListNext(XPR_List* list, void* curr)
 {
     if (!list || !curr)
         return NULL;
-    XPR_ListNode* node = curr;
+    XPR_ListNode* node = NULL;
     XPR_MutexLock(&list->mutex);
+    node = XPR_ListNextNl(list, curr);
+    XPR_MutexUnlock(&list->mutex);
+    return node;
+}
+
+XPR_API void* XPR_ListNextNl(XPR_List* list, void* curr)
+{
+    if (!list || !curr)
+        return NULL;
+    XPR_ListNode* node = curr;
     switch (list->type) {
     case XPR_LIST_DOUBLE_LINKED:
     case XPR_LIST_SINGLY_LINKED:
@@ -355,7 +424,6 @@ XPR_API void* XPR_ListNext(XPR_List* list, void* curr)
     default:
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
     return node;
 }
 
@@ -365,6 +433,16 @@ XPR_API int XPR_ListRemove(XPR_List* list, void* node)
         return XPR_ERR_GEN_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_MutexLock(&list->mutex);
+    err = XPR_ListRemoveNl(list, node);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListRemoveNl(XPR_List* list, void* node)
+{
+    if (!list || !node)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         err = slistRemove(list, node);
@@ -375,8 +453,7 @@ XPR_API int XPR_ListRemove(XPR_List* list, void* node)
     }
     if (err == XPR_ERR_OK)
         list->length--;
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API int XPR_ListRemoveAt(XPR_List* list, int pos)
@@ -385,6 +462,16 @@ XPR_API int XPR_ListRemoveAt(XPR_List* list, int pos)
         return XPR_ERR_GEN_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_MutexLock(&list->mutex);
+    err = XPR_ListRemoveAtNl(list, pos);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListRemoveAtNl(XPR_List* list, int pos)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         err = slistRemoveAt(list, pos);
@@ -395,8 +482,7 @@ XPR_API int XPR_ListRemoveAt(XPR_List* list, int pos)
     }
     if (err == XPR_ERR_OK)
         list->length--;
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API void XPR_ListForEach(XPR_List* list, XPR_ListForEachFn fn,
@@ -405,6 +491,15 @@ XPR_API void XPR_ListForEach(XPR_List* list, XPR_ListForEachFn fn,
     if (!list || !fn)
         return;
     XPR_MutexLock(&list->mutex);
+    XPR_ListForEachNl(list, fn, opaque);
+    XPR_MutexUnlock(&list->mutex);
+}
+
+XPR_API void XPR_ListForEachNl(XPR_List* list, XPR_ListForEachFn fn,
+                               void* opaque)
+{
+    if (!list || !fn)
+        return;
     switch (list->type) {
     case XPR_LIST_DOUBLE_LINKED:
     case XPR_LIST_SINGLY_LINKED:
@@ -413,10 +508,20 @@ XPR_API void XPR_ListForEach(XPR_List* list, XPR_ListForEachFn fn,
     default:
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
 }
 
 XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
+    XPR_MutexLock(&list->mutex);
+    err = XPR_ListReverseNl(list, compare);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListReverseNl(XPR_List* list, XPR_ListNodeCompare compare)
 {
     if (!list)
         return XPR_ERR_GEN_NULL_PTR;
@@ -424,7 +529,6 @@ XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare)
     if (!compare)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     int err = XPR_ERR_OK;
-    XPR_MutexLock(&list->mutex);
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         slnSort(&list->head, compare, 1);
@@ -433,11 +537,21 @@ XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare)
         err = XPR_ERR_GEN_NOT_SUPPORT;
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
+    XPR_MutexLock(&list->mutex);
+    err = XPR_ListSortNl(list, compare);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListSortNl(XPR_List* list, XPR_ListNodeCompare compare)
 {
     if (!list)
         return XPR_ERR_GEN_NULL_PTR;
@@ -445,7 +559,6 @@ XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare)
     if (!compare)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     int err = XPR_ERR_OK;
-    XPR_MutexLock(&list->mutex);
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         slnSort(&list->head, compare, 0);
@@ -454,8 +567,7 @@ XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare)
         err = XPR_ERR_GEN_NOT_SUPPORT;
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API int XPR_ListTake(XPR_List* list, void* node)
@@ -464,6 +576,16 @@ XPR_API int XPR_ListTake(XPR_List* list, void* node)
         return XPR_ERR_GEN_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_MutexLock(&list->mutex);
+    err = XPR_ListTakeNl(list, node);
+    XPR_MutexUnlock(&list->mutex);
+    return err;
+}
+
+XPR_API int XPR_ListTakeNl(XPR_List* list, void* node)
+{
+    if (!list)
+        return XPR_ERR_GEN_NULL_PTR;
+    int err = XPR_ERR_OK;
     switch (list->type) {
     case XPR_LIST_SINGLY_LINKED:
         err = slnTake(&list->head, node);
@@ -472,6 +594,5 @@ XPR_API int XPR_ListTake(XPR_List* list, void* node)
         err = XPR_ERR_GEN_NOT_SUPPORT;
         break;
     }
-    XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }

@@ -103,14 +103,23 @@ XPR_API void XPR_ListDestroy(XPR_List* list);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListAppend(XPR_List* list, void* node);
 
+/// No-locking #XPR_ListAppend
+XPR_API int XPR_ListAppendNl(XPR_List* list, void* node);
+
 /// Allocate a new element then append to the list and return the new element.
 /// \param [in] list        The list to add.
 /// \retval !NULL           The new element added.
 /// \retval NULL            Allocate element error or add failed.
 XPR_API void* XPR_ListAppendNew(XPR_List* list);
 
+/// No-locking #XPR_ListAppendNew
+XPR_API void* XPR_ListAppendNewNl(XPR_List* list);
+
 /// Returns the element at position n in the list.
 XPR_API void* XPR_ListAt(XPR_List* list, int pos);
+
+/// No-locking #XPR_ListAt
+XPR_API void* XPR_ListAtNl(XPR_List* list, int pos);
 
 /// Remove all elements from the list and free the memory.
 /// \param [in] list        The list to clear.
@@ -118,11 +127,17 @@ XPR_API void* XPR_ListAt(XPR_List* list, int pos);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListClear(XPR_List* list);
 
+/// No-locking #XPR_ListClear
+XPR_API int XPR_ListClearNl(XPR_List* list);
+
 /// Returns the first element in the list.
 /// \param [in] list        The list to access.
 /// \retval !NULL           The first element.
 /// \retval NULL            The list is empty.
 XPR_API void* XPR_ListFirst(XPR_List* list);
+
+/// No-locking #XPR_ListFirst
+XPR_API void* XPR_ListFirstNl(XPR_List* list);
 
 /// Applies function fn to each of the elements in the list.
 /// \param [in] list        The list to iterate.
@@ -132,17 +147,27 @@ XPR_API void* XPR_ListFirst(XPR_List* list);
 XPR_API void XPR_ListForEach(XPR_List* list, XPR_ListForEachFn fn,
                              void* opaque);
 
+/// No-locking #XPR_ListForEach
+XPR_API void XPR_ListForEachNl(XPR_List* list, XPR_ListForEachFn fn,
+                               void* opaque);
+
 /// Returns the last element in the list.
 /// \param [in] list        The list to access.
 /// \retval !NULL           The last element.
 /// \retval NULL            The list is empty.
 XPR_API void* XPR_ListLast(XPR_List* list);
 
+/// No-locking #XPR_ListLast
+XPR_API void* XPR_ListLastNl(XPR_List* list);
+
 /// Returns the element next to curr in the list.
 /// \param [in] list        The list to access.
 /// \retval !NULL           The next element.
 /// \retval NULL            The curr is the last element.
 XPR_API void* XPR_ListNext(XPR_List* list, void* curr);
+
+/// No-locking #XPR_ListNext
+XPR_API void* XPR_ListNextNl(XPR_List* list, void* curr);
 
 /// Remove the element from the list and free the memory.
 /// \param [in] list        The list to add.
@@ -151,12 +176,18 @@ XPR_API void* XPR_ListNext(XPR_List* list, void* curr);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListRemove(XPR_List* list, void* node);
 
+/// No-locking #XPR_ListRemove
+XPR_API int XPR_ListRemoveNl(XPR_List* list, void* node);
+
 /// Remove the element at position from the list and free the memory.
 /// \param [in] list        The list to add.
 /// \param [in] pos         The position of the element to remove and free.
 /// \retval XPR_ERR_OK      Success.
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListRemoveAt(XPR_List* list, int pos);
+
+/// No-locking #XPR_ListRemoveAt
+XPR_API int XPR_ListRemoveAtNl(XPR_List* list, int pos);
 
 /// Reverses the order of the elements in the list.
 /// \param [in] list        The list to reverse.
@@ -166,6 +197,9 @@ XPR_API int XPR_ListRemoveAt(XPR_List* list, int pos);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare);
 
+/// No-locking #XPR_ListReverse
+XPR_API int XPR_ListReverseNl(XPR_List* list, XPR_ListNodeCompare compare);
+
 /// Sort the order of the elements in the list.
 /// \param [in] list        The list to sort.
 /// \param [in] compare     The function to compare two elements,
@@ -174,12 +208,18 @@ XPR_API int XPR_ListReverse(XPR_List* list, XPR_ListNodeCompare compare);
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListSort(XPR_List* list, XPR_ListNodeCompare compare);
 
+/// No-locking #XPR_ListSortNl
+XPR_API int XPR_ListSortNl(XPR_List* list, XPR_ListNodeCompare compare);
+
 /// Take the element out from the list and not free the memory.
 /// \param [in] list        The list to access.
 /// \param [in] node        The element to taked.
 /// \retval XPR_ERR_OK      Success.
 /// \retval XPR_ERR_ERROR   Undefined error.
 XPR_API int XPR_ListTake(XPR_List* list, void* node);
+
+/// No-locking #XPR_ListTake
+XPR_API int XPR_ListTakeNl(XPR_List* list, void* node);
 
 /*! \example
 #include <xpr/xpr_list.h>
