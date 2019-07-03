@@ -199,7 +199,10 @@ XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void)
                                             nodeFree, nodeCompare);
         self->suspendTimers = XPR_ListCreate(XPR_LIST_SINGLY_LINKED, nodeAlloc,
                                              nodeFree, nodeCompare);
-        pthread_mutex_init(&self->lock, NULL);
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&self->lock, &attr);
         pthread_cond_init(&self->schedule, NULL);
         self->thread = XPR_ThreadCreate(timerQueueLoop, 0, self);
     }
