@@ -1,107 +1,82 @@
-X Portable Runtime {#mainpage}
+﻿X Portable Runtime
 ==================
 
-基于 C/C++ 实现的跨平台运行库。
+基于 C/C++ 实现的跨平台运行库，主要针对基于 Linux 的嵌入式设备而设计，同时也可以用于桌面系统。
 
+组件说明
+--------
 
-## 单独编译
+- [ADC - Analog/Digital Converter](docs/adc.md)
+- [ARP - Address Resolve Protocol](docs/arp.md)
+- [ARR - Audio Rate Resampler](docs/arr.md)
+- [AVFRAME - Audio/Video Raw Frame Container](docs/avframe.md)
+- [ATOMIC - Atomic Instructions](docs/atomic.md)
+- [BASE64 - Base64 Encode/Decode](docs/base64.md)
+- [BITVECTOR - Bit Vector](docs/bitvector.md)
+- [CRC - Cyclic Redundancy Check](docs/crc.md)
+- [DEVCAPS - Device Capabilties](docs/devcaps.md)
+- [DPU - Data Processing Unit](docs/dpu.md)
+- [DRM - Digital Right Manager](docs/drm.md)
+- [FIFO - First In First Out Queue](docs/fifo.md)
+- [FILE - Filesytem](docs/file.md)
+- [FQ - Flex Queue](docs/fq.md)
+- [GPIO - General Purpose Input/Output](docs/gpio.md)
+- [H264 - MPEG-4/H264 Helper](docs/h264.md)
+- [JSON - Javascript Object Notiation](docs/json.md)
+- [ICMP - Internet Control Messages Protocol](docs/icmp.md)
+- [LIST - Double/Singly Linked List](docs/list.md)
+- [MD5 - MD5 Digest](docs/md5.md)
+- [MCDEC - Multi-Channels Decoder](docs/mcdec.md)
+- [MCVR - Multi-Channels Video Renderer](docs/mcvr.md)
+- [MEM - Memory Mangement](docs/mem.md)
+- [META - Meta Data](docs/meta.md)
+- [ONVIF - ONVIF Protocol Supports](docs/onvif.md)
+- [OSD - On Screen Display](docs/osd.md)
+- [PLUGIN - Plugin Framework](docs/plugin.md)
+- [RTSP - RTSP Server/Client](docs/rtsp.md)
+- [SERIAL - Serial Port](docs/serial.md)
+- [SHA1 - SHA1 Digest](docs/sha1.md)
+- [STREAMBLOCK - Bytestream Container](docs/streamblock.md)
+- [SYNC - Synchronization](docs/sync.md)
+- [SYS - Operation System](docs/sys.md)
+- [TIMER - Timer and Timer Queue](docs/timer.md)
+- [THREAD - Multithreading](docs/thread.md)
+- [UIO - Universal Input/Output](docs/ups.md)
+- [UPS - Universal Parameters Settings](docs/ups.md)
+- [URL - Url Parser](docs/url.md)
+- [UTILS - Utilities](docs/utils.md)
+- [XML - XML Stream Reader/Writer](docs/xml.md)
+
+构建说明
+--------
+
+本项目支持 CMake 及 GNU Make 两种编译方式，推荐使用 CMake 方式。
+
+### CMake 编译
 
 ```sh
-make CROSS_COMPILER_PREFIX=/opt/tdc/ppmd-v1/host/usr/bin/arm-ppmdv1-linux-uclibcgnueabi-
+mkdir -p build # [Optional]
+cd build # Change to build directory
+cmake -DBUILD_WITH_HUNTER=ON .. # 配置 CMake 脚本
+make # 开始编译
 ```
 
-- `CROSS_COMPILER_PREFIX` 为交叉编译的工具链前缀，可以包含绝对路径。
+- `BUILD_WITH_HUNTER=ON` - 表示使用 `hunter` 包管理脚本来解决依赖问题，可视需求开启。
 
-> **注意：** 以上命令示例仅是针对在 `PPMD-V1` 平台工具链的编译，如果你要编译到其他平台，请自行工具链路径及名称。
+除此之外还支持以下选项：
 
+- `BUILD_SRC` - 配置是否编译主代码。
+- `BUILD_DOCS` - 配置是否编译文档。
+- `BUILD_BENCHMARKS` - 配置是否编译性能测试例程。
+- `BUILD_EXAMPLES` - 配置是否编译演示例程。
+- `BUILD_TESTS` - 配置是否编译功能测试例程。
+- `BUILD_TOOLS` - 配置是否编译辅助工具。
 
-## Compoments
+### GNU Make 编译
 
-* [AVFRAME](#avframe)
-* [BASE64](#base64)
-* [DPU](#dpu)
-* [FIFO](#fifo)
-* [JSON](#json)
-* [MD5](#md5)
-* [PLUGIN](#plugin)
-* [RTSP](#rtsp)
-* [SYNC](#sync)
-* [SYS](#sys)
-* [THREAD](#thread)
-* [UPS](#ups)
-* [URL](#url)
-* [UTILS](#utils)
-
-## AVFRAME
-
-Audio and Video raw data container
-
-## BASE64
-
-BASE64 algorithm
-
-## DPU
-
-Data Processing Unit
-
-## FIFO
-
-Fifo
-
-## JSON
-
-Java Script Object Notiation
-
-## MD5
-
-MD5 algorithm
-
-## PLUGIN
-
-Plugin framework
-
-## RTSP
-
-### RTSP 服务器
-
-**使用示例**
-```
-const char* url = "rtsp://0.0.0.0:554?maxStreams=16&maxStreamTracks=4&maxWorkers=1&workerDelay=10"
-int port = XPR_RTSP_Open(XPR_RTSP_PORT(2, 0, 0), url);
-if (port > 0) {
-    XPR_RTSP_Start(port);
-
-    int ch1 = XPR_RTSP_Open(XPR_RTSP_PORT(2, 1, 0), "uri:///channel/1?tracks=video/H264;audio/G711");
-    if (ch1 > 0) {
-        XPR_RTSP_Start(ch1);
-    }
-    ...
-    XPR_RTSP_Stop(port);
-    XPR_RTSP_Close(port);
-}
+```sh
+make CROSS_COMPILER_PREFIX=arm-linux-gnueabi-
 ```
 
-## SYNC
-
-Thread and Process synchronization
-
-## SYS
-
-System relates
-
-## THREAD
-
-Thread
-
-## UPS
-
-Universal Preference Settings framework
-
-## URL
-
-Url parser
-
-## UTILS
-
-Utilities
-
+- `CROSS_COMPILER_PREFIX` 为交叉编译的工具链前缀，可以包含绝对路径，
+  你可以根据你的需求来设定工具链路径。
