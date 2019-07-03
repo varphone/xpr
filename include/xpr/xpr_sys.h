@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#define XPR_SYS_CTS_UNIT 1000000
+
 XPR_API void XPR_SYS_Poweroff(void);
 XPR_API void XPR_SYS_Reboot(void);
 XPR_API void XPR_SYS_DelayedReboot(int secs);
