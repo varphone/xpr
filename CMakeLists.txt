@@ -52,7 +52,7 @@ option(HAVE_XPR_TIMER        "Enable Timer module"                   ON)
 option(HAVE_XPR_UPS          "Enable UPS module"                     OFF)
 option(HAVE_XPR_URL          "Enable URL module"                     ON)
 option(HAVE_XPR_UTILS        "Enable Utilities module"               ON)
-option(HAVE_XPR_XML          "Enable Utilities module"               OFF)
+option(HAVE_XPR_XML          "Enable XML module"                     OFF)
 
 # Add DEBUG for debug builds
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
