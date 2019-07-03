@@ -139,8 +139,9 @@ static void* timerQueueLoop(void* opaque, XPR_Thread* thread)
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     while (!self->exitLoop) {
+        pthread_mutex_lock(&self->lock);
         /* Get first event */
-        timer = XPR_ListFirst(self->activeTimers);
+        timer = XPR_ListFirstNl(self->activeTimers);
         /*
          * If we have timers in queue, we setup a timer to wait for first one.
          * In all cases, thread is woken up when a reschedule occurs.
@@ -166,7 +167,7 @@ static void* timerQueueLoop(void* opaque, XPR_Thread* thread)
          */
         int64_t now = timespecInUs();
         /* Get first event */
-        timer = XPR_ListFirst(self->activeTimers);
+        timer = XPR_ListFirstNl(self->activeTimers);
         /* If there is nothing to do for now, wait again */
         if ((timer == NULL) || (timer->expire > now)) {
             pthread_mutex_unlock(&self->lock);
@@ -176,7 +177,7 @@ static void* timerQueueLoop(void* opaque, XPR_Thread* thread)
          * We have a timer to manage. Remove it from queue and mark it as
          * running.
          */
-        XPR_ListTake(self->activeTimers, timer);
+        XPR_ListTakeNl(self->activeTimers, timer);
         /* Execute user function and reschedule timer if required */
         XPR_TimerReturn tr = timerExec(timer);
         if (tr == XPR_TIMER_CONTINUE)
@@ -228,9 +229,9 @@ XPR_API int XPR_TimerQueueAdd(XPR_TimerQueue* self, XPR_Timer* timer)
     int err = XPR_ERR_OK;
     pthread_mutex_lock(&self->lock);
     if (timer->flags & XPR_TIMER_FLAG_ENABLED)
-        err = XPR_ListAppend(self->activeTimers, timer);
+        err = XPR_ListAppendNl(self->activeTimers, timer);
     else
-        err = XPR_ListAppend(self->suspendTimers, timer);
+        err = XPR_ListAppendNl(self->suspendTimers, timer);
     pthread_mutex_unlock(&self->lock);
     return err;
 }
@@ -239,14 +240,14 @@ XPR_API XPR_Timer* XPR_TimerQueueFind(XPR_TimerQueue* self, XPR_TimerId id)
 {
     XPR_Timer* timer = NULL;
     pthread_mutex_lock(&self->lock);
-    timer = XPR_ListFirst(self->activeTimers);
+    timer = XPR_ListFirstNl(self->activeTimers);
     while (timer->id != id) {
-        timer = XPR_ListNext(self->activeTimers, timer);
+        timer = XPR_ListNextNl(self->activeTimers, timer);
     }
     if (timer == NULL) {
-        timer = XPR_ListFirst(self->suspendTimers);
+        timer = XPR_ListFirstNl(self->suspendTimers);
         while (timer->id != id) {
-            timer = XPR_ListNext(self->suspendTimers, timer);
+            timer = XPR_ListNextNl(self->suspendTimers, timer);
         }
     }
     pthread_mutex_unlock(&self->lock);
@@ -257,9 +258,9 @@ XPR_API int XPR_TimerQueueRemove(XPR_TimerQueue* self, XPR_Timer* timer)
 {
     int err = XPR_ERR_OK;
     pthread_mutex_lock(&self->lock);
-    err = XPR_ListRemove(self->activeTimers, timer);
+    err = XPR_ListRemoveNl(self->activeTimers, timer);
     if (err != XPR_ERR_OK)
-        err = XPR_ListRemove(self->suspendTimers, timer);
+        err = XPR_ListRemoveNl(self->suspendTimers, timer);
     pthread_mutex_unlock(&self->lock);
     return err;
 }
