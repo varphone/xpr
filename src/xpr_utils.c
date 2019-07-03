@@ -9,6 +9,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_file.h>
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_utils.h>
@@ -226,6 +227,96 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
         filter(opaque, tok);
     }
     free(tmp);
+}
+
+static const char* trim_brace(const char* str)
+{
+    while (*str) {
+        if (*str != ' ' && *str != '[' && *str != '(')
+            break;
+        str++;
+    }
+    return str;
+}
+
+static const char* kResFmts[] = {
+    "%dx%d",
+    "%dX%d",
+    "%d x %d",
+    "%d X %d",
+};
+static const int kNumResFmts = 4;
+
+XPR_API int xpr_s2res(const char* str, int* width, int* height)
+{
+    if (!str || !width || !height)
+        return -1;
+    str = trim_brace(str);
+    for (int i = 0; i < kNumResFmts; i++) {
+        if (sscanf(str, kResFmts[i], width, height) == 2)
+            return XPR_ERR_OK;
+    }
+    return XPR_ERR_GEN_ILLEGAL_PARAM;
+}
+
+static const char* kDVec2Fmts[] = {
+    "%lf,%lf",
+    "%lf, %lf",
+    "%lf ,%lf",
+    "%lf , %lf",
+};
+static const int kNumDVec2Fmts = 4;
+
+XPR_API int xpr_s2dvec2(const char* str, double vec2[2])
+{
+    if (!str || !vec2)
+        return XPR_ERR_GEN_NULL_PTR;
+    str = trim_brace(str);
+    for (int i = 0; i < kNumDVec2Fmts; i++) {
+        if (sscanf(str, kDVec2Fmts[i], &vec2[0], &vec2[1]) == 2)
+            return XPR_ERR_OK;
+    }
+    return XPR_ERR_GEN_ILLEGAL_PARAM;
+}
+
+static const char* kFVec2Fmts[] = {
+    "%f,%f",
+    "%f, %f",
+    "%f ,%f",
+    "%f , %f",
+};
+static const int kNumFVec2Fmts = 4;
+
+XPR_API int xpr_s2fvec2(const char* str, float vec2[2])
+{
+    if (!str || !vec2)
+        return XPR_ERR_GEN_NULL_PTR;
+    str = trim_brace(str);
+    for (int i = 0; i < kNumFVec2Fmts; i++) {
+        if (sscanf(str, kFVec2Fmts[i], &vec2[0], &vec2[1]) == 2)
+            return XPR_ERR_OK;
+    }
+    return XPR_ERR_GEN_ILLEGAL_PARAM;
+}
+
+static const char* kIVec2Fmts[] = {
+    "%d,%d",
+    "%d,%d",
+    "%d, %d",
+    "%d ,%d",
+    "%d , %d",
+};
+static const int kNumIVec2Fmts = 4;
+XPR_API int xpr_s2ivec2(const char* str, int vec2[2])
+{
+    if (!str || !vec2)
+        return XPR_ERR_GEN_NULL_PTR;
+    str = trim_brace(str);
+    for (int i = 0; i < kNumIVec2Fmts; i++) {
+        if (sscanf(str, kIVec2Fmts[i], &vec2[0], &vec2[1]) == 2)
+            return XPR_ERR_OK;
+    }
+    return XPR_ERR_GEN_ILLEGAL_PARAM;
 }
 
 XPR_API XPR_IntRange XPR_IntRangeParse(const char* s)

@@ -117,6 +117,22 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
                            void (*filter)(void* opaque, char* segment),
                            void* opaque);
 
+/// Convert "1234x1234" or "1234X1234" formated string into with and height.
+/// Return XPR_ERR_OK on success, others error.
+XPR_API int xpr_s2res(const char* str, int* width, int* height);
+
+/// Convert "1.0,2.0" or "[2.0,3.0]" formated string into a double array.
+/// Return XPR_ERR_OK on success, others error.
+XPR_API int xpr_s2dvec2(const char* str, double vec2[2]);
+
+/// Convert "1.0,2.0" or "[2.0,3.0]" formated string into a float array.
+/// Return XPR_ERR_OK on success, others error.
+XPR_API int xpr_s2fvec2(const char* str, float vec2[2]);
+
+/// Convert "1,2" or "[2,3]" formated string into a int array.
+/// Return XPR_ERR_OK on success, others error.
+XPR_API int xpr_s2ivec2(const char* str, int vec2[2]);
+
 // IntRange
 //==============================================================================
 #ifndef XPR_INTRAGE_TYPE_DEFINED
