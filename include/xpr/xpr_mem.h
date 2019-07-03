@@ -20,9 +20,9 @@
 #ifndef XPR_MEM_H
 #define XPR_MEM_H
 
+#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <wchar.h>
 #include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
