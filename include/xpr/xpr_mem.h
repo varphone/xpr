@@ -36,6 +36,21 @@ extern "C" {
 /// @sa XPR_Free(), XPR_Freep()
 XPR_API void* XPR_Alloc(size_t size);
 
+/// @brief 分配带引用计数的内存资源
+/// @param [in] size    数据大小，以字节为单位
+/// @retval NULL    分配失败
+/// @retval !NULL   已分配到的数据内存地址
+/// @sa XPR_FreeRc()
+XPR_API void* XPR_AllocRc(size_t size);
+
+/// @brief 克隆带引用计数的内存资源
+/// @param [in] ptr     已分配到的内存地址
+/// @retval NULL    分配失败
+/// @retval !NULL   已分配到的数据内存地址
+/// @note 只能用于 XPR_AllocRc() 分配的内存
+/// @sa XPR_AllocRc, XPR_FreeRc()
+XPR_API void* XPR_CloneRc(void* ptr);
+
 /// @brief 释放内存资源
 /// @param [in] ptr     已分配到的内存地址
 /// @return 无返回值
@@ -57,6 +72,29 @@ XPR_API void XPR_Freep(void** pptr);
 /// @note 列表数据格式为: vptr[0] = <p1>, vptr[1] = <p2>, vptr[n] = <pn> vptr[n+1] = null;
 /// @sa XPR_Alloc()
 XPR_API void XPR_Freev(void** vptr);
+
+/// @brief 释放带引用计数的内存资源
+/// @param [in] ptr     已分配到的内存地址
+/// @return 无返回值
+/// @note 只能用于 XPR_AllocRc() 分配的内存
+/// @sa XPR_AllocRc()
+XPR_API void XPR_FreeRc(void* ptr);
+
+/// @brief 获取带引用计数的内存资源的元数据
+/// @param [in] ptr     已分配到的内存地址
+/// @param [in] slot    元数据槽位：0~3
+/// @return 成功返回槽位内当前值，失败返回 0
+/// @note 只能用于 XPR_AllocRc() 分配的内存
+/// @sa XPR_AllocRc()
+XPR_API long XPR_RcGetMeta(void* ptr, int slot);
+
+/// @brief 设置带引用计数的内存资源的元数据
+/// @param [in] ptr     已分配到的内存地址
+/// @param [in] slot    元数据槽位：0~3
+/// @return 成功返回 XPR_TRUE, 失败返回 XPR_FALSE
+/// @note 只能用于 XPR_AllocRc() 分配的内存
+/// @sa XPR_AllocRc()
+XPR_API int XPR_RcSetMeta(void* ptr, int slot, long val);
 
 /// @brief 复制字符串
 /// @param [in] str     要复制的字符串指针
