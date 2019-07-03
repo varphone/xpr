@@ -1,22 +1,24 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xpr/xpr_errno.h>
 #include <xpr/xpr_atomic.h>
+#include <xpr/xpr_errno.h>
 #include <xpr/xpr_fifo.h>
 #include <xpr/xpr_fq.h>
 #include <xpr/xpr_mem.h>
+
 #if defined(HAVE_MP)
 #include <xpr/xpr_sync.h>
 #endif // defined(HAVE_MP)
 
-struct XPR_FQ {
-    size_t          maxQueues;          // 最大队列长度
-    size_t          maxBufferSize;      // 最大缓冲区长度
-    XPR_Fifo*       freeList;           // 空闲 Fifo
-    XPR_Fifo*       queuedList;         // 队列 Fifo
-    XPR_FQ_ENTRY*   entries;            // 条目列表
-    uint8_t         stuff[8];           //
+struct XPR_FQ
+{
+    size_t maxQueues;      // 最大队列长度
+    size_t maxBufferSize;  // 最大缓冲区长度
+    XPR_Fifo* freeList;    // 空闲 Fifo
+    XPR_Fifo* queuedList;  // 队列 Fifo
+    XPR_FQ_ENTRY* entries; // 条目列表
+    uint8_t stuff[8];      //
 };
 
 #if defined(HAVE_MP)
@@ -33,9 +35,9 @@ struct XPR_FQ {
 
 XPR_API XPR_FQ* XPR_FQ_Create(size_t maxQueues, size_t maxBufferSize)
 {
-    size_t      i       = 0;
-    size_t      total   = sizeof(XPR_FQ) + sizeof(XPR_FQ_ENTRY) * maxQueues;
-    XPR_FQ*     fq      = XPR_Alloc(total);
+    size_t i = 0;
+    size_t total = sizeof(XPR_FQ) + sizeof(XPR_FQ_ENTRY) * maxQueues;
+    XPR_FQ* fq = XPR_Alloc(total);
     if (fq) {
         memset(fq, 0, total);
         fq->maxQueues = maxQueues;
@@ -50,10 +52,9 @@ XPR_API XPR_FQ* XPR_FQ_Create(size_t maxQueues, size_t maxBufferSize)
     return fq;
 }
 
-
 XPR_API int XPR_FQ_Destroy(XPR_FQ* fq)
 {
-    XPR_FQ_ENTRY*   entry = 0;
+    XPR_FQ_ENTRY* entry = 0;
     if (fq == NULL)
         return XPR_ERR_GEN_NULL_PTR;
     while ((entry = (XPR_FQ_ENTRY*)XPR_FifoGetAsAtomic(fq->queuedList))) {
@@ -100,8 +101,8 @@ XPR_API int XPR_FQ_ReleaseEntry(XPR_FQ* fq, XPR_FQ_ENTRY* entry)
 
 XPR_API int XPR_FQ_PushBack(XPR_FQ* fq, const XPR_FQ_ENTRY* entry)
 {
-    void*           ptr = NULL;
-    XPR_FQ_ENTRY*   ent = NULL;
+    void* ptr = NULL;
+    XPR_FQ_ENTRY* ent = NULL;
     if (fq == NULL)
         return XPR_ERR_GEN_NULL_PTR;
     ent = (XPR_FQ_ENTRY*)XPR_FifoGetAsAtomic(fq->freeList);
@@ -124,6 +125,6 @@ XPR_API int XPR_FQ_PushBack(XPR_FQ* fq, const XPR_FQ_ENTRY* entry)
 XPR_API int XPR_FQ_PushBackRaw(XPR_FQ* fq, const void* data, size_t length,
                                size_t flags)
 {
-    XPR_FQ_ENTRY ent = { (uint8_t*)data, length, flags };
+    XPR_FQ_ENTRY ent = {(uint8_t*)data, length, flags};
     return XPR_FQ_PushBack(fq, &ent);
 }

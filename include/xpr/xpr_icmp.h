@@ -20,6 +20,8 @@
 #ifndef XPR_ICMP_H
 #define XPR_ICMP_H
 
+#include <xpr/xpr_common.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,9 +32,9 @@ struct XPR_ICMP;
 typedef struct XPR_ICMP XPR_ICMP;
 #endif // XPR_ICMP_TYPE_DEFINED
 
-XPR_ICMP* XPR_ICMP_New(const char* dev);
-int XPR_ICMP_Destroy(XPR_ICMP* arp);
-int XPR_ICMP_Ping(XPR_ICMP* arp, const char* host);
+XPR_API XPR_ICMP* XPR_ICMP_New(const char* dev);
+XPR_API int XPR_ICMP_Destroy(XPR_ICMP* arp);
+XPR_API int XPR_ICMP_Ping(XPR_ICMP* arp, const char* host);
 
 #ifdef __cplusplus
 }

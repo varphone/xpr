@@ -1,17 +1,17 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef HAVE_TIME_H
 #include <time.h>
 #endif
+#include "xpr_dpu_options.h"
 #include <xpr/xpr_avframe.h>
 #include <xpr/xpr_dpu.h>
 #include <xpr/xpr_dpupriv.h>
-#include "xpr_dpu_options.h"
 
 static XPR_DPU_Driver* gFirstDPUDriver = NULL;
 
-void XPR_DPU_Register(XPR_DPU_Driver* drv)
+XPR_API void XPR_DPU_Register(XPR_DPU_Driver* drv)
 {
     XPR_DPU_Driver** p;
     p = &gFirstDPUDriver;
@@ -23,7 +23,7 @@ void XPR_DPU_Register(XPR_DPU_Driver* drv)
     drv->next = NULL;
 }
 
-void XPR_DPU_RegisterAll(void)
+XPR_API void XPR_DPU_RegisterAll(void)
 {
     static int initialized = 0;
 
@@ -56,41 +56,41 @@ void XPR_DPU_RegisterAll(void)
     extern XPR_DPU_Driver xpr_dpu_driver_mdsd;
     XPR_DPU_Register(&xpr_dpu_driver_mdsd);
 #endif
-}                                                                                     
+}
 
-XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id)
-{       
+XPR_API XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id)
+{
     XPR_DPU_Driver* p = NULL;
-    p = gFirstDPUDriver;                                                      
+    p = gFirstDPUDriver;
     while (p) {
         if (p->identifier == id)
-            return p;                     
+            return p;
 
         p = p->next;
     }
-    return p;                          
+    return p;
 }
 
-static const char* gDriverNames[] = {                                        
-    [XPR_DPU_ID_INVALID] = "null",
-    [XPR_DPU_ID_ALSAPCM] = "alsapcm",
-    [XPR_DPU_ID_A2AAC] = "a2aac",
-    [XPR_DPU_ID_A2G711A] = "a2g711a",
-    [XPR_DPU_ID_A2G711U] = "a2g711u",
-    [XPR_DPU_ID_A2G726] = "a2g726",
-    [XPR_DPU_ID_A2VIDEO] = "a2video",
-    [XPR_DPU_ID_A5SG711A] = "a5sg711u",
-    [XPR_DPU_ID_A5SG711U] = "a5sg711u",
-    [XPR_DPU_ID_A5SG726] = "a5sg726",
-    [XPR_DPU_ID_A5SVIDEO] = "a5svideo",
-    [XPR_DPU_ID_A5SYUV] = "a5syuv",
-    [XPR_DPU_ID_G711TEST] = "g711test",
-    [XPR_DPU_ID_PCMTEST] = "pcmtest",
-    [XPR_DPU_ID_MDSD] = "mdsd",
-    [XPR_DPU_ID_MAX] = 0,
+static const char* gDriverNames[] = {
+    [XPR_DPU_ID_INVALID] = "null",      //
+    [XPR_DPU_ID_ALSAPCM] = "alsapcm",   //
+    [XPR_DPU_ID_A2AAC] = "a2aac",       //
+    [XPR_DPU_ID_A2G711A] = "a2g711a",   //
+    [XPR_DPU_ID_A2G711U] = "a2g711u",   //
+    [XPR_DPU_ID_A2G726] = "a2g726",     //
+    [XPR_DPU_ID_A2VIDEO] = "a2video",   //
+    [XPR_DPU_ID_A5SG711A] = "a5sg711u", //
+    [XPR_DPU_ID_A5SG711U] = "a5sg711u", //
+    [XPR_DPU_ID_A5SG726] = "a5sg726",   //
+    [XPR_DPU_ID_A5SVIDEO] = "a5svideo", //
+    [XPR_DPU_ID_A5SYUV] = "a5syuv",     //
+    [XPR_DPU_ID_G711TEST] = "g711test", //
+    [XPR_DPU_ID_PCMTEST] = "pcmtest",   //
+    [XPR_DPU_ID_MDSD] = "mdsd",         //
+    [XPR_DPU_ID_MAX] = 0,               //
 };
 
-enum XPR_DPU_Id XPR_DPU_FindDriverId(const char* name)
+XPR_API enum XPR_DPU_Id XPR_DPU_FindDriverId(const char* name)
 {
     int i = 0;
 
@@ -105,17 +105,17 @@ enum XPR_DPU_Id XPR_DPU_FindDriverId(const char* name)
     return XPR_DPU_ID_INVALID;
 }
 
-XPR_DPU* XPR_DPU_AllocContext(void)
+XPR_API XPR_DPU* XPR_DPU_AllocContext(void)
 {
     return (XPR_DPU*)calloc(sizeof(XPR_DPU), 1);
 }
-                              
-void XPR_DPU_FreeContext(XPR_DPU* ctx)
+
+XPR_API void XPR_DPU_FreeContext(XPR_DPU* ctx)
 {
     free(ctx);
 }
 
-int XPR_DPU_OpenContext(XPR_DPU* ctx, const XPR_DPU_Driver* drv)
+XPR_API int XPR_DPU_OpenContext(XPR_DPU* ctx, const XPR_DPU_Driver* drv)
 {
     if (!ctx || !drv)
         return -1;
@@ -143,7 +143,7 @@ int XPR_DPU_OpenContext(XPR_DPU* ctx, const XPR_DPU_Driver* drv)
     return 0;
 }
 
-int XPR_DPU_CloseContext(XPR_DPU* ctx)
+XPR_API int XPR_DPU_CloseContext(XPR_DPU* ctx)
 {
     if (!ctx)
         return -1;
@@ -159,7 +159,7 @@ int XPR_DPU_CloseContext(XPR_DPU* ctx)
     return 0;
 }
 
-const char* XPR_DPU_GetDriverName(const XPR_DPU* ctx)
+XPR_API const char* XPR_DPU_GetDriverName(const XPR_DPU* ctx)
 {
     if (!ctx)
         return NULL;
@@ -170,7 +170,7 @@ const char* XPR_DPU_GetDriverName(const XPR_DPU* ctx)
     return ctx->driver->name;
 }
 
-int XPR_DPU_GetDriverIdentifier(const XPR_DPU* ctx)
+XPR_API int XPR_DPU_GetDriverIdentifier(const XPR_DPU* ctx)
 {
     if (!ctx)
         return 0;
@@ -181,7 +181,7 @@ int XPR_DPU_GetDriverIdentifier(const XPR_DPU* ctx)
     return ctx->driver->identifier;
 }
 
-int XPR_DPU_GetDriverCapabilities(const XPR_DPU* ctx)
+XPR_API int XPR_DPU_GetDriverCapabilities(const XPR_DPU* ctx)
 {
     if (!ctx)
         return XPR_DPU_CAP_HAVE_NOTHING;
@@ -192,17 +192,17 @@ int XPR_DPU_GetDriverCapabilities(const XPR_DPU* ctx)
     return ctx->driver->capabilities;
 }
 
-int XPR_DPU_Init(void)
+XPR_API int XPR_DPU_Init(void)
 {
     XPR_DPU_RegisterAll();
     return 0;
 }
 
-void XPR_DPU_Fini(void)
+XPR_API void XPR_DPU_Fini(void)
 {
 }
 
-static const char* getDriverName(const char* args)
+XPR_API static const char* getDriverName(const char* args)
 {
     if (strstr(args, "\"alsapcm\""))
         return "alsapcm";
@@ -219,7 +219,7 @@ static const char* getDriverName(const char* args)
     return NULL;
 }
 
-XPR_DPU* XPR_DPU_Open(const char* args)
+XPR_API XPR_DPU* XPR_DPU_Open(const char* args)
 {
     enum XPR_DPU_Id id = 0;
     XPR_DPU* ctx = 0;
@@ -247,7 +247,7 @@ XPR_DPU* XPR_DPU_Open(const char* args)
     return 0;
 }
 
-int XPR_DPU_Close(XPR_DPU* ctx)
+XPR_API int XPR_DPU_Close(XPR_DPU* ctx)
 {
     if (XPR_DPU_CloseContext(ctx) < 0)
         return -1;
@@ -255,7 +255,7 @@ int XPR_DPU_Close(XPR_DPU* ctx)
     return 0;
 }
 
-int XPR_DPU_Start(XPR_DPU* ctx)
+XPR_API int XPR_DPU_Start(XPR_DPU* ctx)
 {
     if (!ctx)
         return -1;
@@ -269,7 +269,7 @@ int XPR_DPU_Start(XPR_DPU* ctx)
     return ctx->driver->start(ctx);
 }
 
-int XPR_DPU_Stop(XPR_DPU* ctx)
+XPR_API int XPR_DPU_Stop(XPR_DPU* ctx)
 {
     if (!ctx)
         return -1;
@@ -283,32 +283,35 @@ int XPR_DPU_Stop(XPR_DPU* ctx)
     return ctx->driver->stop(ctx);
 }
 
-int XPR_DPU_AddAVFrameCallback(XPR_DPU* ctx, XPR_DPU_AVFrameCallback cb, void* opaque)
+XPR_API int XPR_DPU_AddAVFrameCallback(XPR_DPU* ctx, XPR_DPU_AVFrameCallback cb,
+                                       void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->avFrameCallbacks[i].cb)
             continue;
         ctx->avFrameCallbacks[i].cb = cb;
         ctx->avFrameCallbacks[i].opaque = opaque;
         return 0;
-    } 
+    }
 
     return -1;
 }
 
-int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* ctx, XPR_DPU_AVFrameCallback cb, void* opaque)
+XPR_API int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* ctx,
+                                          XPR_DPU_AVFrameCallback cb,
+                                          void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->avFrameCallbacks[i].cb == cb &&
             ctx->avFrameCallbacks[i].opaque == opaque) {
             ctx->avFrameCallbacks[i].cb = NULL;
@@ -320,32 +323,36 @@ int XPR_DPU_DeleteAVFrameCallback(XPR_DPU* ctx, XPR_DPU_AVFrameCallback cb, void
     return -1;
 }
 
-int XPR_DPU_AddStreamBlockCallback(XPR_DPU* ctx, XPR_DPU_StreamBlockCallback cb, void* opaque)
+XPR_API int XPR_DPU_AddStreamBlockCallback(XPR_DPU* ctx,
+                                           XPR_DPU_StreamBlockCallback cb,
+                                           void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->streamBlockCallbacks[i].cb)
             continue;
         ctx->streamBlockCallbacks[i].cb = cb;
         ctx->streamBlockCallbacks[i].opaque = opaque;
         return 0;
-    } 
+    }
 
     return -1;
 }
 
-int XPR_DPU_DeleteStreamBlockCallback(XPR_DPU* ctx, XPR_DPU_StreamBlockCallback cb, void* opaque)
+XPR_API int XPR_DPU_DeleteStreamBlockCallback(XPR_DPU* ctx,
+                                              XPR_DPU_StreamBlockCallback cb,
+                                              void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->streamBlockCallbacks[i].cb == cb &&
             ctx->streamBlockCallbacks[i].opaque == opaque) {
             ctx->streamBlockCallbacks[i].cb = NULL;
@@ -357,32 +364,34 @@ int XPR_DPU_DeleteStreamBlockCallback(XPR_DPU* ctx, XPR_DPU_StreamBlockCallback 
     return -1;
 }
 
-int XPR_DPU_AddEventCallback(XPR_DPU* ctx, XPR_DPU_EventCallback cb, void* opaque)
+XPR_API int XPR_DPU_AddEventCallback(XPR_DPU* ctx, XPR_DPU_EventCallback cb,
+                                     void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->eventCallbacks[i].cb)
             continue;
         ctx->eventCallbacks[i].cb = cb;
         ctx->eventCallbacks[i].opaque = opaque;
         return 0;
-    } 
+    }
 
     return -1;
 }
 
-int XPR_DPU_DeleteEventCallback(XPR_DPU* ctx, XPR_DPU_EventCallback cb, void* opaque)
+XPR_API int XPR_DPU_DeleteEventCallback(XPR_DPU* ctx, XPR_DPU_EventCallback cb,
+                                        void* opaque)
 {
     int i = 0;
 
     if (!ctx)
         return -1;
 
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->eventCallbacks[i].cb == cb &&
             ctx->eventCallbacks[i].opaque == opaque) {
             ctx->eventCallbacks[i].cb = NULL;
@@ -394,7 +403,9 @@ int XPR_DPU_DeleteEventCallback(XPR_DPU* ctx, XPR_DPU_EventCallback cb, void* op
     return -1;
 }
 
-int XPR_DPU_SetRefClockCallback(XPR_DPU* ctx, XPR_DPU_RefClockCallback cb, void* opaque)
+XPR_API int XPR_DPU_SetRefClockCallback(XPR_DPU* ctx,
+                                        XPR_DPU_RefClockCallback cb,
+                                        void* opaque)
 {
     if (!ctx)
         return -1;
@@ -403,7 +414,9 @@ int XPR_DPU_SetRefClockCallback(XPR_DPU* ctx, XPR_DPU_RefClockCallback cb, void*
     return 0;
 }
 
-int XPR_DPU_GetRefClockCallback(XPR_DPU* ctx, XPR_DPU_RefClockCallback* cb, void** opaque)
+XPR_API int XPR_DPU_GetRefClockCallback(XPR_DPU* ctx,
+                                        XPR_DPU_RefClockCallback* cb,
+                                        void** opaque)
 {
     if (!ctx || !cb || !opaque)
         return -1;
@@ -414,18 +427,18 @@ int XPR_DPU_GetRefClockCallback(XPR_DPU* ctx, XPR_DPU_RefClockCallback* cb, void
     return 0;
 }
 
-int XPR_DPU_SetCTS(XPR_DPU* ctx, int64_t ts, int units)
+XPR_API int XPR_DPU_SetCTS(XPR_DPU* ctx, int64_t ts, int units)
 {
     if (!ctx)
         return -1;
     if (units == 0)
         ctx->cts = ts;
     else
-        ctx->cts = ts * XPR_DPU_CTS_UNITS /  units;
+        ctx->cts = ts * XPR_DPU_CTS_UNITS / units;
     return 0;
 }
 
-int64_t XPR_DPU_GetCTS(XPR_DPU* ctx, int units)
+XPR_API int64_t XPR_DPU_GetCTS(XPR_DPU* ctx, int units)
 {
     int64_t cts = 0;
 
@@ -455,14 +468,14 @@ static int64_t systemCTS(void)
 #endif
 }
 
-int64_t XPR_DPU_GetSystemCTS(int units)
+XPR_API int64_t XPR_DPU_GetSystemCTS(int units)
 {
     if (units == 0)
         return systemCTS();
     return systemCTS() * units / XPR_DPU_CTS_UNITS;
 }
 
-int XPR_DPU_GetStreamCodec(XPR_DPU* ctx, int streamId)
+XPR_API int XPR_DPU_GetStreamCodec(XPR_DPU* ctx, int streamId)
 {
     if (!ctx)
         return AV_FOURCC_NULL;
@@ -476,7 +489,7 @@ int XPR_DPU_GetStreamCodec(XPR_DPU* ctx, int streamId)
     return ctx->driver->getStreamCodec(ctx, streamId);
 }
 
-int XPR_DPU_GetStreamCount(XPR_DPU* ctx)
+XPR_API int XPR_DPU_GetStreamCount(XPR_DPU* ctx)
 {
     if (!ctx)
         return -1;
@@ -490,8 +503,8 @@ int XPR_DPU_GetStreamCount(XPR_DPU* ctx)
     return ctx->driver->getStreamCount(ctx);
 }
 
-int XPR_DPU_GetStreamParam(XPR_DPU* ctx, int streamId, const char* param,
-                      void* buffer, int* size)
+XPR_API int XPR_DPU_GetStreamParam(XPR_DPU* ctx, int streamId,
+                                   const char* param, void* buffer, int* size)
 {
     if (!ctx)
         return -1;
@@ -505,8 +518,9 @@ int XPR_DPU_GetStreamParam(XPR_DPU* ctx, int streamId, const char* param,
     return ctx->driver->getStreamParam(ctx, streamId, param, buffer, size);
 }
 
-int XPR_DPU_SetStreamParam(XPR_DPU* ctx, int streamId, const char* param,
-                      const void* data, int length)
+XPR_API int XPR_DPU_SetStreamParam(XPR_DPU* ctx, int streamId,
+                                   const char* param, const void* data,
+                                   int length)
 {
     if (!ctx)
         return -1;
@@ -520,7 +534,7 @@ int XPR_DPU_SetStreamParam(XPR_DPU* ctx, int streamId, const char* param,
     return ctx->driver->setStreamParam(ctx, streamId, param, data, length);
 }
 
-int XPR_DPU_WaitForReady(XPR_DPU* ctx)
+XPR_API int XPR_DPU_WaitForReady(XPR_DPU* ctx)
 {
     if (!ctx)
         return -1;
@@ -534,13 +548,14 @@ int XPR_DPU_WaitForReady(XPR_DPU* ctx)
     return ctx->driver->waitForReady(ctx);
 }
 
-int XPR_DPU_DeliverAVFrame(XPR_DPU* ctx, const XPR_AVFrame* frame)
+XPR_API int XPR_DPU_DeliverAVFrame(XPR_DPU* ctx, const XPR_AVFrame* frame)
 {
     int i = 0;
     int error = 0;
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->avFrameCallbacks[i].cb) {
-            error = ctx->avFrameCallbacks[i].cb((XPR_DPU*)ctx, frame, ctx->avFrameCallbacks[i].opaque);
+            error = ctx->avFrameCallbacks[i].cb(
+                (XPR_DPU*)ctx, frame, ctx->avFrameCallbacks[i].opaque);
             if (error < 0)
                 break;
         }
@@ -548,14 +563,15 @@ int XPR_DPU_DeliverAVFrame(XPR_DPU* ctx, const XPR_AVFrame* frame)
     return error;
 }
 
-int XPR_DPU_DeliverEvent(XPR_DPU* ctx, int event, const void* eventData,
-                         int eventDataSize)
+XPR_API int XPR_DPU_DeliverEvent(XPR_DPU* ctx, int event, const void* eventData,
+                                 int eventDataSize)
 {
     int i = 0;
     int error = 0;
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->eventCallbacks[i].cb) {
-            error = ctx->eventCallbacks[i].cb((XPR_DPU*)ctx, event, eventData, eventDataSize,
+            error = ctx->eventCallbacks[i].cb((XPR_DPU*)ctx, event, eventData,
+                                              eventDataSize,
                                               ctx->eventCallbacks[i].opaque);
             if (error < 0)
                 break;
@@ -564,17 +580,18 @@ int XPR_DPU_DeliverEvent(XPR_DPU* ctx, int event, const void* eventData,
     return error;
 }
 
-int XPR_DPU_DeliverStreamBlock(XPR_DPU* ctx, const XPR_StreamBlock* block)
+XPR_API int XPR_DPU_DeliverStreamBlock(XPR_DPU* ctx,
+                                       const XPR_StreamBlock* block)
 {
     int i = 0;
     int error = 0;
-    for (; i<XPR_DPU_MAX_CALLBACKS; i++) {
+    for (; i < XPR_DPU_MAX_CALLBACKS; i++) {
         if (ctx->streamBlockCallbacks[i].cb) {
-            error = ctx->streamBlockCallbacks[i].cb((XPR_DPU*)ctx, block, ctx->streamBlockCallbacks[i].opaque);
+            error = ctx->streamBlockCallbacks[i].cb(
+                (XPR_DPU*)ctx, block, ctx->streamBlockCallbacks[i].opaque);
             if (error < 0)
                 break;
         }
     }
     return error;
 }
-

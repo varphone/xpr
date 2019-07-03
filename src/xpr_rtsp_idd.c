@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_errno.h>
@@ -6,12 +6,14 @@
 #include <xpr/xpr_rtsp_idd.h>
 #include <xpr/xpr_utils.h>
 
-typedef struct XPR_RTSP_IDD_Params {
+typedef struct XPR_RTSP_IDD_Params
+{
     void* opaque;
     XPR_RTSP_IDD_DataHandler dataHandler;
 } XPR_RTSP_IDD_Params;
 
-struct XPR_RTSP_IDD {
+struct XPR_RTSP_IDD
+{
     XPR_RTSP_IDD_Params params;
     XPR_RTSP_IDD_DataType dataType;
     int channel;
@@ -22,9 +24,10 @@ struct XPR_RTSP_IDD {
     uint8_t buffer[1];
 };
 
-XPR_RTSP_IDD* XPR_RTSP_IDD_New(void)
+XPR_API XPR_RTSP_IDD* XPR_RTSP_IDD_New(void)
 {
-    XPR_RTSP_IDD* idd = (XPR_RTSP_IDD*)XPR_Alloc(sizeof(*idd)+XPR_RTSP_IDD_MAX_BUFFER_SIZE);
+    XPR_RTSP_IDD* idd =
+        (XPR_RTSP_IDD*)XPR_Alloc(sizeof(*idd) + XPR_RTSP_IDD_MAX_BUFFER_SIZE);
     if (idd) {
         idd->params.dataHandler = 0;
         idd->params.opaque = 0;
@@ -36,7 +39,7 @@ XPR_RTSP_IDD* XPR_RTSP_IDD_New(void)
     return idd;
 }
 
-int XPR_RTSP_IDD_Destroy(XPR_RTSP_IDD* idd)
+XPR_API int XPR_RTSP_IDD_Destroy(XPR_RTSP_IDD* idd)
 {
     if (idd)
         XPR_Free((void*)idd);
@@ -47,7 +50,8 @@ static int DeliverPacket(XPR_RTSP_IDD* idd, int channel, int dataType,
                          const uint8_t* data, int length)
 {
     if (idd->params.dataHandler)
-        return idd->params.dataHandler(idd->params.opaque, channel, dataType, (uint8_t*)data, length);
+        return idd->params.dataHandler(idd->params.opaque, channel, dataType,
+                                       (uint8_t*)data, length);
     return 0;
 }
 
@@ -64,7 +68,8 @@ static void dump(const uint8_t* data, int len)
 }
 #endif
 
-int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
+XPR_API int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data,
+                                  int length)
 {
     int channel = 0;
     int offset = 0;
@@ -77,7 +82,7 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
         return XPR_ERR_ERROR;
     //
     if (idd->hdrSize) {
-        l =  MIN(4 - idd->hdrSize, length);
+        l = MIN(4 - idd->hdrSize, length);
         switch (l) {
         case 3:
             idd->hdr[1] = data[0];
@@ -105,7 +110,7 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
         }
     }
     //
-    //printf("remain size: %d\n", idd->remainSize);
+    // printf("remain size: %d\n", idd->remainSize);
     if (idd->remainSize < 0) {
         p = strstr((char*)data, "\r\n\r\n");
         if (p)
@@ -116,20 +121,21 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
     if (idd->remainSize > 0) {
         l = MIN(idd->remainSize, length);
         offset = idd->packetSize - idd->remainSize;
-        memcpy(idd->buffer+offset, data, l);
+        memcpy(idd->buffer + offset, data, l);
         idd->remainSize -= l;
         data += l;
         length -= l;
         if (idd->remainSize == 0) {
-            DeliverPacket(idd, idd->channel, idd->dataType, idd->buffer, idd->packetSize);
+            DeliverPacket(idd, idd->channel, idd->dataType, idd->buffer,
+                          idd->packetSize);
             idd->channel = 0;
             idd->packetSize = 0;
         }
     }
     //
     while (length > 0) {
-        //printf("data: %d, length: %d\n", data, length);
-        //if (length <= 6) {
+        // printf("data: %d, length: %d\n", data, length);
+        // if (length <= 6) {
         //    dump(data, length);
         //}
         if (data[0] == '$') {
@@ -179,7 +185,7 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
             idd->dataType = XPR_RTSP_IDD_DATA_TYPE_HDR;
             p = strstr((char*)data, "\r\n\r\n");
             if (p) {
-				l = (uint16_t)(p + 4 - (char*)data);
+                l = (uint16_t)(p + 4 - (char*)data);
                 ocp = (uint8_t*)p + 4;
                 oc = *ocp;
                 *ocp = '\0';
@@ -190,7 +196,7 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
                 length -= l;
                 if (length > 0 && p) {
                     idd->dataType = XPR_RTSP_IDD_DATA_TYPE_SDP;
-                    l = (uint16_t)strtoul(p+15, 0, 10);
+                    l = (uint16_t)strtoul(p + 15, 0, 10);
                     if (length < l) {
                         idd->channel = 0;
                         idd->packetSize = l;
@@ -216,11 +222,13 @@ int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length)
     return 0;
 }
 
-int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param, const void* data, int length)
+XPR_API int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param,
+                                  const void* data, int length)
 {
     switch (param) {
     case XPR_RTSP_IDD_PARAM_DATA_HANDLER:
-        idd->params.dataHandler = length > 0 ? *(XPR_RTSP_IDD_DataHandler*)data : (XPR_RTSP_IDD_DataHandler)data;
+        idd->params.dataHandler = length > 0 ? *(XPR_RTSP_IDD_DataHandler*)data
+                                             : (XPR_RTSP_IDD_DataHandler)data;
         break;
     case XPR_RTSP_IDD_PARAM_OPAQUE:
         idd->params.opaque = length > 0 ? *(void**)data : (void*)data;
@@ -231,7 +239,8 @@ int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param, const void* data, int le
     return XPR_ERR_OK;
 }
 
-int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer, int* size)
+XPR_API int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer,
+                                  int* size)
 {
     if (!buffer || !size)
         return XPR_ERR_ERROR;
@@ -239,12 +248,12 @@ int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer, int* size)
     case XPR_RTSP_IDD_PARAM_DATA_HANDLER:
         if (*size == sizeof(idd->params.dataHandler))
             *(XPR_RTSP_IDD_DataHandler*)buffer = idd->params.dataHandler;
-        * size = sizeof(idd->params.dataHandler);
+        *size = sizeof(idd->params.dataHandler);
         break;
     case XPR_RTSP_IDD_PARAM_OPAQUE:
         if (*size == sizeof(idd->params.opaque))
             *(void**)buffer = idd->params.opaque;
-        * size = sizeof(idd->params.opaque);
+        *size = sizeof(idd->params.opaque);
         break;
     default:
         break;

@@ -1,48 +1,48 @@
-#if !defined(HAVE_XPR_ADC_DRIVER_A5S)
-#include <xpr/xpr_errno.h>
-#include <xpr/xpr_common.h>
+﻿#if !defined(HAVE_XPR_ADC_DRIVER_A5S)
 #include <xpr/xpr_adc.h>
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_errno.h>
 
-int XPR_ADC_Config(int cfg, const void* data, int length)
+XPR_API int XPR_ADC_Config(int cfg, const void* data, int length)
 {
     return XPR_ERR_ERROR;
 }
 
-int XPR_ADC_Init(void)
+XPR_API int XPR_ADC_Init(void)
 {
-    //FIXME:
+    // FIXME:
     return XPR_ERR_ERROR;
 }
 
-int XPR_ADC_Fini(void)
+XPR_API int XPR_ADC_Fini(void)
 {
-    //FIXME:
+    // FIXME:
     return XPR_ERR_ERROR;
 }
 
-int XPR_ADC_IsPortReady(int port)
+XPR_API int XPR_ADC_IsPortReady(int port)
 {
     return XPR_FALSE;
 }
 
-int XPR_ADC_IsPortValid(int port)
+XPR_API int XPR_ADC_IsPortValid(int port)
 {
     return XPR_FALSE;
 }
 
-int XPR_ADC_GetValue(int port, void* buffer, int* size)
+XPR_API int XPR_ADC_GetValue(int port, void* buffer, int* size)
 {
     return XPR_ERR_ERROR;
 }
 
-int XPR_ADC_SetParam(int port, const void* data, int length)
+XPR_API int XPR_ADC_SetParam(int port, const void* data, int length)
 {
     return XPR_ERR_ERROR;
 }
 
-int XPR_ADC_GetParam(int port, void* buffer, int* size)
+XPR_API int XPR_ADC_GetParam(int port, void* buffer, int* size)
 {
     return XPR_ERR_ERROR;
 }
+
 #endif
-

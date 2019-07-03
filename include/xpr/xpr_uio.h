@@ -21,6 +21,7 @@
 #define XPR_UIO_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -154,21 +155,21 @@ typedef int (*XPR_UIO_AsyncWriteHandler)(void* opaque, int status,
 /// }
 /// @endcode
 ///
-int XPR_UIO_Config(int cfg, const void* data, int length);
+XPR_API int XPR_UIO_Config(int cfg, const void* data, int length);
 
 ///
 /// 初始化 XPR_UIO 模块
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_UIO_Init(void);
+XPR_API int XPR_UIO_Init(void);
 
 ///
 /// 释放 XPR_UIO 模块已分配的资源
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_UIO_Fini(void);
+XPR_API int XPR_UIO_Fini(void);
 
 // XPR_UIO 端口相关接口
 //==============================================================================
@@ -181,7 +182,7 @@ int XPR_UIO_Fini(void);
 /// @retval XPR_ERR_ERROR       失败
 /// @retval > 0                 端口句柄
 /// @code 使用示例
-int XPR_UIO_Open(int port, const char* url);
+XPR_API int XPR_UIO_Open(int port, const char* url);
 
 ///
 /// 关闭指定端口
@@ -189,7 +190,7 @@ int XPR_UIO_Open(int port, const char* url);
 /// @param [in] port            端口句柄
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
-int XPR_UIO_Close(int port);
+XPR_API int XPR_UIO_Close(int port);
 
 ///
 /// 检测指定端口状态
@@ -198,55 +199,59 @@ int XPR_UIO_Close(int port);
 /// @param [in] state           要检测的状态
 /// @retval XPR_TRUE            处于状态
 /// @retval XPR_FALSE           不处于状态
-int XPR_UIO_CheckState(int port, int state);
+XPR_API int XPR_UIO_CheckState(int port, int state);
 
-int XPR_UIO_GetWorkerId(int port);
+XPR_API int XPR_UIO_GetWorkerId(int port);
 
-int XPR_UIO_SetWorkerId(int port, int workerId);
+XPR_API int XPR_UIO_SetWorkerId(int port, int workerId);
 
-int64_t XPR_UIO_GetCTS(int port);
+XPR_API int64_t XPR_UIO_GetCTS(int port);
 
-int XPR_UIO_SetCTS(int port, int64_t cts);
+XPR_API int XPR_UIO_SetCTS(int port, int64_t cts);
 
-int XPR_UIO_AsyncAccept(int port, int flags,
-                        XPR_UIO_AsyncAcceptHandler cb, void* opaque);
+XPR_API int XPR_UIO_AsyncAccept(int port, int flags,
+                                XPR_UIO_AsyncAcceptHandler cb, void* opaque);
 
-int XPR_UIO_AsyncRead(int port, uint8_t* buffer, int length, int flags,
-                      XPR_UIO_AsyncReadHandler cb, void* opaque);
+XPR_API int XPR_UIO_AsyncRead(int port, uint8_t* buffer, int length, int flags,
+                              XPR_UIO_AsyncReadHandler cb, void* opaque);
 
-int XPR_UIO_AsyncReadSome(int port, uint8_t* buffer, int size, int flags,
-                          XPR_UIO_AsyncReadHandler cb, void* opaque);
+XPR_API int XPR_UIO_AsyncReadSome(int port, uint8_t* buffer, int size,
+                                  int flags, XPR_UIO_AsyncReadHandler cb,
+                                  void* opaque);
 
-int XPR_UIO_AsyncWrite(int port, const uint8_t* data, int length, int flags,
-                       XPR_UIO_AsyncWriteHandler cb, void* opaque);
+XPR_API int XPR_UIO_AsyncWrite(int port, const uint8_t* data, int length,
+                               int flags, XPR_UIO_AsyncWriteHandler cb,
+                               void* opaque);
 
-int XPR_UIO_Accept(int port, int* conn, XPR_UIO_EndPoint* localEP,
-                   XPR_UIO_EndPoint* remoteEP);
+XPR_API int XPR_UIO_Accept(int port, int* conn, XPR_UIO_EndPoint* localEP,
+                           XPR_UIO_EndPoint* remoteEP);
 
-int XPR_UIO_Read(int port, uint8_t* buffer, int length);
+XPR_API int XPR_UIO_Read(int port, uint8_t* buffer, int length);
 
-int XPR_UIO_ReadSome(int port, uint8_t* buffer, int size);
+XPR_API int XPR_UIO_ReadSome(int port, uint8_t* buffer, int size);
 
-int XPR_UIO_Write(int port, const uint8_t* data, int length);
+XPR_API int XPR_UIO_Write(int port, const uint8_t* data, int length);
 
 // XPR_UIO_EndPoint
 //=============================================================================
-int XPR_UIO_EndPointIsIPv4(const XPR_UIO_EndPoint* ep);
+XPR_API int XPR_UIO_EndPointIsIPv4(const XPR_UIO_EndPoint* ep);
 
-int XPR_UIO_EndPointIsIPv6(const XPR_UIO_EndPoint* ep);
+XPR_API int XPR_UIO_EndPointIsIPv6(const XPR_UIO_EndPoint* ep);
 
-int XPR_UIO_EndPointIsPrivateNetwork(const XPR_UIO_EndPoint* ep);
+XPR_API int XPR_UIO_EndPointIsPrivateNetwork(const XPR_UIO_EndPoint* ep);
 
-int XPR_UIO_EndPointToIPv4String(const XPR_UIO_EndPoint* ep, char* buffer,
-                                 int bufferSize);
+XPR_API int XPR_UIO_EndPointToIPv4String(const XPR_UIO_EndPoint* ep,
+                                         char* buffer, int bufferSize);
 
-int XPR_UIO_EndPointToIPv6String(const XPR_UIO_EndPoint* ep, char* buffer,
-                                 int bufferSize);
+XPR_API int XPR_UIO_EndPointToIPv6String(const XPR_UIO_EndPoint* ep,
+                                         char* buffer, int bufferSize);
 
-int XPR_UIO_AsyncCall(int workerId, XPR_UIO_AsyncCallRoutine routine, void* opaque);
+XPR_API int XPR_UIO_AsyncCall(int workerId, XPR_UIO_AsyncCallRoutine routine,
+                              void* opaque);
 
-int XPR_UIO_DelayedAsyncCall(int workerId, XPR_UIO_AsyncCallRoutine routine,
-                             void* opaque, int64_t us);
+XPR_API int XPR_UIO_DelayedAsyncCall(int workerId,
+                                     XPR_UIO_AsyncCallRoutine routine,
+                                     void* opaque, int64_t us);
 
 #ifdef __cplusplus
 }

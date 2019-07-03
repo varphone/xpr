@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_common.h>
@@ -11,34 +11,37 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockAlloc(size_t size)
 {
     XPR_StreamBlock* blk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
-        DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size, XPR_STREAMBLOCK_MAX_SIZE);
+        DBG(DBG_L2, "stream block is too large to alloc (%u > %u)", size,
+            XPR_STREAMBLOCK_MAX_SIZE);
         return 0;
     }
-	if (size == 0) {
-		blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk));
-		if (blk) {
-			memset(blk, 0, sizeof(*blk));
-		}
-	}
-	else {
-		size = XPR_AlignedUpTo(size, 256);
-		blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk) + size);
-		if (blk) {
-			memset(blk, 0, sizeof(*blk));
-			blk->buffer = (uint8_t*)blk + sizeof(*blk);
-			blk->bufferSize = (uint32_t)size;
-			blk->data = blk->buffer;
-			blk->dataSize = 0;
-		}
-	}
+    if (size == 0) {
+        blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk));
+        if (blk) {
+            memset(blk, 0, sizeof(*blk));
+        }
+    }
+    else {
+        size = XPR_AlignedUpTo(size, 256);
+        blk = (XPR_StreamBlock*)XPR_Alloc(sizeof(*blk) + size);
+        if (blk) {
+            memset(blk, 0, sizeof(*blk));
+            blk->buffer = (uint8_t*)blk + sizeof(*blk);
+            blk->bufferSize = (uint32_t)size;
+            blk->data = blk->buffer;
+            blk->dataSize = 0;
+        }
+    }
     return blk;
 }
 
-XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk, size_t size)
+XPR_API XPR_StreamBlock* XPR_StreamBlockRealloc(XPR_StreamBlock* blk,
+                                                size_t size)
 {
     XPR_StreamBlock* nblk = 0;
     if (size > XPR_STREAMBLOCK_MAX_SIZE) {
-        DBG(DBG_L2, "stream block is too large to realloc (%u > %u)", size, XPR_STREAMBLOCK_MAX_SIZE);
+        DBG(DBG_L2, "stream block is too large to realloc (%u > %u)", size,
+            XPR_STREAMBLOCK_MAX_SIZE);
         return blk;
     }
     size = XPR_AlignedUpTo(size, 256);
@@ -66,13 +69,15 @@ XPR_API void XPR_StreamBlockRelease(XPR_StreamBlock* blk)
     }
 }
 
-XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* data, size_t length)
+XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk,
+                                               uint8_t* data, size_t length)
 {
     size_t space = 0;
     if (!blk || !data || !length)
         return blk;
     if (length > XPR_STREAMBLOCK_MAX_SIZE) {
-        DBG(DBG_L2, "data block [%p, %u] is too large to append to [%p]", data, length, blk);
+        DBG(DBG_L2, "data block [%p, %u] is too large to append to [%p]", data,
+            length, blk);
         return blk;
     }
     space = blk->bufferSize - blk->dataSize;
@@ -81,8 +86,12 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockAppend(XPR_StreamBlock* blk, uint8_t* da
     if (blk) {
         memcpy(blk->data + blk->dataSize, data, length);
         blk->dataSize += (uint32_t)length;
-    } else {
-        DBG(DBG_L2, "data block [%p, %u] unable append to stream block [%p], realloc failure", blk);
+    }
+    else {
+        DBG(DBG_L2,
+            "data block [%p, %u] unable append to stream block [%p], realloc "
+            "failure",
+            blk);
     }
     return blk;
 }
@@ -102,7 +111,8 @@ XPR_API void XPR_StreamBlockClear(XPR_StreamBlock* blk)
     }
 }
 
-XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from,
+                                XPR_StreamBlock* to)
 {
     if (!from || !to)
         return -1;
@@ -121,18 +131,20 @@ XPR_API int XPR_StreamBlockCopy(const XPR_StreamBlock* from, XPR_StreamBlock* to
     return 0;
 }
 
-XPR_API int XPR_StreamBlockCopyData(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API int XPR_StreamBlockCopyData(const XPR_StreamBlock* from,
+                                    XPR_StreamBlock* to)
 {
-	if (!from || !to)
-		return XPR_ERR_GEN_ILLEGAL_PARAM;
-	if (to->bufferSize < from->dataSize)
-		return XPR_ERR_GEN_NOBUF;
-	memcpy(to->data, from->data, from->dataSize);
-	to->dataSize = from->dataSize;
-	return XPR_ERR_OK;
+    if (!from || !to)
+        return XPR_ERR_GEN_ILLEGAL_PARAM;
+    if (to->bufferSize < from->dataSize)
+        return XPR_ERR_GEN_NOBUF;
+    memcpy(to->data, from->data, from->dataSize);
+    to->dataSize = from->dataSize;
+    return XPR_ERR_OK;
 }
 
-XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBlock* to)
+XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from,
+                                       XPR_StreamBlock* to)
 {
     if (from && to) {
         to->flags = from->flags;
@@ -148,7 +160,8 @@ XPR_API void XPR_StreamBlockCopyHeader(const XPR_StreamBlock* from, XPR_StreamBl
 
 XPR_API XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
 {
-    size_t size = MIN(blk->bufferSize ? blk->bufferSize : blk->dataSize, blk->dataSize);
+    size_t size =
+        MIN(blk->bufferSize ? blk->bufferSize : blk->dataSize, blk->dataSize);
     XPR_StreamBlock* nblk = 0;
 
     if (!blk)
@@ -156,9 +169,9 @@ XPR_API XPR_StreamBlock* XPR_StreamBlockDuplicate(const XPR_StreamBlock* blk)
     nblk = XPR_StreamBlockAlloc(size);
     if (nblk) {
         //*nblk = *blk;
-        //nblk->buffer = (uint8_t*)nblk + sizeof(*nblk);
-        //nblk->bufferSize = size;
-        //nblk->data = nblk->buffer;
+        // nblk->buffer = (uint8_t*)nblk + sizeof(*nblk);
+        // nblk->bufferSize = size;
+        // nblk->data = nblk->buffer;
         XPR_StreamBlockCopyHeader(blk, nblk);
         nblk->dataSize = blk->dataSize;
         memcpy(nblk->data, blk->data, blk->dataSize);

@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 
 static int g_xpr_gpio_dev_fd = -1;
 
-int XPR_GPIO_Init(void)
+XPR_API int XPR_GPIO_Init(void)
 {
     g_xpr_gpio_dev_fd = open("/dev/gpc", O_RDWR);
     if (g_xpr_gpio_dev_fd <= 0)
@@ -17,13 +17,13 @@ int XPR_GPIO_Init(void)
     return XPR_ERR_SUCCESS;  
 }
 
-void XPR_GPIO_Fini(void)
+XPR_API void XPR_GPIO_Fini(void)
 {
     close(g_xpr_gpio_dev_fd);
     g_xpr_gpio_dev_fd = -1;
 }
 
-int XPR_GPIO_Get(int port, int* value)
+XPR_API int XPR_GPIO_Get(int port, int* value)
 {
     gpio_info_t gi = { port, 0 };
     if (ioctl(g_xpr_gpio_dev_fd, GPC_IOC_GET, &gi) < 0)
@@ -33,7 +33,7 @@ int XPR_GPIO_Get(int port, int* value)
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_GPIO_Set(int por, int value)
+XPR_API int XPR_GPIO_Set(int por, int value)
 {
     gpio_info_t gi = { port, value };
     if (ioctl(g_xpr_gpio_dev_fd, GPC_IOC_SET, &gi) < 0)
@@ -42,12 +42,12 @@ int XPR_GPIO_Set(int por, int value)
 }
 
 // FIXME：
-int XPR_GPIO_GetMode(int port, int* mode)
+XPR_API int XPR_GPIO_GetMode(int port, int* mode)
 {
     return XPR_ERR_ERROR;
 }
 
-int XPR_GPIO_SetMode(int por, int mode)
+XPR_API int XPR_GPIO_SetMode(int por, int mode)
 {
     gpio_config_t gc = { port, mode };
     if (ioctl(g_xpr_gpio_dev_fd, GPC_IOC_CONFIG, &gc) < 0)

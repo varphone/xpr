@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
@@ -11,10 +11,10 @@ XPR_API void* XPR_Alloc(size_t size)
 
 XPR_API void XPR_Free(void* ptr)
 {
-    if(ptr) {
-		free(ptr);
-		ptr = NULL;
-	}
+    if (ptr) {
+        free(ptr);
+        ptr = NULL;
+    }
 }
 
 XPR_API void XPR_Freep(void** pptr)
@@ -56,4 +56,3 @@ XPR_API wchar_t* XPR_StrDupW(const wchar_t* str)
     return wcsdup(str);
 #endif
 }
-

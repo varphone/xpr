@@ -1,4 +1,4 @@
-/*
+﻿/*
 SHA-1 in C
 By Steve Reid <steve@edmweb.com>
 100% Public Domain
@@ -172,9 +172,7 @@ XPR_API void XPR_SHA1Transform(uint32_t state[5], const uint8_t buffer[64])
 #endif
 }
 
-
 /* SHA1Init - Initialize new context */
-
 XPR_API void XPR_SHA1Init(XPR_SHA1_CTX* context)
 {
     /* SHA1 initialization constants */
@@ -186,25 +184,22 @@ XPR_API void XPR_SHA1Init(XPR_SHA1_CTX* context)
     context->count[0] = context->count[1] = 0;
 }
 
-
 /* Run your data through this. */
-
-XPR_API void XPR_SHA1Update(XPR_SHA1_CTX* context, const uint8_t* data, size_t len)
+XPR_API void XPR_SHA1Update(XPR_SHA1_CTX* context, const uint8_t* data,
+                            size_t len)
 {
     size_t i;
-	size_t j;
+    size_t j;
 
     j = context->count[0];
     if ((context->count[0] += len << 3) < j)
         context->count[1]++;
     context->count[1] += (len >> 29);
     j = (j >> 3) & 63;
-    if ((j + len) > 63)
-    {
+    if ((j + len) > 63) {
         memcpy(&context->buffer[j], data, (i = 64 - j));
-		XPR_SHA1Transform(context->state, context->buffer);
-        for (; i + 63 < len; i += 64)
-        {
+        XPR_SHA1Transform(context->state, context->buffer);
+        for (; i + 63 < len; i += 64) {
             XPR_SHA1Transform(context->state, &data[i]);
         }
         j = 0;
@@ -214,18 +209,15 @@ XPR_API void XPR_SHA1Update(XPR_SHA1_CTX* context, const uint8_t* data, size_t l
     memcpy(&context->buffer[j], &data[i], len - i);
 }
 
-
 /* Add padding and return the message digest. */
 
 XPR_API void XPR_SHA1Final(XPR_SHA1_CTX* context, uint8_t digest[20])
 {
     unsigned i;
-
     unsigned char finalcount[8];
-
     unsigned char c;
 
-#if 0    /* untested "improvement" by DHR */
+#if 0 /* untested "improvement" by DHR */
     /* Convert context->count to a sequence of bytes
      * in finalcount.  Second element first, but
      * big-endian order within element.
@@ -239,23 +231,23 @@ XPR_API void XPR_SHA1Final(XPR_SHA1_CTX* context, uint8_t digest[20])
         for (j = 0; j < 4; t >>= 8, j++)
             *--fcp = (unsigned char) t}
 #else
-    for (i = 0; i < 8; i++)
-    {
-        finalcount[i] = (unsigned char) ((context->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);      /* Endian independent */
+    for (i = 0; i < 8; i++) {
+        finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)] >>
+                                         ((3 - (i & 3)) * 8)) &
+                                        255); /* Endian independent */
     }
 #endif
     c = 0200;
     XPR_SHA1Update(context, &c, 1);
-    while ((context->count[0] & 504) != 448)
-    {
+    while ((context->count[0] & 504) != 448) {
         c = 0000;
-		XPR_SHA1Update(context, &c, 1);
+        XPR_SHA1Update(context, &c, 1);
     }
-	XPR_SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
-    for (i = 0; i < 20; i++)
-    {
-        digest[i] = (unsigned char)
-            ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
+    XPR_SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
+    for (i = 0; i < 20; i++) {
+        digest[i] =
+            (unsigned char)((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) &
+                            255);
     }
     /* Wipe variables */
     memset(context, '\0', sizeof(*context));
@@ -265,55 +257,55 @@ XPR_API void XPR_SHA1Final(XPR_SHA1_CTX* context, uint8_t digest[20])
 #ifndef MIN
 #define MIN(a,b) (a) < (b) ? (a) : (b)
 #endif
-XPR_API char* XPR_SHA1Data(const uint8_t* data, size_t length,  char* hashOut)
+XPR_API char* XPR_SHA1Data(const uint8_t* data, size_t length, char* hashOut)
 {
     XPR_SHA1_CTX ctx;
     size_t pos = 0;
-	size_t blk = 0;
-	uint8_t digest[20];
+    size_t blk = 0;
+    uint8_t digest[20];
 
     XPR_SHA1Init(&ctx);
-	while (length > 0) {
-		blk = MIN(4096, length);
-		XPR_SHA1Update(&ctx, data + pos, 4096);
-		pos += blk;
-		length -= blk;
-	}
+    while (length > 0) {
+        blk = MIN(4096, length);
+        XPR_SHA1Update(&ctx, data + pos, 4096);
+        pos += blk;
+        length -= blk;
+    }
     XPR_SHA1Final(&ctx, digest);
-	for (pos = 0; pos < 20; pos++)
-		sprintf(hashOut + pos * 2, "%02X", digest[pos]);
-	hashOut[pos * 2] = '\0';
-	return hashOut;
+    for (pos = 0; pos < 20; pos++)
+        sprintf(hashOut + pos * 2, "%02X", digest[pos]);
+    hashOut[pos * 2] = '\0';
+    return hashOut;
 }
 
 XPR_API char* XPR_SHA1File(const char* path, char* hashOut)
 {
-	XPR_File* f;
-	XPR_SHA1_CTX ctx;
-	int n = 0;
-	uint8_t digest[20];
-	uint8_t tmp[4096];
+    XPR_File* f;
+    XPR_SHA1_CTX ctx;
+    int n = 0;
+    uint8_t digest[20];
+    uint8_t tmp[4096];
 
-	f = XPR_FileOpen(path, "rb");
-	if (f == NULL)
-		return NULL;
+    f = XPR_FileOpen(path, "rb");
+    if (f == NULL)
+        return NULL;
 
-	XPR_SHA1Init(&ctx);
-	while (1) {
-		n = XPR_FileRead(f, tmp, sizeof(tmp));
-		if (n <= 0)
-			break;
-		XPR_SHA1Update(&ctx, tmp, n);
-		if (n < sizeof(tmp))
-			break;
-	}
-	XPR_SHA1Final(&ctx, digest);
-	XPR_FileClose(f);
+    XPR_SHA1Init(&ctx);
+    while (1) {
+        n = XPR_FileRead(f, tmp, sizeof(tmp));
+        if (n <= 0)
+            break;
+        XPR_SHA1Update(&ctx, tmp, n);
+        if (n < sizeof(tmp))
+            break;
+    }
+    XPR_SHA1Final(&ctx, digest);
+    XPR_FileClose(f);
 
-	for (n = 0; n < 20; n++)
-		sprintf(hashOut + n * 2, "%02X", digest[n]);
+    for (n = 0; n < 20; n++)
+        sprintf(hashOut + n * 2, "%02X", digest[n]);
 
-	hashOut[n * 2] = '\0';
+    hashOut[n * 2] = '\0';
 
-	return hashOut;
+    return hashOut;
 }

@@ -21,7 +21,8 @@
 #define XPR_DPUPRIV_H
 
 #include <stdint.h>
-#include "xpr_dpu.h"
+#include <xpr/xpr_common.h>
+#include <xpr/xpr_dpu.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,62 +185,62 @@ struct XPR_DPU_Option {
 /// @brief 注册单个驱动
 /// @param [in] drv     驱动注册信息
 /// @return  无返回值
-void XPR_DPU_Register(XPR_DPU_Driver* drv);
+XPR_API void XPR_DPU_Register(XPR_DPU_Driver* drv);
 
 /// @brief 注册所有内置驱动
 /// @return  无返回值
-void XPR_DPU_RegisterAll(void);
+XPR_API void XPR_DPU_RegisterAll(void);
 
 /// @brief 查找指定标识的驱动注册信息
 /// @param [in] id      驱动标识
 /// @retval NULL    未找到
 /// @retval Other   驱动注册信息
-XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id);
+XPR_API XPR_DPU_Driver* XPR_DPU_FindDriver(enum XPR_DPU_Id id);
 
 /// @brief Find driver Id by name
-enum XPR_DPU_Id XPR_DPU_FindDriverId(const char* name);
+XPR_API enum XPR_DPU_Id XPR_DPU_FindDriverId(const char* name);
 
 /// @brief 分配镜头驱动关联数据资源
 /// @return 已分配的地址指针
-XPR_DPU* XPR_DPU_AllocContext(void);
+XPR_API XPR_DPU* XPR_DPU_AllocContext(void);
 
 /// @brief 释放镜头驱动关联数据资源
 /// @param [in] ctx     镜头驱动关联数据
 /// @return 无返回值
-void XPR_DPU_FreeContext(XPR_DPU* ctx);
+XPR_API void XPR_DPU_FreeContext(XPR_DPU* ctx);
 
 /// @brief 打开镜头驱动
 /// @param [in] ctx     码流读取器关联数据
 /// @param [in] drv     驱动注册信息
 /// @retval <0  失败
 /// @retval >=0 成功
-int XPR_DPU_OpenContext(XPR_DPU* ctx, const XPR_DPU_Driver* drv);
+XPR_API int XPR_DPU_OpenContext(XPR_DPU* ctx, const XPR_DPU_Driver* drv);
 
 /// @brief 关闭镜头驱动
 /// @param [in] ctx     码流读取器关联数据
 /// @retval <0  失败
 /// @retval >=0 成功
-int XPR_DPU_CloseContext(XPR_DPU* ctx);
+XPR_API int XPR_DPU_CloseContext(XPR_DPU* ctx);
 
 /// @brief 获取驱动名称
 /// @param [in] ctx     镜头驱动关联数据
 /// @return 驱动名称
-const char* XPR_DPU_GetDriverName(const XPR_DPU* ctx);
+XPR_API const char* XPR_DPU_GetDriverName(const XPR_DPU* ctx);
 
 /// @brief 获取驱动描述
 /// @param [in] ctx     镜头驱动关联数据
 /// @return 驱动描述
-const char* XPR_DPU_GetDriverDescription(const XPR_DPU* ctx);
+XPR_API const char* XPR_DPU_GetDriverDescription(const XPR_DPU* ctx);
 
 /// @brief 获取驱动标识
 /// @param [in] ctx     码流读取器关联数据
 /// @return 驱动标识
-int XPR_DPU_GetDriverIdentifier(const XPR_DPU* ctx);
+XPR_API int XPR_DPU_GetDriverIdentifier(const XPR_DPU* ctx);
 
 /// @brief 获取驱动能力
 /// @param [in] ctx     码流读取器关联数据
 /// @return 驱动能力
-int XPR_DPU_GetDriverCapabilities(const XPR_DPU* ctx);
+XPR_API int XPR_DPU_GetDriverCapabilities(const XPR_DPU* ctx);
 
 #ifdef __cplusplus
 }

@@ -23,6 +23,7 @@
 #define XPR_DRM_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,28 +62,28 @@ enum XPR_DRM_ConfigType {
 /// @retval XPR_ERR_SUCCESS 配置成功
 /// @retval XPR_ERR_ERROR 配置失败
 /// @note 此接口需要在 XPR_DRM_Init() 之前调用
-int XPR_DRM_Config(int cfg, const void* data, int length);
+XPR_API int XPR_DRM_Config(int cfg, const void* data, int length);
 
 ///
 /// 初始化 XPR_DRM 模块
 ///
 /// @retval XPR_ERR_SUCCESS 初始化成功
 /// @retval XPR_ERR_ERROR 初始化失败
-int XPR_DRM_Init(void);
+XPR_API int XPR_DRM_Init(void);
 
 ///
 /// 释放 XPR_DRM 模块已分配的资源
 ///
 /// @retval XPR_ERR_SUCCESS 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_DRM_Fini(void);
+XPR_API int XPR_DRM_Fini(void);
 
 ///
 /// 验证 XPR_DRM 数据
 ///
 /// @retval XPR_ERR_SUCCESS 验证成功
 /// @retval XPR_ERR_ERROR 验证失败
-int XPR_DRM_Verify(void);
+XPR_API int XPR_DRM_Verify(void);
 
 ///
 /// 获取 XPR_DRM 序列号
@@ -91,21 +92,21 @@ int XPR_DRM_Verify(void);
 /// @param [in,out] size  用于接受序列号数据的缓冲区长度, 并返回实际数据长度
 /// @retval XPR_ERR_SUCCESS 获取成功
 /// @retval XPR_ERR_ERROR 获取失败
-int XPR_DRM_GetSerial(uint8_t* buffer, int* size);
+XPR_API int XPR_DRM_GetSerial(uint8_t* buffer, int* size);
 
 ///
 /// 获取 XPR_DRM 序列号字符串
 ///
 /// @retval NULL 获取失败
 /// @retval Other 字符串格式的序列号
-const char* XPR_DRM_GetSerialString(void);
+XPR_API const char* XPR_DRM_GetSerialString(void);
 
 ///
 /// 获取 XPR_DRM 全球唯一序列号字符串
 ///
 /// @retval NULL 获取失败
 /// @retval Other 字符串格式的全球唯一序列号
-const char* XPR_DRM_GetUuidString(void);
+XPR_API const char* XPR_DRM_GetUuidString(void);
 
 ///
 /// 安装 XPR_DRM 序列号
@@ -114,7 +115,7 @@ const char* XPR_DRM_GetUuidString(void);
 /// @param [in,out] length  用于安装的序列号数据的长度
 /// @retval XPR_ERR_SUCCESS 安装成功
 /// @retval XPR_ERR_ERROR 安装失败
-int XPR_DRM_InstallSerial(const uint8_t* data, int length);
+XPR_API int XPR_DRM_InstallSerial(const uint8_t* data, int length);
 
 #ifdef __cplusplus
 }

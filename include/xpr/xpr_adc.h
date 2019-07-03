@@ -20,6 +20,8 @@
 #ifndef XPR_ADC_H
 #define XPR_ADC_H
 
+#include <xpr/xpr_common.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -98,7 +100,7 @@ typedef enum XPR_ADC_ConfigType {
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
 /// @note 此接口必须要在 XPR_ADC_Init() 之前调用方可生效
-int XPR_ADC_Config(int cfg, const void* data, int length);
+XPR_API int XPR_ADC_Config(int cfg, const void* data, int length);
 
 ///
 /// 初始化 XPR_ADC 模块
@@ -106,14 +108,14 @@ int XPR_ADC_Config(int cfg, const void* data, int length);
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
 /// @retval XPR_ERR_ADC_BUSY    已经初始化过了
-int XPR_ADC_Init(void);
+XPR_API int XPR_ADC_Init(void);
 
 ///
 /// 释放 XPR_ADC 模块内已分配的资源
 ///
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
-int XPR_ADC_Fini(void);
+XPR_API int XPR_ADC_Fini(void);
 
 ///
 /// 检测端口是否准备就绪
@@ -121,7 +123,7 @@ int XPR_ADC_Fini(void);
 /// @param [in] port            端口句柄
 /// @return XPR_TRUE            已就绪
 /// @return XPR_FALSE           未就绪
-int XPR_ADC_IsPortReady(int port);
+XPR_API int XPR_ADC_IsPortReady(int port);
 
 ///
 /// 检测端口是否可用
@@ -129,7 +131,7 @@ int XPR_ADC_IsPortReady(int port);
 /// @param [in] port            端口句柄
 /// @retval XPR_TRUE            端口可用
 /// @retval XPR_FALSE           端口不可用
-int XPR_ADC_IsPortValid(int port);
+XPR_API int XPR_ADC_IsPortValid(int port);
 
 ///
 /// 获取指定端口的采样值
@@ -139,7 +141,7 @@ int XPR_ADC_IsPortValid(int port);
 /// @param [in,out] size        保存端口当前采样值的缓冲区容量, 并返回实际数据长度
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
-int XPR_ADC_GetValue(int port, void* buffer, int* size);
+XPR_API int XPR_ADC_GetValue(int port, void* buffer, int* size);
 
 ///
 /// 设置端口参数
@@ -149,7 +151,7 @@ int XPR_ADC_GetValue(int port, void* buffer, int* size);
 /// @param [in] length          要设置的参数数据长度
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
-int XPR_ADC_SetParam(int port, const void* data, int length);
+XPR_API int XPR_ADC_SetParam(int port, const void* data, int length);
 
 ///
 /// 获取端口参数
@@ -159,7 +161,7 @@ int XPR_ADC_SetParam(int port, const void* data, int length);
 /// @param [in] length          要设置的参数数据长度
 /// @retval XPR_ERR_OK          成功
 /// @retval XPR_ERR_ERROR       失败
-int XPR_ADC_GetParam(int port, void* buffer, int* size);
+XPR_API int XPR_ADC_GetParam(int port, void* buffer, int* size);
 
 #ifdef __cplusplus
 }

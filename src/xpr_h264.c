@@ -1,8 +1,8 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
+#include <xpr/xpr_bitvector.h>
 #include <xpr/xpr_common.h>
 #include <xpr/xpr_errno.h>
-#include <xpr/xpr_bitvector.h>
 #include <xpr/xpr_h264.h>
 #include <xpr/xpr_utils.h>
 
@@ -17,7 +17,8 @@ XPR_API int XPR_H264_HaveStartCode(const uint8_t* data, unsigned int length)
 
 XPR_API int64_t XPR_H264_VUI_CalcDuration(XPR_H264_VUI* vui, int64_t base)
 {
-    if (!vui->timing_info_present_flag || !vui->num_units_in_tick || !vui->time_scale)
+    if (!vui->timing_info_present_flag || !vui->num_units_in_tick ||
+        !vui->time_scale)
         return 0;
     base = base ? 1000000 : base;
     return base * vui->num_units_in_tick / vui->time_scale * 2;
@@ -39,34 +40,36 @@ XPR_API int64_t XPR_H264_VUI_CalcPTSSteps(XPR_H264_VUI* vui, int64_t base)
 }
 
 XPR_API int XPR_H264_ProbeFrameInfo(const uint8_t* data, unsigned int length,
-                            XPR_H264_FrameInfo* fi)
+                                    XPR_H264_FrameInfo* fi)
 {
     int n = 0;
     XPR_H264_NALU nalus[16];
     //
     n = XPR_H264_ScanNALU(data, length, nalus, 16);
-	return XPR_H264_ProbeFrameInfoEx(nalus, n, fi);
+    return XPR_H264_ProbeFrameInfoEx(nalus, n, fi);
 }
 
-XPR_API int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[], unsigned int naluCount,
-				                      XPR_H264_FrameInfo* fi)
+XPR_API int XPR_H264_ProbeFrameInfoEx(XPR_H264_NALU nalus[],
+                                      unsigned int naluCount,
+                                      XPR_H264_FrameInfo* fi)
 {
     int i = 0;
     XPR_H264_SPS sps;
     //
     fi->keyFrame = XPR_FALSE;
-	for (i = 0; i < (int)naluCount; i++) {
-		if ((nalus[i].data[0] & 0x1f) == XPR_H264_NALU_TYPE_SPS) {
-            if (XPR_H264_ParseSPS_NALU(nalus[i].data, nalus[i].length, &sps) != XPR_ERR_SUCCESS)
+    for (i = 0; i < (int)naluCount; i++) {
+        if ((nalus[i].data[0] & 0x1f) == XPR_H264_NALU_TYPE_SPS) {
+            if (XPR_H264_ParseSPS_NALU(nalus[i].data, nalus[i].length, &sps) !=
+                XPR_ERR_SUCCESS)
                 break;
-		    fi->fps = XPR_H264_VUI_CalcFPS(&sps.vui_parameters);
-			fi->width = (sps.pic_width_in_mbs_minus1+1) * 16;
-			fi->height = (sps.pic_height_in_map_units_minus1+1) * 16;
+            fi->fps = XPR_H264_VUI_CalcFPS(&sps.vui_parameters);
+            fi->width = (sps.pic_width_in_mbs_minus1 + 1) * 16;
+            fi->height = (sps.pic_height_in_map_units_minus1 + 1) * 16;
             fi->keyFrame = XPR_TRUE;
             return XPR_ERR_SUCCESS;
-		}
-	}
-	return XPR_ERR_ERROR;
+        }
+    }
+    return XPR_ERR_ERROR;
 }
 
 static void ParseSPS_HRD(XPR_BitVector* bv, XPR_H264_SPS* sps,
@@ -76,14 +79,12 @@ static void ParseSPS_HRD(XPR_BitVector* bv, XPR_H264_SPS* sps,
     hrd->cpb_cnt_minus1 = XPR_BitVectorGetExpGolomb(bv);
     hrd->bit_rate_scale = XPR_BitVectorGetBits(bv, 4);
     hrd->cpb_size_scale = XPR_BitVectorGetBits(bv, 4);
-    for (SchedSelIdx = 0; SchedSelIdx <= hrd->cpb_cnt_minus1;
-         SchedSelIdx++) {
+    for (SchedSelIdx = 0; SchedSelIdx <= hrd->cpb_cnt_minus1; SchedSelIdx++) {
         hrd->bit_rate_value_minus1 = XPR_BitVectorGetExpGolomb(bv);
         hrd->cpb_size_value_minus1 = XPR_BitVectorGetExpGolomb(bv);
         hrd->cbr_flag = XPR_BitVectorGet1Bit(bv);
     }
-    hrd->initial_cpb_removal_delay_length_minus1 = XPR_BitVectorGetBits(
-                bv, 5);
+    hrd->initial_cpb_removal_delay_length_minus1 = XPR_BitVectorGetBits(bv, 5);
     hrd->cpb_removal_delay_length_minus1 = XPR_BitVectorGetBits(bv, 5);
     hrd->dpb_output_delay_length_minus1 = XPR_BitVectorGetBits(bv, 5);
     hrd->time_offset_length = XPR_BitVectorGetBits(bv, 5);
@@ -95,42 +96,45 @@ static void ParseSPS_VUI(XPR_BitVector* bv, XPR_H264_SPS* sps,
     vui->aspect_ratio_info_present_flag = XPR_BitVectorGet1Bit(bv);
     if (vui->aspect_ratio_info_present_flag) {
         vui->aspect_ratio_idc = XPR_BitVectorGetBits(bv, 8);
-        if (vui->aspect_ratio_idc == 255/*Extended_SAR*/) {
-            vui->sar_width = XPR_BitVectorGetBits(bv, 16); // sar_width
-            vui->sar_height = XPR_BitVectorGetBits(bv, 16); //sar_height
+        if (vui->aspect_ratio_idc == 255 /*Extended_SAR*/) {
+            vui->sar_width = XPR_BitVectorGetBits(bv, 16);  // sar_width
+            vui->sar_height = XPR_BitVectorGetBits(bv, 16); // sar_height
         }
     }
     vui->overscan_info_present_flag = XPR_BitVectorGet1Bit(bv);
     if (vui->overscan_info_present_flag) {
-        vui->overscan_appropriate_flag = XPR_BitVectorGet1Bit(
-                                             bv); // overscan_appropriate_flag
+        vui->overscan_appropriate_flag =
+            XPR_BitVectorGet1Bit(bv); // overscan_appropriate_flag
     }
     vui->video_signal_type_present_flag = XPR_BitVectorGet1Bit(bv);
     if (vui->video_signal_type_present_flag) {
         vui->video_format = XPR_BitVectorGetBits(bv, 3); // video_format
-        vui->video_full_range_flag = XPR_BitVectorGet1Bit(
-                                         bv); // video_full_range_flag
-        vui->colour_description_present_flag = XPR_BitVectorGet1Bit(
-                bv); // colour_description_present_flag
+        vui->video_full_range_flag =
+            XPR_BitVectorGet1Bit(bv); // video_full_range_flag
+        vui->colour_description_present_flag =
+            XPR_BitVectorGet1Bit(bv); // colour_description_present_flag
         if (vui->colour_description_present_flag) {
-            vui->colour_parimaries = XPR_BitVectorGetBits(bv,
+            vui->colour_parimaries =
+                XPR_BitVectorGetBits(bv,
                                      8); // colour_primaries
-            vui->transfer_characteristics = XPR_BitVectorGetBits(bv,
-                                            8); // transfer_characteristics
-            vui->matrix_coefficients = XPR_BitVectorGetBits(bv,
-                                       8); // matrix_coefficients
+            vui->transfer_characteristics =
+                XPR_BitVectorGetBits(bv,
+                                     8); // transfer_characteristics
+            vui->matrix_coefficients =
+                XPR_BitVectorGetBits(bv,
+                                     8); // matrix_coefficients
         }
     }
     vui->chroma_loc_info_present_flag = XPR_BitVectorGet1Bit(bv);
     if (vui->chroma_loc_info_present_flag) {
-        vui->chroma_sample_loc_type_top_field = XPR_BitVectorGetExpGolomb(
-                bv); // chroma_sample_loc_type_top_field
+        vui->chroma_sample_loc_type_top_field =
+            XPR_BitVectorGetExpGolomb(bv); // chroma_sample_loc_type_top_field
         vui->chroma_sample_loc_type_bottom_field = XPR_BitVectorGetExpGolomb(
-                    bv); // chroma_sample_loc_type_bottom_field
+            bv); // chroma_sample_loc_type_bottom_field
     }
     vui->timing_info_present_flag = XPR_BitVectorGet1Bit(bv);
     if (vui->timing_info_present_flag) {
-#if 0 //VW: Use new stype value caculator, 2012/11/23
+#if 0 // VW: Use new stype value caculator, 2012/11/23
 #if defined(_BOARD_A5S)
         // num_units_in_tick in Ambarella A5S 1080p frame added 8 bits.
         if (sps->pic_width_in_mbs_minus1 >= 119 &&
@@ -162,8 +166,7 @@ static void ParseSPS_VUI(XPR_BitVector* bv, XPR_H264_SPS* sps,
 #else // VW: New style value caculator.
         vui->num_units_in_tick = XPR_BitVectorGetBits(bv, 32);
         vui->time_scale = XPR_BitVectorGetBits(bv, 32);
-        if (vui->num_units_in_tick == 0 ||
-            vui->time_scale == 0 ||
+        if (vui->num_units_in_tick == 0 || vui->time_scale == 0 ||
             (vui->time_scale / vui->num_units_in_tick) > 240) {
             XPR_BitVectorRollback(bv, 64);
             XPR_BitVectorSkip(bv, 24);
@@ -199,7 +202,7 @@ static void ParseSPS_VUI(XPR_BitVector* bv, XPR_H264_SPS* sps,
 }
 
 XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
-				                   XPR_H264_SPS* sps)
+                                   XPR_H264_SPS* sps)
 {
     unsigned int i = 0;
     unsigned int j = 0;
@@ -216,8 +219,8 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
         data += 4;
         length -= 4;
     }
-    bv = XPR_BitVectorNOB(bvb, XPR_BITVECTOR_NOB_SIZE,
-                          (uint8_t*)data, 0, 8 * length);
+    bv = XPR_BitVectorNOB(bvb, XPR_BITVECTOR_NOB_SIZE, (uint8_t*)data, 0,
+                          8 * length);
     if (!bv)
         return XPR_ERR_ERROR;
     //
@@ -225,18 +228,15 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
     sps->nal_ref_idc = XPR_BitVectorGetBits(bv, 2);
     sps->nal_unit_type = XPR_BitVectorGetBits(bv, 5);
     sps->profile_idc = XPR_BitVectorGetBits(bv, 8);
-    sps->constraint_setN_flag = XPR_BitVectorGetBits(bv,
-                                8); // also "reserved_zero_2bits" at end
+    sps->constraint_setN_flag =
+        XPR_BitVectorGetBits(bv,
+                             8); // also "reserved_zero_2bits" at end
     sps->level_idc = XPR_BitVectorGetBits(bv, 8);
     sps->seq_parameter_set_id = XPR_BitVectorGetExpGolomb(bv);
-    if (sps->profile_idc == 100 ||
-        sps->profile_idc == 110 ||
-        sps->profile_idc == 122 ||
-        sps->profile_idc == 244 ||
-        sps->profile_idc == 44 ||
-        sps->profile_idc == 83 ||
-        sps->profile_idc == 86 ||
-        sps->profile_idc == 118 ||
+    if (sps->profile_idc == 100 || sps->profile_idc == 110 ||
+        sps->profile_idc == 122 || sps->profile_idc == 244 ||
+        sps->profile_idc == 44 || sps->profile_idc == 83 ||
+        sps->profile_idc == 86 || sps->profile_idc == 118 ||
         sps->profile_idc == 128) {
         sps->chroma_format_idc = XPR_BitVectorGetExpGolomb(bv);
         if (sps->chroma_format_idc == 3) {
@@ -247,7 +247,9 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
         XPR_BitVectorSkip(bv, 1); // qpprime_y_zero_transform_bypass_flag
         sps->seq_scaling_matrix_present_flag = XPR_BitVectorGet1Bit(bv);
         if (sps->seq_scaling_matrix_present_flag) {
-            for (i = 0; i < (unsigned int)((sps->chroma_format_idc != 3) ? 8 : 12); ++i) {
+            for (i = 0;
+                 i < (unsigned int)((sps->chroma_format_idc != 3) ? 8 : 12);
+                 ++i) {
                 seq_scaling_list_present_flag = XPR_BitVectorGet1Bit(bv);
                 if (seq_scaling_list_present_flag) {
                     sizeOfScalingList = i < 6 ? 16 : 64;
@@ -267,11 +269,10 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
     sps->log2_max_frame_num_minus4 = XPR_BitVectorGetExpGolomb(bv);
     sps->pic_order_cnt_type = XPR_BitVectorGetExpGolomb(bv);
     if (sps->pic_order_cnt_type == 0) {
-        sps->log2_max_pic_order_cnt_lsb_minus4 = XPR_BitVectorGetExpGolomb(
-                    bv);
+        sps->log2_max_pic_order_cnt_lsb_minus4 = XPR_BitVectorGetExpGolomb(bv);
     }
     else if (sps->pic_order_cnt_type == 1) {
-        XPR_BitVectorSkip(bv, 1); // delta_pic_order_always_zero_flag
+        XPR_BitVectorSkip(bv, 1);            // delta_pic_order_always_zero_flag
         (void)XPR_BitVectorGetExpGolomb(bv); // offset_for_non_ref_pic
         (void)XPR_BitVectorGetExpGolomb(bv); // offset_for_top_to_bottom_field
         num_ref_frames_in_pic_order_cnt_cycle = XPR_BitVectorGetExpGolomb(bv);
@@ -290,14 +291,14 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
     sps->direct_8x8_inference_flag = XPR_BitVectorGet1Bit(bv);
     sps->frame_cropping_flag = XPR_BitVectorGet1Bit(bv);
     if (sps->frame_cropping_flag) {
-        sps->frame_crop_left_offset = XPR_BitVectorGetExpGolomb(
-                                          bv); // frame_crop_left_offset
-        sps->frame_crop_right_offset = XPR_BitVectorGetExpGolomb(
-                                           bv); // frame_crop_right_offset
-        sps->frame_crop_top_offset = XPR_BitVectorGetExpGolomb(
-                                         bv); // frame_crop_top_offset
-        sps->frame_crop_bottom_offset = XPR_BitVectorGetExpGolomb(
-                                            bv); // frame_crop_bottom_offset
+        sps->frame_crop_left_offset =
+            XPR_BitVectorGetExpGolomb(bv); // frame_crop_left_offset
+        sps->frame_crop_right_offset =
+            XPR_BitVectorGetExpGolomb(bv); // frame_crop_right_offset
+        sps->frame_crop_top_offset =
+            XPR_BitVectorGetExpGolomb(bv); // frame_crop_top_offset
+        sps->frame_crop_bottom_offset =
+            XPR_BitVectorGetExpGolomb(bv); // frame_crop_bottom_offset
     }
     sps->vui_parameters_present_flag = XPR_BitVectorGet1Bit(bv);
     if (sps->vui_parameters_present_flag) {
@@ -308,9 +309,9 @@ XPR_API int XPR_H264_ParseSPS_NALU(const uint8_t* data, unsigned int length,
 }
 
 XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
-				              XPR_H264_NALU nalus[], unsigned int maxNalus)
+                              XPR_H264_NALU nalus[], unsigned int maxNalus)
 {
-    static const uint8_t kStartCode[4] = { 0x00, 0x00, 0x00, 0x01 };
+    static const uint8_t kStartCode[4] = {0x00, 0x00, 0x00, 0x01};
     int i = 0;
     int l = MIN(length, 1024);
     int n = 0;
@@ -323,14 +324,15 @@ XPR_API int XPR_H264_ScanNALU(const uint8_t* data, unsigned int length,
         if (++m > 3) {
             nalus[n].data = data + i + 1;
             if (n > 0)
-                nalus[n-1].length = (unsigned int)(nalus[n].data - nalus[n-1].data - 4);
-            if (++n > (int)(maxNalus-1))
+                nalus[n - 1].length =
+                    (unsigned int)(nalus[n].data - nalus[n - 1].data - 4);
+            if (++n > (int)(maxNalus - 1))
                 break;
             m = 0;
         }
     }
     if (n > 0)
-		nalus[n - 1].length = (unsigned int)(data + length - nalus[n - 1].data);
+        nalus[n - 1].length = (unsigned int)(data + length - nalus[n - 1].data);
     return n;
 }
 
@@ -428,9 +430,8 @@ XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
     printf("%sseq_parameter_set_id                    : 0x%x\n", indent,
            sps->seq_parameter_set_id);
     if (sps->profile_idc == 100 || sps->profile_idc == 110 ||
-        sps->profile_idc == 122 ||
-        sps->profile_idc == 244 || sps->profile_idc == 44 ||
-        sps->profile_idc == 83 ||
+        sps->profile_idc == 122 || sps->profile_idc == 244 ||
+        sps->profile_idc == 44 || sps->profile_idc == 83 ||
         sps->profile_idc == 86) {
         printf("%schroma_format_idc                       : %d\n", indent,
                sps->chroma_format_idc);
@@ -480,4 +481,3 @@ XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
     if (sps->vui_parameters_present_flag)
         XPR_H264_VUI_Dump(&sps->vui_parameters, "    ");
 }
-

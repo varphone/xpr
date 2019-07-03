@@ -20,12 +20,7 @@
 #ifndef XPR_SERIAL_H
 #define XPR_SERIAL_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,14 +31,14 @@ extern "C" {
 /// @retval -1  失败
 /// @retval 0   文件描述符
 /// @sa close_port()
-int XPR_OpenPort(const char* portAddr);
+XPR_API int XPR_OpenPort(const char* portAddr);
 
 /// @brief 关闭串口库
 /// @param [in] fd           文件描述符
 /// @retval -1  失败
 /// @retval 0   成功
 /// @sa open_port()
-int XPR_ClosePort(int fd);
+XPR_API int XPR_ClosePort(int fd);
 
 /// @brief 配置串口信息
 /// @param [in] fd           文件描述符
@@ -53,7 +48,8 @@ int XPR_ClosePort(int fd);
 /// @param [in] stopBit      停止位
 /// @retval -1  失败
 /// @retval 0   成功
-int XPR_SetPort(int fd, int baudRate, int dataBit, char parity, int stopBit);
+XPR_API int XPR_SetPort(int fd, int baudRate, int dataBit, char parity,
+                        int stopBit);
 
 /// @brief 读取串口数据
 /// @param [in] fd           文件描述符
@@ -61,7 +57,7 @@ int XPR_SetPort(int fd, int baudRate, int dataBit, char parity, int stopBit);
 /// @param [in] length       数据长度
 /// @retval -1  失败
 /// @retval 0   成功
-int XPR_ReadPort(int fd, void* buf, int length);
+XPR_API int XPR_ReadPort(int fd, void* buf, int length);
 
 /// @brief 串口写入数据
 /// @param [in] fd           文件描述符
@@ -69,7 +65,7 @@ int XPR_ReadPort(int fd, void* buf, int length);
 /// @param [in] length       数据长度
 /// @retval -1  失败
 /// @retval 0   成功
-int XPR_WritePort(int fd, void* buf, int length);
+XPR_API int XPR_WritePort(int fd, void* buf, int length);
 
 #ifdef __cplusplus
 }

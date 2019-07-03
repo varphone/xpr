@@ -1,11 +1,13 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpr/xpr_arr.h>
 #include <xpr/xpr_common.h>
 #include <xpr/xpr_errno.h>
-#include <xpr/xpr_arr.h>
 
-struct XPR_ARR {
+
+struct XPR_ARR
+{
     int bitsPerSample;
     int channels;
     int srcSampleRate;
@@ -18,7 +20,7 @@ static void g_xpr_arr_8k_11k_table_init(void)
 {
     int i = 0;
     unsigned int a = 0;
-    for (i=0; i<441; i++) {
+    for (i = 0; i < 441; i++) {
         a = i * 8000 / 11025;
         g_xpr_arr_8k_11k_table[i] = a > 320 ? 319 : a;
     }
@@ -85,7 +87,7 @@ XPR_API int XPR_ARR_GetOutputSamples(XPR_ARR* r)
 static int XPR_ARR_Transform_s16le(XPR_ARR* r, short* src, short* dst)
 {
     int i = 0;
-    for (i=0; i<441; i++)
+    for (i = 0; i < 441; i++)
         dst[i] = src[g_xpr_arr_8k_11k_table[i]];
     return 441;
 }
@@ -96,4 +98,3 @@ XPR_API int XPR_ARR_Transform(XPR_ARR* r, void* src, void* dst)
         return XPR_ARR_Transform_s16le(r, (short*)src, (short*)dst);
     return -1;
 }
-

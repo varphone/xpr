@@ -1,4 +1,4 @@
-/* 
+﻿/* 
  * @Author lwx, lwx_me@163.com
  * @Date 2014-06-17 10:58:42
  *
@@ -18,30 +18,30 @@
 #include <xpr/xpr_drm.h>
 
 // FIXME:
-int XPR_DRM_Config(int request, const void* data, int size)
+XPR_API int XPR_DRM_Config(int request, const void* data, int size)
 {
     return XPR_ERR_SUCCESS;
 }
 
 // FIXME:
-int XPR_DRM_Init(void)
+XPR_API int XPR_DRM_Init(void)
 {
     return XPR_ERR_SUCCESS;
 }
 
 // FIXME:
-void XPR_DRM_Fini(void)
+XPR_API void XPR_DRM_Fini(void)
 {
 }
 
 // FIXME:
-int XPR_DRM_Verify(void)
+XPR_API int XPR_DRM_Verify(void)
 {
     return XPR_ERR_SUCCESS;
 }
 
 
-int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
+XPR_API int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
 {
     int err = -1;
     int l = 0;
@@ -70,7 +70,7 @@ int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
 }
 
 // FIXME:
-const char* XPR_DRM_GetSerialString(void)
+XPR_API const char* XPR_DRM_GetSerialString(void)
 {
     static char serialString[256];
     char tmp[256];
@@ -83,7 +83,7 @@ const char* XPR_DRM_GetSerialString(void)
 }
 
 // FIXME:
-const char* XPR_DRM_GetUuidString(void)
+XPR_API const char* XPR_DRM_GetUuidString(void)
 {
     return 0;
 }
@@ -115,7 +115,7 @@ static int setSerial(const uint8_t* data, int length)
     return (size == length) ? 0 : -1;
 }
 
-int XPR_DRM_InstallSerial(const uint8_t* data, int length)
+XPR_API int XPR_DRM_InstallSerial(const uint8_t* data, int length)
 {
     uint8_t random[8] = {0};
     uint8_t buffer[40] = {0};

@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #if defined(WIN32) || defined(_WIN32)
 #include <crtdbg.h>
-#include <malloc.h>
 #include <intrin.h>
+#include <malloc.h>
+
 #endif // defined(WIN32) || defined(_WIN32)
 #include <string.h>
 #include <xpr/xpr_atomic.h>
@@ -15,7 +16,8 @@
 #include <xpr/xpr_sync.h>
 #endif // defined(HAVE_MP)
 
-struct XPR_Fifo {
+struct XPR_Fifo
+{
     XPR_Atomic head;
     XPR_Atomic tail;
     unsigned int elementSize;
@@ -71,19 +73,18 @@ XPR_API int XPR_FifoGet(XPR_Fifo* f, void* buffer, int size)
 {
     int l = 0;
     int n = 0;
-	if (!f || !buffer)
-		return XPR_ERR_GEN_NULL_PTR;
+    if (!f || !buffer)
+        return XPR_ERR_GEN_NULL_PTR;
     XPR_FIFO_LOCK(f);
     if (XPR_FifoIsEmpty(f)) {
         XPR_FIFO_UNLOCK(f);
         return XPR_ERR_GEN_NOBUF;
     }
     size = MIN(size, XPR_FifoGetLength(f));
-    for (l = 0; l<size; l++) {
+    for (l = 0; l < size; l++) {
         n = f->tail % f->maxElements;
         memcpy((unsigned char*)buffer + l * f->elementSize,
-            f->data + n * f->elementSize,
-            f->elementSize);
+               f->data + n * f->elementSize, f->elementSize);
         XPR_AtomicInc(&f->tail);
     }
     XPR_FIFO_UNLOCK(f);
@@ -102,11 +103,10 @@ XPR_API int XPR_FifoPut(XPR_Fifo* f, const void* data, int size)
         return XPR_ERR_GEN_NOBUF;
     }
     size = MIN(size, XPR_FifoGetAvailableSize(f));
-     for (l = 0; l<size; l++) {
+    for (l = 0; l < size; l++) {
         n = f->head % f->maxElements;
         memcpy(f->data + n * f->elementSize,
-            (const unsigned char*)data + l * f->elementSize,
-            f->elementSize);
+               (const unsigned char*)data + l * f->elementSize, f->elementSize);
         XPR_AtomicInc(&f->head);
     }
     XPR_FIFO_UNLOCK(f);
@@ -125,11 +125,10 @@ XPR_API int XPR_FifoPeek(XPR_Fifo* f, void* buffer, int size, int offset)
         return XPR_ERR_GEN_NOBUF;
     }
     size = MIN(size, XPR_FifoGetLength(f) - offset);
-    for (l = 0; l<size; l++) {
+    for (l = 0; l < size; l++) {
         n = (f->tail + offset + l) % f->maxElements;
         memcpy((unsigned char*)buffer + l * f->elementSize,
-            f->data + n * f->elementSize,
-            f->elementSize);
+               f->data + n * f->elementSize, f->elementSize);
     }
     XPR_FIFO_UNLOCK(f);
     return size;

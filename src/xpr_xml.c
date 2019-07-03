@@ -1,9 +1,10 @@
+﻿#include "deps/roxml/roxml.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_utils.h>
 #include <xpr/xpr_xml.h>
-#include "deps/roxml/roxml.h"
+
 
 XPR_API XPR_XML_Node* XPR_XML_LoadBuf(char* buffer)
 {
@@ -108,7 +109,8 @@ XPR_API void XPR_XML_SetContent(XPR_XML_Node* node, char* content)
     roxml_add_node((node_t*)node, 0, ROXML_TXT_NODE, NULL, content);
 }
 
-XPR_API XPR_XML_Node*  XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name, int nth)
+XPR_API XPR_XML_Node* XPR_XML_GetNodes(XPR_XML_Node* node, int type, char* name,
+                                       int nth)
 {
     return (XPR_XML_Node*)roxml_get_nodes((node_t*)node, type, name, nth);
 }
@@ -160,9 +162,11 @@ XPR_API void XPR_XML_Release(void* data)
     roxml_release(data);
 }
 
-XPR_API XPR_XML_Node* XPR_XML_AddNode(XPR_XML_Node* parent, int position, int type, char* name, char* value)
+XPR_API XPR_XML_Node* XPR_XML_AddNode(XPR_XML_Node* parent, int position,
+                                      int type, char* name, char* value)
 {
-    return (XPR_XML_Node*)roxml_add_node((node_t*)parent, position, type, name, value);
+    return (XPR_XML_Node*)roxml_add_node((node_t*)parent, position, type, name,
+                                         value);
 }
 
 XPR_API void XPR_XML_DelNode(XPR_XML_Node* node)
@@ -170,7 +174,8 @@ XPR_API void XPR_XML_DelNode(XPR_XML_Node* node)
     roxml_del_node((node_t*)node);
 }
 
-XPR_API int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer, int human)
+XPR_API int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer,
+                                  int human)
 {
     return roxml_commit_changes((node_t*)node, dest, buffer, human);
 }
@@ -236,7 +241,8 @@ XPR_API int XPR_XML_XGetNodeNB(XPR_XML_Node* node, char* path)
     return nb;
 }
 
-XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char* buffer, int* size)
+XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth,
+                                  char* buffer, int* size)
 {
     int nb = 0;
     XPR_XML_Node** nodes = 0;
@@ -249,7 +255,7 @@ XPR_API char* XPR_XML_XGetContent(XPR_XML_Node* node, char* path, int nth, char*
             buffer = XPR_XML_GetContent(nodes[nth], NULL, NULL);
     }
     else if (!nodes && !path) {
-        buffer = XPR_XML_GetContent(node, buffer, size); 
+        buffer = XPR_XML_GetContent(node, buffer, size);
     }
     else {
         buffer = NULL;
@@ -273,7 +279,8 @@ XPR_API int XPR_XML_XGetInt(XPR_XML_Node* node, char* path, int nth, int* value)
     return XPR_ERR_OK;
 }
 
-XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* value)
+XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth,
+                              int64_t* value)
 {
     int size = 256;
     char buffer[256];
@@ -287,7 +294,8 @@ XPR_API int XPR_XML_XGetInt64(XPR_XML_Node* node, char* path, int nth, int64_t* 
     return XPR_ERR_OK;
 }
 
-XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* value)
+XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth,
+                              float* value)
 {
     int size = 256;
     char buffer[256];
@@ -301,7 +309,8 @@ XPR_API int XPR_XML_XGetFloat(XPR_XML_Node* node, char* path, int nth, float* va
     return XPR_ERR_OK;
 }
 
-XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* value)
+XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth,
+                               double* value)
 {
     int size = 256;
     char buffer[256];
@@ -315,7 +324,8 @@ XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth, double* 
     return XPR_ERR_OK;
 }
 
-XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth, int* value)
+XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth,
+                                int* value)
 {
     int size = 256;
     char buffer[256];
@@ -326,10 +336,7 @@ XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth, int* va
         return XPR_ERR_ERROR;
     p = xpr_skip_blank(buffer);
     if (value) {
-        if (p[0] == 't' ||
-            p[0] == 'T' ||
-            p[0] == 'y' ||
-            p[0] == 'Y' ||
+        if (p[0] == 't' || p[0] == 'T' || p[0] == 'y' || p[0] == 'Y' ||
             p[0] == '1')
             *value = 1;
         else

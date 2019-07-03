@@ -20,6 +20,7 @@
 #ifndef XPR_ONVIF_H
 #define XPR_ONVIF_H
 
+#include <xpr/xpr_common.h>
 #include <xpr/xpr_json.h>
 
 #ifdef __cplusplus
@@ -39,32 +40,34 @@ typedef enum XPR_ONVIF_ConfigType {
 
 typedef void (*XPR_AsyncCallHandler)(void* opaque, XPR_JSON* data);
 
-int XPR_ONVIF_Config(int cfg, const void* data, int size);
+XPR_API int XPR_ONVIF_Config(int cfg, const void* data, int size);
 
-int XPR_ONVIF_Init(void);
-int XPR_ONVIF_Fini(void);
+XPR_API int XPR_ONVIF_Init(void);
+XPR_API int XPR_ONVIF_Fini(void);
 
-XPR_JSON* XPR_ONVIF_NewData(const char* url, const char* action);
-void XPR_ONVIF_ReleaseData(XPR_JSON* data);
+XPR_API XPR_JSON* XPR_ONVIF_NewData(const char* url, const char* action);
+XPR_API void XPR_ONVIF_ReleaseData(XPR_JSON* data);
 
-int XPR_ONVIF_DataSetAction(XPR_JSON* data, const char* action);
-int XPR_ONVIF_DataSetTMO(XPR_JSON* data, int rxTmo, int txTmo);
-int XPR_ONVIF_DataSetUA(XPR_JSON* data, const char* username,
-                        const char* password);
-int XPR_ONVIF_DataSetURL(XPR_JSON* data, const char* url);
-int XPR_ONVIF_DataSetXML(XPR_JSON* data, const char* xml, int length);
+XPR_API int XPR_ONVIF_DataSetAction(XPR_JSON* data, const char* action);
+XPR_API int XPR_ONVIF_DataSetTMO(XPR_JSON* data, int rxTmo, int txTmo);
+XPR_API int XPR_ONVIF_DataSetUA(XPR_JSON* data, const char* username,
+                                const char* password);
+XPR_API int XPR_ONVIF_DataSetURL(XPR_JSON* data, const char* url);
+XPR_API int XPR_ONVIF_DataSetXML(XPR_JSON* data, const char* xml, int length);
 
-int XPR_ONVIF_AsyncCall(int port, XPR_JSON* data, XPR_AsyncCallHandler cb,
-                        void* opaque);
-int XPR_ONVIF_Call(XPR_JSON* data, XPR_JSON** result);
-int XPR_ONVIF_ParseRequest(const uint8_t* data, int size, XPR_JSON** result);
+XPR_API int XPR_ONVIF_AsyncCall(int port, XPR_JSON* data,
+                                XPR_AsyncCallHandler cb, void* opaque);
+XPR_API int XPR_ONVIF_Call(XPR_JSON* data, XPR_JSON** result);
+XPR_API int XPR_ONVIF_ParseRequest(const uint8_t* data, int size,
+                                   XPR_JSON** result);
 
-int XPR_ONVIF_OpenService(int port, const char* url);
-int XPR_ONVIF_ServiceAddActionHandler(int port, XPR_ONVIF_ActionHandler cb,
-                                      void* opaque);
-int XPR_ONVIF_DelActionHandler(int port, XPR_ONVIF_ActionHandler cb,
-                               void* opaque);
-int XPR_ONVIF_CloseService(int port);
+XPR_API int XPR_ONVIF_OpenService(int port, const char* url);
+XPR_API int XPR_ONVIF_ServiceAddActionHandler(int port,
+                                              XPR_ONVIF_ActionHandler cb,
+                                              void* opaque);
+XPR_API int XPR_ONVIF_DelActionHandler(int port, XPR_ONVIF_ActionHandler cb,
+                                       void* opaque);
+XPR_API int XPR_ONVIF_CloseService(int port);
 
 #ifdef __cplusplus
 }

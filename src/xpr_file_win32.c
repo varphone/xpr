@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
@@ -34,13 +34,8 @@ XPR_API XPR_File* XPR_FileOpen(const char* fn, const char* mode)
             break;
         }
     }
-    f = (XPR_File*)CreateFileA(fn,
-                               access,
-                               0,
-                               NULL,
-                               creation,
-                               FILE_ATTRIBUTE_NORMAL,
-                               NULL);
+    f = (XPR_File*)CreateFileA(fn, access, 0, NULL, creation,
+                               FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE)
         f = 0;
     if (f && append)
@@ -79,8 +74,10 @@ XPR_API int XPR_FileWrite(XPR_File* f, const uint8_t* data, int length)
 XPR_API int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
 {
     if (offset < 0)
-		return (int64_t)SetFilePointer((HANDLE)f, 0, NULL, FILE_END) ? 0 : -1;
-    return (int64_t)SetFilePointer((HANDLE)f, (LONG)offset, NULL, FILE_BEGIN) ? 0 : -1;
+        return (int64_t)SetFilePointer((HANDLE)f, 0, NULL, FILE_END) ? 0 : -1;
+    return (int64_t)SetFilePointer((HANDLE)f, (LONG)offset, NULL, FILE_BEGIN)
+               ? 0
+               : -1;
 }
 
 // FIXME:
@@ -88,4 +85,3 @@ XPR_API int64_t XPR_FileSize(const XPR_File* f)
 {
     return 0;
 }
-

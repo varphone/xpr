@@ -20,6 +20,8 @@
 #ifndef XPR_PLUGIN_H
 #define XPR_PLUGIN_H
 
+#include <xpr/xpr_common.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,41 +75,41 @@ typedef struct XPR_PluginModule XPR_PluginModule;
 
 /// @brief Plugin initialize entry
 /// @return Plugin handle
-XPR_Plugin* XPR_PluginInit(void);
+XPR_API XPR_Plugin* XPR_PluginInit(void);
 
 /// @brief Plugin finialize entry
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_PluginFini(XPR_Plugin* plugin);
+XPR_API int XPR_PluginFini(XPR_Plugin* plugin);
 
 /// @brief Load single plugin
 /// @return Plugin module handle
-XPR_PluginModule* XPR_PluginLoad(const char* name);
+XPR_API XPR_PluginModule* XPR_PluginLoad(const char* name);
 
 /// @brief Load all plugins in specified dir
 /// @return Number of plugins loaded
-int XPR_PluginLoadAll(const char* dir);
+XPR_API int XPR_PluginLoadAll(const char* dir);
 
 /// @brief Unload loaded plugin
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_PluginUnload(XPR_PluginModule* handle);
+XPR_API int XPR_PluginUnload(XPR_PluginModule* handle);
 
 /// @brief Unload all loaded plugins
 /// @return 0   success
 /// @return -1  failure
-int XPR_PluginUnloadAll(void);
+XPR_API int XPR_PluginUnloadAll(void);
 
 /// @brief Find loaded plugin
 /// @param [in] name        Plugin name
 /// @return Plugin handle
-XPR_Plugin* XPR_PluginFind(const char* name);
+XPR_API XPR_Plugin* XPR_PluginFind(const char* name);
 
 /// @biref Get plugin name
-const char* XPR_PluginGetName(const XPR_Plugin* plugin);
+XPR_API const char* XPR_PluginGetName(const XPR_Plugin* plugin);
 
 /// @brief Get plugin description
-const char* XPR_PluginGetDesc(const XPR_Plugin* plugin);
+XPR_API const char* XPR_PluginGetDesc(const XPR_Plugin* plugin);
 
 /// @brief Get plugin parameter
 /// @param [in] plugin      Plugin handle
@@ -116,7 +118,8 @@ const char* XPR_PluginGetDesc(const XPR_Plugin* plugin);
 /// @param [in,out] size    Buffer size and parameter value size
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer, int* size);
+XPR_API int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer,
+                               int* size);
 
 /// @biref Set plugin parameter
 /// @param [in] plugin      Plugin handle
@@ -125,8 +128,8 @@ int XPR_PluginGetParam(XPR_Plugin* plugin, int param, void* buffer, int* size);
 /// @param [in] size        Data size
 /// @retval 0   success
 /// @retval -1  failure
-int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data,
-                       int size);
+XPR_API int XPR_PluginSetParam(XPR_Plugin* plugin, int param, const void* data,
+                               int size);
 
 #ifdef __cplusplus
 }

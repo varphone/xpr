@@ -21,6 +21,7 @@
 #define XPR_OSD_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,13 +103,13 @@ typedef enum XPR_OSD_TextAlignment {
 ///
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Init(void);
+XPR_API int XPR_OSD_Init(void);
 
 /// 释放 XPR_OSD 模块已分配的资源
 ///
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Fini(void);
+XPR_API int XPR_OSD_Fini(void);
 
 ///
 /// 打开指定目标
@@ -116,7 +117,7 @@ int XPR_OSD_Fini(void);
 /// @param [in] port        OSD 目标端口
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Open(int port);
+XPR_API int XPR_OSD_Open(int port);
 
 ///
 /// 关闭指定目标
@@ -124,7 +125,7 @@ int XPR_OSD_Open(int port);
 /// @param [in] port        OSD 目标端口
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Close(int port);
+XPR_API int XPR_OSD_Close(int port);
 
 ///
 /// 检测端口是否有效
@@ -132,7 +133,7 @@ int XPR_OSD_Close(int port);
 /// @param [in] port        OSD 目标端口
 /// @retval XPR_TRUE 有效
 /// @retval XPR_FALSE 无效
-int XPR_OSD_IsPortValid(int port);
+XPR_API int XPR_OSD_IsPortValid(int port);
 
 ///
 /// 获取目标背景色(ARGB)
@@ -141,7 +142,7 @@ int XPR_OSD_IsPortValid(int port);
 /// @param [in] color       保存颜色值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetBGColor(int port, unsigned int* color);
+XPR_API int XPR_OSD_GetBGColor(int port, unsigned int* color);
 
 ///
 /// 设置目标背景色(ARGB)
@@ -150,7 +151,7 @@ int XPR_OSD_GetBGColor(int port, unsigned int* color);
 /// @param [in] color       颜色值
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetBGColor(int port, unsigned int color);
+XPR_API int XPR_OSD_SetBGColor(int port, unsigned int color);
 
 ///
 /// 获取目标前景色(ARGB)
@@ -159,7 +160,7 @@ int XPR_OSD_SetBGColor(int port, unsigned int color);
 /// @param [in] color       保存颜色值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetFGColor(int port, unsigned int* color);
+XPR_API int XPR_OSD_GetFGColor(int port, unsigned int* color);
 
 ///
 /// 设置目标前景色(ARGB)
@@ -168,7 +169,7 @@ int XPR_OSD_GetFGColor(int port, unsigned int* color);
 /// @param [in] color       颜色值
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetFGColor(int port, unsigned int color);
+XPR_API int XPR_OSD_SetFGColor(int port, unsigned int color);
 
 ///
 /// 获取目标边框色(ARGB)
@@ -177,7 +178,7 @@ int XPR_OSD_SetFGColor(int port, unsigned int color);
 /// @param [in] color       保存颜色值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetBorderColor(int port, unsigned int* color);
+XPR_API int XPR_OSD_GetBorderColor(int port, unsigned int* color);
 
 ///
 /// 设置目标边框色(ARGB)
@@ -186,7 +187,7 @@ int XPR_OSD_GetBorderColor(int port, unsigned int* color);
 /// @param [in] color       颜色值
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetBorderColor(int port, unsigned int color);
+XPR_API int XPR_OSD_SetBorderColor(int port, unsigned int color);
 
 ///
 /// 获取目标偏移
@@ -196,7 +197,7 @@ int XPR_OSD_SetBorderColor(int port, unsigned int color);
 /// @param [in] top         保存顶偏移值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetOffset(int port, int* left, int* top);
+XPR_API int XPR_OSD_GetOffset(int port, int* left, int* top);
 
 ///
 /// 设置目标偏移
@@ -206,7 +207,7 @@ int XPR_OSD_GetOffset(int port, int* left, int* top);
 /// @param [in] top         顶偏移值
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetOffset(int port, int left, int top);
+XPR_API int XPR_OSD_SetOffset(int port, int left, int top);
 
 ///
 /// 获取目标区域属性
@@ -215,7 +216,7 @@ int XPR_OSD_SetOffset(int port, int left, int top);
 /// @param [in,out] rect    保存区域属性的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetRect(int port, XPR_Rect* rect);
+XPR_API int XPR_OSD_GetRect(int port, XPR_Rect* rect);
 
 ///
 /// 获取目标区域属性
@@ -224,7 +225,7 @@ int XPR_OSD_GetRect(int port, XPR_Rect* rect);
 /// @param [in] rect        区域属性
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetRect(int port, const XPR_Rect* rect);
+XPR_API int XPR_OSD_SetRect(int port, const XPR_Rect* rect);
 
 ///
 /// 获取目标尺寸
@@ -234,7 +235,7 @@ int XPR_OSD_SetRect(int port, const XPR_Rect* rect);
 /// @param [in,out] height  保存高度值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_GetSize(int port, int* width, int* height);
+XPR_API int XPR_OSD_GetSize(int port, int* width, int* height);
 
 ///
 /// 设置目标尺寸
@@ -244,7 +245,7 @@ int XPR_OSD_GetSize(int port, int* width, int* height);
 /// @param [in] height      保存高度值的地址
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_SetSize(int port, int width, int height);
+XPR_API int XPR_OSD_SetSize(int port, int width, int height);
 
 ///
 /// 清除目标内容并填充为指定颜色
@@ -254,7 +255,7 @@ int XPR_OSD_SetSize(int port, int width, int height);
 /// @param [in] color       填充颜色值
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Clear(int port, const XPR_Rect* rect, unsigned int color);
+XPR_API int XPR_OSD_Clear(int port, const XPR_Rect* rect, unsigned int color);
 
 ///
 /// 绘制图像
@@ -265,8 +266,8 @@ int XPR_OSD_Clear(int port, const XPR_Rect* rect, unsigned int color);
 /// @param [in] flags       绘制标志
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_DrawImage(int port, const XPR_Rect* rect, const XPR_Image* image,
-                      int flags);
+XPR_API int XPR_OSD_DrawImage(int port, const XPR_Rect* rect,
+                              const XPR_Image* image, int flags);
 
 ///
 /// 绘制矩形
@@ -277,7 +278,8 @@ int XPR_OSD_DrawImage(int port, const XPR_Rect* rect, const XPR_Image* image,
 /// @param [in] color       矩形颜色
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_DrawRect(int port, const XPR_Rect* rect, unsigned int color);
+XPR_API int XPR_OSD_DrawRect(int port, const XPR_Rect* rect,
+                             unsigned int color);
 
 ///
 /// 绘制文本
@@ -288,8 +290,8 @@ int XPR_OSD_DrawRect(int port, const XPR_Rect* rect, unsigned int color);
 /// @param [in] flags       绘制标志
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_DrawText(int port, const XPR_Rect* rect, const char* text,
-                     unsigned int flags);
+XPR_API int XPR_OSD_DrawText(int port, const XPR_Rect* rect, const char* text,
+                             unsigned int flags);
 
 ///
 /// 填充矩形
@@ -299,7 +301,8 @@ int XPR_OSD_DrawText(int port, const XPR_Rect* rect, const char* text,
 /// @param [in] color       填充颜色
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_FillRect(int port, const XPR_Rect* rect, unsigned int color);
+XPR_API int XPR_OSD_FillRect(int port, const XPR_Rect* rect,
+                             unsigned int color);
 
 ///
 /// 更新 OSD 数据到最终目标
@@ -308,7 +311,7 @@ int XPR_OSD_FillRect(int port, const XPR_Rect* rect, unsigned int color);
 /// @param [in] rect        目标区域, 为 NULL 时表示整个目标
 /// @retval XPR_ERR_OK 成功
 /// @retval XPR_ERR_ERROR 失败
-int XPR_OSD_Update(int port, const XPR_Rect* rect);
+XPR_API int XPR_OSD_Update(int port, const XPR_Rect* rect);
 
 #ifdef __cplusplus
 }

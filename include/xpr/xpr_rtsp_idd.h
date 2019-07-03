@@ -21,6 +21,7 @@
 #define XPR_RTSP_IDD_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,20 +76,21 @@ typedef enum XPR_RTSP_IDD_ParamType {
 ///
 /// @retval NULL    创建失败
 /// @retval Other   已创建好的数据分离器句柄
-XPR_RTSP_IDD* XPR_RTSP_IDD_New(void);
+XPR_API XPR_RTSP_IDD* XPR_RTSP_IDD_New(void);
 
 ///
 /// 销毁一个已创建的 RTSP 交错数据分离器
 ///
-int XPR_RTSP_IDD_Destroy(XPR_RTSP_IDD* idd);
+XPR_API int XPR_RTSP_IDD_Destroy(XPR_RTSP_IDD* idd);
 
-int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data, int length);
+XPR_API int XPR_RTSP_IDD_PushData(XPR_RTSP_IDD* idd, const uint8_t* data,
+                                  int length);
 
-int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param, const void* data,
-                          int length);
+XPR_API int XPR_RTSP_IDD_SetParam(XPR_RTSP_IDD* idd, int param,
+                                  const void* data, int length);
 
-int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer,
-                          int* size);
+XPR_API int XPR_RTSP_IDD_GetParam(XPR_RTSP_IDD* idd, int param, void* buffer,
+                                  int* size);
 
 #ifdef __cplusplus
 }

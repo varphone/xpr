@@ -1,18 +1,21 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #if defined(WIN32) || defined(_WIN32)
-#include <crtdbg.h> 
+#include <crtdbg.h>
 #endif
-#include <process.h>
 #include <Windows.h>
+#include <process.h>
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_thread.h>
 
+typedef NTSTATUS(NTAPI* NtWaitForSingleObjectProc)(HANDLE Handle,
+                                                   BOOLEAN Alertable,
+                                                   PLARGE_INTEGER Timeout);
+typedef NTSTATUS(NTAPI* NtDelayExecutionProc)(BOOLEAN Alertable,
+                                              PLARGE_INTEGER DelayInterval);
 
-typedef NTSTATUS (NTAPI *NtWaitForSingleObjectProc)(HANDLE Handle, BOOLEAN Alertable, PLARGE_INTEGER Timeout);
-typedef NTSTATUS (NTAPI *NtDelayExecutionProc)(BOOLEAN Alertable, PLARGE_INTEGER DelayInterval);
-
-struct XPR_Thread {
+struct XPR_Thread
+{
     HANDLE handle;
     HANDLE sleepEvent;
     unsigned id;
@@ -25,14 +28,14 @@ struct XPR_Thread {
     NtWaitForSingleObjectProc NtWaitForSingleObject;
 };
 
-static unsigned int __stdcall ThreadRoutineWrapper(void *opaque)
+static unsigned int __stdcall ThreadRoutineWrapper(void* opaque)
 {
     XPR_Thread* thread = (XPR_Thread*)opaque;
     unsigned int result = 0;
     __try {
-		result = (uintptr_t)thread->startRoutine(thread->opaque, thread);
+        result = (uintptr_t)thread->startRoutine(thread->opaque, thread);
     }
-    __except(0) {
+    __except (0) {
         OutputDebugStringA("thread->startRoutine() raise an error\n");
     }
     if (thread->endRoutine)
@@ -40,7 +43,8 @@ static unsigned int __stdcall ThreadRoutineWrapper(void *opaque)
     return result;
 }
 
-XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned int stackSize, void* opaque)
+XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine,
+                                     unsigned int stackSize, void* opaque)
 {
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
@@ -48,23 +52,27 @@ XPR_API XPR_Thread* XPR_ThreadCreate(XPR_ThreadStartRoutine routine, unsigned in
         t->endRoutine = 0;
         t->flags = 0;
         t->opaque = opaque;
-        t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper, t, 0, &t->id);
+        t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper,
+                                           t, 0, &t->id);
         if (t->handle == INVALID_HANDLE_VALUE) {
             free((void*)t);
             t = 0;
         }
         t->userData = 0;
-        t->NtDelayExecution = (NtDelayExecutionProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtDelayExecution");
-        //t->sleepEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
-        //t->NtWaitForSingleObject = (NtWaitForSingleObjectProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWaitForSingleObject");
+        t->NtDelayExecution = (NtDelayExecutionProc)GetProcAddress(
+            GetModuleHandleA("ntdll.dll"), "NtDelayExecution");
+        // t->sleepEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
+        // t->NtWaitForSingleObject =
+        // (NtWaitForSingleObjectProc)GetProcAddress(GetModuleHandleA("ntdll.dll"),
+        // "NtWaitForSingleObject");
     }
     return t;
 }
 
 XPR_API XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
-									   XPR_ThreadEndRoutine endRoutine,
-									   unsigned int flags, unsigned int stackSize,
-									   void* opaque)
+                                       XPR_ThreadEndRoutine endRoutine,
+                                       unsigned int flags,
+                                       unsigned int stackSize, void* opaque)
 {
     XPR_Thread* t = (XPR_Thread*)calloc(sizeof(*t), 1);
     if (t) {
@@ -72,15 +80,19 @@ XPR_API XPR_Thread* XPR_ThreadCreateEx(XPR_ThreadStartRoutine startRoutine,
         t->endRoutine = endRoutine;
         t->flags = flags;
         t->opaque = opaque;
-        t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper, t, 0, &t->id);
+        t->handle = (HANDLE)_beginthreadex(0, stackSize, ThreadRoutineWrapper,
+                                           t, 0, &t->id);
         if (t->handle == INVALID_HANDLE_VALUE) {
             free((void*)t);
             t = 0;
         }
         t->userData = 0;
-        t->NtDelayExecution = (NtDelayExecutionProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtDelayExecution");
-        //t->sleepEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
-        //t->NtWaitForSingleObject = (NtWaitForSingleObjectProc)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWaitForSingleObject");
+        t->NtDelayExecution = (NtDelayExecutionProc)GetProcAddress(
+            GetModuleHandleA("ntdll.dll"), "NtDelayExecution");
+        // t->sleepEvent = CreateEventW(NULL, TRUE, FALSE, NULL);
+        // t->NtWaitForSingleObject =
+        // (NtWaitForSingleObjectProc)GetProcAddress(GetModuleHandleA("ntdll.dll"),
+        // "NtWaitForSingleObject");
     }
     return t;
 }
@@ -130,7 +142,7 @@ XPR_API void XPR_ThreadSleep(int64_t usec)
     tv.tv_usec = usec%1000000L;
     select(0, &dummy, 0, 0, &tv);
 #else
-    SleepEx((DWORD)(usec/1000), FALSE);
+    SleepEx((DWORD)(usec / 1000), FALSE);
 #endif
 }
 
@@ -148,11 +160,11 @@ XPR_API void XPR_ThreadSleepEx(XPR_Thread* thread, int64_t usec)
 {
     LARGE_INTEGER tmo;
     if (thread && thread->NtDelayExecution) {
-        tmo.QuadPart = -usec*10;
+        tmo.QuadPart = -usec * 10;
         thread->NtDelayExecution(FALSE, &tmo);
     }
     else
-        Sleep((DWORD)(usec/1000));
+        Sleep((DWORD)(usec / 1000));
 }
 #endif
 

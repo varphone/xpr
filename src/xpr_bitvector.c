@@ -1,11 +1,12 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_bitvector.h>
 
-#define XPR_BITVECTOR_FLAG_NOB      0x0001
+#define XPR_BITVECTOR_FLAG_NOB 0x0001
 
-struct XPR_BitVector {
+struct XPR_BitVector
+{
     unsigned int flags;
     unsigned char* data;
     unsigned int offset;
@@ -13,8 +14,8 @@ struct XPR_BitVector {
     unsigned int curPos;
 };
 
-static const unsigned char singleBitMask[8] = 
-    {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+static const unsigned char singleBitMask[8] = {0x80, 0x40, 0x20, 0x10,
+                                               0x08, 0x04, 0x02, 0x01};
 
 #define MAX_LENGTH 32
 
@@ -36,13 +37,13 @@ static void ShiftBits(unsigned char* toBasePtr, unsigned int toBitOffset,
     //
     while (numBits-- > 0) {
         fromBitMask = singleBitMask[fromBitRem];
-        fromBit = (*fromBytePtr)&fromBitMask;
+        fromBit = (*fromBytePtr) & fromBitMask;
         toBitMask = singleBitMask[toBitRem];
         if (fromBit != 0) {
             *toBytePtr |= toBitMask;
         }
         else {
-            *toBytePtr &= ~ toBitMask;
+            *toBytePtr &= ~toBitMask;
         }
         if (++fromBitRem == 8) {
             ++fromBytePtr;
@@ -56,8 +57,8 @@ static void ShiftBits(unsigned char* toBasePtr, unsigned int toBitOffset,
 }
 
 XPR_API XPR_BitVector* XPR_BitVectorNew(unsigned char* data,
-				                        unsigned int offset,
-						                unsigned int totalBits)
+                                        unsigned int offset,
+                                        unsigned int totalBits)
 {
     XPR_BitVector* bv = calloc(sizeof(*bv), 1);
     XPR_BitVectorSetup(bv, data, offset, totalBits);
@@ -65,8 +66,9 @@ XPR_API XPR_BitVector* XPR_BitVectorNew(unsigned char* data,
 }
 
 XPR_API XPR_BitVector* XPR_BitVectorNOB(void* buffer, unsigned int bufferSize,
-				                        unsigned char* data, unsigned int offset,
-						                unsigned int totalBits)
+                                        unsigned char* data,
+                                        unsigned int offset,
+                                        unsigned int totalBits)
 {
     XPR_BitVector* bv = (XPR_BitVector*)buffer;
     if (bufferSize < XPR_BITVECTOR_NOB_SIZE)
@@ -83,7 +85,7 @@ XPR_API void XPR_BitVectorDestroy(XPR_BitVector* bv)
 }
 
 XPR_API void XPR_BitVectorSetup(XPR_BitVector* bv, unsigned char* data,
-				                unsigned int offset, unsigned int totalBits)
+                                unsigned int offset, unsigned int totalBits)
 {
     if (bv) {
         bv->data = data;
@@ -94,7 +96,7 @@ XPR_API void XPR_BitVectorSetup(XPR_BitVector* bv, unsigned char* data,
 }
 
 XPR_API void XPR_BitVectorPutBits(XPR_BitVector* bv, unsigned int bits,
-				                  unsigned int numBits)
+                                  unsigned int numBits)
 {
     unsigned char tmpBuf[4];
     unsigned int overflowingBits = 0;
@@ -111,7 +113,7 @@ XPR_API void XPR_BitVectorPutBits(XPR_BitVector* bv, unsigned int bits,
     tmpBuf[2] = (unsigned char)(bits >> 8);
     tmpBuf[3] = (unsigned char)bits;
     ShiftBits(bv->data, bv->offset + bv->curPos, /* to */
-              tmpBuf, MAX_LENGTH - numBits, /* from */
+              tmpBuf, MAX_LENGTH - numBits,      /* from */
               numBits - overflowingBits /* num bits */);
     bv->curPos += numBits - overflowingBits;
 }
@@ -133,7 +135,8 @@ XPR_API void XPR_BitVectorPut1Bit(XPR_BitVector* bv, unsigned int bit)
     }
 }
 
-XPR_API unsigned int XPR_BitVectorGetBits(XPR_BitVector* bv, unsigned int numBits)
+XPR_API unsigned int XPR_BitVectorGetBits(XPR_BitVector* bv,
+                                          unsigned int numBits)
 {
     unsigned char tmpBuf[4];
     unsigned int overflowingBits = 0;
@@ -147,12 +150,13 @@ XPR_API unsigned int XPR_BitVectorGetBits(XPR_BitVector* bv, unsigned int numBit
     if (numBits > bv->totalBits - bv->curPos) {
         overflowingBits = numBits - (bv->totalBits - bv->curPos);
     }
-    ShiftBits(tmpBuf, 0, /* to */
+    ShiftBits(tmpBuf, 0,                         /* to */
               bv->data, bv->offset + bv->curPos, /* from */
               numBits - overflowingBits /* num bits */);
     bv->curPos += numBits - overflowingBits;
 
-    result = (tmpBuf[0] << 24) | (tmpBuf[1] << 16) | (tmpBuf[2] << 8) | tmpBuf[3];
+    result =
+        (tmpBuf[0] << 24) | (tmpBuf[1] << 16) | (tmpBuf[2] << 8) | tmpBuf[3];
     result >>= (MAX_LENGTH - numBits); // move into low-order part of word
     result &= (0xFFFFFFFF << overflowingBits); // so any overflow bits are 0
     return result;
@@ -215,4 +219,3 @@ XPR_API unsigned int XPR_BitVectorRemainBits(const XPR_BitVector* bv)
 {
     return bv ? bv->totalBits - bv->curPos : 0;
 }
-

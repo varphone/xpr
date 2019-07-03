@@ -20,6 +20,8 @@
 #ifndef XPR_GPIO_H
 #define XPR_GPIO_H
 
+#include <xpr/xpr_common.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -101,14 +103,14 @@ typedef enum XPP_GPIO_Level {
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_Init(void);
+XPR_API int XPR_GPIO_Init(void);
 
 ///
 /// 释放 XPR_GPIO 模块已分配的资源
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_Fini(void);
+XPR_API int XPR_GPIO_Fini(void);
 
 ///
 /// 获取指定端口值
@@ -117,7 +119,7 @@ int XPR_GPIO_Fini(void);
 /// @param [in,out] value   保存端口值的地址
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_Get(int port, int* value);
+XPR_API int XPR_GPIO_Get(int port, int* value);
 
 ///
 /// 设置指定端口值
@@ -126,7 +128,7 @@ int XPR_GPIO_Get(int port, int* value);
 /// @param [in,out] value   端口值, 见 [#XPR_GPIO_Level]
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_Set(int port, int value);
+XPR_API int XPR_GPIO_Set(int port, int value);
 
 ///
 /// 获取指定端口工作模式
@@ -135,7 +137,7 @@ int XPR_GPIO_Set(int port, int value);
 /// @param [in,out] mode    保存端口工作模式的地址
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_GetMode(int port, int* mode);
+XPR_API int XPR_GPIO_GetMode(int port, int* mode);
 
 ///
 /// 设置指定端口工作模式
@@ -144,7 +146,7 @@ int XPR_GPIO_GetMode(int port, int* mode);
 /// @param [in,out] mode    端口工作模式, 见 [#XPR_GPIO_Mode]
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_GPIO_SetMode(int port, int mode);
+XPR_API int XPR_GPIO_SetMode(int port, int mode);
 
 #ifdef __cplusplus
 }

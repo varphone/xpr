@@ -1,5 +1,4 @@
-#if defined(BOARD_MAJOR_A5S)
-
+﻿#if defined(BOARD_MAJOR_A5S)
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -465,4 +464,3 @@ struct DPUDriver xpr_dpu_driver_a5svideo = {
 };
 
 #endif // BOARD_MAJOR_A5S
-

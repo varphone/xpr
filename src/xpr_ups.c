@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -21,8 +21,8 @@ static XPR_JSON*      root_json = 0;
 //查找给定节点，成功返回节点指针，失败返回NULL.
 //需要注意的是传进来的key要注意末尾是不是有'/',
 //如/sysem/network/ /system/network是不一样的，前者表示目录，后者表示具体的项
-int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
-                      XPR_UPS_Entry** entry)
+XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
+                              XPR_UPS_Entry** entry)
 {
     int i = 0, j = 0, len = 0, leaf = 0, count = 0;
     char* saveptr, *s, *name;
@@ -138,7 +138,7 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
+XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
 {
     int ret = 0;
     XPR_JSON* json = NULL;
@@ -201,7 +201,7 @@ static void XPR_UPS_RegisterAll(void)
     // register other....
 }
 
-int XPR_UPS_Init(void)
+XPR_API int XPR_UPS_Init(void)
 {
     if (root_json)
         return XPR_ERR_SUCCESS;
@@ -213,7 +213,7 @@ int XPR_UPS_Init(void)
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_UPS_Fini(void)
+XPR_API int XPR_UPS_Fini(void)
 {
     XPR_JSON_DumpFileName(root_json, "./configuration.json");
     XPR_JSON_DecRef(root_json);
@@ -222,7 +222,7 @@ int XPR_UPS_Fini(void)
 }
 
 /// @brief
-int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
+XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 {
     int i = 0, result;
     for (; i < count; i++) {
@@ -233,19 +233,19 @@ int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 }
 
 /// @brief
-int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
+XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_UPS_SetString(const char* key, const char* value, int size)
+XPR_API int XPR_UPS_SetString(const char* key, const char* value, int size)
 {
     CHECK_KV(key, value);
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
-                        ...)
+XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
+                                ...)
 {
     va_list ap;
     char buffer[1024];
@@ -260,13 +260,13 @@ int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
 }
 
 
-int XPR_UPS_GetString(const char* key, char* value, int* size)
+XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size)
 {
     CHECK_KVS(key, value, size);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
+XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -280,15 +280,14 @@ int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
                            size);
 }
 
-
-int XPR_UPS_SetInteger(const char* key, int value)
+XPR_API int XPR_UPS_SetInteger(const char* key, int value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
 }
 
-int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
+XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -302,13 +301,13 @@ int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
     return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
 }
 
-int XPR_UPS_GetInteger(const char* key, int* value)
+XPR_API int XPR_UPS_GetInteger(const char* key, int* value)
 {
     CHECK_KV(key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT, value, 0);
 }
 
-int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
+XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -321,14 +320,14 @@ int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT, value, 0);
 }
 
-int XPR_UPS_SetInt64(const char* key, int64_t value)
+XPR_API int XPR_UPS_SetInt64(const char* key, int64_t value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
 }
 
-int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
+XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -342,13 +341,13 @@ int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
     return  XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
 }
 
-int XPR_UPS_GetInt64(const char* key, int64_t* value)
+XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
 {
     CHECK_KV(key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
 }
 
-int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
+XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -361,14 +360,14 @@ int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
 }
 
-int XPR_UPS_SetFloat(const char* key, float value)
+XPR_API int XPR_UPS_SetFloat(const char* key, float value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
-int XPR_UPS_SetFloatVK(float value, const char* key, ...)
+XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -382,13 +381,13 @@ int XPR_UPS_SetFloatVK(float value, const char* key, ...)
     return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
-int XPR_UPS_GetFloat(const char* key, float* value)
+XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
 {
     CHECK_KV(key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
-int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
+XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -401,14 +400,14 @@ int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
-int XPR_UPS_SetDouble(const char* key, double value)
+XPR_API int XPR_UPS_SetDouble(const char* key, double value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
 }
 
-int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
+XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -423,14 +422,14 @@ int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 }
 
 
-int XPR_UPS_GetDouble(const char* key, double* value)
+XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
-int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
+XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -443,14 +442,14 @@ int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
 }
 
-int XPR_UPS_SetBoolean(const char* key, int value)
+XPR_API int XPR_UPS_SetBoolean(const char* key, int value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
-int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
+XPR_API int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -464,13 +463,13 @@ int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
-int XPR_UPS_GetBoolean(const char* key, int* value)
+XPR_API int XPR_UPS_GetBoolean(const char* key, int* value)
 {
     CHECK_KV(key, value);
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
+XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
 {
     va_list ap;
     char buffer[1024];
@@ -483,9 +482,8 @@ int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
-                     const char* key,
-                     void* buffer, int* size)
+XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
+                             const char* key, void* buffer, int* size)
 {
     int len = 0;
     int result = XPR_ERR_OK;
@@ -523,9 +521,8 @@ int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
     return result;
 }
 
-int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
-                      const char* key,
-                      const void* data, int size)
+XPR_API int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
+                              const char* key, const void* data, int size)
 {
     int result = XPR_ERR_OK;
     switch (ent->type) {
@@ -556,50 +553,50 @@ int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
     return result;
 }
 
-int XPR_UPS_Delete(const char* key)
+XPR_API int XPR_UPS_Delete(const char* key)
 {
     return XPR_ERR_OK;
 }
 
-int XPR_UPS_Exists(const char* key)
+XPR_API int XPR_UPS_Exists(const char* key)
 {
     return XPR_FALSE;
 }
 
-const char* XPR_UPS_FirstKey(void)
+XPR_API const char* XPR_UPS_FirstKey(void)
 {
     return XPR_ERR_OK;
 }
 
-const char* XPR_UPS_NextKey(const char* key)
+XPR_API const char* XPR_UPS_NextKey(const char* key)
 {
     return XPR_ERR_OK;
 }
 
-void XPR_UPS_BeginGroup(const char* group)
+XPR_API void XPR_UPS_BeginGroup(const char* group)
 {
 }
 
-void XPR_UPS_EndGroup(const char* group)
+XPR_API void XPR_UPS_EndGroup(const char* group)
 {
 }
 
-int XPR_UPS_Export(const char* url)
-{
-    return XPR_ERR_OK;
-}
-
-int XPR_UPS_Import(const char* url)
+XPR_API int XPR_UPS_Export(const char* url)
 {
     return XPR_ERR_OK;
 }
 
-int XPR_UPS_Pack(void)
+XPR_API int XPR_UPS_Import(const char* url)
 {
     return XPR_ERR_OK;
 }
 
-int XPR_UPS_Sync(void)
+XPR_API int XPR_UPS_Pack(void)
+{
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_Sync(void)
 {
     return XPR_JSON_DumpFileName(root_json, "./configuration.json");
 }

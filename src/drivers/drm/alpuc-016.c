@@ -1,4 +1,4 @@
-#include <errno.h>
+﻿#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -216,12 +216,12 @@ static int alpucVerify(void)
 //==============================================================================
 
 // FIXME:
-int XPR_DRM_Config(int request, const void* data, int size)
+XPR_API int XPR_DRM_Config(int request, const void* data, int size)
 {
     return XPR_ERR_SUCCESS;
 }
 
-int XPR_DRM_Init(void)
+XPR_API int XPR_DRM_Init(void)
 {
     if (gDevFd > 0)
         return 1;
@@ -241,7 +241,7 @@ int XPR_DRM_Init(void)
     return 0;
 }
 
-void XPR_DRM_Fini(void)
+XPR_API void XPR_DRM_Fini(void)
 {
     if (gDevFd > 0) {
         close(gDevFd);
@@ -249,12 +249,12 @@ void XPR_DRM_Fini(void)
     }
 }
 
-int XPR_DRM_Verify(void)
+XPR_API int XPR_DRM_Verify(void)
 {
     return alpucVerify();
 }
 
-int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
+XPR_API int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
 {
     if (!buffer || !length || (length && *length <= XPR_DRM_SERIAL_SIZE)) {
         errno = EINVAL;
@@ -273,7 +273,7 @@ int XPR_DRM_GetSerial(uint8_t* buffer, int* length)
     return 0;
 }
 
-const char* XPR_DRM_GetSerialString(void)
+XPR_API const char* XPR_DRM_GetSerialString(void)
 {
     static char serialString[256];
     char tmp[256];
@@ -285,7 +285,7 @@ const char* XPR_DRM_GetSerialString(void)
     return serialString;
 }
 
-const char* XPR_DRM_GetUuidString(void)
+XPR_API const char* XPR_DRM_GetUuidString(void)
 {
     return XPR_DRM_UUID_STRING_NULL;
 }
@@ -317,7 +317,7 @@ static int setSerial(const uint8_t* data, int length)
     return (size == length) ? 0 : -1;
 }
 
-int XPR_DRM_InstallSerial(const uint8_t* data, int length)
+XPR_API int XPR_DRM_InstallSerial(const uint8_t* data, int length)
 {
     uint8_t random[8] = {0};
     uint8_t buffer[40] = {0};

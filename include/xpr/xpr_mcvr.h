@@ -163,15 +163,15 @@ typedef enum XPR_MCVR_OptimizeLevel {
 /// @param [in] type 渲染器类型，参加 #XPR_MCVR_RendererType
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_Init(void *hwnd, XPR_MCVR_VideoRendererType type);
+XPR_API int XPR_MCVR_Init(void* hwnd, XPR_MCVR_VideoRendererType type);
 
 /// @brief 释放渲染器实例已分配资源
 /// @return 无返回值
-int XPR_MCVR_Fini(void);
+XPR_API int XPR_MCVR_Fini(void);
 
 /// @brief  获得当前视频渲染器类型
 /// @return 当前视频渲染器类型
-XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
+XPR_API XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
 
 /// @brief 绑定窗口与主通道号
 /// @param [in] port    主通道号 0x0001~0x0100
@@ -180,7 +180,7 @@ XPR_MCVR_VideoRendererType XPR_MCVR_GetVideoRendererType(void);
 /// @param [in] cols    划分列数目，1~16
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_BindWindow(int port, void* hwnd, int rows, int cols);
+XPR_API int XPR_MCVR_BindWindow(int port, void* hwnd, int rows, int cols);
 
 /// @brief 向指定通道输入图像数据
 /// @param [in] port       通道号（包含主通道号及子通道号）
@@ -189,7 +189,7 @@ int XPR_MCVR_BindWindow(int port, void* hwnd, int rows, int cols);
 /// @param [in] frame_info 图像帧信息
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_InputData(int port, XPR_AVFrame* av_frame);
+XPR_API int XPR_MCVR_InputData(int port, XPR_AVFrame* av_frame);
 
 /// @brief 将源通道号图像放大到目标通道号
 /// @param [in] src_port  源通道号
@@ -203,7 +203,7 @@ int XPR_MCVR_InputData(int port, XPR_AVFrame* av_frame);
 ///   0x0000 | 源通道所在主通道全区域放大
 ///   0xFFFF | 源通道所在主通道中心区域放大（暂时无效）
 ////  1~256  | 其他主通道全区域放大
-int XPR_MCVR_ZoomIn(int src_port, int dest_port);
+XPR_API int XPR_MCVR_ZoomIn(int src_port, int dest_port);
 
 /// @brief 获取指定子通道号的放大通道号
 /// @param [in] port 源通道号
@@ -215,7 +215,7 @@ int XPR_MCVR_ZoomIn(int src_port, int dest_port);
 /// 0      | 所在主通道全区域放大
 /// 0xFFFF | 所在主通道中心区域放大
 /// 1~256  | 其他主通道全区域放大
-int XPR_MCVR_GetZoomPort(int port);
+XPR_API int XPR_MCVR_GetZoomPort(int port);
 
 /// @brief 重置指定通道
 /// @param [in] port 通道号
@@ -224,14 +224,14 @@ int XPR_MCVR_GetZoomPort(int port);
 ///      主通道子通道都有效，重置指定子通道
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_ResetPort(int port);
+XPR_API int XPR_MCVR_ResetPort(int port);
 
 /// @brief 截取当前画面
 /// @param [in] port 通道号
 /// @param [in] path 截取文件路径
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_Snapshot(int port, const char *path);
+XPR_API int XPR_MCVR_Snapshot(int port, const char* path);
 
 /// @brief 获取视频尺寸
 /// @param [in] port 通道号
@@ -239,7 +239,7 @@ int XPR_MCVR_Snapshot(int port, const char *path);
 /// @param [in,out] height  视频高度保存地址
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_GetVideoSize(int port, int *width, int *height);
+XPR_API int XPR_MCVR_GetVideoSize(int port, int* width, int* height);
 
 /// @brief 设置视频宽高比
 /// @param [in] ratio 视频宽高比
@@ -251,41 +251,40 @@ int XPR_MCVR_GetVideoSize(int port, int *width, int *height);
 /// XPR_MCVR_ASPECT_RATIO_TILED(100.0)   | 铺满区域
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetAspectRatio(float ratio);
+XPR_API int XPR_MCVR_SetAspectRatio(float ratio);
 
 /// @brief 获取视频宽高比
 /// @return 当前视频宽高比
-float XPR_MCVR_GetAspectRatio(void);
+XPR_API float XPR_MCVR_GetAspectRatio(void);
 
 /// @brief 设置视频显示比例
 /// @param [in] port   通道号
 /// @param [in] factor 显示放大比例，有效值: 1.000 ~ 16.000
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetScale(int port, float factor);
-
+XPR_API int XPR_MCVR_SetScale(int port, float factor);
 
 /// @brief 获取视频显示放大比例
 /// @param [in] port 通道号
 /// @return 当前显示比例
-float XPR_MCVR_GetScale(int port);
+XPR_API float XPR_MCVR_GetScale(int port);
 
 /// @brief 设置渲染速率
 /// @param [in] port 通道号
 /// @param [in] rate 渲染速率
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetRate(int port, float rate);
+XPR_API int XPR_MCVR_SetRate(int port, float rate);
 
 /// @brief 设置渲染级别
 /// @param [in] level 渲染级别，参见 #XPR_MCVR_RenderLevel
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetRenderLevel(XPR_MCVR_RenderLevel level);
+XPR_API int XPR_MCVR_SetRenderLevel(XPR_MCVR_RenderLevel level);
 
 /// @brief 设置渲染级别
 /// @return 当前渲染级别
-XPR_MCVR_RenderLevel XPR_MCVR_GetRenderLevel(void);
+XPR_API XPR_MCVR_RenderLevel XPR_MCVR_GetRenderLevel(void);
 
 /// @brief 重置单项式字符串表内容
 /// @param [in] port    通道号
@@ -294,7 +293,8 @@ XPR_MCVR_RenderLevel XPR_MCVR_GetRenderLevel(void);
 /// @retval 1 成功
 /// @retval 0 失败
 /// @note 仅对XPR_MCVR_STRING_TYPE_TITLE类型字符串有效
-int XPR_MCVR_SetString(int port, XPR_MCVR_StringType type, char *strings);
+XPR_API int XPR_MCVR_SetString(int port, XPR_MCVR_StringType type,
+                               char* strings);
 
 /// @brief 重置多项式字符串表内容
 /// @param [in] port    通道号
@@ -304,7 +304,8 @@ int XPR_MCVR_SetString(int port, XPR_MCVR_StringType type, char *strings);
 /// @retval 1 成功
 /// @retval 0 失败
 /// @note 仅对XPR_MCVR_STRING_TYPE_HINT类型字符串有效，且通道号被忽略
-int XPR_MCVR_SetStrings(int port, XPR_MCVR_StringType type, char **strings, int count);
+XPR_API int XPR_MCVR_SetStrings(int port, XPR_MCVR_StringType type,
+                                char** strings, int count);
 
 /// @brief 设置字符串显示状态
 /// @param [in] port  通道号
@@ -328,17 +329,19 @@ int XPR_MCVR_SetStrings(int port, XPR_MCVR_StringType type, char **strings, int 
 /// XPR_MCVR_STRING_STATE_SHOW_2 | Buffering
 /// XPR_MCVR_STRING_STATE_SHOW_3 | Disconnected
 /// XPR_MCVR_STRING_STATE_SHOW_4 | Stopped
-int XPR_MCVR_SetStringState(int port, XPR_MCVR_StringType type, XPR_MCVR_StringState state);
+XPR_API int XPR_MCVR_SetStringState(int port, XPR_MCVR_StringType type,
+                                    XPR_MCVR_StringState state);
 
 /// @brief 获得字符串显示状态
 /// @param [in] port 通道号
 /// @param [in] type 字符串类型，参加 #XPR_MCVR_StringType
 /// @return 当前字符串显示状态
-XPR_MCVR_StringState XPR_MCVR_GetStringState(int port, XPR_MCVR_StringType type);
+XPR_API XPR_MCVR_StringState XPR_MCVR_GetStringState(int port,
+                                                     XPR_MCVR_StringType type);
 
 /// @brief 获得当前选中通道号
 /// @return 当前通道号
-int XPR_MCVR_GetCurrentPort(void);
+XPR_API int XPR_MCVR_GetCurrentPort(void);
 
 /// @brief 设置通道指定效果类型的值
 /// @param [in] port   通道号
@@ -346,7 +349,7 @@ int XPR_MCVR_GetCurrentPort(void);
 /// @param [in] value  效果值
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetEffect(int port, XPR_MCVR_EffectType effect, int value);
+XPR_API int XPR_MCVR_SetEffect(int port, XPR_MCVR_EffectType effect, int value);
 
 /// @brief 设置通道指定效果类型的值（浮点型）
 /// @param [in] port
@@ -354,19 +357,20 @@ int XPR_MCVR_SetEffect(int port, XPR_MCVR_EffectType effect, int value);
 /// @param [in] value
 /// @retval 1 成功
 /// @retval 0 失败
-int XPR_MCVR_SetEffectF(int port, XPR_MCVR_EffectType effect, float value);
+XPR_API int XPR_MCVR_SetEffectF(int port, XPR_MCVR_EffectType effect,
+                                float value);
 
 /// @brief 获得通道指定效果类型的值
 /// @param [in] port   通道号
 /// @param [in] effect 效果类型
 /// @return 效果值
-int XPR_MCVR_GetEffect(int port, XPR_MCVR_EffectType effect);
+XPR_API int XPR_MCVR_GetEffect(int port, XPR_MCVR_EffectType effect);
 
 /// @brief 获得通道指定效果类型的值（浮点型）
 /// @param [in] port
 /// @param [in] effect
 /// @return 效果值
-float XPR_MCVR_GetEffectF(int port, XPR_MCVR_EffectType effect);
+XPR_API float XPR_MCVR_GetEffectF(int port, XPR_MCVR_EffectType effect);
 
 /// @brief 事件回调函数定义
 /// @param [in] ev   事件类型
@@ -390,7 +394,8 @@ typedef int (*XPR_MCVR_EventCallback)(XPR_MCVR_EventType ev, void* user,
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_AttachEvent(), XPR_MCVR_DetachEvent()
-int XPR_MCVR_AddEventCallback(XPR_MCVR_EventCallback callback, void *user);
+XPR_API int XPR_MCVR_AddEventCallback(XPR_MCVR_EventCallback callback,
+                                      void* user);
 
 /// @brief 注销事件回调函数
 /// @param [in] callback 事件回调函数
@@ -398,21 +403,22 @@ int XPR_MCVR_AddEventCallback(XPR_MCVR_EventCallback callback, void *user);
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_AttachEvent(), XPR_MCVR_DetachEvent()
-int XPR_MCVR_DelEventCallback(XPR_MCVR_EventCallback callback, void *user);
+XPR_API int XPR_MCVR_DelEventCallback(XPR_MCVR_EventCallback callback,
+                                      void* user);
 
 /// @brief 添加需关注的事件
 /// @param [in] ev 事件类型，参加 #XPR_MCVR_EventType
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_AddEventCallback(), XPR_MCVR_DelEventCallback()
-int XPR_MCVR_AttachEvent(XPR_MCVR_EventType ev);
+XPR_API int XPR_MCVR_AttachEvent(XPR_MCVR_EventType ev);
 
 /// @brief 关注所有事件
 /// @param [in] port 通道号，预留参数，仅对将来可能添加的事件有效
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_DetachAllEvents()
-int XPR_MCVR_AttachAllEvents(void);
+XPR_API int XPR_MCVR_AttachAllEvents(void);
 
 /// @brief 撤销已关注的事件
 /// @param [in] port  通道号，预留参数，仅对将来可能添加的事件有效
@@ -420,26 +426,26 @@ int XPR_MCVR_AttachAllEvents(void);
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_AddEventCallback(), XPR_MCVR_DelEventCallback()
-int XPR_MCVR_DetachEvent(XPR_MCVR_EventType ev);
+XPR_API int XPR_MCVR_DetachEvent(XPR_MCVR_EventType ev);
 
 /// @brief 撤销所有已关注事件
 /// @param [in] port 通道号，预留参数，仅对将来可能添加的事件有效
 /// @retval 1 成功
 /// @retval 0 失败
 /// @sa XPR_MCVR_AttachAllEvents()
-int XPR_MCVR_DetachAllEvents(void);
+XPR_API int XPR_MCVR_DetachAllEvents(void);
 
 /// @brief  获得最新错误码
 /// @return 当前错误码，参加 #_XPR_MCVR_ErrorType
-int XPR_MCVR_GetLastError(void); 
+XPR_API int XPR_MCVR_GetLastError(void); 
 
 /// @brief  获得最新错误字符串描述(多字节)
 /// @return 当前错误字符串(调用者需要释放该字符串资源)(XPR_Free或XPR_Feeep)
-char *XPR_MCVR_GetErrorString(void);
+XPR_API char *XPR_MCVR_GetErrorString(void);
 
 /// @brief  获得最新错误字符串描述(宽字符)
 /// @return 当前错误字符串(调用者需要释放该字符串资源)(XPR_Free或XPR_Feeep)
-wchar_t *XPR_MCVR_GetErrorStringW(void);
+XPR_API wchar_t *XPR_MCVR_GetErrorStringW(void);
 
 #ifdef __cplusplus
 }

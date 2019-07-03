@@ -1,9 +1,11 @@
+﻿#include "xpr_dpu_options.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "xpr_dpu_options.h"
 
-static const XPR_DPU_Option* nextOption(XPR_DPU* ctx, const XPR_DPU_Option* last)
+
+static const XPR_DPU_Option* nextOption(XPR_DPU* ctx,
+                                        const XPR_DPU_Option* last)
 {
     if (!ctx)
         return NULL;
@@ -80,7 +82,8 @@ static int setString(XPR_DPU* ctx, const XPR_DPU_Option* opt, const char* value)
     return 0;
 }
 
-int XPR_DPU_SetDoubleOption(XPR_DPU* ctx, const char* name, double value)
+XPR_API int XPR_DPU_SetDoubleOption(XPR_DPU* ctx, const char* name,
+                                    double value)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -90,7 +93,7 @@ int XPR_DPU_SetDoubleOption(XPR_DPU* ctx, const char* name, double value)
     return setDouble(ctx, opt, value);
 }
 
-int XPR_DPU_SetIntOption(XPR_DPU* ctx, const char* name, int value)
+XPR_API int XPR_DPU_SetIntOption(XPR_DPU* ctx, const char* name, int value)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -100,7 +103,8 @@ int XPR_DPU_SetIntOption(XPR_DPU* ctx, const char* name, int value)
     return setInt(ctx, opt, value);
 }
 
-int XPR_DPU_SetInt64Option(XPR_DPU* ctx, const char* name, int64_t value)
+XPR_API int XPR_DPU_SetInt64Option(XPR_DPU* ctx, const char* name,
+                                   int64_t value)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -110,7 +114,8 @@ int XPR_DPU_SetInt64Option(XPR_DPU* ctx, const char* name, int64_t value)
     return setInt64(ctx, opt, value);
 }
 
-int XPR_DPU_SetStringOption(XPR_DPU* ctx, const char* name, const char* value)
+XPR_API int XPR_DPU_SetStringOption(XPR_DPU* ctx, const char* name,
+                                    const char* value)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -120,7 +125,8 @@ int XPR_DPU_SetStringOption(XPR_DPU* ctx, const char* name, const char* value)
     return setString(ctx, opt, value);
 }
 
-int XPR_DPU_SetOption(XPR_DPU* ctx, const char* name, const void* data, int length)
+XPR_API int XPR_DPU_SetOption(XPR_DPU* ctx, const char* name, const void* data,
+                              int length)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -166,7 +172,7 @@ int XPR_DPU_SetOption(XPR_DPU* ctx, const char* name, const void* data, int leng
         break;
 
     case XPR_DPU_OPT_RATIONAL:
-        //FIXME
+        // FIXME
         break;
 
     case XPR_DPU_OPT_STRING:
@@ -178,14 +184,17 @@ int XPR_DPU_SetOption(XPR_DPU* ctx, const char* name, const void* data, int leng
         break;
 
     default:
-        fprintf(stderr, "XPR_DPU_Option type %d of option %s not implemented yet\n", opt->type, opt->name);
+        fprintf(stderr,
+                "XPR_DPU_Option type %d of option %s not implemented yet\n",
+                opt->type, opt->name);
         break;
     }
 
     return 0;
 }
 
-int XPR_DPU_GetOption(XPR_DPU* ctx, const char* name, void* buffer, int* size)
+XPR_API int XPR_DPU_GetOption(XPR_DPU* ctx, const char* name, void* buffer,
+                              int* size)
 {
     const XPR_DPU_Option* opt = findOption(ctx, name);
 
@@ -200,50 +209,60 @@ int XPR_DPU_GetOption(XPR_DPU* ctx, const char* name, void* buffer, int* size)
     case XPR_DPU_OPT_FLAGS:
     case XPR_DPU_OPT_INT:
         if (size && *size == sizeof(int64_t)) {
-            *((int64_t*)buffer) = *((int*)(((char*)ctx->privateData) + opt->offset));
+            *((int64_t*)buffer) =
+                *((int*)(((char*)ctx->privateData) + opt->offset));
             *size = sizeof(int);
         }
         else
-            *((int*)buffer) = *((int*)(((char*)ctx->privateData) + opt->offset));
+            *((int*)buffer) =
+                *((int*)(((char*)ctx->privateData) + opt->offset));
         break;
 
     case XPR_DPU_OPT_INT64:
         if (size && *size == sizeof(int)) {
-            *((int*)buffer) = *((int64_t*)(((char*)ctx->privateData) + opt->offset));
+            *((int*)buffer) =
+                *((int64_t*)(((char*)ctx->privateData) + opt->offset));
             *size = sizeof(int64_t);
         }
         else
-            *((int64_t*)buffer) = *((int64_t*)(((char*)ctx->privateData) + opt->offset));
+            *((int64_t*)buffer) =
+                *((int64_t*)(((char*)ctx->privateData) + opt->offset));
         break;
 
     case XPR_DPU_OPT_DOUBLE:
         if (size && *size == sizeof(float)) {
-            *((float*)buffer) = *((double*)(((char*)ctx->privateData) + opt->offset));
+            *((float*)buffer) =
+                *((double*)(((char*)ctx->privateData) + opt->offset));
             *size = sizeof(double);
         }
         else
-            *((double*)buffer) = *((double*)(((char*)ctx->privateData) + opt->offset));
+            *((double*)buffer) =
+                *((double*)(((char*)ctx->privateData) + opt->offset));
         break;
 
     case XPR_DPU_OPT_FLOAT:
         if (size && *size == sizeof(double)) {
-            *((double*)buffer) = *((float*)(((char*)ctx->privateData) + opt->offset));
+            *((double*)buffer) =
+                *((float*)(((char*)ctx->privateData) + opt->offset));
             *size = sizeof(float);
         }
         else
-            *((float*)buffer) = *((float*)(((char*)ctx->privateData) + opt->offset));
+            *((float*)buffer) =
+                *((float*)(((char*)ctx->privateData) + opt->offset));
         break;
 
     case XPR_DPU_OPT_RATIONAL:
-        //FIXME
+        // FIXME
         break;
 
     case XPR_DPU_OPT_STRING:
         if (size && *size > 0) {
-            strcpy((char*)buffer, *((const char**)(((char*)ctx->privateData) + opt->offset)));
+            strcpy((char*)buffer,
+                   *((const char**)(((char*)ctx->privateData) + opt->offset)));
         }
         else
-            *((char**)buffer) = *((char**)(((char*)ctx->privateData) + opt->offset));
+            *((char**)buffer) =
+                *((char**)(((char*)ctx->privateData) + opt->offset));
         break;
 
     case XPR_DPU_OPT_BINARY:
@@ -251,14 +270,16 @@ int XPR_DPU_GetOption(XPR_DPU* ctx, const char* name, void* buffer, int* size)
         break;
 
     default:
-        fprintf(stderr, "XPR_DPU_Option type %d of option %s not implemented yet\n", opt->type, opt->name);
+        fprintf(stderr,
+                "XPR_DPU_Option type %d of option %s not implemented yet\n",
+                opt->type, opt->name);
         break;
     }
 
     return 0;
 }
 
-void XPR_DPU_SetDefaultOptions(XPR_DPU* ctx)
+XPR_API void XPR_DPU_SetDefaultOptions(XPR_DPU* ctx)
 {
     const XPR_DPU_Option* opt = NULL;
 
@@ -286,7 +307,7 @@ void XPR_DPU_SetDefaultOptions(XPR_DPU* ctx)
             break;
 
         case XPR_DPU_OPT_RATIONAL:
-            //FIXME
+            // FIXME
             break;
 
         case XPR_DPU_OPT_STRING:
@@ -298,7 +319,9 @@ void XPR_DPU_SetDefaultOptions(XPR_DPU* ctx)
             break;
 
         default:
-            fprintf(stderr, "XPR_DPU_Option type %d of option %s not implemented yet\n", opt->type, opt->name);
+            fprintf(stderr,
+                    "XPR_DPU_Option type %d of option %s not implemented yet\n",
+                    opt->type, opt->name);
             break;
         }
     }
@@ -341,7 +364,7 @@ static const char* typeName(int type)
     return "<unknow>";
 }
 
-void XPR_DPU_ShowOptions(XPR_DPU* ctx)
+XPR_API void XPR_DPU_ShowOptions(XPR_DPU* ctx)
 {
     const XPR_DPU_Option* opt = NULL;
     printf("XPR_DPU_Options:\n");
@@ -356,7 +379,8 @@ void XPR_DPU_ShowOptions(XPR_DPU* ctx)
             break;
 
         case XPR_DPU_OPT_FLAGS:
-            printf("0x%08X", *((int*)(((char*)ctx->privateData) + opt->offset)));
+            printf("0x%08X",
+                   *((int*)(((char*)ctx->privateData) + opt->offset)));
             break;
 
         case XPR_DPU_OPT_INT:
@@ -364,7 +388,8 @@ void XPR_DPU_ShowOptions(XPR_DPU* ctx)
             break;
 
         case XPR_DPU_OPT_INT64:
-            printf("%lld", *((int64_t*)(((char*)ctx->privateData) + opt->offset)));
+            printf("%lld",
+                   *((int64_t*)(((char*)ctx->privateData) + opt->offset)));
             break;
 
         case XPR_DPU_OPT_DOUBLE:
@@ -376,11 +401,12 @@ void XPR_DPU_ShowOptions(XPR_DPU* ctx)
             break;
 
         case XPR_DPU_OPT_RATIONAL:
-            //FIXME
+            // FIXME
             break;
 
         case XPR_DPU_OPT_STRING:
-            printf("%s", *((const char**)(((char*)ctx->privateData) + opt->offset)));
+            printf("%s",
+                   *((const char**)(((char*)ctx->privateData) + opt->offset)));
             break;
 
         case XPR_DPU_OPT_BINARY:
@@ -400,4 +426,3 @@ void XPR_DPU_ShowOptions(XPR_DPU* ctx)
     printf("\n");
     printf("===============================================================\n");
 }
-

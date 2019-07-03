@@ -21,6 +21,7 @@
 #define XPR_DEVCAPS_H
 
 #include <stdint.h>
+#include <xpr/xpr_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,14 +80,14 @@ typedef enum XPR_DevCapsId {
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_DevCapsInit(void);
+XPR_API int XPR_DevCapsInit(void);
 
 ///
 /// 释放 XPR_DEVCAPS 模块已分配的资源
 ///
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_DevCapsFini(void);
+XPR_API int XPR_DevCapsFini(void);
 
 ///
 /// 获取整型设备能力
@@ -94,7 +95,7 @@ int XPR_DevCapsFini(void);
 /// @param [in] capId       设备能力编号, 见 [#XPR_DevCapsId]
 /// @param [in] devId       设备编号, 见 [#XPR_DEVCAPS_DEVID_ALL]
 /// @return 返回整数值
-int XPR_DevCapsGetInteger(int capId, int devId);
+XPR_API int XPR_DevCapsGetInteger(int capId, int devId);
 
 ///
 /// 获取 64 位整型设备能力
@@ -102,7 +103,7 @@ int XPR_DevCapsGetInteger(int capId, int devId);
 /// @param [in] capId       设备能力编号, 见 [#XPR_DevCapsId]
 /// @param [in] devId       设备编号, 见 [#XPR_DEVCAPS_DEVID_ALL]
 /// @return 返回 64 位整数值
-int64_t XPR_DevCapsGetInt64(int capId, int devId);
+XPR_API int64_t XPR_DevCapsGetInt64(int capId, int devId);
 
 ///
 /// 获取实数型设备能力
@@ -110,7 +111,7 @@ int64_t XPR_DevCapsGetInt64(int capId, int devId);
 /// @param [in] capId       设备能力编号, 见 [#XPR_DevCapsId]
 /// @param [in] devId       设备编号, 见 [#XPR_DEVCAPS_DEVID_ALL]
 /// @return 返回实数值
-double XPR_DevCapsGetReal(int capId, int devId);
+XPR_API double XPR_DevCapsGetReal(int capId, int devId);
 
 ///
 /// 获取字串形设备能力
@@ -118,7 +119,7 @@ double XPR_DevCapsGetReal(int capId, int devId);
 /// @param [in] capId       设备能力编号, 见 [#XPR_DevCapsId]
 /// @param [in] devId       设备编号, 见 [#XPR_DEVCAPS_DEVID_ALL]
 /// @return 返回字串指针
-const char* XPR_DevCapsGetString(int capId, int devId);
+XPR_API const char* XPR_DevCapsGetString(int capId, int devId);
 
 ///
 /// 获取字串表形设备能力
@@ -127,7 +128,7 @@ const char* XPR_DevCapsGetString(int capId, int devId);
 /// @param [in] devId       设备编号, 见 [#XPR_DEVCAPS_DEVID_ALL]
 /// @return 返回字串表指针
 /// @note 字串表格式 ["str1", "str2", "str3", "strN", NULL]
-const char** XPR_DevCapsGetStrings(int capId, int devId);
+XPR_API const char** XPR_DevCapsGetStrings(int capId, int devId);
 
 ///
 /// 更新设备能力数据
@@ -136,7 +137,7 @@ const char** XPR_DevCapsGetStrings(int capId, int devId);
 /// @param [in] size        设备能力数据字节数
 /// @retval XPR_ERR_OK      成功
 /// @retval XPR_ERR_ERROR   失败
-int XPR_DevCapsUpdate(const void* data, int size);
+XPR_API int XPR_DevCapsUpdate(const void* data, int size);
 
 #define XPR_DevCapsGetVersion()                                                \
     XPR_DevCapsGetInteger(XPR_DEVCAPS_ID_VERSION, XPR_DEVCAPS_DEVID_DEF)
