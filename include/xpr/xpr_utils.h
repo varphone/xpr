@@ -161,6 +161,17 @@ XPR_API char* xpr_trim_all(char* s);
 XPR_API char* xpr_trim_quotes(char* s);
 XPR_API char* xpr_trim_tailer(char* s);
 
+// Image
+//=============================================================================
+#ifndef XPR_IMAGE_TYPE_DEFINED
+#define XPR_IMAGE_TYPE_DEFINED
+typedef struct XPR_Image {
+    int width;
+    int height;
+    void* data;
+}XPR_Image;
+#endif // XPR_IMAGE_TYPE_DEFINED
+
 // IntRange
 //==============================================================================
 #ifndef XPR_INTRAGE_TYPE_DEFINED
