@@ -319,6 +319,12 @@ XPR_API int xpr_s2ivec2(const char* str, int vec2[2])
     return XPR_ERR_GEN_ILLEGAL_PARAM;
 }
 
+XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
+                         const char* strSource)
+{
+    return strcpy_s(strDestination, numberOfElements, strSource);
+}
+
 XPR_API XPR_IntRange XPR_IntRangeParse(const char* s)
 {
     XPR_IntRange rng = {0, 0};

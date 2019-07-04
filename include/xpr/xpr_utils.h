@@ -133,6 +133,10 @@ XPR_API int xpr_s2fvec2(const char* str, float vec2[2]);
 /// Return XPR_ERR_OK on success, others error.
 XPR_API int xpr_s2ivec2(const char* str, int vec2[2]);
 
+/// Export the strcpy_s
+XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
+                         const char* strSource);
+
 // IntRange
 //==============================================================================
 #ifndef XPR_INTRAGE_TYPE_DEFINED
