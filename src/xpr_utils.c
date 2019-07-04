@@ -14,6 +14,46 @@
 #include <xpr/xpr_sys.h>
 #include <xpr/xpr_utils.h>
 
+#if defined(_MSC_VER)
+char* strsep(char** stringp, const char* delim)
+{
+    char* start = *stringp;
+    char* p;
+
+    p = (start != 0) ? strpbrk(start, delim) : 0;
+
+    if (p == 0) {
+        *stringp = 0;
+    }
+    else {
+        *p = '\0';
+        *stringp = p + strlen(delim);
+    }
+
+    return start;
+}
+#endif
+
+#if !defined(_MSC_VER)
+int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource)
+{
+    char* p = strDestination;
+    size_t available = numberOfElements;
+    if (!strDestination || !strSource)
+        return EINVAL;
+    if (strDestination == strSource)
+        return 0;
+    while ((*p++ = *strSource++) != 0 && --available > 0) {
+        ;;
+    }
+    if (available == 0)
+        strDestination[numberOfElements - 1] = 0;
+    else
+        *p = 0;
+    return 0;
+}
+#endif
+
 #define DBG_MAX_PRINT_SIZE 2048
 
 #ifndef DBG_LEVEL
@@ -72,111 +112,6 @@ XPR_API void xpr_dbg_set_level(int level)
     _xpr_dbg_level = level;
 }
 
-XPR_API char* xpr_skip_blank(char* s)
-{
-    while (*s) {
-        if (*s != ' ' && *s != '\r' && *s != '\n')
-            break;
-        s++;
-    }
-    return s;
-}
-
-XPR_API int xpr_split_to_kv(char* line, char** key, char** value)
-{
-    char*   k    = line;
-    char*   v    = "";
-    if (!line || !key || !value)
-        return -1;
-    while (*line) {
-        if (*line == ':' || *line == '=') {
-            *line = '\0';
-            v = ++line;
-            break;
-        }
-        line++;
-    }
-    while (*v && *v == ' ')
-        v++;
-    *key    = k;
-    *value  = v;
-    return 0;
-}
-
-#if defined(_MSC_VER)
-char* strsep(char** stringp, const char* delim)
-{
-    char* start = *stringp;
-    char* p;
-
-    p = (start != 0) ? strpbrk(start, delim) : 0;
-
-    if (p == 0) {
-        *stringp = 0;
-    }
-    else {
-        *p = '\0';
-        *stringp = p + strlen(delim);
-    }
-
-    return start;
-}
-#endif
-
-#if !defined(_MSC_VER)
-int strcpy_s(char* strDestination, size_t numberOfElements, const char* strSource)
-{
-    char* p = strDestination;
-    size_t available = numberOfElements;
-    if (!strDestination || !strSource)
-        return EINVAL;
-    if (strDestination == strSource)
-        return 0;
-    while ((*p++ = *strSource++) != 0 && --available > 0) {
-        ;;
-    }
-    if (available == 0)
-        strDestination[numberOfElements - 1] = 0;
-    else
-        *p = 0;
-    return 0;
-}
-#endif
-
-XPR_API char* xpr_trim_all(char* s)
-{
-    s = xpr_skip_blank(s);
-    s = xpr_trim_tailer(s);
-    return s;
-}
-
-XPR_API char* xpr_trim_quotes(char* s)
-{
-    int l = strlen(s);
-    if (s[0] == '\"' || s[0] == '\'') {
-        s++; l--;
-    }
-    if (--l > 0 && (s[l] == '\"' || s[l] == '\''))
-        s[l] = 0;
-    return s;
-}
-
-#ifndef isspace
-#define isspace(x) ((x) == ' ' || (x) == '\t' || (x) == '\r' || (x) == '\n')
-#endif
-
-XPR_API char* xpr_trim_tailer(char* s)
-{
-    char* back = s + strlen(s) -1;
-    while (back > s) {
-        if (!isspace(*back)) {
-            break;
-        }
-        *back-- = 0;
-    }
-    return s;
-}
-
 XPR_API int xpr_calc_lines(const char* s)
 {
     int lines = 0;
@@ -186,21 +121,6 @@ XPR_API int xpr_calc_lines(const char* s)
         s++;
     }
     return lines;
-}
-
-XPR_API const char* xpr_get_next_line(const char** sp)
-{
-    int ch = 0;
-    const char* l = *sp;
-    const char* s = l;
-    while ((ch == *s++)) {
-        if (ch == '\n')
-            break;
-    }
-    if (*s == 0)
-        return 0;
-    *sp = s;
-    return l;
 }
 
 XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
@@ -229,6 +149,21 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
     free(tmp);
 }
 
+XPR_API const char* xpr_get_next_line(const char** sp)
+{
+    int ch = 0;
+    const char* l = *sp;
+    const char* s = l;
+    while ((ch == *s++)) {
+        if (ch == '\n')
+            break;
+    }
+    if (*s == 0)
+        return 0;
+    *sp = s;
+    return l;
+}
+
 static const char* trim_brace(const char* str)
 {
     while (*str) {
@@ -237,26 +172,6 @@ static const char* trim_brace(const char* str)
         str++;
     }
     return str;
-}
-
-static const char* kResFmts[] = {
-    "%dx%d",
-    "%dX%d",
-    "%d x %d",
-    "%d X %d",
-};
-static const int kNumResFmts = 4;
-
-XPR_API int xpr_s2res(const char* str, int* width, int* height)
-{
-    if (!str || !width || !height)
-        return -1;
-    str = trim_brace(str);
-    for (int i = 0; i < kNumResFmts; i++) {
-        if (sscanf(str, kResFmts[i], width, height) == 2)
-            return XPR_ERR_OK;
-    }
-    return XPR_ERR_GEN_ILLEGAL_PARAM;
 }
 
 static const char* kDVec2Fmts[] = {
@@ -319,10 +234,95 @@ XPR_API int xpr_s2ivec2(const char* str, int vec2[2])
     return XPR_ERR_GEN_ILLEGAL_PARAM;
 }
 
+static const char* kResFmts[] = {
+    "%dx%d",
+    "%dX%d",
+    "%d x %d",
+    "%d X %d",
+};
+static const int kNumResFmts = 4;
+
+XPR_API int xpr_s2res(const char* str, int* width, int* height)
+{
+    if (!str || !width || !height)
+        return -1;
+    str = trim_brace(str);
+    for (int i = 0; i < kNumResFmts; i++) {
+        if (sscanf(str, kResFmts[i], width, height) == 2)
+            return XPR_ERR_OK;
+    }
+    return XPR_ERR_GEN_ILLEGAL_PARAM;
+}
+
+XPR_API char* xpr_skip_blank(char* s)
+{
+    while (*s) {
+        if (*s != ' ' && *s != '\r' && *s != '\n')
+            break;
+        s++;
+    }
+    return s;
+}
+
+XPR_API int xpr_split_to_kv(char* line, char** key, char** value)
+{
+    char*   k    = line;
+    char*   v    = "";
+    if (!line || !key || !value)
+        return -1;
+    while (*line) {
+        if (*line == ':' || *line == '=') {
+            *line = '\0';
+            v = ++line;
+            break;
+        }
+        line++;
+    }
+    while (*v && *v == ' ')
+        v++;
+    *key    = k;
+    *value  = v;
+    return 0;
+}
+
 XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
                          const char* strSource)
 {
     return strcpy_s(strDestination, numberOfElements, strSource);
+}
+
+XPR_API char* xpr_trim_all(char* s)
+{
+    s = xpr_skip_blank(s);
+    s = xpr_trim_tailer(s);
+    return s;
+}
+
+XPR_API char* xpr_trim_quotes(char* s)
+{
+    int l = strlen(s);
+    if (s[0] == '\"' || s[0] == '\'') {
+        s++; l--;
+    }
+    if (--l > 0 && (s[l] == '\"' || s[l] == '\''))
+        s[l] = 0;
+    return s;
+}
+
+#ifndef isspace
+#define isspace(x) ((x) == ' ' || (x) == '\t' || (x) == '\r' || (x) == '\n')
+#endif
+
+XPR_API char* xpr_trim_tailer(char* s)
+{
+    char* back = s + strlen(s) -1;
+    while (back > s) {
+        if (!isspace(*back)) {
+            break;
+        }
+        *back-- = 0;
+    }
+    return s;
 }
 
 XPR_API XPR_IntRange XPR_IntRangeParse(const char* s)

@@ -24,35 +24,6 @@ static void test_xpr_foreach_s()
     xpr_foreach_s("hello world;are you ok?;", -1, ";", segment, NULL);
 }
 
-static const char* kResPatterns[] = {
-    "123x123",
-    "1234x1234",
-    "12345x12345",
-    "123 x 123",
-    "1234 x 1234",
-    "12345 x 12345",
-    "123X123",
-    "1234X1234",
-    "12345X12345",
-    "123 X 123",
-    "1234 X 1234",
-    "12345 X 12345",
-};
-#define kNumResPattern sizeof(kResPatterns) / sizeof(kResPatterns[0])
-
-static void test_xpr_s2res()
-{
-    printf("### %s\n", __FUNCTION__);
-    for (int i = 0; i < kNumResPattern; i++) {
-        int v[2];
-        int err = xpr_s2res(kResPatterns[i], &v[0], &v[1]);
-        if (err == XPR_ERR_OK)
-            printf("[%2d] %20s = %dx%d\n", i, kResPatterns[i], v[0], v[1]);
-        else
-            printf("[%2d] %20s convert error: %08X\n", i, kResPatterns[i], err);
-    }
-}
-
 static const char* kDPatterns[] = {
     // No space
     "1,2",
@@ -158,13 +129,42 @@ static void test_xpr_s2ivec2()
     }
 }
 
+static const char* kResPatterns[] = {
+    "123x123",
+    "1234x1234",
+    "12345x12345",
+    "123 x 123",
+    "1234 x 1234",
+    "12345 x 12345",
+    "123X123",
+    "1234X1234",
+    "12345X12345",
+    "123 X 123",
+    "1234 X 1234",
+    "12345 X 12345",
+};
+#define kNumResPattern sizeof(kResPatterns) / sizeof(kResPatterns[0])
+
+static void test_xpr_s2res()
+{
+    printf("### %s\n", __FUNCTION__);
+    for (int i = 0; i < kNumResPattern; i++) {
+        int v[2];
+        int err = xpr_s2res(kResPatterns[i], &v[0], &v[1]);
+        if (err == XPR_ERR_OK)
+            printf("[%2d] %20s = %dx%d\n", i, kResPatterns[i], v[0], v[1]);
+        else
+            printf("[%2d] %20s convert error: %08X\n", i, kResPatterns[i], err);
+    }
+}
+
 int main(int argc, char** argv)
 {
     test_xpr_foreach_s();
-    test_xpr_s2res();
     test_xpr_s2dvec2();
     test_xpr_s2fvec2();
     test_xpr_s2ivec2();
-    XPR_SYS_WaitKey(10*XPR_SYS_CTS_UNIT);
+    test_xpr_s2res();
+    XPR_SYS_WaitKey(10 * XPR_SYS_CTS_UNIT);
     return 0;
 }

@@ -89,27 +89,12 @@ XPR_API void xpr_dbg_printf(int level, const char* format, ...);
 XPR_API int xpr_dbg_get_level(void);
 XPR_API void xpr_dbg_set_level(int level);
 
-XPR_API char* xpr_skip_blank(char* s);
-
-/// 分离 Key/Value 格式字符串.
-/// @param [in] line        Key/Value 格式的字符串
-/// @param [in] key         用于接收 Key 指针的缓冲区
-/// @param [in] value       用于接收 Value 指针的缓冲区
-/// @retval 0   成功
-/// @retval -1  失败
-XPR_API int xpr_split_to_kv(char* line, char** key, char** value);
-
-XPR_API char* xpr_trim_all(char* s);
-XPR_API char* xpr_trim_quotes(char* s);
-XPR_API char* xpr_trim_tailer(char* s);
-
 XPR_API int xpr_calc_lines(const char* s);
-XPR_API const char* xpr_get_next_line(const char** sp);
 
 /// 切割字符串并调用回调函数
-/// @param [in] str		要切割的字符串
-/// @param [in] length	要切割的字符长度
-/// @param [in] delim	字符串分隔符
+/// @param [in] str     要切割的字符串
+/// @param [in] length  要切割的字符长度
+/// @param [in] delim   字符串分隔符
 /// @param [in] filter  回调函数
 /// @param [in] opaque  回调函数关联数据
 /// return 无
@@ -117,9 +102,7 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
                            void (*filter)(void* opaque, char* segment),
                            void* opaque);
 
-/// Convert "1234x1234" or "1234X1234" formated string into with and height.
-/// Return XPR_ERR_OK on success, others error.
-XPR_API int xpr_s2res(const char* str, int* width, int* height);
+XPR_API const char* xpr_get_next_line(const char** sp);
 
 /// Convert "1.0,2.0" or "[2.0,3.0]" formated string into a double array.
 /// Return XPR_ERR_OK on success, others error.
@@ -133,9 +116,27 @@ XPR_API int xpr_s2fvec2(const char* str, float vec2[2]);
 /// Return XPR_ERR_OK on success, others error.
 XPR_API int xpr_s2ivec2(const char* str, int vec2[2]);
 
+/// Convert "1234x1234" or "1234X1234" formated string into with and height.
+/// Return XPR_ERR_OK on success, others error.
+XPR_API int xpr_s2res(const char* str, int* width, int* height);
+
+XPR_API char* xpr_skip_blank(char* s);
+
+/// 分离 Key/Value 格式字符串.
+/// @param [in] line        Key/Value 格式的字符串
+/// @param [in] key         用于接收 Key 指针的缓冲区
+/// @param [in] value       用于接收 Value 指针的缓冲区
+/// @retval 0   成功
+/// @retval -1  失败
+XPR_API int xpr_split_to_kv(char* line, char** key, char** value);
+
 /// Export the strcpy_s
 XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
                          const char* strSource);
+
+XPR_API char* xpr_trim_all(char* s);
+XPR_API char* xpr_trim_quotes(char* s);
+XPR_API char* xpr_trim_tailer(char* s);
 
 // IntRange
 //==============================================================================
