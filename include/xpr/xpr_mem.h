@@ -80,6 +80,31 @@ XPR_API void XPR_Freev(void** vptr);
 /// @sa XPR_AllocRc()
 XPR_API void XPR_FreeRc(void* ptr);
 
+/// Mapping physical address into virtual address
+/// @param [in] phyAddr     Physical address to mapping
+/// @param [in] size        How much bytes to mapping
+/// @return Mapped pointer or NULL on Error
+XPR_API void* XPR_MemMap(uintptr_t phyAddr, size_t size);
+
+/// Mapping file to memory with read and write access
+/// @param [in] fileName    Filename to mapping
+/// @param [in] size        File size in bytes
+/// @return Mapped pointer or NULL on Error
+XPR_API void* XPR_MemMapFile(const char* fileName, size_t size);
+
+/// Mapping file to memory with read only access
+/// @param [in] fileName    Filename to mapping
+/// @param [in] size        File size in bytes
+/// @return Mapped pointer or NULL on Error
+XPR_API void* XPR_MemMapFileRO(const char* fileName, size_t size);
+
+/// Release mapped virtual address
+/// @param [in] virtAddr    Mapped virtual address
+/// @param [in] size        Mapped bytes (for File Mapping Only)
+/// @return XPR_ERR_OK or others on Error
+/// @sa #XPR_MemMap, #XPR_MemMapFile, #XPR_MemMapFileRO
+XPR_API int XPR_MemUnmap(void* virtAddr, size_t size);
+
 /// @brief 获取带引用计数的内存资源的元数据
 /// @param [in] ptr     已分配到的内存地址
 /// @param [in] slot    元数据槽位：0~3
