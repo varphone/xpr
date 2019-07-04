@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#define XPR_ERR_APPID  0x80000000
+#define XPR_ERR_APPID 0x80000000
 
 #ifndef XPR_ERRORLEVEL_TYPE_DEFINED
 #define XPR_ERRORLEVEL_TYPE_DEFINED
@@ -52,14 +52,14 @@ typedef enum XPR_ErrorLevel {
 ///   定义每个内置模块的编号
 ///
 typedef enum XPR_ModuleId {
-	XPR_MOD_ID_GEN		= 0, ///< Generic Modules
+    XPR_MOD_ID_GEN      = 0, ///< Generic Modules
     XPR_MOD_ID_UPS      = 1, ///< UPS
     XPR_MOD_ID_PLUGIN   = 2  ///< PLUGIN
 } XPR_ModuleId;
 #endif // XPR_MODULEID_TYPE_DEFINED
 
 /// @brief 检测是否错误返回值
-#define XPR_IS_ERROR(e)		((e) & 0x80000000)
+#define XPR_IS_ERROR(e) ((e)&0x80000000)
 
 /// @brief 定义错误代码
 /// @param module       模块编号, see [#XPR_ModuleId]
@@ -134,78 +134,100 @@ typedef enum XPR_ErrorCode {
 ///
 #define XPR_ERR_PENDING     0x00000001
 
-#define XPR_ERR_GEN_ILLEGAL_PARAM		XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
-#define XPR_ERR_GEN_EXIST				XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
-#define XPR_ERR_GEN_UNEXIST				XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
-#define XPR_ERR_GEN_NULL_PTR			XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
-#define XPR_ERR_GEN_NOT_PERM			XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_PERM)
-#define XPR_ERR_GEN_NOT_SUPPORT			XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
-#define XPR_ERR_GEN_NOMEM				XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
-#define XPR_ERR_GEN_NOBUF				XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOBUF)
-#define XPR_ERR_GEN_SYS_NOTREADY		XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_SYS_NOTREADY)
-#define XPR_ERR_GEN_BUSY				XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_BUSY)
+#define XPR_ERR_GEN_ILLEGAL_PARAM                                              \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
+#define XPR_ERR_GEN_EXIST                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
+#define XPR_ERR_GEN_UNEXIST                                                    \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
+#define XPR_ERR_GEN_NULL_PTR                                                   \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
+#define XPR_ERR_GEN_NOT_PERM                                                   \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_PERM)
+#define XPR_ERR_GEN_NOT_SUPPORT                                                \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
+#define XPR_ERR_GEN_NOMEM                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
+#define XPR_ERR_GEN_NOBUF                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOBUF)
+#define XPR_ERR_GEN_SYS_NOTREADY                                               \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_SYS_NOTREADY)
+#define XPR_ERR_GEN_BUSY                                                       \
+    XPR_DEF_ERR(XPR_MOD_ID_GEN, XPR_ERR_LEVEL_ERROR, XPR_ERR_BUSY)
 
 // UPS
 //==============================================================================
 ///
 /// 传进去的参数无效
 ///
-#define XPR_ERR_UPS_ILLEGAL_PARAM    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
+#define XPR_ERR_UPS_ILLEGAL_PARAM                                              \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_ILLEGAL_PARAM)
 
 ///
 /// 资源已存在
 ///
-#define XPR_ERR_UPS_EXISTED          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
+#define XPR_ERR_UPS_EXISTED                                                    \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
 
 ///
 /// 资源不存在
 ///
-#define XPR_ERR_UPS_UNEXIST          XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
+#define XPR_ERR_UPS_UNEXIST                                                    \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_UNEXIST)
 
 ///
 /// 指针为空
 ///
-#define XPR_ERR_UPS_NULL_PTR         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
+#define XPR_ERR_UPS_NULL_PTR                                                   \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NULL_PTR)
 
 ///
 /// 系统未配置
 ///
-#define XPR_ERR_UPS_NOT_CONFIG       XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_CONFIG)
+#define XPR_ERR_UPS_NOT_CONFIG                                                 \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_CONFIG)
 
 ///
 /// 当前操作不支持
 ///
-#define XPR_ERR_UPS_NOT_SUPPORT      XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
+#define XPR_ERR_UPS_NOT_SUPPORT                                                \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_SUPPORT)
 
 ///
 /// 不允许操作
 ///
-#define XPR_ERR_UPS_NOT_PERM         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOT_PERM)
+#define XPR_ERR_UPS_NOT_PERM                                                   \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOT_PERM)
 
 ///
 /// 内薰申请失败
 ///
-#define XPR_ERR_UPS_NOMEM            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
+#define XPR_ERR_UPS_NOMEM                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOMEM)
 
 ///
 /// 缓冲区太小
 ///
-#define XPR_ERR_UPS_NOBUF            XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_NOBUF)
+#define XPR_ERR_UPS_NOBUF                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_NOBUF)
 
 ///
 /// UPS 未初始化
 ///
-#define XPR_ERR_UPS_NOTREADY         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_SYS_NOTREADY)
+#define XPR_ERR_UPS_NOTREADY                                                   \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_SYS_NOTREADY)
 
 ///
 /// UPS 写入文件失败
 ///
-#define XPR_ERR_UPS_DUMP         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR,  XPR_ERR_DUMP)
+#define XPR_ERR_UPS_DUMP                                                       \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_DUMP)
 
 ///
 /// UPS 保存失败
 ///
-#define XPR_ERR_UPS_WRITE         XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_WRITE)
+#define XPR_ERR_UPS_WRITE                                                      \
+    XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_WRITE)
 
 #ifdef __cplusplus
 }
