@@ -104,6 +104,29 @@ XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
 
 XPR_API const char* xpr_get_next_line(const char** sp);
 
+/// Return basename from the path.
+/// @param [in] path        The path to inspect.
+/// @param [in] buf         The buffer to recieve the result.
+/// @param [in] len         The size of the buffer.
+/// @example:
+///   "/camera/video/encoder/0/resolution" ==> "resolution"
+///   "/camera/video/encoder/0/" ==> XPR_ERR_ERROR
+/// @retval XPR_ERR_OK      Succcess
+/// @retval XPR_ERR_ERROR   Parse Error
+XPR_API int xpr_path_basename(const char* path, char* buf, int len);
+
+/// Return last dirname from the path.
+/// @param [in] path        The path to inspect.
+/// @param [in] buf         The buffer to recieve the result.
+/// @param [in] len         The size of the buffer.
+/// @example:
+///   "/camera/video/encoder/0/resolution" ==> "0"
+///   "/camera/video/encoder/0/" ==> "0"
+///   "/camera/video/encoder/0//" ==> XPR_ERR_ERROR
+/// @retval XPR_ERR_OK      Succcess
+/// @retval XPR_ERR_ERROR   Parse Error
+XPR_API int xpr_path_last_dirname(const char *path, char *buf, int len);
+
 /// Convert "1.0,2.0" or "[2.0,3.0]" formated string into a double array.
 /// Return XPR_ERR_OK on success, others error.
 XPR_API int xpr_s2dvec2(const char* str, double vec2[2]);

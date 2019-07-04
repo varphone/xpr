@@ -164,6 +164,41 @@ XPR_API const char* xpr_get_next_line(const char** sp)
     return l;
 }
 
+XPR_API int xpr_path_basename(const char* path, char* buf, int len)
+{
+    if (!path || !buf)
+        return XPR_ERR_ERROR;
+    int n = strlen(path);
+    const char* ep = path + n - 1;
+    if (*ep == '/')
+        return XPR_ERR_ERROR;
+    while (ep-- > path && *ep != '/')
+        ;
+    return strcpy_s(buf, len, ep + 1) ? XPR_ERR_ERROR : XPR_ERR_OK;
+}
+
+XPR_API int xpr_path_last_dirname(const char* path, char* buf, int len)
+{
+    if (!path || !buf)
+        return XPR_ERR_ERROR;
+    int n = strlen(path);
+    const char* ep = path + n;
+    const char* rp = NULL;
+    const char* lp = NULL;
+    while (ep-- > path && *ep != '/')
+        ;
+    rp = ep;
+    while (ep-- > path && *ep != '/')
+        ;
+    lp = ep + 1;
+    n = rp - lp;
+    if (n <= 0 || n >= len)
+        return XPR_ERR_ERROR;
+    strncpy(buf, lp, n);
+    buf[n] = 0;
+    return XPR_ERR_OK;
+}
+
 static const char* trim_brace(const char* str)
 {
     while (*str) {

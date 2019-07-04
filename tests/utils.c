@@ -24,6 +24,75 @@ static void test_xpr_foreach_s()
     xpr_foreach_s("hello world;are you ok?;", -1, ";", segment, NULL);
 }
 
+static void test_xpr_path_basename()
+{
+    static const char* ps[] = {
+        "/",
+        "//",
+        "/a",
+        "/ ",
+        "/short",
+        "//short",
+        "/root/dir/name",
+        "/root/dir/name ",
+        "/root/dir/ name ",
+        "/root/dir/",
+        "/root/dir//",
+        "/root/dir/"
+        "verylonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong"
+        "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglong",
+    };
+    static int nps = sizeof(ps) / sizeof(ps[0]);
+
+    printf("### %s\n", __FUNCTION__);
+    for (int i = 0; i < nps; i++) {
+        char buf[256];
+        int err = xpr_path_basename(ps[i], buf, 256);
+        if (err == XPR_ERR_OK)
+            printf("[%2d] %20s = \"%s\"\n", i, ps[i], buf);
+        else
+            printf("[%2d] %20s parse error: %08X\n", i, ps[i], err);
+    }
+}
+
+static void test_xpr_path_last_dirname()
+{
+    static const char* ps[] = {
+        "/",
+        "//",
+        "/ ",
+        "// "
+        "/aaa",
+        "/aaa ",
+        "/aaa/bbbb/",
+        "/aaa/bbbb/ ",
+        "/aaa/bbbb//",
+        "/aaa/bbbb/ccccc",
+        "/aaa/bbbb/ccccc ",
+        "/aaa/verylonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong"
+        "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglong/",
+        "/aaa/verylonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong"
+        "longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglo"
+        "nglonglonglonglonglonglong/ccccc",
+    };
+    static int nps = sizeof(ps) / sizeof(ps[0]);
+
+    printf("### %s\n", __FUNCTION__);
+    for (int i = 0; i < nps; i++) {
+        char buf[256];
+        int err = xpr_path_last_dirname(ps[i], buf, 256);
+        if (err == XPR_ERR_OK)
+            printf("[%2d] %20s = \"%s\"\n", i, ps[i], buf);
+        else
+            printf("[%2d] %20s parse error: %08X\n", i, ps[i], err);
+    }
+}
+
 static const char* kDPatterns[] = {
     // No space
     "1,2",
@@ -161,6 +230,8 @@ static void test_xpr_s2res()
 int main(int argc, char** argv)
 {
     test_xpr_foreach_s();
+    test_xpr_path_basename();
+    test_xpr_path_last_dirname();
     test_xpr_s2dvec2();
     test_xpr_s2fvec2();
     test_xpr_s2ivec2();
