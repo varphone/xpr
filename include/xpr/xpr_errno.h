@@ -166,7 +166,7 @@ typedef enum XPR_ErrorCode {
 ///
 /// 资源已存在
 ///
-#define XPR_ERR_UPS_EXISTED                                                    \
+#define XPR_ERR_UPS_EXIST                                                      \
     XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_EXIST)
 
 ///
@@ -214,7 +214,7 @@ typedef enum XPR_ErrorCode {
 ///
 /// UPS 未初始化
 ///
-#define XPR_ERR_UPS_NOTREADY                                                   \
+#define XPR_ERR_UPS_SYS_NOTREADY                                               \
     XPR_DEF_ERR(XPR_MOD_ID_UPS, XPR_ERR_LEVEL_ERROR, XPR_ERR_SYS_NOTREADY)
 
 ///
