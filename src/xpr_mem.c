@@ -206,8 +206,9 @@ static int memMappingUnrefVirt(uintptr_t virtAddr)
 
 static void* MemMapFile(const char* fileName, size_t size, int readOnly)
 {
-    int openFlags = readOnly ? O_RDONLY : (O_RDWR | O_CREAT, S_IRWXU | S_IRWXG);
-    int fd = open(fileName, openFlags | O_SYNC);
+    int openFlags = readOnly ? O_RDONLY : (O_RDWR | O_CREAT);
+    int openMode = readOnly ? (S_IRUSR | S_IRGRP) : (S_IRWXU | S_IRWXG);
+    int fd = open(fileName, openFlags | O_SYNC, openMode);
     if (fd < 0) {
         DBG(DBG_L2, "XPR_MEM: MemMapFile: open(%s) failed, errno: %d", fileName,
             errno);
