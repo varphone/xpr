@@ -1,7 +1,7 @@
 include ../Common.mk
 -include ../Config.mk
 
-CFLAGS          = $(BUILD_OPT_FLAGS) -D_BSD_SOURCE -D_GNU_SOURCE -DPIC -fPIC -I../include
+CFLAGS          = $(BUILD_OPT_FLAGS) -D_DEFAULT_SOURCE -D_GNU_SOURCE -DPIC -fPIC -I../include
 CXXFLAGS        =
 LDFLAGS         = -L../lib
 libxpr_DEFS     =
