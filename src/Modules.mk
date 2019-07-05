@@ -280,7 +280,7 @@ endif
 
 # Timer
 ###############################################################################
-ifeq ($(XPR_TIMTER),y)
+ifeq ($(XPR_TIMER),y)
 libxpr_SRCS += xpr_timer_unix.c
 endif
 
