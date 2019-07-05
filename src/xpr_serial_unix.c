@@ -1,4 +1,5 @@
-﻿#include <fcntl.h>
+﻿#include <errno.h>
+#include <fcntl.h>
 #include <malloc.h>
 #include <pthread.h>
 #include <stdint.h>
