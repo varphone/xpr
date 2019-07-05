@@ -1,3 +1,13 @@
+# Export the top working directory
+export TOP_DIR ?= $(shell pwd)
+
+# Export install settings
+export DESTDIR ?= $(TOP_DIR)/out
+export INSTALL_PREFIX ?=
+
+# Export target board specs
+export TARGET_BOARD ?= unknown
+
 include Common.mk
 -include Config.mk
 

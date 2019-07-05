@@ -1,11 +1,14 @@
+TOP_DIR      ?= $(shell realpath ../)
+DESTDIR      ?= $(TOP_DIR)/out
+TARGET_BOARD ?= unknown
+
 include ../Common.mk
 -include ../Config.mk
+-include ../ConfigToolchain.mk
 -include ../src/Modules.mk
 -include ../src/Modules.local
 
-CFLAGS  = $(BUILD_OPT_FLAGS) -I../include
-CXXFLAGS= $(CFLAGS)
-LDFLAGS = -L../lib -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
+LDFLAGS += -Wl,-rpath,\$$ORIGIN -Wl,-rpath,\$$ORIGIN/lib -Wl,-rpath,\$$ORIGIN/plugins
 
 ifeq ($(BUILD_STATIC),y)
 LDFLAGS += -Wl,-Bstatic -lxpr -Wl,-Bdynamic -lpthread -ldl 
@@ -47,6 +50,9 @@ clean:
 	$(RM) $(targets) $(objects)
 
 distclean: clean
+
+install:
+	@echo "Nothing to do!"
 
 test: $(targets)
 	$(call run_test, $^)

@@ -11,19 +11,26 @@ BUILD_SAMLL=n
 BUILD_STRICT=n
 
 ifeq ($(BUILD_DEBUG),y)
-BUILD_OPT_FLAGS=-O0 -g
+BUILD_OPT_CFLAGS  = -O0 -g -DDEBUG -D_DEBUG
+BUILD_OPT_LDFLAGS = -O0 -g
 else
 ifeq ($(BUILD_SMALL),y)
-BUILD_OPT_FLAGS=-Os -DDBG_LEVEL=3
+BUILD_OPT_CFLAGS  = -Os -DDBG_LEVEL=3
+BUILD_OPT_LDFLAGS = -Os
 else
-BUILD_OPT_FLAGS=-O2 -g -DDBG_LEVEL=3
+BUILD_OPT_CFLAGS  = -O2 -g -DDBG_LEVEL=3
+BUILD_OPT_LDFLAGS = -O2 -g
 endif
-endif
-
-ifeq ($(CROSS_COMPILER_NAME),arm-none-linux-gnueabi)
-BUILD_OPT_FLAGS += -Wall -Werror -march=armv6k -mtune=arm1136j-s -msoft-float -mlittle-endian
 endif
 
 ifneq ($(BUILD_STRICT),y)
-BUILD_OPT_FLAGS += -Wall -Werror -Wno-unused-function -Wno-unused-variable -Wno-unused-result -Wno-unused-but-set-variable
+BUILD_OPT_CFLAGS += \
+	-Wno-unused-function \
+	-Wno-unused-variable \
+	-Wno-unused-result \
+	-Wno-unused-but-set-variable
+else
+BUILD_OPT_CFLAGS += \
+	-Wall \
+	-Werror
 endif

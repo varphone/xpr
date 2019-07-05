@@ -1,14 +1,10 @@
+TOP_DIR      ?= $(shell realpath ../)
+DESTDIR      ?= $(TOP_DIR)/out
+TARGET_BOARD ?= unknown
+
 include ../Common.mk
 -include ../Config.mk
--include ../src/Modules.mk
--include ../src/Modules.local
-
-CFLAGS  = $(BUILD_OPT_FLAGS) -I../include
-LDFLAGS = -L../lib
-ifneq ($(TOOLSET_NAME),)
-CFLAGS  += -I../contrib/$(TOOLSET_NAME)/include
-LDFLAGS += -L../contrib/$(TOOLSET_NAME)/lib
-endif
+-include ../ConfigToolchain.mk
 
 ifeq ($(BUILD_STATIC),y)
 LDFLAGS += -Wl,-Bstatic -lxpr -Wl,-Bdynamic -lpthread -ldl 
@@ -34,5 +30,8 @@ clean:
 	$(RM) $(targets)
 
 distclean: clean
+
+install:
+	@echo "Nothing to do!"
 
 .PONY: clean distclean install subs
