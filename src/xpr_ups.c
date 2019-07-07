@@ -428,26 +428,30 @@ static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
     XPR_UPS_UNLOCK();
     return err;
 }
-#if 0
-extern XPR_UPS_Entry xpr_ups_driver_root;
-extern XPR_UPS_Entry xpr_ups_driver_system_network[];
-extern const int xpr_ups_driver_system_network_count;
-
-extern XPR_UPS_Entry xpr_ups_driver_system_information[];
-extern const int xpr_ups_driver_system_information_count;
-
-extern XPR_UPS_Entry xpr_ups_driver_camera_image[];
-extern const int xpr_ups_driver_camera_image_count;
-#endif
 
 static void XPR_UPS_RegisterAll(void)
 {
-#if 0
-    XPR_UPS_Register(&xpr_ups_driver_root, 1);
-    XPR_UPS_Register(xpr_ups_driver_system_network,
-                     xpr_ups_driver_system_network_count);
-    XPR_UPS_Register(xpr_ups_driver_system_information,
-                     xpr_ups_driver_system_information_count);
+#if defined(HAVE_XPR_UPS_DRIVER_FAKEROOT)
+    extern XPR_UPS_Entry __xpr_ups_driver_fakeroot[];
+    extern const int __xpr_ups_driver_fakeroot_count;
+    XPR_UPS_Register(__xpr_ups_driver_fakeroot,
+                     __xpr_ups_driver_fakeroot_count);
+#endif
+#if defined(HAVE_XPR_UPS_DRIVER_SYS_INFO)
+    extern XPR_UPS_Entry __xpr_ups_driver_sys_info[];
+    extern const int __xpr_ups_driver_sys_info_count;
+    XPR_UPS_Register(__xpr_ups_driver_sys_info,
+                     __xpr_ups_driver_sys_info_count);
+#endif
+#if defined(HAVE_XPR_UPS_DRIVER_SYS_NET)
+    extern XPR_UPS_Entry __xpr_ups_driver_sys_net[];
+    extern const int __xpr_ups_driver_sys_net_count;
+    XPR_UPS_Register(__xpr_ups_driver_sys_net, __xpr_ups_driver_sys_net_count);
+#endif
+#if defined(HAVE_XPR_UPS_DRIVER_CAM_IMG)
+    extern XPR_UPS_Entry __xpr_ups_driver_cam_img[];
+    extern const int __xpr_ups_driver_cam_img_count;
+    XPR_UPS_Register(__xpr_ups_driver_cam_img, __xpr_ups_driver_cam_img_count);
 #endif
     // Register other ...
 }
