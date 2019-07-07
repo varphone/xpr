@@ -622,10 +622,10 @@ struct XPR_UPS_Entry
                             defVal)
 
 // 定义一个设定项结束项
-#define XPR_UPS_ENTRY_END                                                      \
+#define XPR_UPS_ENTRY_END()                                                    \
     {                                                                          \
-        {0, 0, 0, 0}, NULL, NULL NULL, NULL, XPR_UPS_ENTRY_TYPE_UNKNOWN, NULL, \
-            NULL, NULL, NULL, {0}, {0}, {0},                                   \
+        {0, 0, 0, 0}, NULL, NULL, NULL, NULL, XPR_UPS_ENTRY_TYPE_UNKNOWN,      \
+            NULL, NULL, NULL, NULL, {0}, {0}, {0},                             \
     }
 
 /// @brief 打开设定集
