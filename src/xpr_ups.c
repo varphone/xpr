@@ -482,7 +482,9 @@ XPR_API XPR_UPS_Entry* XPR_UPS_FindEntry(const char* key, XPR_UPS_Entry* parent)
 XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 {
     int err = XPR_ERR_OK;
-    int nreg = 0;
+    int fails = 0;
+    int ignores = 0;
+    int success = 0;
     char fullName[256];
     XPR_UPS_Entry* prev = NULL;
     XPR_UPS_Entry* curr = NULL;
@@ -493,19 +495,28 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
         if (curr->name[0] == '$')
             curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
         err = XPR_UPS_RegisterSingle(curr, curr->root ? NULL : prev);
-        if (err) {
+        if (err == XPR_ERR_UPS_EXIST) {
+            DBG(DBG_L3, "XPR_UPS: Register \"%s%s%s\" ignored, alreay exists!",
+                curr->root, slashEnds(curr->root) ? "" : "/", curr->name);
+            ignores++;
+        }
+        else if (XPR_IS_ERROR(err)) {
             DBG(DBG_L2, "XPR_UPS: Register \"%s%s%s\" failed, errno: 0x%08X",
                 curr->root, slashEnds(curr->root) ? "" : "/", curr->name, err);
-            break;
+            fails++;
         }
-        DBG(DBG_L5, "XPR_UPS: Registered \"%s\" @ %p",
-            entryFullName(curr, fullName, sizeof(fullName)), curr);
+        else {
+            DBG(DBG_L5, "XPR_UPS: Registered \"%s\" @ %p",
+                entryFullName(curr, fullName, sizeof(fullName)), curr);
+            success++;
+        }
         if (XPR_UPS_ENTRY_IS_DIR(curr))
             prev = curr;
-        nreg++;
     }
-    DBG(DBG_L1, "XPR_UPS: Registered entries: fails=%d, success=%d, total=%d",
-        count - nreg, nreg, count);
+    DBG(DBG_L3,
+        "XPR_UPS: Registered entries: fails=%d, ignores: %d, success=%d, "
+        "total=%d",
+        fails, ignores, success, count);
     return err;
 }
 
@@ -531,13 +542,13 @@ XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
         return XPR_ERR_UPS_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_UPS_LOCK();
+    if (!parent)
+        parent = findEntry(entry->root, NULL);
     // Skip if the entry exists
     if (parent && findEntry(entry->name, parent)) {
         err = XPR_ERR_UPS_EXIST;
         goto done;
     }
-    if (!parent)
-        parent = findEntry(entry->root, NULL);
     if (!parent) {
         err = XPR_ERR_UPS_SYS_NOTREADY;
         goto done;
