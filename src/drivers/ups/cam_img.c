@@ -1,10 +1,10 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
-
+#if 0
 //static int camera_common_get(XPR_UPS_Entry* ent, XPR_JSON* json, const char* key, void* buffer, int* size)
 //{
 //	const char *s = NULL;
@@ -874,3 +874,33 @@ XPR_UPS_Entry xpr_ups_driver_camera_image[] = {
 };
 
 const int xpr_ups_driver_camera_image_count =  _countof(xpr_ups_driver_camera_image);
+#endif
+
+#if defined(__clang__)
+// FIXME:
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
+#elif defined(_MSC_VER)
+// FIXME:
+#endif
+
+XPR_UPS_Entry __xpr_ups_driver_cam_img[] = {
+    // /camera
+    XPR_UPS_ENTRY_DIR4_G_S("camera", "Camera settings", "ups/dir",
+                           NULL, NULL, NULL),
+    // /camera/audio
+    XPR_UPS_ENTRY_DIR4("audio", "Audio settings", "ups/dir", "/camera"),
+    // /camera/gis
+    XPR_UPS_ENTRY_DIR4("gis", "GIS settings", "ups/dir", "/camera"),
+    // /camera/image
+    XPR_UPS_ENTRY_DIR4("image", "Image settings", "ups/dir", "/camera"),
+    // /camera/ptz
+    XPR_UPS_ENTRY_DIR4("ptz", "PTZ settings", "ups/dir", "/camera"),
+    // /camera/video
+    XPR_UPS_ENTRY_DIR4("video", "Video settings", "ups/dir", "/camera"),
+    //
+    XPR_UPS_ENTRY_END(),
+};
+
+const int __xpr_ups_driver_cam_img_count = _countof(__xpr_ups_driver_cam_img);

@@ -1,15 +1,19 @@
 #include <xpr/xpr_ups.h>
 
-static const char* xpr_ups_driver_root_names[] = { "/"};
-static const char* xpr_ups_driver_root_descs[] = { "root"};
+#if defined(__clang__)
+// FIXME:
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
+#elif defined(_MSC_VER)
+// FIXME:
+#endif
 
-XPR_UPS_Entry xpr_ups_driver_root = {
-    xpr_ups_driver_root_names,
-    xpr_ups_driver_root_descs,
-    "ups/root",
-    "",
-    XPR_UPS_ENTRY_TYPE_DIR,
-    0, 0, 0, 0,
-    0, 0, 0
+XPR_UPS_Entry __xpr_ups_driver_fakeroot[] = {
+    XPR_UPS_ENTRY_DIR4("camera", "Camera settings", "ups/dir", "/"),
+    XPR_UPS_ENTRY_DIR4("dsp", "Digital Signal Processor", "ups/dir", "/"),
+    XPR_UPS_ENTRY_DIR4("system", "System settings", "ups/dir", "/"),
+    XPR_UPS_ENTRY_END(),
 };
 
+const int __xpr_ups_driver_fakeroot_count =  _countof(__xpr_ups_driver_fakeroot);
