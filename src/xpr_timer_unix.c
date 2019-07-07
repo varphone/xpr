@@ -242,6 +242,7 @@ XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void)
 {
     XPR_TimerQueue* self = XPR_Alloc(sizeof(*self));
     if (self) {
+        self->exitLoop = 0;
         self->activeTimers = XPR_ListCreate(XPR_LIST_SINGLY_LINKED, nodeAlloc,
                                             nodeFree, nodeCompare);
         self->suspendTimers = XPR_ListCreate(XPR_LIST_SINGLY_LINKED, nodeAlloc,
