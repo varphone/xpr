@@ -250,6 +250,7 @@ static int loadJson(const char* storage)
         XPR_Free(sStorage);
     sStorage = XPR_StrDup(storage);
     DBG(DBG_L5, "XPR_UPS: Mounted storage \"%s\" @ %p!", storage, jx);
+    return XPR_ERR_OK;
 }
 
 // Mount storage (supports multiple format)
