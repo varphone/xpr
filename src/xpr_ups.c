@@ -1,8 +1,12 @@
-﻿#include <stdarg.h>
+﻿#include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpr/xpr_atomic.h>
 #include <xpr/xpr_json.h>
+#include <xpr/xpr_mem.h>
+#include <xpr/xpr_sync.h>
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
@@ -15,173 +19,383 @@
     if (!k || !v)                                                              \
         return XPR_ERR_UPS_NULL_PTR
 
-static XPR_UPS_Entry* root = 0;
-static XPR_JSON* root_json = 0;
+static XPR_Atomic sHaveChanges = 0;
+static XPR_RecursiveMutex sLock;
+static XPR_UPS_Entry sRoot =
+    XPR_UPS_ENTRY_DIR2("/", "The root of the XPR-UPS system");
+static char* sStorage = NULL;
+static XPR_JSON* sStorageJson = NULL;
 
-// 查找给定节点，成功返回节点指针，失败返回 NULL。
-// 需要注意的是传进来的 key 要注意末尾是不是有 '/',
-// 如 "/sysem/network/" "/system/network" 是不一样的，
-// 前者表示目录，后者表示具体的项。
-XPR_API int XPR_UPS_FindEntry(const char* key, XPR_JSON** json,
-                              XPR_UPS_Entry** entry)
+#define XPR_UPS_LOCK() XPR_RecursiveMutexLock(&sLock)
+#define XPR_UPS_UNLOCK() XPR_RecursiveMutexUnlock(&sLock)
+
+#define XPR_UPS_VKEY(keyvar, fmt)                                              \
+    va_list ap;                                                                \
+    char keyvar[1024];                                                         \
+    va_start(ap, fmt);                                                         \
+    vsnprintf(keyvar, sizeof(keyvar), fmt, ap);                                \
+    va_end(ap);
+
+// Return XPR_TRUE if str ends with '/'
+static int slashEnds(const char* str)
 {
-    int i = 0, j = 0, len = 0, leaf = 0, count = 0;
-    char *saveptr, *s, *name;
-    char* names[MAX_KEY_LEN];
-    XPR_JSON* child_json = 0;
-    XPR_JSON* parent_json = root_json;
-    *json = NULL;
-    *entry = NULL;
-    XPR_UPS_Entry* p = root;
-    if (strcmp(key, p->names[0]) == 0) {
-        *json = root_json;
-        *entry = p;
-        return XPR_ERR_SUCCESS;
-    }
-    len = strlen(key);
-    leaf = key[len - 1] == '/' ? 0 : 1;
-    s = malloc(len + 1);
-    if (!s)
-        return XPR_ERR_UPS_NOMEM;
-    s[len] = '\0';
-    strcpy(s, key);
-    name = strtok_r(s, "/", &saveptr);
-    if (!name) {
-        free(s);
-        return XPR_ERR_UPS_ILLEGAL_PARAM;
-    }
-    names[i++] = "/";
-    while (name) {
-        if (i >= MAX_KEY_LEN) {
-            free(s);
-            return XPR_ERR_UPS_ILLEGAL_PARAM;
-        }
-        names[i++] = name;
-        name = strtok_r(NULL, "/", &saveptr);
-    }
-    count = i;
-    i = 0;
-    while (p && i < count) {
-        // 只有是叶子节点的时候，也就是最后一层的时候，才会有多个名字存在需要遍历，其他情况不需要
-        if (leaf && (i == count - 1)) {
-            child_json = XPR_JSON_ObjectGet(parent_json, names[i]);
-            while (p) {
-                for (j = 0, name = (char*)p->names[j]; name != 0;
-                     j++, name = (char*)p->names[j]) {
-                    if (strcmp(names[i], name) == 0 &&
-                        p->type != XPR_UPS_ENTRY_TYPE_DIR) {
-                        free(s);
-                        *json = child_json;
-                        *entry = p;
-                        return XPR_ERR_SUCCESS;
-                    }
-                }
-                p = p->next;
-            }
-            free(s);
-            return XPR_ERR_UPS_UNEXIST;
-        }
-        // 树形的目录检索
-        else if (strcmp(names[i], p->names[0]) == 0) {
-            if (i != 0) {
-                parent_json = XPR_JSON_ObjectGet(parent_json, names[i]);
-                child_json = parent_json;
-            }
-            if (++i == count) {
-                free(s);
-                *json = child_json;
-                *entry = p;
-                return XPR_ERR_SUCCESS;
-            }
-            p = p->subs;
-        }
-        // 检索他的兄弟节点
-        else {
-            child_json = XPR_JSON_ObjectGet(parent_json, names[i]);
-            p = p->next;
-        }
-    }
-    free(s);
-    return XPR_ERR_UPS_UNEXIST;
+    if (!str)
+        return XPR_FALSE;
+    const char* p = str;
+    // Move to tailer
+    while (*p)
+        p++;
+    p--; // Rewind to last char
+    if (p >= str && *p == '/')
+        return XPR_TRUE;
+    return XPR_FALSE;
 }
 
-static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type,
-                           void* buffer, int* size)
+// Move to after all '/' leading chars
+static const char* skipSlash(const char* key)
 {
-    int ret = 0;
-    XPR_JSON* json = NULL;
-    XPR_UPS_Entry* entry = NULL;
+    if (key) {
+        while (*key && *key == '/')
+            key++;
+    }
+    return key;
+}
+
+// Calculate the depth of the entry
+static int entryDepth(XPR_UPS_Entry* entry)
+{
+    int depth = 0;
+    while (entry->node.parent) {
+        depth++;
+        entry = XPR_UPS_TO_ENTRY(entry->node.parent);
+    }
+    return depth;
+}
+
+// Return full name of the entry by travels the tree
+static char* entryFullName(XPR_UPS_Entry* entry, char* buf, size_t bufSize)
+{
+    int depth = 0;
+    int offset = 0;
+    XPR_UPS_Entry* temp = entry;
+    XPR_UPS_Entry* stack[32];
+    while (temp) {
+        stack[depth++] = temp;
+        temp = XPR_UPS_TO_ENTRY(temp->node.parent);
+    }
+    depth -= 2;
+    if (depth < 0) {
+        offset += snprintf(buf, bufSize, "%s", entry->name);
+    }
+    else {
+        for (int n = depth; n >= 0; n--) {
+            offset +=
+                snprintf(buf + offset, bufSize - offset, "/%s", stack[n]->name);
+        }
+    }
+    buf[offset] = 0;
+    return buf;
+}
+
+// Return the name of the type
+static const char* entryTypeName(XPR_UPS_EntryType type)
+{
+    switch (type) {
+    case XPR_UPS_ENTRY_TYPE_INIT:
+        return "init()";
+    case XPR_UPS_ENTRY_TYPE_DIR:
+        return "dir";
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        return "bool";
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        return "blob";
+    case XPR_UPS_ENTRY_TYPE_I32:
+        return "i32";
+    case XPR_UPS_ENTRY_TYPE_I64:
+        return "i64";
+    case XPR_UPS_ENTRY_TYPE_F32:
+        return "f64";
+    case XPR_UPS_ENTRY_TYPE_F64:
+        return "f64";
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        return "str";
+    default:
+        return "unknown";
+    }
+}
+
+// Copy entry's default value to current
+static void entryUseDefaultValue(XPR_UPS_Entry* entry)
+{
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        entry->curVal.bl = entry->defVal.bl;
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        // FIXME:
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        entry->curVal.i32 = entry->defVal.i32;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        entry->curVal.i64 = entry->defVal.i64;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        entry->curVal.f32 = entry->defVal.f32;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        entry->curVal.f64 = entry->defVal.f64;
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (entry->curVal.str)
+            XPR_Free(entry->curVal.str);
+        entry->curVal.str = XPR_StrDup(entry->defVal.str);
+        break;
+    default:
+        break;
+    }
+}
+
+// Find sibling entry matched to the name from head
+static XPR_UPS_Entry* findSibling(const char* name, XPR_UPS_Entry* head)
+{
+    if (!name || !head)
+        return NULL;
+    while (head) {
+        if (strcmp(name, head->name) == 0)
+            return head;
+        head = XPR_UPS_TO_ENTRY(head->node.next);
+    }
+    return NULL;
+}
+
+// Find entry matched to the key on the parent
+static XPR_UPS_Entry* findEntry(const char* key, XPR_UPS_Entry* parent)
+{
+    if (!key && !parent)
+        return &sRoot;
+    parent = parent ? parent : &sRoot;
+    // Fast return root
+    if (key[0] == '/' && key[1] == 0)
+        return parent;
+    key = skipSlash(key);
+    char name[256];
+    size_t ns = strlen(key);
+    size_t nl = 0;
+    size_t nr = 0;
+    XPR_UPS_Entry* entry = parent;
+    while (entry && nr <= ns) {
+        // Split at '/' or '\0'
+        if (key[nr] == '/' || key[nr] == 0) {
+            memcpy(name, key + nl, nr - nl);
+            name[nr - nl] = 0;
+            // If not starts with '/', that is a child
+            if (*name != '/') {
+                // Search in childs
+                entry = findSibling(name, XPR_UPS_TO_ENTRY(entry->node.childs));
+            }
+            else {
+                // If equals '/', end searching
+                if (nr - nl == 1) {
+                    // Return NULL if the entry is not a dir
+                    if (!XPR_UPS_ENTRY_IS_DIR(entry))
+                        entry = NULL;
+                    break;
+                }
+                // Search in childs
+                entry = findSibling(name+1, XPR_UPS_TO_ENTRY(entry->node.childs));
+            }
+            nl = nr;
+        }
+        nr++;
+    }
+    return entry;
+}
+
+// Find json object matched to the entry
+static XPR_JSON* findJsonForEntry(XPR_UPS_Entry* entry)
+{
+    if (!entry)
+        return NULL;
+    // Fast return root
+    if (entry->name[0] == '/' && entry->name[1] == 0)
+        return sStorageJson;
+    int depth = 0;
+    XPR_UPS_Entry* temp = entry;
+    XPR_UPS_Entry* stack[32];
+    while (temp) {
+        stack[depth++] = temp;
+        temp = XPR_UPS_TO_ENTRY(temp->node.parent);
+    }
+    depth -= 2; // Rewind to last entry
+    XPR_JSON* jx = sStorageJson;
+    for (int n = depth; n >= 0; n--) {
+        jx = XPR_JSON_ObjectGet(jx, stack[n]->name);
+        if (jx == NULL)
+            break;
+    }
+    return jx;
+}
+
+// Load json document from storage
+static int loadJson(const char* storage)
+{
+    XPR_JSON* jx = XPR_JSON_LoadFileName(storage);
+    if (jx == NULL) {
+        DBG(DBG_L2, "XPR_UPS: Mount storage \"%s\" failed!", storage);
+        return XPR_ERR_SYS(EIO);
+    }
+    sStorageJson = jx;
+    if (sStorage)
+        XPR_Free(sStorage);
+    sStorage = XPR_StrDup(storage);
+    DBG(DBG_L5, "XPR_UPS: Mounted storage \"%s\" @ %p!", storage, jx);
+}
+
+// Mount storage (supports multiple format)
+static int mountStorage(const char* storage)
+{
+    if (xpr_ends_with(storage, ".json"))
+        return loadJson(storage);
+    return XPR_ERR_UPS_NOT_SUPPORT;
+}
+
+// Release mounted storage resource
+static void unmountStorage(void)
+{
+    if (sStorageJson) {
+        XPR_JSON_DecRef(sStorageJson);
+        sStorageJson = NULL;
+    }
+}
+
+// Fetch the value from storage for entry
+static int storageFetchValue(XPR_UPS_Entry* entry)
+{
+    XPR_JSON* jx = findJsonForEntry(entry);
+    if (jx == NULL) {
+        DBG(DBG_L5, "XPR_UPS: Json for entry \"%s\" @ %p not exists",
+            entry->name, entry);
+        return XPR_ERR_SYS(ENOENT);
+    }
+    int err = XPR_ERR_OK;
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        entry->curVal.bl = XPR_JSON_IntegerValue(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        entry->curVal.i32 = XPR_JSON_IntegerValue(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        entry->curVal.i64 = XPR_JSON_Integer64Value(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        entry->curVal.f32 = XPR_JSON_RealValue(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        entry->curVal.f64 = XPR_JSON_RealValue(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (entry->curVal.str)
+            XPR_Free(entry->curVal.str);
+        entry->curVal.str = XPR_StrDup(XPR_JSON_StringValue(jx));
+        break;
+    default:
+        DBG(DBG_L2, "XPR_UPS: Fetch type(%s) from storage does not supported!",
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    }
+    return err;
+}
+
+// Mark storage has changed
+static void storageHaveChanges(void)
+{
+    XPR_AtomicInc(&sHaveChanges);
+}
+
+// Get data for key by type without locking
+static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
+                             void* buffer, int* size)
+{
     if (!key || !buffer)
         return XPR_ERR_NULL_PTR;
     if (type == XPR_UPS_ENTRY_TYPE_STRING && !size)
         return XPR_ERR_NULL_PTR;
-    ret = XPR_UPS_FindEntry(key, &json, &entry);
-    if (XPR_ERR_SUCCESS != ret)
-        return ret;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    if (!entry) {
+        DBG(DBG_L2, "XPR_UPS: GetData(\"%s\", %s, %p, %p), entry not exists!",
+            key, entryTypeName(type), buffer, size);
+        return XPR_ERR_UPS_UNEXIST;
+    }
+    int err = XPR_ERR_OK;
     if (entry->get)
-        return entry->get(entry, json, key, buffer, size);
-    return XPR_ERR_SUCCESS;
+        err = entry->get(entry, entry->name, buffer, size);
+    if (entry->node.parent) {
+        XPR_UPS_Entry* parent = XPR_UPS_TO_ENTRY(entry->node.parent);
+        if (parent->get)
+            err = parent->get(entry, entry->name, buffer, buffer);
+    }
+    if (err != XPR_ERR_OK)
+        err = XPR_UPS_ReadValue(entry, buffer, size);
+    if (err != XPR_ERR_OK)
+        err = XPR_UPS_ReadData(entry, buffer, size);
+    return err;
 }
 
-static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
-                           const void* data, int size)
+// Get data for key by type with locking
+static int XPR_UPS_GetData(const char* key, XPR_UPS_EntryType type,
+                           void* buffer, int* size)
 {
-    int ret = 0;
-    XPR_JSON* json = NULL;
-    XPR_UPS_Entry* entry = NULL;
+    int err = XPR_ERR_OK;
+    XPR_UPS_LOCK();
+    err = XPR_UPS_GetDataNl(key, type, buffer, size);
+    XPR_UPS_UNLOCK();
+    return err;
+}
+
+// Set data for key by type without locking
+static int XPR_UPS_SetDataNl(const char* key, XPR_UPS_EntryType type,
+                             const void* data, int size)
+{
     if (!key || !data)
         return XPR_ERR_NULL_PTR;
-    ret = XPR_UPS_FindEntry(key, &json, &entry);
-    if (XPR_ERR_SUCCESS != ret)
-        return ret;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    if (!entry) {
+        DBG(DBG_L2, "XPR_UPS: SetData(\"%s\", %s, %p, %d), entry not exists!",
+            key, entryTypeName(type), data, size);
+        return XPR_ERR_UPS_UNEXIST;
+    }
+    int err = XPR_ERR_OK;
     if (entry->set)
-        return entry->set(entry, json, key, data, size);
-    return XPR_ERR_SUCCESS;
+        err = entry->set(entry, key, data, size);
+    else if (entry->node.parent) {
+        XPR_UPS_Entry* parent = XPR_UPS_TO_ENTRY(entry->node.parent);
+        if (parent->set)
+            err = parent->set(entry, key, data, size);
+    }
+    if (err == XPR_ERR_OK)
+        err = XPR_UPS_WriteValue(entry, data, size);
+    if (err == XPR_ERR_OK && !(entry->type & XPR_UPS_ENTRY_FLAG_NOSTOR))
+        err = XPR_UPS_WriteData(entry, data, size);
+    return err;
 }
 
-XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* ent)
+// Set data for key by type with locking
+static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
+                             const void* data, int size)
 {
-    int ret = 0;
-    XPR_JSON* json = NULL;
-    XPR_UPS_Entry* entry = NULL;
-    if (!ent)
-        return XPR_ERR_NULL_PTR;
-    if (ent->prev != 0)
-        return XPR_ERR_SUCCESS;
-    if (root == 0) {
-        root = ent;
-        root->prev = root->next = root->subs = 0;
-    }
-    else {
-        ret = XPR_UPS_FindEntry(ent->root, &json, &entry);
-        if (XPR_ERR_SUCCESS != ret) {
-            DBG(DBG_L2, "XPR_UPS: Root \"%s\" does not exists", ent->root);
-            return XPR_ERR_UPS_UNEXIST;
-        }
-        if (!entry->subs) {
-            entry->subs = ent;
-        }
-        else {
-            entry = entry->subs;
-            while (entry) {
-                // 如果目录已存在则直接退出，不做挂载
-                if (ent->type == XPR_UPS_ENTRY_TYPE_DIR &&
-                    strcmp(entry->names[0], ent->names[0]) == 0)
-                    return XPR_ERR_SUCCESS;
-                if (!entry->next) {
-                    entry->next = ent;
-                    ent->prev = entry;
-                    ent->next = 0;
-                    ent->subs = 0;
-                    break;
-                }
-                entry = entry->next;
-            }
-        }
-    }
-    return ent->init ? ent->init(ent) : XPR_ERR_SUCCESS;
+    int err = XPR_ERR_OK;
+    XPR_UPS_LOCK();
+    err = XPR_UPS_SetDataNl(key, type, data, size);
+    XPR_UPS_UNLOCK();
+    return err;
 }
-
+#if 0
 extern XPR_UPS_Entry xpr_ups_driver_root;
 extern XPR_UPS_Entry xpr_ups_driver_system_network[];
 extern const int xpr_ups_driver_system_network_count;
@@ -191,48 +405,162 @@ extern const int xpr_ups_driver_system_information_count;
 
 extern XPR_UPS_Entry xpr_ups_driver_camera_image[];
 extern const int xpr_ups_driver_camera_image_count;
+#endif
 
 static void XPR_UPS_RegisterAll(void)
 {
+#if 0
     XPR_UPS_Register(&xpr_ups_driver_root, 1);
     XPR_UPS_Register(xpr_ups_driver_system_network,
                      xpr_ups_driver_system_network_count);
     XPR_UPS_Register(xpr_ups_driver_system_information,
                      xpr_ups_driver_system_information_count);
+#endif
     // Register other ...
 }
 
-XPR_API int XPR_UPS_Init(void)
+XPR_API int XPR_UPS_Init(const char* storage)
 {
-    if (root_json)
-        return XPR_ERR_SUCCESS;
-    root_json = XPR_JSON_LoadFileName("./configuration.json");
-    if (!root_json)
-        return XPR_ERR_UPS_UNEXIST;
+    if (sRoot.node.childs)
+        return XPR_ERR_GEN_BUSY;
+    XPR_RecursiveMutexInit(&sLock);
+    XPR_UPS_LOCK();
+    mountStorage(storage);
     XPR_UPS_RegisterAll();
+    XPR_UPS_UNLOCK();
     return XPR_ERR_SUCCESS;
 }
 
 XPR_API int XPR_UPS_Fini(void)
 {
-    XPR_JSON_DumpFileName(root_json, "./configuration.json");
-    XPR_JSON_DecRef(root_json);
-    root_json = 0;
+    XPR_UPS_LOCK();
+    XPR_UPS_UnRegisterAll();
+    unmountStorage();
+    XPR_UPS_UNLOCK();
+    XPR_RecursiveMutexFini(&sLock);
     return XPR_ERR_SUCCESS;
+}
+
+XPR_API XPR_UPS_Entry* XPR_UPS_FindEntry(const char* key, XPR_UPS_Entry* parent)
+{
+    return findEntry(key, parent);
 }
 
 XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
 {
-    int i = 0, result;
-    for (; i < count; i++) {
-        result = XPR_UPS_RegisterSingle(&ents[i]);
-        DBG(DBG_L5, "XPR_UPS: Register %s result: %d", ents[i].root, result);
+    int err = XPR_ERR_OK;
+    int nreg = 0;
+    char fullName[256];
+    XPR_UPS_Entry* prev = NULL;
+    XPR_UPS_Entry* curr = NULL;
+    for (int i = 0; i < count; i++) {
+        curr = &ents[i];
+        if (!curr->name)
+            break;
+        if (curr->name[0] == '$')
+            curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
+        err = XPR_UPS_RegisterSingle(curr, curr->root ? NULL : prev);
+        if (err) {
+            DBG(DBG_L2, "XPR_UPS: Register \"%s%s%s\" failed, errno: 0x%08X",
+                curr->root, slashEnds(curr->root) ? "" : "/", curr->name, err);
+            break;
+        }
+        DBG(DBG_L5, "XPR_UPS: Registered \"%s\" @ %p",
+            entryFullName(curr, fullName, sizeof(fullName)), curr);
+        if (XPR_UPS_ENTRY_IS_DIR(curr))
+            prev = curr;
+        nreg++;
     }
-    return XPR_ERR_SUCCESS;
+    DBG(DBG_L1, "XPR_UPS: Registered entries: fails=%d, success=%d, total=%d",
+        count - nreg, nreg, count);
+    return err;
+}
+
+XPR_API int XPR_UPS_RegisterAt(XPR_UPS_Entry ents[], int count,
+                               const char* root)
+{
+    if (!root)
+        return XPR_ERR_UPS_ILLEGAL_PARAM;
+    XPR_UPS_Entry* rootEntry = findEntry(root, NULL);
+    if (!rootEntry)
+        return XPR_ERR_UPS_UNEXIST;
+    for (int i = 0; i < count; i++) {
+        int result = XPR_UPS_RegisterSingle(&ents[i], rootEntry);
+        DBG(DBG_L5, "XPR_UPS: RegisterAt %s @ %s result: 0x%08X", ents[i].name,
+            ents[i].root, result);
+    }
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
+{
+    if (!entry)
+        return XPR_ERR_UPS_NULL_PTR;
+    int err = XPR_ERR_OK;
+    XPR_UPS_LOCK();
+    // Skip if the entry exists
+    if (parent && findEntry(entry->name, parent)) {
+        err = XPR_ERR_UPS_EXIST;
+        goto done;
+    }
+    if (!parent)
+        parent = findEntry(entry->root, NULL);
+    if (!parent) {
+        err = XPR_ERR_UPS_SYS_NOTREADY;
+        goto done;
+    }
+    // Link to tree
+    XPR_UPS_Node* child = parent->node.childs;
+    if (child == NULL) {
+        parent->node.childs = XPR_UPS_TO_NODE(entry);
+    }
+    else {
+        while (child->next) {
+            child = child->next;
+        }
+        child->next = XPR_UPS_TO_NODE(entry);
+    }
+    // Update link nodes
+    entry->node.parent = XPR_UPS_TO_NODE(parent);
+    entry->node.prev = child;
+    entry->node.next = NULL;
+    entry->node.childs = NULL;
+    // Fetch current value from storage
+    if (!(entry->type & XPR_UPS_ENTRY_FLAG_NOSTOR) &&
+        !(XPR_UPS_ENTRY_IS_DIR(entry) || XPR_UPS_ENTRY_IS_INIT(entry))) {
+        if (storageFetchValue(entry) != XPR_ERR_OK)
+            entryUseDefaultValue(entry);
+    }
+    // Initialize the entry first
+    if (entry->init) {
+        err = entry->init(entry);
+        if (err != XPR_ERR_OK) {
+            DBG(DBG_L2,
+                "XPR_UPS: Entry %s @ %p initialize error: 0x%08X",
+                entry->name, entry, err);
+            goto done;
+        }
+    }
+    // Okay
+    err = XPR_ERR_OK;
+done:
+    XPR_UPS_UNLOCK();
+    return err;
 }
 
 XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
+    XPR_UPS_LOCK();
+    // FIXME:
+    XPR_UPS_UNLOCK();
+    return XPR_ERR_SUCCESS;
+}
+
+XPR_API int XPR_UPS_UnRegisterAll(void)
+{
+    XPR_UPS_LOCK();
+    // FIXME:
+    XPR_UPS_UNLOCK();
     return XPR_ERR_SUCCESS;
 }
 
@@ -275,11 +603,28 @@ XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
+XPR_API const char* XPR_UPS_PeekString(const char *key)
+{
+    if (!key)
+        return NULL;
+    const char* val = NULL;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.str : NULL;
+}
+
+XPR_API const char* XPR_UPS_PeekStringVK(const char *key, ...)
+{
+    if (!key)
+        return NULL;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekString(newKey);
+}
+
 XPR_API int XPR_UPS_SetInteger(const char* key, int value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
 }
 
 XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
@@ -293,13 +638,13 @@ XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT, &value, 0);
+    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetInteger(const char* key, int* value)
 {
     CHECK_KV(key, value);
-    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT, value, 0);
+    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_I32, value, 0);
 }
 
 XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
@@ -312,14 +657,30 @@ XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT, value, 0);
+    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_I32, value, 0);
+}
+
+XPR_API int XPR_UPS_PeekInteger(const char *key)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.i32 : 0;
+}
+
+XPR_API int XPR_UPS_PeekIntegerVK(const char *key, ...)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekInteger(newKey);
 }
 
 XPR_API int XPR_UPS_SetInt64(const char* key, int64_t value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
 }
 
 XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
@@ -333,13 +694,13 @@ XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, &value, 0);
+    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
 {
     CHECK_KV(key, value);
-    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
+    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_I64, value, 0);
 }
 
 XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
@@ -352,14 +713,30 @@ XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_INT64, value, 0);
+    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_I64, value, 0);
+}
+
+XPR_API int64_t XPR_UPS_PeekInt64(const char *key)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.i64 : 0;
+}
+
+XPR_API int64_t XPR_UPS_PeekInt64VK(const char *key, ...)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekInt64(newKey);
 }
 
 XPR_API int XPR_UPS_SetFloat(const char* key, float value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...)
@@ -373,13 +750,13 @@ XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
+    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
 {
     CHECK_KV(key, value);
-    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
+    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
 XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
@@ -392,14 +769,30 @@ XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
+    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+}
+
+XPR_API float XPR_UPS_PeekFloat(const char *key)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.f32 : 0;
+}
+
+XPR_API float XPR_UPS_PeekFloatVK(const char *key, ...)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekFloat(newKey);
 }
 
 XPR_API int XPR_UPS_SetDouble(const char* key, double value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
@@ -413,14 +806,14 @@ XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_REAL, &value, 0);
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
 {
     if (!key)
         return XPR_ERR_NULL_PTR;
-    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
+    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
 XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
@@ -433,7 +826,23 @@ XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
     va_start(ap, key);
     vsnprintf(buffer, sizeof(buffer), key, ap);
     va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_REAL, value, 0);
+    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+}
+
+XPR_API double XPR_UPS_PeekDouble(const char *key)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.f64 : 0;
+}
+
+XPR_API double XPR_UPS_PeekDoubleVK(const char *key, ...)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekDouble(newKey);
 }
 
 XPR_API int XPR_UPS_SetBoolean(const char* key, int value)
@@ -476,78 +885,220 @@ XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
     return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* ent, XPR_JSON* json,
-                             const char* key, void* buffer, int* size)
+XPR_API int XPR_UPS_PeekBoolean(const char *key)
 {
-    int len = 0;
-    int result = XPR_ERR_OK;
-    const char* s = NULL;
-    switch (ent->type) {
+    if (!key)
+        return 0;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    return entry ? entry->curVal.bl : 0;
+}
+
+XPR_API int XPR_UPS_PeekBooleanVK(const char *key, ...)
+{
+    if (!key)
+        return 0;
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_PeekBoolean(newKey);
+}
+
+static int readDataFromJson(XPR_UPS_Entry* entry, void* buffer, int* size)
+{
+    XPR_JSON* jx = findJsonForEntry(entry);
+    if (jx == NULL) {
+        DBG(DBG_L2, "XPR_UPS: Json for entry \"%s\" @ %p not exists",
+            entry->name, entry);
+        return XPR_ERR_SYS(ENOENT);
+    }
+    int err = XPR_ERR_OK;
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        *(int*)buffer = XPR_JSON_IntegerValue(json);
+        *(int*)buffer = XPR_JSON_IntegerValue(jx);
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
-        // FIXME: Not support yet ...
+        err = XPR_ERR_UPS_NOT_SUPPORT;
         break;
-    case XPR_UPS_ENTRY_TYPE_INT:
-        *(int*)buffer = XPR_JSON_IntegerValue(json);
+    case XPR_UPS_ENTRY_TYPE_I32:
+        *(int*)buffer = XPR_JSON_IntegerValue(jx);
         break;
-    case XPR_UPS_ENTRY_TYPE_INT64:
-        *(int64_t*)buffer = XPR_JSON_Integer64Value(json);
+    case XPR_UPS_ENTRY_TYPE_I64:
+        *(int64_t*)buffer = XPR_JSON_Integer64Value(jx);
         break;
-    case XPR_UPS_ENTRY_TYPE_REAL:
-        *(double*)buffer = XPR_JSON_RealValue(json);
+    case XPR_UPS_ENTRY_TYPE_F32:
+        *(float*)buffer = XPR_JSON_RealValue(jx);
         break;
-    case XPR_UPS_ENTRY_TYPE_STRING:
-        s = XPR_JSON_StringValue(json);
-        len = strlen(s);
+    case XPR_UPS_ENTRY_TYPE_F64:
+        *(double*)buffer = XPR_JSON_RealValue(jx);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING: {
+        const char* s = XPR_JSON_StringValue(jx);
+        int len = strlen(s);
         if (len >= *size) {
-            result = XPR_ERR_BUF_FULL;
+            err = XPR_ERR_BUF_FULL;
             break;
         }
         strcpy_s(buffer, *size, s);
         *size = len;
         break;
-    default:
-        return XPR_ERR_ERROR;
     }
-    return result;
+    default:
+        DBG(DBG_L2, "XPR_UPS: Read type(%s) from storage does not supported!",
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    }
+    return err;
 }
 
-XPR_API int XPR_UPS_WriteData(XPR_UPS_Entry* ent, XPR_JSON* json,
-                              const char* key, const void* data, int size)
+static int writeDataToJson(XPR_UPS_Entry* entry, const void* data, int size)
 {
-    int result = XPR_ERR_OK;
-    switch (ent->type) {
+    XPR_JSON* jx = findJsonForEntry(entry);
+    if (jx == NULL) {
+        DBG(DBG_L2, "XPR_UPS: Json for entry \"%s\" @ %p not exists",
+            entry->name, entry);
+        return XPR_ERR_SYS(ENOENT);
+    }
+    int err = XPR_ERR_OK;
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
     case XPR_UPS_ENTRY_TYPE_BOOLEAN:
-        result = XPR_JSON_IntegerSet(json, *(int*)data);
+        err = XPR_JSON_IntegerSet(jx, *(int*)data);
         break;
     case XPR_UPS_ENTRY_TYPE_BLOB:
-        // FIXME: Not support yet ...
+        err = XPR_ERR_UPS_NOT_SUPPORT;
         break;
-    case XPR_UPS_ENTRY_TYPE_INT:
-        result = XPR_JSON_IntegerSet(json, *(int*)data);
+    case XPR_UPS_ENTRY_TYPE_I32:
+        err = XPR_JSON_IntegerSet(jx, *(int*)data);
         break;
-    case XPR_UPS_ENTRY_TYPE_INT64:
-        result = XPR_JSON_Integer64Set(json, *(int64_t*)data);
+    case XPR_UPS_ENTRY_TYPE_I64:
+        err = XPR_JSON_Integer64Set(jx, *(int64_t*)data);
         break;
-    case XPR_UPS_ENTRY_TYPE_REAL:
-        result = XPR_JSON_RealSet(json, *(double*)data);
+    case XPR_UPS_ENTRY_TYPE_F64:
+        err = XPR_JSON_RealSet(jx, *(double*)data);
         break;
     case XPR_UPS_ENTRY_TYPE_STRING:
-        result = XPR_JSON_StringSet(json, (char*)data);
+        err = XPR_JSON_StringSet(jx, (char*)data);
         break;
     default:
-        return XPR_ERR_ERROR;
+        DBG(DBG_L2, "XPR_UPS: Write type(%s) to storage does not supported!",
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
     }
-    if (XPR_ERR_OK == result)
-        result = XPR_UPS_Sync();
-    return result;
+    if (XPR_ERR_OK == err)
+        storageHaveChanges();
+    return err;
+}
+
+XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* entry, void* buffer, int* size)
+{
+    int err = XPR_ERR_UPS_SYS_NOTREADY;
+    XPR_UPS_LOCK();
+    if (sStorageJson)
+        err = readDataFromJson(entry, buffer, size);
+    XPR_UPS_LOCK();
+    return err;
+}
+
+XPR_API int XPR_UPS_ReadValue(XPR_UPS_Entry* entry, void* buffer, int* size)
+{
+    if (!entry || buffer)
+        return XPR_ERR_UPS_NULL_PTR;
+    int err = XPR_ERR_OK;
+    XPR_UPS_LOCK();
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        *(int*)buffer = entry->curVal.bl;
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        *(int*)buffer = entry->curVal.i32;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        *(int64_t*)buffer = entry->curVal.i64;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        *(float*)buffer = entry->curVal.f32;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        *(double*)buffer = entry->curVal.f64;
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING: {
+        if (size == NULL) {
+            err = XPR_ERR_UPS_ILLEGAL_PARAM;
+            break;
+        }
+        const char* s = entry->curVal.str;
+        int len = strlen(s);
+        if (len >= *size) {
+            err = XPR_ERR_BUF_FULL;
+            break;
+        }
+        strcpy_s(buffer, *size, s);
+        *size = len;
+        break;
+    }
+    default:
+        DBG(DBG_L2, "XPR_UPS: Read type(%s) from entry does not supported!",
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    }
+    XPR_UPS_UNLOCK();
+    return err;
+}
+
+XPR_API int XPR_UPS_WriteData(XPR_UPS_Entry* entry, const void* data, int size)
+{
+    int err = XPR_ERR_UPS_SYS_NOTREADY;
+    XPR_UPS_LOCK();
+    if (sStorageJson)
+        err = writeDataToJson(entry, data, size);
+    XPR_UPS_UNLOCK();
+    return err;
+}
+
+XPR_API int XPR_UPS_WriteValue(XPR_UPS_Entry* entry, const void* data, int size)
+{
+    int err = XPR_ERR_OK;
+    XPR_UPS_LOCK();
+    switch (XPR_UPS_TO_TYPE(entry->type)) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        entry->curVal.bl = *(int*)(data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        entry->curVal.i32 = *(int*)(data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        entry->curVal.i64 = *(int64_t*)(data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        entry->curVal.f32 = *(float*)(data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        entry->curVal.f64 = *(double*)(data);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (entry->curVal.str)
+            XPR_Free(entry->curVal.str);
+        entry->curVal.str = XPR_StrDup((const char*)data);
+        break;
+    default:
+        DBG(DBG_L2, "XPR_UPS: Write type(%s) to entry does not supported!",
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        err = XPR_ERR_UPS_NOT_SUPPORT;
+        break;
+    }
+    XPR_UPS_UNLOCK();
+    return err;
 }
 
 XPR_API int XPR_UPS_Delete(const char* key)
 {
-    return XPR_ERR_OK;
+    return XPR_ERR_UPS_NOT_SUPPORT;
 }
 
 XPR_API int XPR_UPS_Exists(const char* key)
@@ -557,12 +1108,12 @@ XPR_API int XPR_UPS_Exists(const char* key)
 
 XPR_API const char* XPR_UPS_FirstKey(void)
 {
-    return XPR_ERR_OK;
+    return NULL;
 }
 
 XPR_API const char* XPR_UPS_NextKey(const char* key)
 {
-    return XPR_ERR_OK;
+    return NULL;
 }
 
 XPR_API void XPR_UPS_BeginGroup(const char* group)
@@ -577,20 +1128,85 @@ XPR_API void XPR_UPS_EndGroup(const char* group)
 
 XPR_API int XPR_UPS_Export(const char* url)
 {
-    return XPR_ERR_OK;
+    return XPR_ERR_UPS_NOT_SUPPORT;
 }
 
 XPR_API int XPR_UPS_Import(const char* url)
 {
-    return XPR_ERR_OK;
+    return XPR_ERR_UPS_NOT_SUPPORT;
 }
 
 XPR_API int XPR_UPS_Pack(void)
 {
-    return XPR_ERR_OK;
+    return XPR_ERR_UPS_NOT_SUPPORT;
+}
+
+// Print the typed value
+static void printValue(XPR_UPS_Value* val, XPR_UPS_EntryType type)
+{
+    switch (type) {
+    case XPR_UPS_ENTRY_TYPE_INIT:
+        printf("-");
+        break;
+    case XPR_UPS_ENTRY_TYPE_DIR:
+        printf("-");
+        break;
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        printf("%s", val->bl ? "true" : "false");
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        printf("(%p,%d)", val->bb.data, val->bb.size);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        printf("%d", val->i32);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        printf("%ld", val->i64);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        printf("%f", val->f32);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        printf("%lf", val->f64);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (val->str)
+            printf("\"%s\"", val->str);
+        else
+            printf("(null)");
+        break;
+    default:
+        break;
+    }
+}
+
+// Print the entry and it's childs and siblings
+static void printEntry(XPR_UPS_Entry* entry)
+{
+    int depth = entryDepth(entry);
+    XPR_UPS_EntryType type = XPR_UPS_TO_TYPE(entry->type);
+    printf("%-*s%-20s{%s, %s}", depth * 4, "", entry->name, entry->category,
+           entryTypeName(type));
+    printf("[");
+    printValue(&entry->curVal, type);
+    printf(", ");
+    printValue(&entry->defVal, type);
+    printf(", ");
+    printValue(&entry->shaVal, type);
+    printf("]\n");
+    printf("%-*s  ^? %s\n", depth * 4, "", entry->desc);
+    if (entry->node.childs)
+        printEntry(XPR_UPS_TO_ENTRY(entry->node.childs));
+    if (entry->node.next)
+        printEntry(XPR_UPS_TO_ENTRY(entry->node.next));
+}
+
+XPR_API int XPR_UPS_PrintAll(void)
+{
+    printEntry(&sRoot);
 }
 
 XPR_API int XPR_UPS_Sync(void)
 {
-    return XPR_JSON_DumpFileName(root_json, "./configuration.json");
+    return XPR_ERR_UPS_NOT_SUPPORT;
 }
