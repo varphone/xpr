@@ -1000,7 +1000,7 @@ XPR_API int XPR_UPS_ReadData(XPR_UPS_Entry* entry, void* buffer, int* size)
 
 XPR_API int XPR_UPS_ReadValue(XPR_UPS_Entry* entry, void* buffer, int* size)
 {
-    if (!entry || buffer)
+    if (!entry || !buffer)
         return XPR_ERR_UPS_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_UPS_LOCK();
@@ -1031,7 +1031,7 @@ XPR_API int XPR_UPS_ReadValue(XPR_UPS_Entry* entry, void* buffer, int* size)
         const char* s = entry->curVal.str;
         int len = strlen(s);
         if (len >= *size) {
-            err = XPR_ERR_BUF_FULL;
+            err = XPR_ERR_SYS(ENOSPC);
             break;
         }
         strcpy_s(buffer, *size, s);
