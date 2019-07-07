@@ -129,6 +129,35 @@ static const char* entryTypeName(XPR_UPS_EntryType type)
     }
 }
 
+// Unlink entry from tree and call finalizer
+static void entryUnregister(XPR_UPS_Entry* entry)
+{
+    XPR_UPS_Entry* prev = NULL;
+    XPR_UPS_Entry* next = NULL;
+    while (entry) {
+        // Unregister childs first if exists
+        if (entry->node.childs)
+            entryUnregister(XPR_UPS_TO_ENTRY(entry->node.childs));
+        // Save the next entry
+        prev = XPR_UPS_TO_ENTRY(entry->node.prev);
+        next = XPR_UPS_TO_ENTRY(entry->node.next);
+        // Call finalizer if exists
+        if (entry->fini)
+            entry->fini(entry);
+        // Break all links
+        if (prev)
+            prev->node.next = NULL;
+        if (next)
+            next->node.prev = NULL;
+        entry->node.parent = NULL;
+        entry->node.prev = NULL;
+        entry->node.next = NULL;
+        entry->node.childs = NULL;
+        // Move to next entry
+        entry = next;
+    }
+}
+
 // Copy entry's default value to current
 static void entryUseDefaultValue(XPR_UPS_Entry* entry)
 {
@@ -662,7 +691,11 @@ done:
 XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
     XPR_UPS_LOCK();
-    // FIXME:
+    for (int i = 0; i < count; i++) {
+        if (ents[i].name == NULL)
+            break;
+        entryUnregister(&ents[i]);
+    }
     XPR_UPS_UNLOCK();
     return XPR_ERR_SUCCESS;
 }
@@ -670,7 +703,7 @@ XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 XPR_API int XPR_UPS_UnRegisterAll(void)
 {
     XPR_UPS_LOCK();
-    // FIXME:
+    entryUnregister(&sRoot);
     XPR_UPS_UNLOCK();
     return XPR_ERR_SUCCESS;
 }
