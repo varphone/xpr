@@ -7,6 +7,7 @@
 #include <xpr/xpr_json.h>
 #include <xpr/xpr_mem.h>
 #include <xpr/xpr_sync.h>
+#include <xpr/xpr_timer.h>
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
@@ -25,9 +26,13 @@ static XPR_UPS_Entry sRoot =
     XPR_UPS_ENTRY_DIR2("/", "The root of the XPR-UPS system");
 static char* sStorage = NULL;
 static XPR_JSON* sStorageJson = NULL;
+static XPR_Timer* sStorageSyncTimer = NULL;
 
 #define XPR_UPS_LOCK() XPR_RecursiveMutexLock(&sLock)
 #define XPR_UPS_UNLOCK() XPR_RecursiveMutexUnlock(&sLock)
+
+// Sync settings to storage every 5 seconds
+#define XPR_UPS_STORAGE_SYNC_INTERVAL 5000000
 
 #define XPR_UPS_VKEY(keyvar, fmt)                                              \
     va_list ap;                                                                \
@@ -253,17 +258,74 @@ static int loadJson(const char* storage)
     return XPR_ERR_OK;
 }
 
+// Sync settings to storage
+static XPR_TimerReturn storageSync(void* opaque)
+{
+    // FIXME:
+    return XPR_TIMER_CONTINUE;
+}
+
+// Start the sotrage sync timer
+static void startSyncTimer(void)
+{
+    if (sStorageSyncTimer == NULL) {
+        XPR_TimerId timerId = XPR_TimerIdNew();
+        sStorageSyncTimer = XPR_TimerCreate(
+            timerId, XPR_UPS_STORAGE_SYNC_INTERVAL, storageSync, NULL);
+        if (sStorageSyncTimer) {
+            XPR_TimerEnable(sStorageSyncTimer);
+            int err =
+                XPR_TimerQueueAdd(XPR_TimerQueueDefault(), sStorageSyncTimer);
+            if (err != XPR_ERR_OK) {
+                DBG(DBG_L2,
+                    "XPR_UPS: Storage sync timer %p start failed, errno: "
+                    "0x%08X",
+                    sStorageSyncTimer, err);
+                XPR_TimerDestroy(sStorageSyncTimer);
+                sStorageSyncTimer = NULL;
+            }
+            else {
+                DBG(DBG_L4, "XPR_UPS: Storage sync timer %p started!",
+                    sStorageSyncTimer);
+            }
+        }
+    }
+}
+
+// Stop the sotrage sync timer
+static void stopSyncTimer(void)
+{
+    if (sStorageSyncTimer) {
+        int err =
+            XPR_TimerQueueRemove(XPR_TimerQueueDefault(), sStorageSyncTimer);
+        if (err != XPR_ERR_OK) {
+            DBG(DBG_L2,
+                "XPR_UPS: Storage sync timer %p stop failed, errno: 0x%08X",
+                sStorageSyncTimer, err);
+        }
+        else {
+            DBG(DBG_L4, "XPR_UPS: Storage sync timer %p stopped!",
+                sStorageSyncTimer);
+            sStorageSyncTimer = NULL;
+        }
+    }
+}
+
 // Mount storage (supports multiple format)
 static int mountStorage(const char* storage)
 {
+    int err = XPR_ERR_UPS_NOT_SUPPORT;
     if (xpr_ends_with(storage, ".json"))
-        return loadJson(storage);
-    return XPR_ERR_UPS_NOT_SUPPORT;
+        err = loadJson(storage);
+    if (err == XPR_ERR_OK)
+        startSyncTimer();
+    return err;
 }
 
 // Release mounted storage resource
 static void unmountStorage(void)
 {
+    stopSyncTimer();
     if (sStorageJson) {
         XPR_JSON_DecRef(sStorageJson);
         sStorageJson = NULL;
