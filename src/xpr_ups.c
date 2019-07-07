@@ -67,6 +67,25 @@ static const char* skipSlash(const char* key)
     return key;
 }
 
+// Release all resources attched to the entry
+static void entryCleanup(XPR_UPS_Entry* entry)
+{
+    XPR_UPS_EntryType type = XPR_UPS_TO_TYPE(entry->type);
+    switch (type) {
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        // FIXME:
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (entry->curVal.str)
+            XPR_Freep((void**)(&(entry->curVal.str)));
+        if (entry->shaVal.str)
+            XPR_Freep((void**)(&(entry->curVal.str)));
+        break;
+    default:
+        break;
+    }
+}
+
 // Calculate the depth of the entry
 static int entryDepth(XPR_UPS_Entry* entry)
 {
@@ -154,6 +173,8 @@ static void entryUnregister(XPR_UPS_Entry* entry)
         entry->node.prev = NULL;
         entry->node.next = NULL;
         entry->node.childs = NULL;
+        // Release all resources attched to the entry
+        entryCleanup(entry);
         // Move to next entry
         entry = next;
     }
