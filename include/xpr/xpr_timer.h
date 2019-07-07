@@ -93,7 +93,7 @@ XPR_API void XPR_TimerTerminate(XPR_Timer* self);
 /// Create a new timer queue.
 XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void);
 
-/// Destroy the time queue.
+/// Destroy the timer queue.
 XPR_API void XPR_TimerQueueDestroy(XPR_TimerQueue* self);
 
 /// Add timer to the timer queue.
