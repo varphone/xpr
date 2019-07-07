@@ -193,6 +193,10 @@ static void* timerQueueLoop(void* opaque, XPR_Thread* thread)
     // We allow thread cancellation at any time
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    // Wake up the caller
+    pthread_mutex_lock(&self->lock);
+    pthread_cond_signal(&self->cond);
+    pthread_mutex_unlock(&self->lock);
     while (!self->exitLoop) {
         pthread_mutex_lock(&self->lock);
         timer = XPR_ListFirstNl(self->activeTimers);
@@ -256,6 +260,10 @@ XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void)
         pthread_condattr_setclock(&condAttr, CLOCK_MONOTONIC);
         pthread_cond_init(&self->cond, &condAttr);
         self->thread = XPR_ThreadCreate(timerQueueLoop, 0, self);
+        // Wait for thread running
+        pthread_mutex_lock(&self->lock);
+        pthread_cond_wait(&self->cond, &self->lock);
+        pthread_mutex_unlock(&self->lock);
     }
     return self;
 }
