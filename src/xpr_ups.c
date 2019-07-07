@@ -518,7 +518,7 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
             prev = curr;
     }
     DBG(DBG_L3,
-        "XPR_UPS: Registered entries: fails=%d, ignores: %d, success=%d, "
+        "XPR_UPS: Registered entries: fails=%d, ignores=%d, success=%d, "
         "total=%d",
         fails, ignores, success, count);
     return err;
