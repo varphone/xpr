@@ -61,6 +61,10 @@ XPR_SYS=$(XPR_ALL)
 XPR_THREAD=$(XPR_ALL)
 XPR_TIMER=$(XPR_ALL)
 XPR_UPS=$(XPR_ALL)
+XPR_UPS_DRIVER_FAKEROOT=$(XPR_UPS)
+XPR_UPS_DRIVER_SYS_INFO=$(XPR_UPS)
+XPR_UPS_DRIVER_SYS_NET=$(XPR_UPS)
+XPR_UPS_DRIVER_CAM_IMG=$(XPR_UPS)
 XPR_URL=$(XPR_ALL)
 XPR_UTILS=$(XPR_ALL)
 XPR_XML=$(XPR_ALL)
@@ -287,12 +291,19 @@ endif
 # Universal Preference Settings framework
 ###############################################################################
 ifeq ($(XPR_UPS),y)
-libxpr_SRCS += \
-drivers/ups/root.c \
-drivers/ups/cam_img.c \
-drivers/ups/sys_info.c \
-drivers/ups/sys_net.c \
-xpr_ups.c
+libxpr_SRCS += xpr_ups.c
+ifeq ($(XPR_UPS_DRIVER_FAKEROOT),y)
+libxpr_SRCS += drivers/ups/fakeroot.c
+endif
+ifeq ($(XPR_UPS_DRIVER_SYS_INFO),y)
+libxpr_SRCS += drivers/ups/sys_info.c
+endif
+ifeq ($(XPR_UPS_DRIVER_SYS_NET),y)
+libxpr_SRCS += drivers/ups/sys_net.c
+endif
+ifeq ($(XPR_UPS_DRIVER_CAM_IMG),y)
+libxpr_SRCS += drivers/ups/cam_img.c
+endif
 endif
 
 # URL
