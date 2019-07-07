@@ -304,4 +304,6 @@ tests/realpath
 tests/rtsp
 tests/struct
 tests/thread
+tests/ups
+tests/ups-basic
 tests/xml
