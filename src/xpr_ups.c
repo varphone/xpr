@@ -318,6 +318,36 @@ static void storageHaveChanges(void)
     XPR_AtomicInc(&sHaveChanges);
 }
 
+// Fill the data buffer with regular-zero value
+static void clearDataBuffer(XPR_UPS_EntryType type, void* buffer, int* size)
+{
+    switch (type) {
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        *(int*)(buffer) = 0;
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        // FIXME:
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        *(int*)(buffer) = 0;
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        *(int64_t*)(buffer) = 0;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        *(float*)(buffer) = 0.0;
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        *(double*)(buffer) = 0.0;
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        *(char*)(buffer) = 0;
+        break;
+    default:
+        break;
+    }
+}
+
 // Get data for key by type without locking
 static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
                              void* buffer, int* size)
@@ -330,6 +360,7 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
     if (!entry) {
         DBG(DBG_L2, "XPR_UPS: GetData(\"%s\", %s, %p, %p), entry not exists!",
             key, entryTypeName(type), buffer, size);
+        clearDataBuffer(type, buffer, size);
         return XPR_ERR_UPS_UNEXIST;
     }
     int err = XPR_ERR_OK;
@@ -344,6 +375,8 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
         err = XPR_UPS_ReadValue(entry, buffer, size);
     if (err != XPR_ERR_OK)
         err = XPR_UPS_ReadData(entry, buffer, size);
+    if (err != XPR_ERR_OK)
+        clearDataBuffer(type, buffer, size);
     return err;
 }
 
