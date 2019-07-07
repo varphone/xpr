@@ -405,7 +405,7 @@ struct XPR_UPS_Entry
 
 // 定义一个设定项目录（名称、描述、类别、存根）
 #define XPR_UPS_ENTRY_DIR4(name, desc, category, root)                         \
-    XPR_UPS_ENTRY_PAR(name, desc, category, NULL, XPR_UPS_ENTRY_TYPE_DIR,      \
+    XPR_UPS_ENTRY_PAR(name, desc, category, root, XPR_UPS_ENTRY_TYPE_DIR,      \
                       NULL, NULL, NULL, NULL)
 
 // 定义一个设定项目录（名称、描述、类别、存根、初始、终释）
