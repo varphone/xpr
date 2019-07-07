@@ -20,6 +20,7 @@
     if (!k || !v)                                                              \
         return XPR_ERR_UPS_NULL_PTR
 
+static XPR_Atomic sHasInited = 0;
 static XPR_Atomic sHaveChanges = 0;
 static XPR_RecursiveMutex sLock;
 static XPR_UPS_Entry sRoot =
@@ -550,24 +551,32 @@ static void XPR_UPS_RegisterAll(void)
 
 XPR_API int XPR_UPS_Init(const char* storage)
 {
-    if (sRoot.node.childs)
-        return XPR_ERR_GEN_BUSY;
-    XPR_RecursiveMutexInit(&sLock);
-    XPR_UPS_LOCK();
-    mountStorage(storage);
-    XPR_UPS_RegisterAll();
-    XPR_UPS_UNLOCK();
-    return XPR_ERR_SUCCESS;
+    // Guard for threads safe
+    if (XPR_AtomicInc(&sHasInited) == 1) {
+        XPR_RecursiveMutexInit(&sLock);
+        XPR_UPS_LOCK();
+        mountStorage(storage);
+        XPR_UPS_RegisterAll();
+        XPR_UPS_UNLOCK();
+        return XPR_ERR_SUCCESS;
+    }
+    DBG(DBG_L2, "XPR_UPS: Init/Fini counter: %d", XPR_AtomicRead(&sHasInited));
+    return XPR_ERR_GEN_BUSY;
 }
 
 XPR_API int XPR_UPS_Fini(void)
 {
-    XPR_UPS_LOCK();
-    XPR_UPS_UnRegisterAll();
-    unmountStorage();
-    XPR_UPS_UNLOCK();
-    XPR_RecursiveMutexFini(&sLock);
-    return XPR_ERR_SUCCESS;
+    // Guard for threads safe
+    if (XPR_AtomicDec(&sHasInited) == 0) {
+        XPR_UPS_LOCK();
+        XPR_UPS_UnRegisterAll();
+        unmountStorage();
+        XPR_UPS_UNLOCK();
+        XPR_RecursiveMutexFini(&sLock);
+        return XPR_ERR_SUCCESS;
+    }
+    DBG(DBG_L2, "XPR_UPS: Init/Fini counter: %d", XPR_AtomicRead(&sHasInited));
+    return XPR_ERR_GEN_BUSY;
 }
 
 XPR_API XPR_UPS_Entry* XPR_UPS_FindEntry(const char* key, XPR_UPS_Entry* parent)
