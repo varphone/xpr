@@ -53,6 +53,9 @@ endif()
 if(HAVE_XPR_UPS)
 add_executable(ups ups.c)
 target_link_libraries(ups xpr -lpthread)
+
+add_executable(ups-basic ups-basic.c)
+target_link_libraries(ups-basic xpr -lpthread)
 endif()
 
 if(HAVE_XPR_UTILS)
