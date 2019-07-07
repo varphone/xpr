@@ -862,6 +862,16 @@ XPR_API int XPR_UPS_WriteData(XPR_UPS_Entry* ent, const void* data, int size);
 XPR_API int XPR_UPS_WriteValue(XPR_UPS_Entry* entry, const void* data,
                                int size);
 
+/// 将值放入目标缓冲区（Put In Buffer）
+XPR_API int XPR_UPS_PibString(void* dst, int* dstSize, const char* val,
+                              int valSize);
+XPR_API int XPR_UPS_PibInteger(void* dst, int* dstSize, int val);
+XPR_API int XPR_UPS_PibInt64(void* dst, int* dstSize, int64_t val);
+XPR_API int XPR_UPS_PibFloat(void* dst, int* dstSize, float val);
+XPR_API int XPR_UPS_PibDouble(void* dst, int* dstSize, double val);
+XPR_API int XPR_UPS_PibBoolean(void* dst, int* dstSize, int val);
+XPR_API int XPR_UPS_PibBlob(void* dst, int* dstSize, XPR_UPS_Blob val);
+
 /// @brief 删除指定设定项
 /// @param [in] key         设定项名称
 /// @retval 见错误码表

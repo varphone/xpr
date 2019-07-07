@@ -1096,6 +1096,79 @@ XPR_API int XPR_UPS_WriteValue(XPR_UPS_Entry* entry, const void* data, int size)
     return err;
 }
 
+XPR_API int XPR_UPS_PibString(void* dst, int* dstSize, const char* val,
+                              int valSize)
+{
+    if (!dst || !dstSize)
+        return XPR_ERR_UPS_NULL_PTR;
+    int err = XPR_ERR_OK;
+    if (!val) {
+        err = XPR_ERR_SYS(ENODATA);
+    }
+    else {
+        if (valSize < 0)
+            valSize = strlen(val);
+        if (valSize >= *dstSize) {
+            err = XPR_ERR_SYS(ENOSPC);
+        }
+        else {
+            strcpy_s(dst, *dstSize, val);
+            *dstSize = valSize;
+        }
+    }
+    // Fill null terminator if failed
+    if (err != XPR_ERR_OK) {
+        *(char*)(dst) = 0;
+    }
+    return err;
+}
+
+XPR_API int XPR_UPS_PibInteger(void* dst, int* dstSize, int val)
+{
+    if (!dst)
+        return XPR_ERR_UPS_NULL_PTR;
+    *(int*)(dst) = val;
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_PibInt64(void* dst, int* dstSize, int64_t val)
+{
+    if (!dst)
+        return XPR_ERR_UPS_NULL_PTR;
+    *(int64_t*)(dst) = val;
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_PibFloat(void* dst, int* dstSize, float val)
+{
+    if (!dst)
+        return XPR_ERR_UPS_NULL_PTR;
+    *(float*)(dst) = val;
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_PibDouble(void* dst, int* dstSize, double val)
+{
+    if (!dst)
+        return XPR_ERR_UPS_NULL_PTR;
+    *(double*)(dst) = val;
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_PibBoolean(void* dst, int* dstSize, int val)
+{
+    if (!dst)
+        return XPR_ERR_UPS_NULL_PTR;
+    *(int*)(dst) = val;
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_UPS_PibBlob(void* dst, int* dstSize, XPR_UPS_Blob val)
+{
+    // FIXME:
+    return XPR_ERR_UPS_NOT_SUPPORT;
+}
+
 XPR_API int XPR_UPS_Delete(const char* key)
 {
     return XPR_ERR_UPS_NOT_SUPPORT;
