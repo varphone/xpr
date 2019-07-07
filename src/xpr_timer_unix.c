@@ -54,6 +54,14 @@ struct XPR_TimerQueue
     XPR_Thread* thread;      // Thread object
 };
 
+// Default timer queue.
+static XPR_TimerQueue* sDefaultQueue = NULL;
+static pthread_mutex_t sDefaultQueueLock =
+    PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+#define DEFAULT_QUEUE_LOCK() pthread_mutex_lock(&sDefaultQueueLock)
+#define DEFAULT_QUEUE_UNLOCK() pthread_mutex_unlock(&sDefaultQueueLock)
+
 static void* nodeAlloc(void)
 {
     XPR_Timer* timer = XPR_Alloc(sizeof(XPR_Timer));
@@ -266,6 +274,16 @@ XPR_API void XPR_TimerQueueDestroy(XPR_TimerQueue* self)
         // Destroy self
         XPR_Free(self);
     }
+}
+
+XPR_API XPR_TimerQueue* XPR_TimerQueueDefault(void)
+{
+    DEFAULT_QUEUE_LOCK();
+    if (sDefaultQueue == NULL) {
+        sDefaultQueue = XPR_TimerQueueCreate();
+    }
+    DEFAULT_QUEUE_UNLOCK();
+    return sDefaultQueue;
 }
 
 XPR_API int XPR_TimerQueueAdd(XPR_TimerQueue* self, XPR_Timer* timer)

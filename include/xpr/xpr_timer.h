@@ -96,6 +96,9 @@ XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void);
 /// Destroy the timer queue.
 XPR_API void XPR_TimerQueueDestroy(XPR_TimerQueue* self);
 
+/// Return default timer queue.
+XPR_API XPR_TimerQueue* XPR_TimerQueueDefault(void);
+
 /// Add timer to the timer queue.
 /// \retval XPR_ERR_OK      Success
 /// \retval Others          Error
