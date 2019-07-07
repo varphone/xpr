@@ -52,9 +52,10 @@ typedef enum XPR_ErrorLevel {
 ///   定义每个内置模块的编号
 ///
 typedef enum XPR_ModuleId {
-    XPR_MOD_ID_GEN      = 0, ///< Generic Modules
-    XPR_MOD_ID_UPS      = 1, ///< UPS
-    XPR_MOD_ID_PLUGIN   = 2  ///< PLUGIN
+    XPR_MOD_ID_GEN = 0,    ///< Generic Modules
+    XPR_MOD_ID_UPS = 1,    ///< UPS
+    XPR_MOD_ID_PLUGIN = 2, ///< PLUGIN
+    XPR_MOD_ID_SYS = 255,  ///< System errno
 } XPR_ModuleId;
 #endif // XPR_MODULEID_TYPE_DEFINED
 
@@ -72,6 +73,9 @@ typedef enum XPR_ModuleId {
 ///
 #define XPR_DEF_ERR(module, level, errid) \
     ((int32_t)( (XPR_ERR_APPID) | ((module) << 16 ) | ((level)<<13) | (errid) ))
+
+/// Make an system errno
+#define XPR_ERR_SYS(code) XPR_DEF_ERR(XPR_MOD_ID_SYS, 0, (code))
 
 #ifndef XPR_ERRORCODE_TYPE_DEFINED
 #define XPR_ERRORCODE_TYPE_DEFINED
