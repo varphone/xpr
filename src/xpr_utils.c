@@ -123,6 +123,26 @@ XPR_API int xpr_calc_lines(const char* s)
     return lines;
 }
 
+XPR_API int xpr_ends_with(const char* str, const char* pattern)
+{
+    if (!str || !pattern)
+        return XPR_FALSE;
+    const char* s1;
+    const char* s2;
+    for (s1 = str; *s1; ++s1)
+        ;
+    for (s2 = str; *s2; ++s2)
+        ;
+    if (s1 - str < s2 - pattern)
+        return XPR_FALSE;
+    for (--s1, --s2; *s1 == *s2 && s2 >= pattern; --s1, --s2)
+        ;
+    if (s2 < pattern)
+        return XPR_TRUE;
+    else
+        return XPR_FALSE;
+}
+
 XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
                            void (*filter)(void* opaque, char* segment),
                            void* opaque)

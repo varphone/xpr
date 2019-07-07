@@ -91,6 +91,9 @@ XPR_API void xpr_dbg_set_level(int level);
 
 XPR_API int xpr_calc_lines(const char* s);
 
+/// Return XPR_TRUE if the str ends with pattern
+XPR_API int xpr_ends_with(const char* str, const char* pattern);
+
 /// 切割字符串并调用回调函数
 /// @param [in] str     要切割的字符串
 /// @param [in] length  要切割的字符长度
