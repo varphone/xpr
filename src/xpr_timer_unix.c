@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <xpr/xpr_atomic.h>
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_list.h>
 #include <xpr/xpr_mem.h>
@@ -61,6 +62,12 @@ static pthread_mutex_t sDefaultQueueLock =
 
 #define DEFAULT_QUEUE_LOCK() pthread_mutex_lock(&sDefaultQueueLock)
 #define DEFAULT_QUEUE_UNLOCK() pthread_mutex_unlock(&sDefaultQueueLock)
+
+XPR_API XPR_TimerId XPR_TimerIdNew()
+{
+    static XPR_Atomic sTimerIdSeq = 0;
+    return (XPR_TimerId)(XPR_AtomicInc(&sTimerIdSeq));
+}
 
 static void* nodeAlloc(void)
 {

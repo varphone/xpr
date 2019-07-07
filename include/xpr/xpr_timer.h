@@ -57,6 +57,9 @@ typedef enum XPR_TimerReturn
 /// \return sa #XPR_TimerReturn
 typedef XPR_TimerReturn (*XPR_TimerFn)(void* opaque);
 
+/// Make a unique timer id.
+XPR_API XPR_TimerId XPR_TimerIdNew();
+
 /// Create a new timer with disabled initialize state.
 /// \param [in] id          To identify the timer, must be unique to each timers.
 /// \param [in] interval    Trigger interval in us.
