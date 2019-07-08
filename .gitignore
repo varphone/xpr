@@ -294,7 +294,7 @@ _Pvt_Extensions
 !/contrib/vc14/**
 
 examples/plugin_framework
-examples/plugins/plugin_a.p
+examples/plugins/*.p
 include/xpr/xpr_config.h
 tests/fifo
 tests/fq
