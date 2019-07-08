@@ -26,6 +26,7 @@ targets-$(XPR_JSON) += json
 targets-$(XPR_RTSP) += rtsp
 targets-$(XPR_THREAD) += thread
 targets-$(XPR_UPS) += ups ups-basic
+targets-$(XPR_XML) += utils
 targets-$(XPR_XML) += xml
 targets += $(targets-y)
 targets += qsort realpath struct
