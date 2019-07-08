@@ -160,6 +160,27 @@ XPR_API int xpr_split_to_kv(char* line, char** key, char** value);
 XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
                          const char* strSource);
 
+/// Find index of the str in the list.
+/// @return Index of the str if found, otherwise -1
+/// @note The last entry in the list must be NULL.
+/// ```c
+/// const char* list[] = { "hello", "world", NULL };
+/// const char* str = str_from_xxx();
+/// switch (xpr_stridx(str, list)) {
+/// case 0: // hello
+///     break;
+/// case 1: // world
+///     break;
+/// default: // not matched
+///     break;
+/// }
+/// ```
+XPR_API int xpr_stridx(const char* str, const char* list[]);
+
+/// Find index of the str in the list (without Case Sensitivity)
+/// @sa #xpr_stridx
+XPR_API int xpr_striidx(const char* str, const char* list[]);
+
 XPR_API char* xpr_trim_all(char* s);
 XPR_API char* xpr_trim_quotes(char* s);
 XPR_API char* xpr_trim_tailer(char* s);

@@ -346,6 +346,38 @@ XPR_API int xpr_strcpy_s(char* strDestination, size_t numberOfElements,
     return strcpy_s(strDestination, numberOfElements, strSource);
 }
 
+XPR_API int xpr_stridx(const char* str, const char* list[])
+{
+    if (!str || !list)
+        return -1;
+    const char** p = list;
+    while (*p) {
+        if (strcmp(str, *p) == 0)
+            return p - list;
+        p++;
+    }
+    return -1;
+}
+
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#else
+#include <strings.h>
+#endif
+
+XPR_API int xpr_striidx(const char* str, const char* list[])
+{
+    if (!str || !list)
+        return -1;
+    const char** p = list;
+    while (*p) {
+        if (strcasecmp(str, *p) == 0)
+            return p - list;
+        p++;
+    }
+    return -1;
+}
+
 XPR_API char* xpr_trim_all(char* s)
 {
     s = xpr_skip_blank(s);
