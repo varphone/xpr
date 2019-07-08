@@ -227,6 +227,41 @@ static void test_xpr_s2res()
     }
 }
 
+static const char* kLowerCaseStrs[] = {"hello", "world", "hello,world", NULL};
+static const char* kUpperCaseStrs[] = {"Hello", "World", "Hello,World", NULL};
+#define kNumLowerCaseStrs _countof(kLowerCaseStrs)
+#define kNumUpperCaseStrs _countof(kUpperCaseStrs)
+
+static void test_xpr_stridx()
+{
+    printf("### %s\n", __FUNCTION__);
+    for (int i = 0; i < kNumLowerCaseStrs; i++) {
+        const char* s1 = kLowerCaseStrs[i];
+        printf("[L/L] %20s index=%d\n", s1, xpr_stridx(s1, kLowerCaseStrs));
+        const char* s2 = kUpperCaseStrs[i];
+        printf("[U/U] %20s index=%d\n", s2, xpr_stridx(s2, kUpperCaseStrs));
+        const char* s3 = kLowerCaseStrs[i];
+        printf("[L/U] %20s index=%d\n", s3, xpr_stridx(s3, kUpperCaseStrs));
+        const char* s4 = kUpperCaseStrs[i];
+        printf("[U/L] %20s index=%d\n", s4, xpr_stridx(s4, kLowerCaseStrs));
+    }
+}
+
+static void test_xpr_striidx()
+{
+    printf("### %s\n", __FUNCTION__);
+    for (int i = 0; i < kNumLowerCaseStrs; i++) {
+        const char* s1 = kLowerCaseStrs[i];
+        printf("[L/L] %20s index=%d\n", s1, xpr_striidx(s1, kLowerCaseStrs));
+        const char* s2 = kUpperCaseStrs[i];
+        printf("[U/U] %20s index=%d\n", s2, xpr_striidx(s2, kUpperCaseStrs));
+        const char* s3 = kLowerCaseStrs[i];
+        printf("[L/U] %20s index=%d\n", s3, xpr_striidx(s3, kUpperCaseStrs));
+        const char* s4 = kUpperCaseStrs[i];
+        printf("[U/L] %20s index=%d\n", s4, xpr_striidx(s4, kLowerCaseStrs));
+    }
+}
+
 int main(int argc, char** argv)
 {
     test_xpr_foreach_s();
@@ -236,6 +271,8 @@ int main(int argc, char** argv)
     test_xpr_s2fvec2();
     test_xpr_s2ivec2();
     test_xpr_s2res();
+    test_xpr_stridx();
+    test_xpr_striidx();
     XPR_SYS_WaitKey(10 * XPR_SYS_CTS_UNIT);
     return 0;
 }
