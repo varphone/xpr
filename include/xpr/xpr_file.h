@@ -82,6 +82,13 @@ XPR_API int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence);
 /// @return 文件字节数
 XPR_API int64_t XPR_FileSize(const XPR_File* f);
 
+/// List all regular files in dir into list
+/// @param [in] dir     Directory to listing
+/// @param [in] pList   Pointer to receive file list
+/// @return Num of files or 0 on error
+/// @note Call #XPR_Freev(list) if the retval not used
+XPR_API int XPR_FilesInDir(const char* dir, char*** pList);
+
 #ifdef __cplusplus
 }
 #endif
