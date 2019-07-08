@@ -262,6 +262,33 @@ static void test_xpr_striidx()
     }
 }
 
+static const char* kCaseStrs[] = {
+    "hello,world!",
+    "Hello,World!",
+    "HELLO,WORLD!",
+};
+#define kNumCaseStrs _countof(kCaseStrs)
+
+static void test_xpr_tolower()
+{
+    printf("### %s\n", __FUNCTION__);
+    char buf[1024];
+    for (int i = 0; i < kNumCaseStrs; i++) {
+        const char* s = kCaseStrs[i];
+        printf("[L] %s ==> %s\n", s, xpr_tolower(s, buf, sizeof(buf)));
+    }
+}
+
+static void test_xpr_toupper()
+{
+    printf("### %s\n", __FUNCTION__);
+    char buf[1024];
+    for (int i = 0; i < kNumCaseStrs; i++) {
+        const char* s = kCaseStrs[i];
+        printf("[U] %s ==> %s\n", s, xpr_toupper(s, buf, sizeof(buf)));
+    }
+}
+
 int main(int argc, char** argv)
 {
     test_xpr_foreach_s();
@@ -273,6 +300,8 @@ int main(int argc, char** argv)
     test_xpr_s2res();
     test_xpr_stridx();
     test_xpr_striidx();
+    test_xpr_tolower();
+    test_xpr_toupper();
     XPR_SYS_WaitKey(10 * XPR_SYS_CTS_UNIT);
     return 0;
 }
