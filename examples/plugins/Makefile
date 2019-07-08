@@ -1,12 +1,22 @@
+TOP_DIR      ?= $(shell realpath ../../)
+DESTDIR      ?= $(TOP_DIR)/out
+TARGET_BOARD ?= unknown
+
 include ../../Common.mk
 -include ../../Config.mk
+-include ../../ConfigToolchain.mk
 
-CFLAGS   = $(BUILD_OPT_FLAGS) -I../../include
-CXXFLAGS = $(CFLAGS)
-LDFLAGS  = -L../../lib -shared -rdynamic
+LDFLAGS  += -shared -rdynamic
 
-targets = plugin_a.p
-objects = plugin_a.o
+targets = \
+	plugin_a.p \
+	plugin_b.p \
+	plugin_c.p
+
+objects = \
+	plugin_a.o \
+	plugin_b.o \
+	plugin_c.o
 
 all: $(targets)
 
@@ -18,7 +28,7 @@ all: $(targets)
 	$(ECHO) "[Compiling] $^"
 	$(CXX) $(CXXFLAGS) -c $^
 
-plugin_a.p: plugin_a.o
+%.p: %.o
 	$(ECHO) "[ Building] $@"
 	$(CC) $(LDFLAGS) $^ -o $@
 

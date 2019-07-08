@@ -18,14 +18,14 @@ static int myFini(XPR_PluginRegistry* reg)
 }
 
 static const char* myDepends[] = {
-    "a",
+    "b",
     NULL,
 };
 
 static XPR_PluginRegistry myPlugin = {
-    .name = "a",
-    .desc = "Plugin example 1",
-    .depends = NULL,
+    .name = "c",
+    .desc = "Plugin example 3",
+    .depends = myDepends,
     .version = "1.0.0",
     .init = myInit,
     .fini = myFini,
