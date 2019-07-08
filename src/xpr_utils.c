@@ -127,20 +127,11 @@ XPR_API int xpr_ends_with(const char* str, const char* pattern)
 {
     if (!str || !pattern)
         return XPR_FALSE;
-    const char* s1;
-    const char* s2;
-    for (s1 = str; *s1; ++s1)
-        ;
-    for (s2 = str; *s2; ++s2)
-        ;
-    if (s1 - str < s2 - pattern)
-        return XPR_FALSE;
-    for (--s1, --s2; *s1 == *s2 && s2 >= pattern; --s1, --s2)
-        ;
-    if (s2 < pattern)
+    int sl = strlen(str);
+    int pl = strlen(pattern);
+    if (strcmp(str + sl - pl, pattern) == 0)
         return XPR_TRUE;
-    else
-        return XPR_FALSE;
+    return XPR_FALSE;
 }
 
 XPR_API void xpr_foreach_s(const char* str, int length, const char* delim,
