@@ -5,6 +5,11 @@ add_executable(fifo fifo.c)
 target_link_libraries(fifo xpr -lpthread)
 endif()
 
+if(HAVE_XPR_FILE)
+add_executable(file file.c)
+target_link_libraries(file xpr -lpthread)
+endif()
+
 if(HAVE_XPR_FQ)
 add_executable(fq fq.c)
 target_link_libraries(fq xpr -lpthread)

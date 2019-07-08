@@ -21,6 +21,7 @@ endif
 targets   :=
 targets-y :=
 targets-$(XPR_FIFO) += fifo
+targets-$(XPR_FILE) += file
 targets-$(XPR_FQ) += fq
 targets-$(XPR_JSON) += json
 targets-$(XPR_RTSP) += rtsp
