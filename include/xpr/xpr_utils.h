@@ -181,6 +181,14 @@ XPR_API int xpr_stridx(const char* str, const char* list[]);
 /// @sa #xpr_stridx
 XPR_API int xpr_striidx(const char* str, const char* list[]);
 
+/// Convert string to lower case.
+/// @return NULL if dstSize too small, otherwisze equals to dst
+XPR_API char* xpr_tolower(const char* src, char* dst, int dstSize);
+
+/// Convert string to upper case.
+/// @return NULL if dstSize too small, otherwisze equals to dst
+XPR_API char* xpr_toupper(const char* src, char* dst, int dstSize);
+
 XPR_API char* xpr_trim_all(char* s);
 XPR_API char* xpr_trim_quotes(char* s);
 XPR_API char* xpr_trim_tailer(char* s);

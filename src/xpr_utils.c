@@ -378,6 +378,46 @@ XPR_API int xpr_striidx(const char* str, const char* list[])
     return -1;
 }
 
+XPR_API char* xpr_tolower(const char* src, char* dst, int dstSize)
+{
+    if (!src || !dst)
+        return NULL;
+    int srcSize = strlen(src);
+    if (dstSize <= srcSize)
+        return NULL;
+    char* dstOrig = dst;
+    while (*src) {
+        if (*src >= 'A' && *src <= 'Z')
+            *dst = (*src + 0x20);
+        else
+            *dst = *src;
+        src++;
+        dst++;
+    }
+    *dst = 0;
+    return dstOrig;
+}
+
+XPR_API char* xpr_toupper(const char* src, char* dst, int dstSize)
+{
+    if (!src || !dst)
+        return NULL;
+    int srcSize = strlen(src);
+    if (dstSize <= srcSize)
+        return NULL;
+    char* dstOrig = dst;
+    while (*src) {
+        if (*src >= 'a' && *src <= 'z')
+            *dst = (*src - 0x20);
+        else
+            *dst = *src;
+        src++;
+        dst++;
+    }
+    *dst = 0;
+    return dstOrig;
+}
+
 XPR_API char* xpr_trim_all(char* s)
 {
     s = xpr_skip_blank(s);
