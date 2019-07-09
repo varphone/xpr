@@ -73,6 +73,10 @@ if(NOT BUILD_TYPE STREQUAL "DEBUG")
     add_definitions(-DDBG_LEVEL=3)
 endif()
 
+if(CMAKE_DEBUG_POSTFIX)
+    add_definitions(-DDEBUG_POSTFIX=\"${CMAKE_DEBUG_POSTFIX}\")
+endif()
+
 # Import hunter package manager
 if(BUILD_WITH_HUNTER)
     include("cmake/HunterGate.cmake")
