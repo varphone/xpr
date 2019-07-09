@@ -42,6 +42,33 @@ typedef enum XPR_FileSeekWhence {
 } XPR_FileSeekWhence;
 #endif // XPR_FILESEEKWHENCE_TYPE_DEFINED
 
+#ifndef XPR_FILETYPE_TYPE_DEFINED
+#define XPR_FILETYPE_TYPE_DEFINED
+typedef enum XPR_FileType
+{
+    XPR_FILE_TYPE_UNKNOWN, // The file type could not be determined.
+    XPR_FILE_TYPE_BLK,     // This is a block device.
+    XPR_FILE_TYPE_CHR,     // This is a character device.
+    XPR_FILE_TYPE_DIR,     // This is a directory.
+    XPR_FILE_TYPE_FIFO,    // This is a named pipe (FIFO).
+    XPR_FILE_TYPE_LNK,     // This is a symbolic link.
+    XPR_FILE_TYPE_REG,     // This is a regular file.
+    XPR_FILE_TYPE_SOCK,    // This is a UNIX domain socket.
+} XPR_FileType;
+#endif // XPR_FILETYPE_TYPE_DEFINED
+
+#ifndef XPR_FILEINFO_TYPE_DEFINED
+#define XPR_FILEINFO_TYPE_DEFINED
+typedef struct XPR_FileInfo
+{
+    const char* name;     // The name of the file without path
+    const char* fullname; // The name of the file with path
+    const char* path;     // The path of the file without name
+    size_t size;          // The total bytes of the file
+    XPR_FileType type;    // The type of the file
+} XPR_FileInfo;
+#endif // XPR_FILEINFO_TYPE_DEFINED
+
 #if defined(__unix__) || defined(_linux_)
 #define XPR_FIEL_IS_NULL(x)     (((int)(intptr_t)(x)) < 0)
 #elif defined(WIN32) || defined(WIN64)
@@ -88,6 +115,24 @@ XPR_API int64_t XPR_FileSize(const XPR_File* f);
 /// @return Num of files or 0 on error
 /// @note Call #XPR_Freev(list) if the retval not used
 XPR_API int XPR_FilesInDir(const char* dir, char*** pList);
+
+/// Callback for XPR_FileForEach
+/// @param [in] opaque  User context data
+/// @param [in] name    The name of the file
+/// @param [in] type    The type of the file
+/// @return XPR_TRUE for continue, XPR_FALSE break loop
+/// @warning Don't cached any thing from the fileInfo,
+///          you should copy if want to save the result
+typedef int (*XPR_FileForEachFn)(void* opaque, const XPR_FileInfo* fileInfo);
+
+/// List all files in dir into callack
+/// @param [in] dir     Directory to listing
+/// @param [in] filter  Callback for each file
+/// @param [in] opaque  User context data for fn
+/// @retval XPR_ERR_OK  Success
+/// @retval Others      Error
+XPR_API int XPR_FileForEach(const char* dir, XPR_FileForEachFn filter,
+                            void* opaque);
 
 #ifdef __cplusplus
 }
