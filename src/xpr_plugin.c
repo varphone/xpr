@@ -31,6 +31,7 @@ struct XPR_PluginModule
 };
 
 static char sCurrentDir[PATH_MAX] = {0};
+static char* sPluginNaming = NULL;
 static char* sSerachDirs = NULL;
 static XPR_Atomic sHasInited = 0;
 static XPR_RecursiveMutex sLock;
@@ -109,7 +110,7 @@ static void handleSegment(void* opaque, char* segment)
 static char* findFileForName(const char* name, char* pathBuf)
 {
     char fileName[256];
-    sprintf(fileName, "libplugin_%s.p", name);
+    sprintf(fileName, sPluginNaming, name);
     struct FindContext ctx = {name, fileName, pathBuf, NULL};
     if (sCurrentDir[0])
         handleSegment(&ctx, sCurrentDir);
@@ -361,6 +362,7 @@ XPR_API int XPR_PluginInit(void)
     if (XPR_AtomicInc(&sHasInited) == 1) {
         XPR_RecursiveMutexInit(&sLock);
         XPR_PLUGIN_LOCK();
+        sPluginNaming = XPR_StrDup("libplugin_%s.so");
         sPluginList = XPR_ListCreate(XPR_LIST_SINGLY_LINKED, nodeAlloc,
                                      nodeFree, nodeCompare);
         XPR_PLUGIN_UNLOCK();
@@ -376,8 +378,18 @@ XPR_API int XPR_PluginFini(void)
     // Guard for threads safe
     if (XPR_AtomicDec(&sHasInited) == 0) {
         XPR_PLUGIN_LOCK();
-        if (sSerachDirs)
+        if (sPluginNaming) {
+            XPR_Free(sPluginNaming);
+            sPluginNaming = NULL;
+        }
+        if (sSerachDirs) {
             XPR_Free(sSerachDirs);
+            sSerachDirs = NULL;
+        }
+        if (sPluginList) {
+            XPR_ListDestroy(sPluginList);
+            sPluginList = NULL;
+        }
         XPR_PLUGIN_UNLOCK();
         XPR_RecursiveMutexFini(&sLock);
         return XPR_ERR_OK;
@@ -393,6 +405,15 @@ XPR_API void XPR_PluginSetDirs(const char* dirs)
     if (sSerachDirs)
         XPR_Free(sSerachDirs);
     sSerachDirs = XPR_StrDup(dirs);
+    XPR_PLUGIN_UNLOCK();
+}
+
+XPR_API void XPR_PluginSetNaming(const char* fmt)
+{
+    XPR_PLUGIN_LOCK();
+    if (sPluginNaming)
+        XPR_Free(sPluginNaming);
+    sPluginNaming = XPR_StrDup(fmt);
     XPR_PLUGIN_UNLOCK();
 }
 
@@ -420,6 +441,16 @@ XPR_API int XPR_PluginLoadAll(void)
     return XPR_ERR_GEN_NOT_SUPPORT;
 }
 
+// Callback for XPR_PluginLoadDir ==> XPR_FileForEach
+static int loadEachFile(void* opaque, const XPR_FileInfo* fileInfo)
+{
+    if (fileInfo->type == XPR_FILE_TYPE_REG) {
+        if (loadModule(fileInfo->fullname) == XPR_ERR_OK)
+                *(int*)(opaque)++;
+    }
+    return XPR_TRUE;
+}
+
 XPR_API int XPR_PluginLoadDir(const char* dir)
 {
     char path[PATH_MAX] = {0};
@@ -427,24 +458,14 @@ XPR_API int XPR_PluginLoadDir(const char* dir)
         return XPR_ERR_SYS(ENOENT);
     if (access(path, R_OK) < 0)
         return XPR_ERR_SYS(EPERM);
+    XPR_PLUGIN_LOCK();
     // Cache current directory
     strcpy_s(sCurrentDir, sizeof(sCurrentDir), path);
     // List files in the path
-    char** files = NULL;
-    int numLoaded = 0;
-    int numFiles = XPR_FilesInDir(path, &files);
-    if (numFiles > 0) {
-        // Sort first
-        qsort(files, numFiles, sizeof(char*), comp);
-        for (int i = 0; i < numFiles; i++) {
-            if (!xpr_ends_with(files[i], ".p"))
-                continue;
-            if (loadModule(files[i]) == XPR_ERR_OK)
-                numLoaded++;
-        }
-    }
-    XPR_Freev((void**)(files));
-    return numLoaded;
+    int loaded = 0;
+    XPR_FileForEach(sCurrentDir, loadEachFile, &loaded);
+    XPR_PLUGIN_UNLOCK();
+    return loaded;
 }
 
 XPR_API int XPR_PluginUnload(const char* name)

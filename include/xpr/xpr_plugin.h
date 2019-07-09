@@ -86,6 +86,10 @@ XPR_API int XPR_PluginFini(void);
 /// @example: "/path/to/my/plugins;/usr/local/plugins"
 XPR_API void XPR_PluginSetDirs(const char* dirs);
 
+/// Set default naming of the plugin file
+/// @example: "libplugin_%s.so"
+XPR_API void XPR_PluginSetNaming(const char* fmt);
+
 /// Load single plugin by name of file name
 /// @retval XPE_ERR_OK  Success
 /// @retval Others      Error
