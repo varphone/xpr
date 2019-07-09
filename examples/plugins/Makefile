@@ -11,12 +11,20 @@ LDFLAGS  += -shared -rdynamic
 targets = \
 	plugin_a.p \
 	plugin_b.p \
-	plugin_c.p
+	plugin_c.p \
+	plugin_d.p \
+	plugin_e.p \
+	plugin_f.p \
+	plugin_g.p
 
 objects = \
 	plugin_a.o \
 	plugin_b.o \
-	plugin_c.o
+	plugin_c.o \
+	plugin_d.o \
+	plugin_e.o \
+	plugin_f.o \
+	plugin_g.o
 
 all: $(targets)
 
