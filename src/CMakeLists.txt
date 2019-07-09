@@ -309,6 +309,15 @@ set_target_properties(${PROJECT_NAME}
         PUBLIC_HEADER "${PUBLIC_HEADERS}"
 )
 
+if(LINUX OR UNIX)
+    if(HAVE_XPR_PLUGIN)
+        target_link_libraries(${PROJECT_NAME} PUBLIC dl)
+    endif()
+    if(HAVE_XPR_SYNC OR HAVE_XPR_THREAD)
+        target_link_libraries(${PROJECT_NAME} PUBLIC pthread)
+    endif()
+endif()
+
 if(BUILD_WITH_HUNTER)
     if(HAVE_XPR_RTSP)
         set(LIVE_LIBRARIES live::live)
