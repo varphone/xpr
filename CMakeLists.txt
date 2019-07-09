@@ -62,6 +62,9 @@ option(HAVE_XPR_XML          "Enable XML module"                     ON)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
+# Enable -fPIC on all targets
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Convert to upper case
 string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
 
