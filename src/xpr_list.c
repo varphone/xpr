@@ -533,6 +533,8 @@ XPR_API int XPR_ListReverseNl(XPR_List* list, XPR_ListNodeCompare compare)
 {
     if (!list)
         return XPR_ERR_GEN_NULL_PTR;
+    if (!list->head)
+        return XPR_ERR_GEN_UNEXIST;
     compare = compare ? compare : list->compare;
     if (!compare)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
@@ -563,6 +565,8 @@ XPR_API int XPR_ListSortNl(XPR_List* list, XPR_ListNodeCompare compare)
 {
     if (!list)
         return XPR_ERR_GEN_NULL_PTR;
+    if (!list->head)
+        return XPR_ERR_GEN_UNEXIST;
     compare = compare ? compare : list->compare;
     if (!compare)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
