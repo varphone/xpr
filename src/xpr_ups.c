@@ -29,6 +29,7 @@ static XPR_UPS_Entry sRoot =
 static char* sStorage = NULL;
 static XPR_JSON* sStorageJson = NULL;
 static XPR_Timer* sStorageSyncTimer = NULL;
+static __thread XPR_UPS_Entry* sGroupEntry = NULL;
 
 #define XPR_UPS_LOCK() XPR_RecursiveMutexLock(&sLock)
 #define XPR_UPS_UNLOCK() XPR_RecursiveMutexUnlock(&sLock)
@@ -505,7 +506,7 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
         return XPR_ERR_NULL_PTR;
     if (type == XPR_UPS_ENTRY_TYPE_STRING && !size)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    XPR_UPS_Entry* entry = findEntry(key, sGroupEntry);
     if (!entry) {
         DBG(DBG_L2, "XPR_UPS: GetData(\"%s\", %s, %p, %p), entry not exists!",
             key, entryTypeName(type), buffer, size);
@@ -546,7 +547,7 @@ static int XPR_UPS_SetDataNl(const char* key, XPR_UPS_EntryType type,
 {
     if (!key || !data)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
+    XPR_UPS_Entry* entry = findEntry(key, sGroupEntry);
     if (!entry) {
         DBG(DBG_L2, "XPR_UPS: SetData(\"%s\", %s, %p, %d), entry not exists!",
             key, entryTypeName(type), data, size);
@@ -1403,12 +1404,12 @@ XPR_API const char* XPR_UPS_NextKey(const char* key)
 
 XPR_API void XPR_UPS_BeginGroup(const char* group)
 {
-    // FIXME:
+    sGroupEntry = XPR_UPS_FindEntry(group, NULL);
 }
 
 XPR_API void XPR_UPS_EndGroup(const char* group)
 {
-    // FIXME:
+    sGroupEntry = NULL;
 }
 
 XPR_API int XPR_UPS_Export(const char* url)
