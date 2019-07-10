@@ -345,9 +345,9 @@ XPR_API void XPR_H264_HRD_Dump(XPR_H264_HRD* hrd, const char* indent)
     printf("%scpb_size_scale                          : 0x%hhx\n", indent,
            hrd->cpb_size_scale);
     printf("%sbit_rate_value_minus1                   : 0x%hhx\n", indent,
-           hrd->bit_rate_value_minus1);
+           (uint8_t)(hrd->bit_rate_value_minus1));
     printf("%scpb_size_value_minus1                   : 0x%hhx\n", indent,
-           hrd->cpb_size_value_minus1);
+           (uint8_t)(hrd->cpb_size_value_minus1));
     printf("%scbr_flag                                : 0x%hhx\n", indent,
            hrd->cbr_flag);
     printf("%sinitial_cpb_removal_delay_length_minus1 : 0x%hhx\n", indent,
@@ -447,7 +447,7 @@ XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
     printf("%slog2_max_frame_num_minus4               : %d\n", indent,
            sps->log2_max_frame_num_minus4);
     printf("%spic_order_cnt_type                      : 0x%hhx\n", indent,
-           sps->pic_order_cnt_type);
+           (uint8_t)(sps->pic_order_cnt_type));
     if (sps->pic_order_cnt_type == 0) {
         printf("%s    log2_max_pic_order_cnt_lsb_minus4   : %d\n", indent,
                sps->log2_max_pic_order_cnt_lsb_minus4);
@@ -457,7 +457,7 @@ XPR_API void XPR_H264_SPS_Dump(XPR_H264_SPS* sps, const char* indent)
     printf("%smax_num_ref_frames                      : %d\n", indent,
            sps->max_num_ref_frames);
     printf("%sgaps_in_frame_num_value_allowed_flag    : 0x%hhx\n", indent,
-           sps->gaps_in_frame_num_value_allowed_flag);
+           (uint8_t)(sps->gaps_in_frame_num_value_allowed_flag));
     printf("%spic_width_in_mbs_minus1                 : %d\n", indent,
            sps->pic_width_in_mbs_minus1);
     printf("%spic_height_in_map_units_minus1          : %d\n", indent,
