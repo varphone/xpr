@@ -446,7 +446,7 @@ static int loadEachFile(void* opaque, const XPR_FileInfo* fileInfo)
 {
     if (fileInfo->type == XPR_FILE_TYPE_REG) {
         if (loadModule(fileInfo->fullname) == XPR_ERR_OK)
-                *(int*)(opaque)++;
+                *(int*)(opaque) = *(int*)(opaque) + 1;
     }
     return XPR_TRUE;
 }
