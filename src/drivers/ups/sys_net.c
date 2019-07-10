@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -45,7 +46,7 @@ XPR_USP_DEF_SETTER(eth_setter)
         result = system("ifconfig eth1 down");
         result = system(cmd);
         result = system("ifconfig eth1 up");
-        return XPR_ERR_OK;
+        return result == 0 ? XPR_ERR_OK : XPR_ERR_SYS(errno);
     }
 
     return XPR_ERR_UPS_SYS_NOTREADY;
