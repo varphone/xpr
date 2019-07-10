@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_errno.h>
+#include <xpr/xpr_sys.h>
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
@@ -40,12 +41,6 @@ static void test_XPR_UPS_Init(void)
         XPR_UPS_Init("ups-storage.json");
         XPR_UPS_Fini();
     }
-}
-
-// Callback for init:/world
-XPR_UPS_DEF_INITER(world_init)
-{
-    return XPR_ERR_OK;
 }
 
 // Callback for get:/system/network/*
@@ -97,8 +92,8 @@ static void test_XPR_UPS_Case1(void)
     XPR_UPS_SetInteger("/", 9988);
     XPR_UPS_SetInteger("/system", 9988);
     // Test set values
-    XPR_UPS_SetString("/system/information/firmware", "v3.0.0-new", NULL);
-    XPR_UPS_SetString("/system/information/hardware", "v4.0.0-new", NULL);
+    XPR_UPS_SetString("/system/information/firmware", "v3.0.0-new", -1);
+    XPR_UPS_SetString("/system/information/hardware", "v4.0.0-new", -1);
     XPR_UPS_SetInteger("/system/network/$perform", 0);
     XPR_UPS_SetInteger("/system/network/$perform", 1);
     // Test get/peek values
@@ -112,6 +107,7 @@ static void test_XPR_UPS_Case1(void)
     DBG(DBG_L3, "[%d] address = %s", __LINE__,
         XPR_UPS_PeekString("/system/network/address"));
     XPR_UPS_PrintAll();
+    XPR_SYS_WaitKey(60 * XPR_SYS_CTS_UNIT);
     XPR_UPS_Fini();
 }
 
