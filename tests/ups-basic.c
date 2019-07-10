@@ -26,7 +26,8 @@
 #define kTestLoops 10000
 
 #if defined(__clang__)
-// FIXME:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wint-conversion"
 #elif defined(__GNUC__) || defined(__GNUG__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-conversion"
@@ -92,10 +93,16 @@ static void test_XPR_UPS_Case1(void)
     XPR_UPS_SetInteger("/", 9988);
     XPR_UPS_SetInteger("/system", 9988);
     // Test set values
-    XPR_UPS_SetString("/system/information/firmware", "v3.0.0-new", -1);
-    XPR_UPS_SetString("/system/information/hardware", "v4.0.0-new", -1);
-    XPR_UPS_SetInteger("/system/network/$perform", 0);
-    XPR_UPS_SetInteger("/system/network/$perform", 1);
+    if (XPR_UPS_BeginGroup("/system/information")) {
+        XPR_UPS_SetString("firmware", "v3.0.0-new", -1);
+        XPR_UPS_SetString("hardware", "v4.0.0-new", -1);
+        XPR_UPS_EndGroup("/system/information");
+    }
+    if (XPR_UPS_BeginGroup("/system/network")) {
+        XPR_UPS_SetInteger("$perform", 0);
+        XPR_UPS_SetInteger("$perform", 1);
+        XPR_UPS_EndGroup("/system/network");
+    }
     // Test get/peek values
     char val[64];
     int valSize = sizeof(val);
@@ -117,3 +124,11 @@ int main(int argc, char** argv)
     test_XPR_UPS_Case1();
     return 0;
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+// FIXME:
+#endif
