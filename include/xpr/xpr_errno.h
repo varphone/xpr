@@ -18,7 +18,7 @@
  * 2014-11-21   varphone    初始版本建立
  */
 #ifndef XPR_ERRNO_H
-#define XPF_ERRNO_H
+#define XPR_ERRNO_H
 
 #include <stdint.h>
 
