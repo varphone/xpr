@@ -297,6 +297,7 @@ examples/plugin_framework
 examples/plugins/*.p
 include/xpr/xpr_config.h
 tests/fifo
+tests/file
 tests/fq
 tests/json
 tests/qsort
@@ -306,4 +307,5 @@ tests/struct
 tests/thread
 tests/ups
 tests/ups-basic
+tests/utils
 tests/xml
