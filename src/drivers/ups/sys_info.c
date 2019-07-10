@@ -5,7 +5,8 @@
 #include <xpr/xpr_utils.h>
 
 #if defined(__clang__)
-// FIXME:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wint-conversion"
 #elif defined(__GNUC__) || defined(__GNUG__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-conversion"
@@ -84,3 +85,11 @@ XPR_UPS_Entry __xpr_ups_driver_sys_info[] = {
 };
 
 const int __xpr_ups_driver_sys_info_count =  _countof(__xpr_ups_driver_sys_info);
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+// FIXME:
+#endif

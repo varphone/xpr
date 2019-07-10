@@ -877,7 +877,8 @@ const int xpr_ups_driver_camera_image_count =  _countof(xpr_ups_driver_camera_im
 #endif
 
 #if defined(__clang__)
-// FIXME:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wint-conversion"
 #elif defined(__GNUC__) || defined(__GNUG__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-conversion"
@@ -904,3 +905,11 @@ XPR_UPS_Entry __xpr_ups_driver_cam_img[] = {
 };
 
 const int __xpr_ups_driver_cam_img_count = _countof(__xpr_ups_driver_cam_img);
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+// FIXME:
+#endif
