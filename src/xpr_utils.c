@@ -165,7 +165,7 @@ XPR_API const char* xpr_get_next_line(const char** sp)
     int ch = 0;
     const char* l = *sp;
     const char* s = l;
-    while ((ch == *s++)) {
+    while ((ch = *s++)) {
         if (ch == '\n')
             break;
     }
