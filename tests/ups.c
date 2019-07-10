@@ -85,7 +85,6 @@ void test_XPR_UPS_Set_SystemInformation()
     char* software = "v3.0.0";
     char* uri = "http://192.168.1.21/onvif/device_service";
     char* uuid = "BD4780B6-3136-4117-B365-000003BF3ACA";
-    char* mac = "66:55:44:33:22:11";
     char* ip = "192.168.1.21";
     char* netmask = "255.255.0.0";
     char* dns1 = "192.168.0.3";
@@ -94,8 +93,6 @@ void test_XPR_UPS_Set_SystemInformation()
     char* internal_model = "HD-25440-20D112000";
     char* serveradress = "0.japan.pool.ntp.org";
 
-    char value[128] = {0};
-    int size = sizeof(value);
     if (XPR_UPS_SetString("/system/information/uri", uri, strlen(uri)) != 0)
         printf("set info uri error!\n");
     else
