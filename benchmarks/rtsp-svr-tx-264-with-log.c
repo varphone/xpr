@@ -52,7 +52,7 @@ void benchmark(void)
     XPR_File* dataFile = XPR_FileOpen("rtsp-svr-tx-264-with-log.264", "cwb");
     XPR_File* logFile = XPR_FileOpen("rtsp-svr-tx-264-with-log.txt", "cwb");
     int n = sprintf(logBuffer, "%s", logHeader);
-    XPR_FileWrite(logFile, logBuffer, n);
+    XPR_FileWrite(logFile, (const uint8_t*)(logBuffer), n);
     // Allocate stream block and set public fileds
     XPR_StreamBlock stb;
     memset(&stb, 0, sizeof(stb));
@@ -90,11 +90,11 @@ void benchmark(void)
         // Push to the server
         XPR_RTSP_PushData(streamPort, &stb);
         // Logging
-        XPR_FileWrite(dataFile, stb.data, stb.dataSize);
+        XPR_FileWrite(dataFile, (const uint8_t*)(stb.data), stb.dataSize);
         n = sprintf(logBuffer, "%6d %10d %6d [%02X %02X %02X %02X %02X %02X]\n",
                     frames, offset, stb.dataSize, stb.data[0], stb.data[1],
                     stb.data[2], stb.data[3], stb.data[4], stb.data[5]);
-        XPR_FileWrite(logFile, logBuffer, n);
+        XPR_FileWrite(logFile, (const uint8_t*)(logBuffer), n);
         frames += 1;
         offset += stb.dataSize;
         // 40000 us per frame for 25 fps

@@ -54,7 +54,7 @@ static int data_handler(void* opaque, int port, const XPR_StreamBlock* stb)
                     ctx->frames, ctx->offset, stb->dataSize, stb->data[0],
                     stb->data[1], stb->data[2], stb->data[3], stb->data[4],
                     stb->data[5]);
-        XPR_FileWrite(ctx->logFile, logBuffer, n);
+        XPR_FileWrite(ctx->logFile, (const uint8_t*)(logBuffer), n);
         ctx->frames += 1;
         ctx->offset += stb->dataSize;
     }
@@ -83,7 +83,7 @@ void benchmark(void)
     ctx.dataFile = XPR_FileOpen("rtsp-conn-rx-264-with-log.264", "cwb");
     ctx.logFile = XPR_FileOpen("rtsp-conn-rx-264-with-log.txt", "cwb");
     ret = sprintf(logBuffer, "%s", logHeader);
-    XPR_FileWrite(ctx.logFile, logBuffer, ret);
+    XPR_FileWrite(ctx.logFile, (const uint8_t*)(logBuffer), ret);
 
     // Initialize the XPR_RTSP module
     XPR_RTSP_Init();

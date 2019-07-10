@@ -19,7 +19,7 @@ const int numUrls = sizeof(urls) / sizeof(urls[0]);
 
 static int data_handler(void* opaque, int port, const XPR_StreamBlock* stb)
 {
-    printf("Port %x, codec %x, flags %x, size %d, pts %lld\n", port, stb->codec,
+    printf("Port %x, codec %x, flags %x, size %d, pts %ld\n", port, stb->codec,
            stb->flags, stb->dataSize, stb->pts);
     return 0;
 }
