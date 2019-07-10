@@ -50,7 +50,7 @@ typedef volatile __int64 XPR_Atomic;
 #define XPR_AtomicDec(x)        _InterlockedDecrement64(x)
 #define XPR_AtomicInc(x)        _InterlockedIncrement64(x)
 #endif
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 typedef volatile long XPR_Atomic;
 #define XPR_ATOMIC_MAX          0xffffffff
 #define XPR_AtomicAssign(x, s)  *(XPR_Atomic*)(x) = (s)
