@@ -494,19 +494,26 @@ XPR_API int XPR_PluginUnloadAll(void)
 
 XPR_API void* XPR_PluginFind(const char* name)
 {
-    // FIXME:
-    return NULL;
+    XPR_PluginModule* m = NULL;
+    XPR_PLUGIN_LOCK();
+    m = findModule(name);
+    XPR_PLUGIN_UNLOCK();
+    return m;
 }
 
 XPR_API const char* XPR_PluginGetName(void* plugin)
 {
-    // FIXME:
+    XPR_PluginModule* m = (XPR_PluginModule*)(plugin);
+    if (m->registry)
+        return m->registry->name;
     return NULL;
 }
 
 XPR_API const char* XPR_PluginGetDesc(void* plugin)
 {
-    // FIXME:
+    XPR_PluginModule* m = (XPR_PluginModule*)(plugin);
+    if (m->registry)
+        return m->registry->desc;
     return NULL;
 }
 
