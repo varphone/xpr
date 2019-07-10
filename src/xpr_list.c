@@ -328,7 +328,7 @@ XPR_API int XPR_ListClear(XPR_List* list)
     XPR_MutexLock(&list->mutex);
     err = XPR_ListClearNl(list);
     XPR_MutexUnlock(&list->mutex);
-    return XPR_ERR_OK;
+    return err;
 }
 
 XPR_API int XPR_ListClearNl(XPR_List* list)
