@@ -575,7 +575,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         client, subsession, trackId, this);
     mBuffer = new uint8_t[mMaxFrameSize];
     memset(&mStreamBlock, 0, sizeof(mStreamBlock));
-    const char* cn = subsession->codecName();
+    const char* cn = mSubsession->codecName();
     DBG(DBG_L4, "XPR_RTSP: DummySink(%p): codecName = %s", this, cn);
     if (strcmp(cn, "AAC") == 0)
         mFourcc = AV_FOURCC_AAC;
@@ -584,7 +584,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     else if (strcmp(cn, "JPEG") == 0)
         mFourcc = AV_FOURCC_JPEG;
     else if (strcmp(cn, "MPEG4-GENERIC") == 0) {
-        const char* mode = subsession->attrVal_strToLower("mode");
+        const char* mode = mSubsession->attrVal_strToLower("mode");
         if (mode) {
             if (strncmp(mode, "aac", 3) == 0)
                 mFourcc = AV_FOURCC_AAC;
@@ -598,9 +598,9 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
         AV_FOURCC_PCMU) {
         XPR_AudioMeta* meta =
             reinterpret_cast<XPR_AudioMeta*>(malloc(sizeof(XPR_AudioMeta)));
-        meta->numOfChannels = subsession->numChannels();
-        meta->samplingFrequency = subsession->rtpTimestampFrequency();
-        const char* cfg = subsession->attrVal_strToLower("config");
+        meta->numOfChannels = mSubsession->numChannels();
+        meta->samplingFrequency = mSubsession->rtpTimestampFrequency();
+        const char* cfg = mSubsession->attrVal_strToLower("config");
         if (cfg) {
             uint8_t cv[2];
             sscanf(cfg, "%02hhx%02hhx", &cv[0], &cv[1]);
@@ -1096,7 +1096,6 @@ Boolean DummySink::continuePlaying()
 //============================================================================
 Connection::Connection(int id, Port* parent)
     : Port(id, parent)
-    , mError(0)
     , mWorker(nullptr)
     , mRestartTask(nullptr)
     , mRtpOverTcp(false)

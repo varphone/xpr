@@ -205,7 +205,6 @@ private:
     static void handleConnectionConfig(void* opaque, char* seg);
 
 private:
-    int mError;
     MyRTSPClient* mClient;
     Worker* mWorker;
     TaskToken mRestartTask;
