@@ -637,7 +637,11 @@ XPR_API int XPR_UPS_Fini(void)
 
 XPR_API XPR_UPS_Entry* XPR_UPS_FindEntry(const char* key, XPR_UPS_Entry* parent)
 {
-    return findEntry(key, parent);
+    XPR_UPS_Entry* entry = NULL;
+    XPR_UPS_LOCK();
+    entry = findEntry(key, parent);
+    XPR_UPS_UNLOCK();
+    return entry;
 }
 
 XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
