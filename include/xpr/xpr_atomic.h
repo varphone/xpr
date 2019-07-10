@@ -53,7 +53,7 @@ typedef volatile __int64 XPR_Atomic;
 #elif defined(__GNUC__)
 typedef volatile long XPR_Atomic;
 #define XPR_ATOMIC_MAX          0xffffffff
-#define XPR_AtomicAssign(x, s)  __sync_val_compare_and_swap(x, s, s)
+#define XPR_AtomicAssign(x, s)  *(XPR_Atomic*)(x) = (s)
 #define XPR_AtomicCAS(x, s, c)  __sync_val_compare_and_swap(x, c, s)
 #define XPR_AtomicRead(x)       (*(XPR_Atomic*)(x))
 #define XPR_AtomicAdd(x, s)     __sync_add_and_fetch(x, s)
