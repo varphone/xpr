@@ -50,17 +50,33 @@ typedef int (*XPR_PluginInitFn)(XPR_PluginRegistry*);
 typedef int (*XPR_PluginFiniFn)(XPR_PluginRegistry*);
 #endif // XPR_PLUGINFINIFN_TYPE_DEFINED
 
+#ifndef XPR_PLUGINGETPARAMFN_TYPE_DEFINED
+#define XPR_PLUGINGETPARAMFN_TYPE_DEFINED
+/// 插件获取参数函数
+typedef int (*XPR_PluginGetParamFn)(XPR_PluginRegistry*, int param,
+                                    void* buffer, int* size);
+#endif // XPR_PLUGINGETPARAMFN_TYPE_DEFINED
+
+#ifndef XPR_PLUGINSETPARAMFN_TYPE_DEFINED
+#define XPR_PLUGINSETPARAMFN_TYPE_DEFINED
+/// 插件设置参数函数
+typedef int (*XPR_PluginSetParamFn)(XPR_PluginRegistry*, int param,
+                                    const void* data, int size);
+#endif // XPR_PLUGINSETPARAMFN_TYPE_DEFINED
+
 #ifdef XPR_PLUGINREGISTRY_TYPE_DEFINED
 /// 插件注册信息
 struct XPR_PluginRegistry {
-    const char* name;      ///< 插件名称
-    const char* desc;      ///< 插件描述
-    const char** depends;  ///< 插件依赖列表
-    const char* version;   ///< 插件版号
-    XPR_PluginInitFn init; ///< 插件初始化函数
-    XPR_PluginFiniFn fini; ///< 插件释放函数
-    void* data;            ///< 插件专属数据指针
-    unsigned int dataSize; ///< 插件专属数据大小
+    const char* name;              ///< 插件名称
+    const char* desc;              ///< 插件描述
+    const char** depends;          ///< 插件依赖列表
+    const char* version;           ///< 插件版号
+    XPR_PluginInitFn init;         ///< 插件初始化函数
+    XPR_PluginFiniFn fini;         ///< 插件释放函数
+    XPR_PluginGetParamFn getParam; ///< 插件获取参数函数
+    XPR_PluginSetParamFn setParam; ///< 插件设置参数函数
+    void* data;                    ///< 插件专属数据指针
+    unsigned int dataSize;         ///< 插件专属数据大小
 };
 #endif // XPR_PLUGINREGISTRY_TYPE_DEFINED
 

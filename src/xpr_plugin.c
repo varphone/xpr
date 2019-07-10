@@ -519,13 +519,17 @@ XPR_API const char* XPR_PluginGetDesc(void* plugin)
 
 XPR_API int XPR_PluginGetParam(void* plugin, int param, void* buffer, int* size)
 {
-    // FIXME:
+    XPR_PluginModule* m = (XPR_PluginModule*)(plugin);
+    if (m->registry && m->registry->getParam)
+        return m->registry->getParam(m->registry, param, buffer, size);
     return XPR_ERR_GEN_NOT_SUPPORT;
 }
 
 XPR_API int XPR_PluginSetParam(void* plugin, int param, const void* data,
                                int size)
 {
-    // FIXME:
+    XPR_PluginModule* m = (XPR_PluginModule*)(plugin);
+    if (m->registry && m->registry->setParam)
+        return m->registry->setParam(m->registry, param, data, size);
     return XPR_ERR_GEN_NOT_SUPPORT;
 }
