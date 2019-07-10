@@ -1450,7 +1450,10 @@ static void printEntry(XPR_UPS_Entry* entry)
 
 XPR_API int XPR_UPS_PrintAll(void)
 {
+    XPR_UPS_LOCK();
     printEntry(&sRoot);
+    XPR_UPS_UNLOCK();
+    return XPR_ERR_OK;
 }
 
 XPR_API int XPR_UPS_Sync(void)
