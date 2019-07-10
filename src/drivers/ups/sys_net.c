@@ -78,7 +78,7 @@ XPR_USP_DEF_SETTER(ipv4_setter)
         snprintf(cmd, sizeof(cmd), "ifconfig eth1 netmask %s", (char*)data);
         err = system(cmd);
     }
-    else if (0 == strcmp(name, "gateway") == 0) {
+    else if (strcmp(name, "gateway") == 0) {
         if (sscanf(data, "%d.%d.%d.%d", &ipv4[0], &ipv4[1], &ipv4[2],
                    &ipv4[3]) != 4)
             return XPR_ERR_UPS_ILLEGAL_PARAM;
