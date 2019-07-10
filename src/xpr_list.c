@@ -405,6 +405,17 @@ XPR_API void* XPR_ListLastNl(XPR_List* list)
     return node;
 }
 
+XPR_API int XPR_ListLength(XPR_List* list)
+{
+    if (!list)
+        return 0;
+    int length = 0;
+    XPR_MutexLock(&list->mutex);
+    length = slnLength(list->head);
+    XPR_MutexUnlock(&list->mutex);
+    return length;
+}
+
 XPR_API void* XPR_ListNext(XPR_List* list, void* curr)
 {
     if (!list || !curr)

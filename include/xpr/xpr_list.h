@@ -166,6 +166,9 @@ XPR_API void* XPR_ListLast(XPR_List* list);
 /// No-locking #XPR_ListLast
 XPR_API void* XPR_ListLastNl(XPR_List* list);
 
+/// Return the length of the list
+XPR_API int XPR_ListLength(XPR_List* list);
+
 /// Returns the element next to curr in the list.
 /// \param [in] list        The list to access.
 /// \retval !NULL           The next element.
