@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <xpr/xpr_atomic.h>
+#include <xpr/xpr_file.h>
 #include <xpr/xpr_json.h>
 #include <xpr/xpr_mem.h>
 #include <xpr/xpr_sync.h>
@@ -309,10 +310,12 @@ static int loadJson(const char* storage)
     return XPR_ERR_OK;
 }
 
-// Sync settings to storage
+// Callback for sync settings to storage
 static XPR_TimerReturn storageSync(void* opaque)
 {
-    // FIXME:
+    // Call sync with locking
+    XPR_UPS_Sync();
+    // Timer keep on next
     return XPR_TIMER_CONTINUE;
 }
 
@@ -381,6 +384,38 @@ static void unmountStorage(void)
         XPR_JSON_DecRef(sStorageJson);
         sStorageJson = NULL;
     }
+}
+
+// Sync settings to storage
+static int syncStorage(void)
+{
+    char f1[512];
+    char f2[512];
+    // Backup xxx.2 ==> xxx.3
+    snprintf(f1, sizeof(f1), "%s.2", sStorage);
+    snprintf(f2, sizeof(f2), "%s.3", sStorage);
+    XPR_FileCopy(f1, f2);
+    DBG(DBG_L5, "XPR_UPS: Backup: '%s' ==> '%s'", f1, f2);
+    // Backup xxx.1 ==> xxx.2
+    snprintf(f1, sizeof(f1), "%s.1", sStorage);
+    snprintf(f2, sizeof(f2), "%s.2", sStorage);
+    XPR_FileCopy(f1, f2);
+    DBG(DBG_L5, "XPR_UPS: Backup: '%s' ==> '%s'", f1, f2);
+    // Backup xxx ==> xxx.1
+    snprintf(f2, sizeof(f2), "%s.1", sStorage);
+    XPR_FileCopy(sStorage, f2);
+    DBG(DBG_L5, "XPR_UPS: Backup: '%s' ==> '%s'", sStorage, f2);
+    // Save current
+    int err = XPR_ERR_OK;
+    if (sStorageJson) {
+        err = XPR_JSON_DumpFileName(sStorageJson, sStorage);
+        if (err == XPR_ERR_OK)
+            DBG(DBG_L5, "XPR_UPS: Sync storage '%s' okay!", sStorage);
+        else
+            DBG(DBG_L2, "XPR_UPS: Sync storage '%s' failed, error: 0x%08X",
+                sStorage, err);
+    }
+    return err;
 }
 
 // Fetch the value from storage for entry
@@ -1458,5 +1493,12 @@ XPR_API int XPR_UPS_PrintAll(void)
 
 XPR_API int XPR_UPS_Sync(void)
 {
-    return XPR_ERR_UPS_NOT_SUPPORT;
+    int err = XPR_ERR_OK;
+    if (XPR_AtomicRead(&sHaveChanges) > 0) {
+        XPR_UPS_LOCK();
+        XPR_AtomicAssign(&sHaveChanges, 0);
+        syncStorage();
+        XPR_UPS_UNLOCK();
+    }
+    return err;
 }
