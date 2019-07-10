@@ -1402,9 +1402,10 @@ XPR_API const char* XPR_UPS_NextKey(const char* key)
     return NULL;
 }
 
-XPR_API void XPR_UPS_BeginGroup(const char* group)
+XPR_API int XPR_UPS_BeginGroup(const char* group)
 {
     sGroupEntry = XPR_UPS_FindEntry(group, NULL);
+    return sGroupEntry ? XPR_TRUE : XPR_FALSE;
 }
 
 XPR_API void XPR_UPS_EndGroup(const char* group)

@@ -895,7 +895,8 @@ XPR_API const char* XPR_UPS_NextKey(const char* key);
 
 /// @brief 开始分组操作
 /// @param [in] group       分组名称
-XPR_API void XPR_UPS_BeginGroup(const char* group);
+/// @return XPR_TRUE or XPR_FALSE
+XPR_API int XPR_UPS_BeginGroup(const char* group);
 
 /// @brief 结束分组操作
 /// @param [in] group       分组名称
