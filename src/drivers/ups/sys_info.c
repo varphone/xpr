@@ -17,6 +17,7 @@
 XPR_USP_DEF_GETTER(info_getter)
 {
     // FIXME:
+    // Return ERROR to invoke default getter
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
@@ -24,19 +25,22 @@ XPR_USP_DEF_GETTER(info_getter)
 XPR_USP_DEF_SETTER(info_setter)
 {
     // FIXME:
-    return XPR_ERR_UPS_SYS_NOTREADY;
+    // Return OK to accept the value
+    return XPR_ERR_OK;
 }
 
 // Callback for get:/system/time/*
 XPR_USP_DEF_GETTER(time_getter)
 {
+    // Return ERROR to invoke default getter
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/time/*
 XPR_USP_DEF_SETTER(time_setter)
 {
-    return XPR_ERR_UPS_SYS_NOTREADY;
+    // Return OK to accept the value
+    return XPR_ERR_OK;
 }
 
 // Default value defines
