@@ -17,11 +17,6 @@ static int myFini(XPR_PluginRegistry* reg)
     return XPR_ERR_OK;
 }
 
-static const char* myDepends[] = {
-    "a",
-    NULL,
-};
-
 static XPR_PluginRegistry myPlugin = {
     .name = "a",
     .desc = "Plugin example 1",

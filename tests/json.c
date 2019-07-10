@@ -70,6 +70,5 @@ int main(int argc, char* argv[])
 {
 	Test_Dump();
 	Test_JSON_XPath();
-	system("pause");
-    return 0;
+	return 0;
 }

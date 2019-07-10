@@ -106,7 +106,6 @@ XPR_API int XPR_ICMP_Destroy(XPR_ICMP* icmp)
 XPR_API int XPR_ICMP_EchoRequest(XPR_ICMP* icmp, const char* host)
 {
     int n = 0;
-    pid_t pid = -1;
     struct icmp* icmp_pkt = 0;
     struct sockaddr_in to = {0};
     struct timeval* tv = 0;

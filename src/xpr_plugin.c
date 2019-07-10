@@ -431,11 +431,6 @@ XPR_API int XPR_PluginLoad(const char* name)
     return XPR_ERR_SYS(ENOENT);
 }
 
-static int comp(const void* a, const void* b)
-{
-    return strcmp(*(char**)a, *(char**)b);
-}
-
 XPR_API int XPR_PluginLoadAll(void)
 {
     return XPR_ERR_GEN_NOT_SUPPORT;

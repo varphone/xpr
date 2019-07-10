@@ -323,7 +323,6 @@ XPR_API int XPR_TimerQueueAdd(XPR_TimerQueue* self, XPR_Timer* timer)
 XPR_API int XPR_TimerQueueAddNew(XPR_TimerQueue* self, XPR_TimerId id,
                                  int64_t interval, XPR_TimerFn fn, void* opaque)
 {
-    int err = XPR_ERR_ERROR;
     XPR_Timer* timer = XPR_TimerCreate(id, interval, fn, opaque);
     if (!timer)
         return XPR_ERR_GEN_NOMEM;
@@ -370,7 +369,6 @@ XPR_API int XPR_TimerQueueRemove(XPR_TimerQueue* self, XPR_Timer* timer)
 
 XPR_API int XPR_TimerQueueRemoveId(XPR_TimerQueue* self, XPR_TimerId id)
 {
-    int err = XPR_ERR_ERROR;
     XPR_Timer* timer = XPR_TimerQueueFindId(self, id);
     if (!timer)
         return XPR_ERR_GEN_UNEXIST;
@@ -395,7 +393,6 @@ XPR_API int XPR_TimerQueueResume(XPR_TimerQueue* self, XPR_Timer* timer)
 
 XPR_API int XPR_TimerQueueResumeId(XPR_TimerQueue* self, XPR_TimerId id)
 {
-    int err = XPR_ERR_ERROR;
     XPR_Timer* timer = XPR_TimerQueueFindId(self, id);
     if (!timer)
         return XPR_ERR_GEN_UNEXIST;
@@ -437,7 +434,6 @@ XPR_API int XPR_TimerQueueSuspend(XPR_TimerQueue* self, XPR_Timer* timer)
 
 XPR_API int XPR_TimerQueueSuspendId(XPR_TimerQueue* self, XPR_TimerId id)
 {
-    int err = XPR_ERR_ERROR;
     XPR_Timer* timer = XPR_TimerQueueFindId(self, id);
     if (!timer)
         return XPR_ERR_GEN_UNEXIST;

@@ -108,8 +108,7 @@ XPR_API XPR_ARP* XPR_ARP_New(const char* dev)
 XPR_API int XPR_ARP_Destroy(XPR_ARP* arp)
 {
     if (arp) {
-        if (arp->sock > 0)
-            close(arp->sock);
+	XPR_ARP_Fini(arp);
         free(arp);
     }
     return 0;
@@ -118,7 +117,6 @@ XPR_API int XPR_ARP_Destroy(XPR_ARP* arp)
 XPR_API int XPR_ARP_Ask(XPR_ARP* arp, const char* host)
 {
     static unsigned char bcast_mac[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    int n = 0;
     struct ether_header* eth = 0;
     struct ether_arp* eth_arp = 0;
     struct in_addr target_addr = {0};
@@ -145,8 +143,8 @@ XPR_API int XPR_ARP_Ask(XPR_ARP* arp, const char* host)
     memcpy(eth_arp->arp_tpa, &target_addr, 4);
     sa.sll_family = PF_PACKET;
     sa.sll_ifindex = arp->if_index;
-    n = sendto(arp->sock, arp->tx_buf, ETH_ARP_LEN, 0, (struct sockaddr*)&sa,
-               sizeof(sa));
+    sendto(arp->sock, arp->tx_buf, ETH_ARP_LEN, 0, (struct sockaddr*)&sa,
+           sizeof(sa));
     return 0;
 }
 
@@ -159,8 +157,7 @@ XPR_API int XPR_ARP_Poll(XPR_ARP* arp)
 
 static int XPR_ARP_IsHostExists(XPR_ARP* arp, const char* host)
 {
-    char tmp[128];
-    struct ether_header* eth = (struct ether_header*)arp->rx_buf;
+    // struct ether_header* eth = (struct ether_header*)arp->rx_buf;
     struct ether_arp* eth_arp =
         (struct ether_arp*)(arp->rx_buf + sizeof(struct ether_header));
     struct in_addr host_addr = {0};

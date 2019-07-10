@@ -7,8 +7,9 @@ static void testPath(const char* p)
 {
     int ar = 0;
     char rp[PATH_MAX] = {0};
-    realpath(p, rp);
-    ar = access(rp, R_OK);
+    char* rr = NULL;
+    rr = realpath(p, rp);
+    ar = access(rr, R_OK);
     printf("[%s] -> [%s] [%s]\n", p, rp, ar ? "N" : "Y");
 }
 

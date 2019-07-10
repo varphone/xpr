@@ -89,6 +89,5 @@ int main(int argc, char** argv)
 {
     srand((unsigned)time(0));
     TestFQ();
-    system("pause");
     return 0;
 }

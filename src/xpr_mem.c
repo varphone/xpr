@@ -166,6 +166,7 @@ static void* memMappingRef(uintptr_t phyAddr, size_t size)
     return NULL;
 }
 
+#if 0
 static int memMappingUnrefPhy(uintptr_t phyAddr, size_t size)
 {
     if (sMemMappings == NULL)
@@ -184,6 +185,7 @@ static int memMappingUnrefPhy(uintptr_t phyAddr, size_t size)
     }
     return XPR_ERR_GEN_UNEXIST;
 }
+#endif
 
 static int memMappingUnrefVirt(uintptr_t virtAddr)
 {

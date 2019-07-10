@@ -8,8 +8,6 @@ struct XPR_DevCaps
 
 typedef struct XPR_DevCaps XPR_DevCaps;
 
-static XPR_DevCaps xpr_devcaps = {0};
-
 XPR_API int XPR_DevCapsInit(void)
 {
     return 0;

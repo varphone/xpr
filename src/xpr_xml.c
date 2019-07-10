@@ -194,10 +194,8 @@ XPR_API void XPR_XML_Dump(XPR_XML_Node* node)
 {
     int len = 0;
     char* vals[4] = {0};
-    XPR_XML_Node* n = 0;
     if (node) {
         vals[0] = XPR_XML_GetName(node, NULL, 0);
-        n = XPR_XML_GetAttr(node, NULL, 0);
         printf("<%s", vals[0]);
         DumpAttr(XPR_XML_GetAttr(node, NULL, 0));
         printf(">");

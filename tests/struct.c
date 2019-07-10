@@ -30,7 +30,6 @@ static struct Entry ents[] = {
 static void dumpEntry(struct Entry* ent)
 {
     int i = 0;
-    int l = ent->root ? strlen(ent->root) : 4;
     const char* n = 0;
     const char* d = 0;
     printf("[category: %s, root: %s, type: %d]\n{\n", ent->category, ent->root, ent->type);
@@ -48,8 +47,6 @@ static void dumpEntry(struct Entry* ent)
 static void reg(struct Entry ents[], int count)
 {
     int i = 0;
-    int j = 0;
-    const char* p = 0;
     for (; i<count; i++) {
         dumpEntry(&ents[i]);
 /*
@@ -61,8 +58,8 @@ static void reg(struct Entry ents[], int count)
 
 static void runTest(void)
 {
-    printf("sizeof(struct Entry) = %d\n", sizeof(struct Entry));
-    printf("sizeof(ents[]) = %d\n", sizeof(ents));
+    printf("sizeof(struct Entry) = %d\n", (int)sizeof(struct Entry));
+    printf("sizeof(ents[]) = %d\n", (int)sizeof(ents));
     printf("ents[0].names = %p (%s, %s, %s, %s)\n",
            ents[0].names, ents[0].names[0], ents[0].names[1],
            ents[0].names[2], ents[0].names[3]);
