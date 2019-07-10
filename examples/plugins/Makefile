@@ -9,13 +9,13 @@ include ../../Common.mk
 LDFLAGS  += -shared -rdynamic
 
 targets = \
-	plugin_a.p \
-	plugin_b.p \
-	plugin_c.p \
-	plugin_d.p \
-	plugin_e.p \
-	plugin_f.p \
-	plugin_g.p
+	libplugin_a.so \
+	libplugin_b.so \
+	libplugin_c.so \
+	libplugin_d.so \
+	libplugin_e.so \
+	libplugin_f.so \
+	libplugin_g.so
 
 objects = \
 	plugin_a.o \
@@ -36,7 +36,7 @@ all: $(targets)
 	$(ECHO) "[Compiling] $^"
 	$(CXX) $(CXXFLAGS) -c $^
 
-%.p: %.o
+lib%.so: %.o
 	$(ECHO) "[ Building] $@"
 	$(CC) $(LDFLAGS) $^ -o $@
 
