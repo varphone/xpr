@@ -135,6 +135,14 @@ typedef int (*XPR_FileForEachFn)(void* opaque, const XPR_FileInfo* fileInfo);
 XPR_API int XPR_FileForEach(const char* dir, XPR_FileForEachFn filter,
                             void* opaque);
 
+/// Copy file from src to dst
+/// @retval XPR_ERR_OK  Success
+/// @retval Others      Error
+XPR_API int XPR_FileCopy(const char* src, const char* dst);
+
+/// Return XPR_TRUE if file exists
+XPR_API int XPR_FileExists(const char* file);
+
 #ifdef __cplusplus
 }
 #endif

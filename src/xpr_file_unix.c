@@ -164,3 +164,36 @@ XPR_API int XPR_FileForEach(const char* dir, XPR_FileForEachFn filter,
     closedir(dirp);
     return XPR_ERR_OK;
 }
+
+XPR_API int XPR_FileCopy(const char* src, const char* dst)
+{
+    int fdsrc = open(src, O_RDONLY, 0644);
+    if (fdsrc < 0)
+        return XPR_ERR_SYS(errno);
+    int fddst = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fddst < 0) {
+        close(fdsrc);
+        return XPR_ERR_SYS(errno);
+    }
+    char buf[1024];
+    while (1) {
+        int nr = read(fdsrc, buf, sizeof(buf));
+        if (nr <= 0)
+            break;
+        int nw = write(fddst, buf, nr);
+        if (nw <= 0)
+            break;
+    }
+    if (fdsrc > 0)
+        close(fdsrc);
+    if (fddst > 0)
+        close(fddst);
+    return XPR_ERR_OK;
+}
+
+XPR_API int XPR_FileExists(const char* file)
+{
+    if (access(file, F_OK) != -1)
+        return XPR_TRUE;
+    return XPR_FALSE;
+}
