@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <xpr/xpr_errno.h>
 #include <xpr/xpr_file.h>
@@ -64,10 +66,13 @@ XPR_API int64_t XPR_FileSeek(XPR_File* f, int64_t offset, int whence)
     return lseek((int)(long)f, offset, whence);
 }
 
-// FIXME:
 XPR_API int64_t XPR_FileSize(const XPR_File* f)
 {
-    return 0;
+    int fd = (int)(uintptr_t)(f);
+    struct stat st;
+    if (fstat(fd, &st) < 0)
+        return 0;
+    return st.st_size;
 }
 
 static int countFilesInDir(const char* dir)
