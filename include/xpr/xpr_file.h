@@ -20,6 +20,7 @@
 #ifndef XPR_FILE_H
 #define XPR_FILE_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <xpr/xpr_common.h>
 
