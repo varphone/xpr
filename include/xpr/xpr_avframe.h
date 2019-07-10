@@ -20,7 +20,7 @@
  * 2014-11-21   varphone    初始版本建立
  */
 #ifndef XPR_AVFRAME_H
-#define XPR_AVFFAME_H
+#define XPR_AVFRAME_H
 
 #include <stdint.h>
 #include <xpr/xpr_common.h>
