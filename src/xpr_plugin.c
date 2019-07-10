@@ -74,8 +74,10 @@ static XPR_PluginModule* findModule(const char* name)
 {
     XPR_PluginModule* m = XPR_ListFirstNl(sPluginList);
     while (m) {
-        if (strcmp(name, m->registry->name) == 0)
-            break;
+        if (m->registry) {
+            if (strcmp(name, m->registry->name) == 0)
+                break;
+        }
         m = XPR_ListNextNl(sPluginList, m);
     }
     return m;
