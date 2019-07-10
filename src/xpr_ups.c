@@ -816,7 +816,6 @@ XPR_API const char* XPR_UPS_PeekString(const char *key)
 {
     if (!key)
         return NULL;
-    const char* val = NULL;
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
     return entry ? entry->curVal.str : NULL;
 }
