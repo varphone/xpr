@@ -801,15 +801,9 @@ XPR_API int XPR_UPS_SetString(const char* key, const char* value, int size)
 XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
                                 ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KVS(key, value, size);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
 XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size)
@@ -820,15 +814,9 @@ XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size)
 
 XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KVS(key, value, size);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_STRING, value, size);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
 XPR_API const char* XPR_UPS_PeekString(const char *key)
@@ -856,16 +844,10 @@ XPR_API int XPR_UPS_SetInteger(const char* key, int value)
 
 XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     if (!key)
         return XPR_ERR_NULL_PTR;
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetInteger(const char* key, int* value)
@@ -876,15 +858,9 @@ XPR_API int XPR_UPS_GetInteger(const char* key, int* value)
 
 XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KV(key, value);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_I32, value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_I32, value, 0);
 }
 
 XPR_API int XPR_UPS_PeekInteger(const char *key)
@@ -912,16 +888,10 @@ XPR_API int XPR_UPS_SetInt64(const char* key, int64_t value)
 
 XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     if (!key)
         return XPR_ERR_NULL_PTR;
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
@@ -932,15 +902,9 @@ XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
 
 XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KV(key, value);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_I64, value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_I64, value, 0);
 }
 
 XPR_API int64_t XPR_UPS_PeekInt64(const char *key)
@@ -968,16 +932,10 @@ XPR_API int XPR_UPS_SetFloat(const char* key, float value)
 
 XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     if (!key)
         return XPR_ERR_NULL_PTR;
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(buffer, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
@@ -988,15 +946,9 @@ XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
 
 XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KV(key, value);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
 XPR_API float XPR_UPS_PeekFloat(const char *key)
@@ -1024,16 +976,10 @@ XPR_API int XPR_UPS_SetDouble(const char* key, double value)
 
 XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     if (!key)
         return XPR_ERR_NULL_PTR;
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
@@ -1045,15 +991,9 @@ XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
 
 XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KV(key, value);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
 XPR_API double XPR_UPS_PeekDouble(const char *key)
@@ -1081,16 +1021,10 @@ XPR_API int XPR_UPS_SetBoolean(const char* key, int value)
 
 XPR_API int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     if (!key)
         return XPR_ERR_NULL_PTR;
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetBoolean(const char* key, int* value)
@@ -1101,15 +1035,9 @@ XPR_API int XPR_UPS_GetBoolean(const char* key, int* value)
 
 XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
 {
-    va_list ap;
-    char buffer[1024];
     CHECK_KV(key, value);
-    if (strlen(key) > 1024)
-        return XPR_ERR_BUF_FULL;
-    va_start(ap, key);
-    vsnprintf(buffer, sizeof(buffer), key, ap);
-    va_end(ap);
-    return XPR_UPS_GetData(buffer, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
+    XPR_UPS_VKEY(newKey, key);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
 XPR_API int XPR_UPS_PeekBoolean(const char *key)
