@@ -1305,7 +1305,15 @@ XPR_API int XPR_UPS_Delete(const char* key)
 
 XPR_API int XPR_UPS_Exists(const char* key)
 {
-    return XPR_FALSE;
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, sGroupEntry);
+    return entry ? XPR_TRUE : XPR_FALSE;
+}
+
+XPR_API int XPR_UPS_ExistsVK(const char* vkey, ...)
+{
+    XPR_UPS_VKEY(newKey, vkey);
+    XPR_UPS_Entry* entry = XPR_UPS_FindEntry(newKey, sGroupEntry);
+    return entry ? XPR_TRUE : XPR_FALSE;
 }
 
 XPR_API const char* XPR_UPS_FirstKey(void)
