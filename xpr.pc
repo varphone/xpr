@@ -5,7 +5,7 @@ includedir=/usr/include
 
 Name: xpr
 Description: X Portable Runtime library
-Version: 2.3.2
+Version: 2.3.3
 Requires:
 Cflags: -I${includedir}
 Libs: -L${libdir} -lxpr
