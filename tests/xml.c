@@ -87,7 +87,7 @@ static void test_XPR_XML_SaveFile()
 int main(int argc, char** argv)
 {
     test1();
-    test_XPR_XML_NewDoc();
+    test_XPR_XML_SaveBuffer();
     test_XPR_XML_SaveFile();
     return 0;
 }
