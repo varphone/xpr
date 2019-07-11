@@ -513,6 +513,8 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
         clearDataBuffer(type, buffer, size);
         return XPR_ERR_UPS_UNEXIST;
     }
+    if (XPR_UPS_ENTRY_IS_INIT(entry))
+        return XPR_ERR_UPS_NOT_SUPPORT;
     int err = XPR_ERR_OK;
     if (entry->get)
         err = entry->get(entry, entry->name, buffer, size);
@@ -553,6 +555,8 @@ static int XPR_UPS_SetDataNl(const char* key, XPR_UPS_EntryType type,
             key, entryTypeName(type), data, size);
         return XPR_ERR_UPS_UNEXIST;
     }
+    if (XPR_UPS_ENTRY_IS_INIT(entry))
+        return XPR_ERR_UPS_NOT_SUPPORT;
     int err = XPR_ERR_OK;
     if (entry->set)
         err = entry->set(entry, key, data, size);
@@ -659,6 +663,8 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
         if (!curr->name)
             break;
         if (curr->name[0] == '$')
+            curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
+        if (XPR_UPS_ENTRY_IS_INIT(curr))
             curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
         err = XPR_UPS_RegisterSingle(curr, curr->root ? NULL : prev);
         if (err == XPR_ERR_UPS_EXIST) {
