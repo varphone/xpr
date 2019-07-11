@@ -167,6 +167,7 @@ XPR_API void XPR_XML_Release(void* data);
 
 XPR_API XPR_XML_Node* XPR_XML_AddNode(XPR_XML_Node* parent, int position,
                                       int type, char* name, char* value);
+
 XPR_API void XPR_XML_DelNode(XPR_XML_Node* node);
 
 XPR_API int XPR_XML_CommitChanges(XPR_XML_Node* node, char* dest, char** buffer,
@@ -283,6 +284,85 @@ XPR_API int XPR_XML_XGetDouble(XPR_XML_Node* node, char* path, int nth,
 /// @sa XPR_XML_XGetInt()
 XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth,
                                 int* value);
+
+/// 创建一个新的 XML 文档
+/// @return 返回创建后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_NewDoc(void);
+
+/// 添加一个元素节点到指定节点
+/// @param [in] name        要添加的节点名称
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddElement(XPR_XML_Node* node, const char* name);
+
+/// 添加一个布尔型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddBoolean(XPR_XML_Node* node, const char* name,
+                                         int value);
+
+/// 添加一个 64 位浮点型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddDouble(XPR_XML_Node* node, const char* name,
+                                        double value);
+
+/// 添加一个 32 位浮点型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddFloat(XPR_XML_Node* node, const char* name,
+                                       float value);
+
+/// 添加一个 32 位整数型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddInt(XPR_XML_Node* node, const char* name,
+                                     int value);
+
+/// 添加一个 64 位整数型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddInt64(XPR_XML_Node* node, const char* name,
+                                       int64_t value);
+
+/// 添加一个字符串型内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] value       要添加的节点内容
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddString(XPR_XML_Node* node, const char* name,
+                                        const char* value);
+
+/// 添加一个格式化内容的节点到指定节点
+/// @param [in] node        要添加的节点所属
+/// @param [in] name        要添加的节点名称
+/// @param [in] fmt         要添加的节点内容格式，参见 printf
+/// @return 返回添加后的节点，当失败时返回 NULL
+XPR_API XPR_XML_Node* XPR_XML_AddFormat(XPR_XML_Node* node, const char* name,
+                                        const char* fmt, ...);
+
+/// 保存 XML 节点树到缓存区
+/// @param [in] root        要保存的根节点
+/// @param [in] buffer      接收保存到的缓存区指针
+/// @return 返回缓冲区长度，失败时返回 0
+/// @note 当返回的 buffer 不再使用时需要调用 free() 释放已分配的内存
+XPR_API int XPR_XML_SaveBuffer(XPR_XML_Node* root, char** buffer);
+
+/// 保存 XML 节点树到文件
+/// @param [in] root        要保存的根节点
+/// @param [in] fileName    要保存的文件名称
+/// @retval XPR_ERR_OK  保存成功
+/// @retval Others      保存失败
+XPR_API int XPR_XML_SaveFile(XPR_XML_Node* root, const char* fileName);
 
 #ifdef __cplusplus
 }

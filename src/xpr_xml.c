@@ -1,4 +1,6 @@
 ﻿#include "deps/roxml/roxml.h"
+#include <inttypes.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <xpr/xpr_errno.h>
@@ -336,5 +338,91 @@ XPR_API int XPR_XML_XGetBoolean(XPR_XML_Node* node, char* path, int nth,
         else
             *value = 0;
     }
+    return XPR_ERR_OK;
+}
+
+XPR_API XPR_XML_Node* XPR_XML_NewDoc(void)
+{
+    XPR_XML_Node* root = (XPR_XML_Node*)roxml_add_node(
+        NULL, 0, ROXML_PI_NODE, "xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    return root;
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddElement(XPR_XML_Node* node, const char* name)
+{
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), NULL);
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddBoolean(XPR_XML_Node* node, const char* name,
+                                         int value)
+{
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name),
+                                         value ? "true" : "false");
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddDouble(XPR_XML_Node* node, const char* name,
+                                        double value)
+{
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%.9f", value);
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), (char*)(buf));
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddFloat(XPR_XML_Node* node, const char* name,
+                                       float value)
+{
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%f", value);
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), (char*)(buf));
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddInt(XPR_XML_Node* node, const char* name,
+                                     int value)
+{
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%d", value);
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), (char*)(buf));
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddInt64(XPR_XML_Node* node, const char* name,
+                                       int64_t value)
+{
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%" PRId64, value);
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), (char*)(buf));
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddString(XPR_XML_Node* node, const char* name,
+                                        const char* value)
+{
+    return (XPR_XML_Node*)roxml_add_node((node_t*)(node), 0, ROXML_ELM_NODE,
+                                         (char*)(name), (char*)(value));
+}
+
+XPR_API XPR_XML_Node* XPR_XML_AddFormat(XPR_XML_Node* node, const char* name,
+                                        const char* fmt, ...)
+{
+    char buf[2048] = {0};
+    va_list va;
+    va_start(va, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, va);
+    va_end(va);
+    return XPR_XML_AddString(node, name, buf);
+}
+
+XPR_API int XPR_XML_SaveBuffer(XPR_XML_Node* root, char** buffer)
+{
+    return roxml_commit_buffer((node_t*)(root), buffer, 1);
+}
+
+XPR_API int XPR_XML_SaveFile(XPR_XML_Node* root, const char* fileName)
+{
+    roxml_commit_file((node_t*)(root), (char*)(fileName), 1);
     return XPR_ERR_OK;
 }
