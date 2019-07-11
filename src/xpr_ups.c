@@ -798,11 +798,11 @@ XPR_API int XPR_UPS_SetString(const char* key, const char* value, int size)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* key,
+XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* vkey,
                                 ...)
 {
-    CHECK_KVS(key, value, size);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KVS(vkey, value, size);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
@@ -812,14 +812,14 @@ XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key, ...)
+XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* vkey, ...)
 {
-    CHECK_KVS(key, value, size);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KVS(vkey, value, size);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_STRING, value, size);
 }
 
-XPR_API const char* XPR_UPS_PeekString(const char *key)
+XPR_API const char* XPR_UPS_PeekString(const char* key)
 {
     if (!key)
         return NULL;
@@ -827,11 +827,11 @@ XPR_API const char* XPR_UPS_PeekString(const char *key)
     return entry ? entry->curVal.str : NULL;
 }
 
-XPR_API const char* XPR_UPS_PeekStringVK(const char *key, ...)
+XPR_API const char* XPR_UPS_PeekStringVK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return NULL;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekString(newKey);
 }
 
@@ -842,11 +842,11 @@ XPR_API int XPR_UPS_SetInteger(const char* key, int value)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
 }
 
-XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...)
+XPR_API int XPR_UPS_SetIntegerVK(int value, const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_I32, &value, 0);
 }
 
@@ -856,14 +856,14 @@ XPR_API int XPR_UPS_GetInteger(const char* key, int* value)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_I32, value, 0);
 }
 
-XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...)
+XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* vkey, ...)
 {
-    CHECK_KV(key, value);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KV(vkey, value);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_I32, value, 0);
 }
 
-XPR_API int XPR_UPS_PeekInteger(const char *key)
+XPR_API int XPR_UPS_PeekInteger(const char* key)
 {
     if (!key)
         return 0;
@@ -871,11 +871,11 @@ XPR_API int XPR_UPS_PeekInteger(const char *key)
     return entry ? entry->curVal.i32 : 0;
 }
 
-XPR_API int XPR_UPS_PeekIntegerVK(const char *key, ...)
+XPR_API int XPR_UPS_PeekIntegerVK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return 0;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekInteger(newKey);
 }
 
@@ -886,11 +886,11 @@ XPR_API int XPR_UPS_SetInt64(const char* key, int64_t value)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
 }
 
-XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...)
+XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_I64, &value, 0);
 }
 
@@ -900,14 +900,14 @@ XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_I64, value, 0);
 }
 
-XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...)
+XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* vkey, ...)
 {
-    CHECK_KV(key, value);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KV(vkey, value);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_I64, value, 0);
 }
 
-XPR_API int64_t XPR_UPS_PeekInt64(const char *key)
+XPR_API int64_t XPR_UPS_PeekInt64(const char* key)
 {
     if (!key)
         return 0;
@@ -915,11 +915,11 @@ XPR_API int64_t XPR_UPS_PeekInt64(const char *key)
     return entry ? entry->curVal.i64 : 0;
 }
 
-XPR_API int64_t XPR_UPS_PeekInt64VK(const char *key, ...)
+XPR_API int64_t XPR_UPS_PeekInt64VK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return 0;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekInt64(newKey);
 }
 
@@ -930,11 +930,11 @@ XPR_API int XPR_UPS_SetFloat(const char* key, float value)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
-XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...)
+XPR_API int XPR_UPS_SetFloatVK(float value, const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
@@ -944,14 +944,14 @@ XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
-XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...)
+XPR_API int XPR_UPS_GetFloatVK(float* value, const char* vkey, ...)
 {
-    CHECK_KV(key, value);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KV(vkey, value);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
-XPR_API float XPR_UPS_PeekFloat(const char *key)
+XPR_API float XPR_UPS_PeekFloat(const char* key)
 {
     if (!key)
         return 0;
@@ -959,11 +959,11 @@ XPR_API float XPR_UPS_PeekFloat(const char *key)
     return entry ? entry->curVal.f32 : 0;
 }
 
-XPR_API float XPR_UPS_PeekFloatVK(const char *key, ...)
+XPR_API float XPR_UPS_PeekFloatVK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return 0;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekFloat(newKey);
 }
 
@@ -974,11 +974,11 @@ XPR_API int XPR_UPS_SetDouble(const char* key, double value)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
-XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...)
+XPR_API int XPR_UPS_SetDoubleVK(double value, const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
@@ -989,14 +989,14 @@ XPR_API int XPR_UPS_GetDouble(const char* key, double* value)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
-XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...)
+XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* vkey, ...)
 {
-    CHECK_KV(key, value);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KV(vkey, value);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F64, value, 0);
 }
 
-XPR_API double XPR_UPS_PeekDouble(const char *key)
+XPR_API double XPR_UPS_PeekDouble(const char* key)
 {
     if (!key)
         return 0;
@@ -1004,11 +1004,11 @@ XPR_API double XPR_UPS_PeekDouble(const char *key)
     return entry ? entry->curVal.f64 : 0;
 }
 
-XPR_API double XPR_UPS_PeekDoubleVK(const char *key, ...)
+XPR_API double XPR_UPS_PeekDoubleVK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return 0;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekDouble(newKey);
 }
 
@@ -1019,11 +1019,11 @@ XPR_API int XPR_UPS_SetBoolean(const char* key, int value)
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
-XPR_API int XPR_UPS_SetBooleanVK(int value, const char* key, ...)
+XPR_API int XPR_UPS_SetBooleanVK(int value, const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return XPR_ERR_NULL_PTR;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_BOOLEAN, &value, 0);
 }
 
@@ -1033,14 +1033,14 @@ XPR_API int XPR_UPS_GetBoolean(const char* key, int* value)
     return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...)
+XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* vkey, ...)
 {
-    CHECK_KV(key, value);
-    XPR_UPS_VKEY(newKey, key);
+    CHECK_KV(vkey, value);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_BOOLEAN, value, 0);
 }
 
-XPR_API int XPR_UPS_PeekBoolean(const char *key)
+XPR_API int XPR_UPS_PeekBoolean(const char* key)
 {
     if (!key)
         return 0;
@@ -1048,11 +1048,11 @@ XPR_API int XPR_UPS_PeekBoolean(const char *key)
     return entry ? entry->curVal.bl : 0;
 }
 
-XPR_API int XPR_UPS_PeekBooleanVK(const char *key, ...)
+XPR_API int XPR_UPS_PeekBooleanVK(const char* vkey, ...)
 {
-    if (!key)
+    if (!vkey)
         return 0;
-    XPR_UPS_VKEY(newKey, key);
+    XPR_UPS_VKEY(newKey, vkey);
     return XPR_UPS_PeekBoolean(newKey);
 }
 

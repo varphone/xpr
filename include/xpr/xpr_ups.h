@@ -699,43 +699,42 @@ XPR_API int XPR_UPS_UnRegisterAll(void);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetString(const char* key, const char* value, int size);
-XPR_API int XPR_UPS_SetStringVK(const char* value, int size,
-                                const char* key, ...);
+XPR_API int XPR_UPS_SetStringVK(const char* value, int size, const char* vkey,
+                                ...);
 
 /// @brief 获取字串型设定项值
 /// @param [in] key         设定项名称
 /// @retval NULL    设定项不存在或设定项值为空
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetString(const char* key, char* value, int* size);
-XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* key,
-                                ...);
+XPR_API int XPR_UPS_GetStringVK(char* value, int* size, const char* vkey, ...);
 
 /// 直接获取设定项缓存的字串值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 NULL
 /// @note 本接口会跳过 getter 回调
-XPR_API const char* XPR_UPS_PeekString(const char *key);
-XPR_API const char* XPR_UPS_PeekStringVK(const char *key, ...);
+XPR_API const char* XPR_UPS_PeekString(const char* key);
+XPR_API const char* XPR_UPS_PeekStringVK(const char* vkey, ...);
 
 /// @brief 设置整数型设定项值
 /// @param [in] key         设定项名称
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetInteger(const char* key, int value);
-XPR_API int XPR_UPS_SetIntegerVK(int value, const char* key, ...);
+XPR_API int XPR_UPS_SetIntegerVK(int value, const char* vkey, ...);
 
 /// @brief 获取整数型设定项值
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetInteger(const char* key, int* value);
-XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* key, ...);
+XPR_API int XPR_UPS_GetIntegerVK(int* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的整数值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 0
 /// @note 本接口会跳过 getter 回调
-XPR_API int XPR_UPS_PeekInteger(const char *key);
-XPR_API int XPR_UPS_PeekIntegerVK(const char *key, ...);
+XPR_API int XPR_UPS_PeekInteger(const char* key);
+XPR_API int XPR_UPS_PeekIntegerVK(const char* vkey, ...);
 
 /// @brief 设置 64 位整数型设定项值
 /// @param [in] token       已打开的设定实例
@@ -743,21 +742,21 @@ XPR_API int XPR_UPS_PeekIntegerVK(const char *key, ...);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetInt64(const char* key, int64_t value);
-XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* key, ...);
+XPR_API int XPR_UPS_SetInt64VK(int64_t value, const char* vkey, ...);
 
 /// @brief 获取 64 位整数型设定项值
 /// @param [in] token       已打开的设定实例
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetInt64(const char* key, int64_t* value);
-XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* key, ...);
+XPR_API int XPR_UPS_GetInt64VK(int64_t* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的 64 位整数值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 0
 /// @note 本接口会跳过 getter 回调
-XPR_API int64_t XPR_UPS_PeekInt64(const char *key);
-XPR_API int64_t XPR_UPS_PeekInt64VK(const char *key, ...);
+XPR_API int64_t XPR_UPS_PeekInt64(const char* key);
+XPR_API int64_t XPR_UPS_PeekInt64VK(const char* vkey, ...);
 
 /// @brief 设置浮点数型设定项值
 /// @param [in] token       已打开的设定实例
@@ -765,21 +764,21 @@ XPR_API int64_t XPR_UPS_PeekInt64VK(const char *key, ...);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetFloat(const char* key, float value);
-XPR_API int XPR_UPS_SetFloatVK(float value, const char* key, ...);
+XPR_API int XPR_UPS_SetFloatVK(float value, const char* vkey, ...);
 
 /// @brief 获取浮点数型设定项值
 /// @param [in] token       已打开的设定实例
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetFloat(const char* key, float* value);
-XPR_API int XPR_UPS_GetFloatVK(float* value, const char* key, ...);
+XPR_API int XPR_UPS_GetFloatVK(float* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的 32 位浮点值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 0.0
 /// @note 本接口会跳过 getter 回调
-XPR_API float XPR_UPS_PeekFloat(const char *key);
-XPR_API float XPR_UPS_PeekFloatVK(const char *key, ...);
+XPR_API float XPR_UPS_PeekFloat(const char* key);
+XPR_API float XPR_UPS_PeekFloatVK(const char* vkey, ...);
 
 /// @brief 设置双精度浮点数型设定项值
 /// @param [in] token       已打开的设定实例
@@ -787,21 +786,21 @@ XPR_API float XPR_UPS_PeekFloatVK(const char *key, ...);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetDouble(const char* key, double value);
-XPR_API int XPR_UPS_SetDoubleVK(double value, const char* key, ...);
+XPR_API int XPR_UPS_SetDoubleVK(double value, const char* vkey, ...);
 
 /// @brief 获取双精度浮点数型设定项值
 /// @param [in] token       已打开的设定实例
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetDouble(const char* key, double* value);
-XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* key, ...);
+XPR_API int XPR_UPS_GetDoubleVK(double* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的 64 位浮点值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 0.0
 /// @note 本接口会跳过 getter 回调
-XPR_API double XPR_UPS_PeekDouble(const char *key);
-XPR_API double XPR_UPS_PeekDoubleVK(const char *key, ...);
+XPR_API double XPR_UPS_PeekDouble(const char* key);
+XPR_API double XPR_UPS_PeekDoubleVK(const char* vkey, ...);
 
 /// @brief 设置布尔型设定项值
 /// @param [in] token       已打开的设定实例
@@ -809,21 +808,21 @@ XPR_API double XPR_UPS_PeekDoubleVK(const char *key, ...);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetBoolean(const char* key, int value);
-XPR_API int XPR_UPS_SetBooleanVK(int value, const char* key, ...);
+XPR_API int XPR_UPS_SetBooleanVK(int value, const char* vkey, ...);
 
 /// @brief 获取布尔型设定项值
 /// @param [in] token       已打开的设定实例
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_GetBoolean(const char* key, int* value);
-XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* key, ...);
+XPR_API int XPR_UPS_GetBooleanVK(int* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的布尔值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 0/false
 /// @note 本接口会跳过 getter 回调
-XPR_API int XPR_UPS_PeekBoolean(const char *key);
-XPR_API int XPR_UPS_PeekBooleanVK(const char *key, ...);
+XPR_API int XPR_UPS_PeekBoolean(const char* key);
+XPR_API int XPR_UPS_PeekBooleanVK(const char* vkey, ...);
 
 /// @brief 设置二进制型设定项值
 /// @param [in] token       已打开的设定实例
@@ -831,21 +830,21 @@ XPR_API int XPR_UPS_PeekBooleanVK(const char *key, ...);
 /// @param [in] value       设定项值
 /// @retval 见错误码表
 XPR_API int XPR_UPS_SetBlob(const char* key, XPR_UPS_Blob blob);
-XPR_API int XPR_UPS_SetBlobVK(XPR_UPS_Blob blob, const char* key, ...);
+XPR_API int XPR_UPS_SetBlobVK(XPR_UPS_Blob blob, const char* vkey, ...);
 
 /// @brief 获取二进制型设定项值
 /// @param [in] token       已打开的设定实例
 /// @param [in] key         设定项名称
 /// @retval 见错误码表;
 XPR_API int XPR_UPS_GetBlob(const char* key, XPR_UPS_Blob* value);
-XPR_API int XPR_UPS_GetBlobVK(XPR_UPS_Blob* value, const char* key, ...);
+XPR_API int XPR_UPS_GetBlobVK(XPR_UPS_Blob* value, const char* vkey, ...);
 
 /// 直接获取设定项缓存的二进制值
 /// @param [in] key         设定项名称
 /// @return 返回最后设定的值或 {NULL,0}
 /// @note 本接口会跳过 getter 回调
-XPR_API XPR_UPS_Blob XPR_UPS_PeekBlob(const char *key);
-XPR_API XPR_UPS_Blob XPR_UPS_PeekBlobVK(const char *key, ...);
+XPR_API XPR_UPS_Blob XPR_UPS_PeekBlob(const char* key);
+XPR_API XPR_UPS_Blob XPR_UPS_PeekBlobVK(const char* vkey, ...);
 
 /// @brief 从存储文件或设备中读取对应数据
 /// @param [in] ent         要读取的设定项指针
@@ -896,13 +895,13 @@ XPR_API int XPR_UPS_PibBlob(void* dst, int* dstSize, XPR_UPS_Blob val);
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_Delete(const char* key);
-XPR_API int XPR_UPS_DeleteVK(const char* key, ...);
+XPR_API int XPR_UPS_DeleteVK(const char* vkey, ...);
 
 /// @brief 检测设定项是否存在
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
 XPR_API int XPR_UPS_Exists(const char* key);
-XPR_API int XPR_UPS_ExistsVK(const char* key, ...);
+XPR_API int XPR_UPS_ExistsVK(const char* vkey, ...);
 
 /// @brief 获取设定中的首个设定项名称
 /// @retval 见错误码表
