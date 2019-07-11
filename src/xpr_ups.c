@@ -660,8 +660,10 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
     XPR_UPS_Entry* curr = NULL;
     for (int i = 0; i < count; i++) {
         curr = &ents[i];
-        if (!curr->name)
+        if (!curr->name) {
+            ignores++;
             break;
+        }
         if (curr->name[0] == '$')
             curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
         if (XPR_UPS_ENTRY_IS_INIT(curr))
@@ -670,6 +672,12 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
         if (err == XPR_ERR_UPS_EXIST) {
             DBG(DBG_L3, "XPR_UPS: Register \"%s%s%s\" ignored, alreay exists!",
                 curr->root, slashEnds(curr->root) ? "" : "/", curr->name);
+            // Save registered entry as current
+            if (XPR_UPS_ENTRY_IS_DIR(curr)) {
+                curr = XPR_UPS_FindEntry(
+                    curr->name,
+                    curr->root ? XPR_UPS_FindEntry(curr->root, NULL) : prev);
+            }
             ignores++;
         }
         else if (XPR_IS_ERROR(err)) {
