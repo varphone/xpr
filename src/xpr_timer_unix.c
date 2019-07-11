@@ -259,9 +259,9 @@ XPR_API XPR_TimerQueue* XPR_TimerQueueCreate(void)
         pthread_condattr_init(&condAttr);
         pthread_condattr_setclock(&condAttr, CLOCK_MONOTONIC);
         pthread_cond_init(&self->cond, &condAttr);
-        self->thread = XPR_ThreadCreate(timerQueueLoop, 0, self);
         // Wait for thread running
         pthread_mutex_lock(&self->lock);
+        self->thread = XPR_ThreadCreate(timerQueueLoop, 0, self);
         pthread_cond_wait(&self->cond, &self->lock);
         pthread_mutex_unlock(&self->lock);
     }
