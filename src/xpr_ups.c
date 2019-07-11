@@ -667,7 +667,7 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
             curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
         err = XPR_UPS_RegisterSingle(curr, curr->root ? NULL : prev);
         if (err == XPR_ERR_UPS_EXIST) {
-            DBG(DBG_L3, "XPR_UPS: Register \"%s%s%s\" ignored, alreay exists!",
+            DBG(DBG_L2, "XPR_UPS: Register \"%s%s%s\" ignored, alreay exists!",
                 curr->root, slashEnds(curr->root) ? "" : "/", curr->name);
             // Save registered entry as current
             if (XPR_UPS_ENTRY_IS_DIR(curr)) {
@@ -690,7 +690,7 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
         if (XPR_UPS_ENTRY_IS_DIR(curr))
             prev = curr;
     }
-    DBG(DBG_L3,
+    DBG(DBG_L5,
         "XPR_UPS: Registered entries: fails=%d, ignores=%d, success=%d, "
         "total=%d",
         fails, ignores, success, count);
