@@ -15,7 +15,7 @@
 #endif
 
 // Callback for get:/system/information/*
-XPR_USP_DEF_GETTER(info_getter)
+XPR_UPS_DEF_GETTER(info_getter)
 {
     // FIXME:
     // Return ERROR to invoke default getter
@@ -23,7 +23,7 @@ XPR_USP_DEF_GETTER(info_getter)
 }
 
 // Callback for set:/system/information/*
-XPR_USP_DEF_SETTER(info_setter)
+XPR_UPS_DEF_SETTER(info_setter)
 {
     // FIXME:
     // Return OK to accept the value
@@ -31,14 +31,14 @@ XPR_USP_DEF_SETTER(info_setter)
 }
 
 // Callback for get:/system/time/*
-XPR_USP_DEF_GETTER(time_getter)
+XPR_UPS_DEF_GETTER(time_getter)
 {
     // Return ERROR to invoke default getter
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/time/*
-XPR_USP_DEF_SETTER(time_setter)
+XPR_UPS_DEF_SETTER(time_setter)
 {
     // Return OK to accept the value
     return XPR_ERR_OK;

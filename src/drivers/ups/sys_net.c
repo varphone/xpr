@@ -17,27 +17,27 @@
 #endif
 
 // Callback for get:/system/network/*
-XPR_USP_DEF_GETTER(net_getter)
+XPR_UPS_DEF_GETTER(net_getter)
 {
     // FIXME:
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/network/*
-XPR_USP_DEF_SETTER(net_setter)
+XPR_UPS_DEF_SETTER(net_setter)
 {
     // FIXME:
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for get:/system/network/eth0|1/*
-XPR_USP_DEF_GETTER(eth_getter)
+XPR_UPS_DEF_GETTER(eth_getter)
 {
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/network/eth0|1/*
-XPR_USP_DEF_SETTER(eth_setter)
+XPR_UPS_DEF_SETTER(eth_setter)
 {
     const char* name = entry->name;
     if (strcmp(name, "mac") == 0) {
@@ -54,13 +54,13 @@ XPR_USP_DEF_SETTER(eth_setter)
 }
 
 // Callback for get:/system/network/eth0|1/ipv4/*
-XPR_USP_DEF_GETTER(ipv4_getter)
+XPR_UPS_DEF_GETTER(ipv4_getter)
 {
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/network/eth0|1/ipv4/*
-XPR_USP_DEF_SETTER(ipv4_setter)
+XPR_UPS_DEF_SETTER(ipv4_setter)
 {
     int err = 0;
     int ipv4[4];
@@ -95,13 +95,13 @@ XPR_USP_DEF_SETTER(ipv4_setter)
 }
 
 // Callback for get:/system/network/eth0|1/ipv6/*
-XPR_USP_DEF_GETTER(ipv6_getter)
+XPR_UPS_DEF_GETTER(ipv6_getter)
 {
     return XPR_ERR_UPS_SYS_NOTREADY;
 }
 
 // Callback for set:/system/network/eth0|1/ipv6/*
-XPR_USP_DEF_SETTER(ipv6_setter)
+XPR_UPS_DEF_SETTER(ipv6_setter)
 {
     return XPR_ERR_UPS_SYS_NOTREADY;
 }

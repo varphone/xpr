@@ -142,7 +142,7 @@ typedef int (*XPR_UPS_Finalizer)(XPR_UPS_Entry* ent);
 typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, const char* key, void* buffer,
                               int* size);
 
-#define XPR_USP_DEF_GETTER(fn)                                                 \
+#define XPR_UPS_DEF_GETTER(fn)                                                 \
     static int fn(XPR_UPS_Entry* entry, const char* key, void* buffer,         \
                   int* size)
 
@@ -156,7 +156,7 @@ typedef int (*XPR_UPS_Getter)(XPR_UPS_Entry* ent, const char* key, void* buffer,
 typedef int (*XPR_UPS_Setter)(XPR_UPS_Entry* ent, const char* key,
                               const void* data, int size);
 
-#define XPR_USP_DEF_SETTER(fn)                                                 \
+#define XPR_UPS_DEF_SETTER(fn)                                                 \
     static int fn(XPR_UPS_Entry* entry, const char* key, const void* data,     \
                   int size)
 

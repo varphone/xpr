@@ -45,7 +45,7 @@ static void test_XPR_UPS_Init(void)
 }
 
 // Callback for get:/system/network/*
-XPR_USP_DEF_GETTER(network_getter)
+XPR_UPS_DEF_GETTER(network_getter)
 {
     printf("Getter %p, %s, %p, %p\n", entry, key, buffer, size);
     // Only address supports
@@ -56,7 +56,7 @@ XPR_USP_DEF_GETTER(network_getter)
 }
 
 // Callback for set:/system/network/$perform
-XPR_USP_DEF_SETTER(network_perform)
+XPR_UPS_DEF_SETTER(network_perform)
 {
     int action = *(int*)(data);
     printf("/system/network/$perform, action=%d\n", action);
