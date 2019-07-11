@@ -127,6 +127,9 @@
 // XPR_PLUGIN
 #cmakedefine HAVE_XPR_PLUGIN 1
 
+// XPR_REGEX
+#cmakedefine HAVE_XPR_REGEX 1
+
 // XPR_RTSP
 #cmakedefine HAVE_XPR_RTSP 1
 

@@ -24,6 +24,7 @@ targets-$(XPR_FIFO) += fifo
 targets-$(XPR_FILE) += file
 targets-$(XPR_FQ) += fq
 targets-$(XPR_JSON) += json
+targets-$(XPR_REGEX) += regex
 targets-$(XPR_RTSP) += rtsp
 targets-$(XPR_THREAD) += thread
 targets-$(XPR_UPS) += ups ups-basic

@@ -48,6 +48,7 @@ XPR_MEM=$(XPR_ALL)
 XPR_META=$(XPR_ALL)
 XPR_PES=$(XPR_ALL)
 XPR_PLUGIN=$(XPR_ALL)
+XPR_REGEX=$(XPR_ALL)
 XPR_RTSP=$(XPR_ALL)
 XPR_RTSP_DRIVER_ALL=$(XPR_RTSP)
 XPR_RTSP_DRIVER_LIVE=$(XPR_RTSP_DRIVER_ALL)
@@ -236,6 +237,12 @@ endif
 ###############################################################################
 ifeq ($(XPR_PLUGIN),y)
 libxpr_SRCS += xpr_plugin.c
+endif
+
+# Regex
+###############################################################################
+ifeq ($(XPR_REGEX),y)
+libxpr_SRCS += xpr_regex.c
 endif
 
 # RTSP framework

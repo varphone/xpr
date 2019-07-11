@@ -33,6 +33,7 @@
 - [ONVIF - ONVIF Protocol Supports](docs/onvif.md)
 - [OSD - On Screen Display](docs/osd.md)
 - [PLUGIN - Plugin Framework](docs/plugin.md)
+- [REGEX - RegExp Basic Supports](docs/regex.md)
 - [RTSP - RTSP Server/Client](docs/rtsp.md)
 - [SERIAL - Serial Port](docs/serial.md)
 - [SHA1 - SHA1 Digest](docs/sha1.md)

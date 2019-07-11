@@ -143,6 +143,10 @@
 #include "xpr_plugin.h"
 #endif /* HAVE_XPR_PLUGIN */
 
+#ifdef HAVE_XPR_REGEX
+#include "xpr_regex.h"
+#endif /* HAVE_XPR_REGEX */
+
 #ifdef HAVE_XPR_RTSP
 #include "xpr_rtsp.h"
 #endif /* HAVE_XPR_RTSP */

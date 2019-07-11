@@ -156,6 +156,11 @@ if(HAVE_XPR_PLUGIN)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_plugin.h)
 endif()
 
+if(HAVE_XPR_REGEX)
+    list(APPEND SOURCES xpr_regex.c)
+    list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_regex.h)
+endif()
+
 if(HAVE_XPR_RTSP_IDD)
     list(APPEND SOURCES xpr_rtsp_idd.c)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_rtsp_idd.h)

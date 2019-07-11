@@ -35,6 +35,11 @@ add_executable(realpath realpath.c)
 target_link_libraries(realpath xpr)
 endif()
 
+if(HAVE_XPR_REGEX)
+add_executable(regex regex.c)
+target_link_libraries(regex xpr)
+endif()
+
 if(HAVE_XPR_RTSP)
 add_executable(rtsp rtsp.c)
 target_link_libraries(rtsp xpr)
