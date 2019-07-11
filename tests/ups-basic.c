@@ -44,6 +44,13 @@ static void test_XPR_UPS_Init(void)
     }
 }
 
+// Callback for init:/system/network/*
+XPR_UPS_DEF_INITER(network_initer)
+{
+    printf("Initer %p\n", entry);
+    return XPR_ERR_OK;
+}
+
 // Callback for get:/system/network/*
 XPR_UPS_DEF_GETTER(network_getter)
 {
@@ -81,6 +88,8 @@ static XPR_UPS_Entry _System[] = {
     XPR_UPS_ENTRY_PAR_STR_DV("address", "", "192.168.1.220"),
     XPR_UPS_ENTRY_PAR_I32_S("$perform", "Perform the network setup",
                             network_perform),
+    XPR_UPS_ENTRY_INIT2_I("@init", "Initialize the /system/network",
+                          network_initer),
 };
 
 static void test_XPR_UPS_Case1(void)
