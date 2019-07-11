@@ -37,6 +37,7 @@
 
 static void test_XPR_UPS_Init(void)
 {
+    printf("### %s\n", __FUNCTION__);
     // Test loop init/fini
     for (int i = 0; i< 10; i++) {
         XPR_UPS_Init("ups-storage.json");
@@ -94,6 +95,7 @@ static XPR_UPS_Entry _System[] = {
 
 static void test_XPR_UPS_Case1(void)
 {
+    printf("### %s\n", __FUNCTION__);
     if (XPR_UPS_Init("ups-storage.json") != XPR_ERR_OK)
         ;//abort();
     XPR_UPS_Register(_System, _countof(_System));
