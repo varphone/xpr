@@ -1391,13 +1391,24 @@ static void printValue(XPR_UPS_Value* val, XPR_UPS_EntryType type)
     }
 }
 
+// Print indent before the entry information
+static void printIndent(int indent, int branch)
+{
+    for (int i = 0; i <= indent; i++) {
+        if (branch && i == indent)
+            printf("┊╌╌ ");
+        else
+            printf("┊   ");
+    }
+}
+
 // Print the entry and it's childs and siblings
 static void printEntry(XPR_UPS_Entry* entry)
 {
     int depth = entryDepth(entry);
     XPR_UPS_EntryType type = XPR_UPS_TO_TYPE(entry->type);
-    printf("%-*s%-20s{%s, %s}", depth * 4, "", entry->name, entry->category,
-           entryTypeName(type));
+    printIndent(depth - 1, 1);
+    printf("%-20s{%s, %s}", entry->name, entry->category, entryTypeName(type));
     printf("[");
     printValue(&entry->curVal, type);
     printf(", ");
@@ -1405,7 +1416,8 @@ static void printEntry(XPR_UPS_Entry* entry)
     printf(", ");
     printValue(&entry->shaVal, type);
     printf("]\n");
-    printf("%-*s  ^? %s\n", depth * 4, "", entry->desc);
+    printIndent(depth - 1, 0);
+    printf("^? <<%s>>\n", entry->desc);
     if (entry->node.childs)
         printEntry(XPR_UPS_TO_ENTRY(entry->node.childs));
     if (entry->node.next)
