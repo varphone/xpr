@@ -574,7 +574,7 @@ static int XPR_UPS_SetDataNl(const char* key, XPR_UPS_EntryType type,
 
 // Set data for key by type with locking
 static int XPR_UPS_SetData(const char* key, XPR_UPS_EntryType type,
-                             const void* data, int size)
+                           const void* data, int size)
 {
     int err = XPR_ERR_OK;
     XPR_UPS_LOCK();
