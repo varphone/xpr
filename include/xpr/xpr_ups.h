@@ -378,6 +378,26 @@ struct XPR_UPS_Entry
     XPR_UPS_ENTRY_PAR_DV(name, desc, category, root, type, NULL, NULL, NULL,   \
                          setter, defVal)
 
+// 定义一个初始化设定项（名称、初始）
+#define XPR_UPS_ENTRY_INIT1_I(name, init)                                      \
+    XPR_UPS_ENTRY_PAR(name, "", "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, NULL, NULL, NULL)
+
+// 定义一个初始化设定项（名称、描述、初始）
+#define XPR_UPS_ENTRY_INIT2_I(name, desc, init)                                \
+    XPR_UPS_ENTRY_PAR(name, desc, "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,   \
+                      init, NULL, NULL, NULL)
+
+// 定义一个初始化设定项（名称、描述、类别、初始）
+#define XPR_UPS_ENTRY_INIT3_I(name, desc, category, init)                      \
+    XPR_UPS_ENTRY_PAR(name, desc, category, NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, NULL, NULL, NULL)
+
+// 定义一个初始化设定项（名称、描述、类别、存根、初始）
+#define XPR_UPS_ENTRY_INIT4_I(name, desc, category, root, init)                \
+    XPR_UPS_ENTRY_PAR(name, desc, category, root, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, NULL, NULL, NULL)
+
 // 定义一个设定项目录（名称、描述）
 #define XPR_UPS_ENTRY_DIR1(name)                                               \
     XPR_UPS_ENTRY_PAR(name, "", "ups/dir", NULL, XPR_UPS_ENTRY_TYPE_DIR, NULL, \
