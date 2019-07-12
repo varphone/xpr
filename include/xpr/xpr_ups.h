@@ -931,9 +931,9 @@ XPR_API void XPR_UPS_Shadow(const char* prefix);
 XPR_API void XPR_UPS_Expose(const char* prefix);
 
 /// @brief 导出数据为平坦文件
-/// @param [in] url         平坦文件路径
+/// @param [in] fileName    平坦文件路径
 /// @retval 见错误码表
-XPR_API int XPR_UPS_Export(const char* url);
+XPR_API int XPR_UPS_Export(const char* fileName);
 
 /// @brief 从平坦文件导入数据
 /// @param [in] url         平坦文件路径

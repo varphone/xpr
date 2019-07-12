@@ -1341,9 +1341,79 @@ XPR_API void XPR_UPS_EndGroup(const char* group)
     sGroupEntry = NULL;
 }
 
-XPR_API int XPR_UPS_Export(const char* url)
+// Print the key part of the entry to file stream
+static void fprintEntryKey(FILE* fp, XPR_UPS_Entry* entry)
 {
-    return XPR_ERR_UPS_NOT_SUPPORT;
+    char buf[256];
+    fprintf(fp, "# %s\n", entry->desc);
+    fprintf(fp, "%s = ", entryFullName(entry, buf, sizeof(buf), '.'));
+}
+
+// Print the value part of the entry to file stream
+static void fprintEntryValue(FILE* fp, XPR_UPS_Value* val,
+                             XPR_UPS_EntryType type)
+{
+    switch (type) {
+    case XPR_UPS_ENTRY_TYPE_INIT:
+        fprintf(fp, "-");
+        break;
+    case XPR_UPS_ENTRY_TYPE_DIR:
+        fprintf(fp, "-");
+        break;
+    case XPR_UPS_ENTRY_TYPE_BOOLEAN:
+        fprintf(fp, "%s", val->bl ? "true" : "false");
+        break;
+    case XPR_UPS_ENTRY_TYPE_BLOB:
+        fprintf(fp, "(%p,%d)", val->bb.data, val->bb.size);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I32:
+        fprintf(fp, "%d", val->i32);
+        break;
+    case XPR_UPS_ENTRY_TYPE_I64:
+        fprintf(fp, "%ld", val->i64);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        fprintf(fp, "%f", val->f32);
+        break;
+    case XPR_UPS_ENTRY_TYPE_F64:
+        fprintf(fp, "%lf", val->f64);
+        break;
+    case XPR_UPS_ENTRY_TYPE_STRING:
+        if (val->str)
+            fprintf(fp, "\"%s\"", val->str);
+        else
+            fprintf(fp, "(null)");
+        break;
+    default:
+        break;
+    }
+}
+
+// Print the entry in flat plain format to file stream
+static void fprintEntry(FILE* fp, XPR_UPS_Entry* entry)
+{
+    if (!(XPR_UPS_ENTRY_IS_DIR(entry) || XPR_UPS_ENTRY_IS_INIT(entry) ||
+          entry->type & XPR_UPS_ENTRY_FLAG_NOSTOR)) {
+        fprintEntryKey(fp, entry);
+        fprintEntryValue(fp, &entry->curVal, XPR_UPS_TO_TYPE(entry->type));
+        fprintf(fp, "\n\n");
+    }
+    if (entry->node.childs)
+        fprintEntry(fp, XPR_UPS_TO_ENTRY(entry->node.childs));
+    if (entry->node.next)
+        fprintEntry(fp, XPR_UPS_TO_ENTRY(entry->node.next));
+}
+
+XPR_API int XPR_UPS_Export(const char* fileName)
+{
+    FILE* fp = fopen(fileName, "wb");
+    if (!fp)
+        return XPR_ERR_SYS(errno);
+    XPR_UPS_LOCK();
+    fprintEntry(fp, XPR_UPS_TO_ENTRY(sRoot.node.childs));
+    XPR_UPS_UNLOCK();
+    fclose(fp);
+    return XPR_ERR_OK;
 }
 
 XPR_API int XPR_UPS_Import(const char* url)
