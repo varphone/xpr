@@ -210,6 +210,15 @@ XPR_API int xpr_path_last_dirname(const char* path, char* buf, int len)
     return XPR_ERR_OK;
 }
 
+XPR_API void xpr_replace_char(char* str, char find, char replace)
+{
+    while (*str) {
+        if (*str == find)
+            *str = replace;
+        str++;
+    }
+}
+
 static const char* trim_brace(const char* str)
 {
     while (*str) {

@@ -130,6 +130,9 @@ XPR_API int xpr_path_basename(const char* path, char* buf, int len);
 /// @retval XPR_ERR_ERROR   Parse Error
 XPR_API int xpr_path_last_dirname(const char *path, char *buf, int len);
 
+/// Replace characters matched to `find` with `replace` in the `str`.
+XPR_API void xpr_replace_char(char* str, char find, char replace);
+
 /// Convert "1.0,2.0" or "[2.0,3.0]" formated string into a double array.
 /// Return XPR_ERR_OK on success, others error.
 XPR_API int xpr_s2dvec2(const char* str, double vec2[2]);
