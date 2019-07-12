@@ -15,6 +15,11 @@ add_executable(fq fq.c)
 target_link_libraries(fq xpr)
 endif()
 
+if(HAVE_XPR_HASHTABLE)
+add_executable(hashtable hashtable.c)
+target_link_libraries(hashtable xpr)
+endif()
+
 if(HAVE_XPR_JSON)
 add_executable(json json.c)
 target_link_libraries(json xpr)

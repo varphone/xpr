@@ -22,6 +22,7 @@
 - [FQ - Flex Queue](docs/fq.md)
 - [GPIO - General Purpose Input/Output](docs/gpio.md)
 - [H264 - MPEG-4/H264 Helper](docs/h264.md)
+- [HASHTABLE - Hash Table](docs/hashtable.md)
 - [JSON - Javascript Object Notiation](docs/json.md)
 - [ICMP - Internet Control Messages Protocol](docs/icmp.md)
 - [LIST - Double/Singly Linked List](docs/list.md)

@@ -39,6 +39,7 @@ XPR_GPIO_DRIVER_ALL=n
 XPR_GPIO_DRIVER_A5S=$(XPR_GPIO_DRIVER_ALL)
 
 XPR_H264=$(XPR_ALL)
+XPR_HASHTABLE=$(XPR_ALL)
 XPR_ICMP=$(XPR_ALL)
 XPR_JSON=$(XPR_ALL)
 XPR_LIST=$(XPR_ALL)
@@ -176,6 +177,12 @@ endif
 ###############################################################################
 ifeq ($(XPR_H264),y)
 libxpr_SRCS += xpr_h264.c
+endif
+
+# HashTable
+###############################################################################
+ifeq ($(XPR_HASHTABLE),y)
+libxpr_SRCS += xpr_hashtable.c
 endif
 
 # ICMP

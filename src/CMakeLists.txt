@@ -89,6 +89,11 @@ if(HAVE_XPR_H264)
     list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_h264.h)
 endif()
 
+if(HAVE_XPR_HASHTABLE)
+    list(APPEND SOURCES xpr_hashtable.c)
+    list(APPEND PUBLIC_HEADERS ${CMAKE_SOURCE_DIR}/include/xpr/xpr_hashtable.h)
+endif()
+
 if(HAVE_XPR_ICMP)
     if(UNIX)
         list(APPEND SOURCES xpr_icmp_unix.c)
