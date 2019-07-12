@@ -97,7 +97,8 @@ static int entryDepth(XPR_UPS_Entry* entry)
 }
 
 // Return full name of the entry by travels the tree
-static char* entryFullName(XPR_UPS_Entry* entry, char* buf, size_t bufSize)
+static char* entryFullName(XPR_UPS_Entry* entry, char* buf, size_t bufSize,
+                           char sep)
 {
     int depth = 0;
     int offset = 0;
@@ -113,8 +114,11 @@ static char* entryFullName(XPR_UPS_Entry* entry, char* buf, size_t bufSize)
     }
     else {
         for (int n = depth; n >= 0; n--) {
+            // No leading seperator for 'a.b.c' style
+            if (!(sep == '.' && n == depth))
+                offset += snprintf(buf + offset, bufSize - offset, "%c", sep);
             offset +=
-                snprintf(buf + offset, bufSize - offset, "/%s", stack[n]->name);
+                snprintf(buf + offset, bufSize - offset, "%s", stack[n]->name);
         }
     }
     buf[offset] = 0;
@@ -231,7 +235,7 @@ static XPR_UPS_Entry* findEntry(const char* key, XPR_UPS_Entry* parent)
         return &sRoot;
     parent = parent ? parent : &sRoot;
     // Fast return root
-    if (key[0] == '/' && key[1] == 0)
+    if (key[0] == 0 || (key[0] == '/' && key[1] == 0))
         return parent;
     key = skipSlash(key);
     char name[256];
@@ -241,11 +245,11 @@ static XPR_UPS_Entry* findEntry(const char* key, XPR_UPS_Entry* parent)
     XPR_UPS_Entry* entry = parent;
     while (entry && nr <= ns) {
         // Split at '/' or '\0'
-        if (key[nr] == '/' || key[nr] == 0) {
+        if (key[nr] == '/' || key[nr] == '.' || key[nr] == 0) {
             memcpy(name, key + nl, nr - nl);
             name[nr - nl] = 0;
             // If not starts with '/', that is a child
-            if (*name != '/') {
+            if (*name != '/' && *name != '.') {
                 // Search in childs
                 entry = findSibling(name, XPR_UPS_TO_ENTRY(entry->node.childs));
             }
@@ -273,7 +277,7 @@ static XPR_JSON* findJsonForEntry(XPR_UPS_Entry* entry)
     if (!entry)
         return NULL;
     // Fast return root
-    if (entry->name[0] == '/' && entry->name[1] == 0)
+    if (entry->name[0] == 0 || (entry->name[0] == '/' && entry->name[1] == 0))
         return sStorageJson;
     int depth = 0;
     XPR_UPS_Entry* temp = entry;
@@ -684,7 +688,7 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
         }
         else {
             DBG(DBG_L5, "XPR_UPS: Registered \"%s\" @ %p",
-                entryFullName(curr, fullName, sizeof(fullName)), curr);
+                entryFullName(curr, fullName, sizeof(fullName), '.'), curr);
             success++;
         }
         if (XPR_UPS_ENTRY_IS_DIR(curr))
