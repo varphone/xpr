@@ -152,6 +152,26 @@ static const char* entryTypeName(XPR_UPS_EntryType type)
     }
 }
 
+// Return full name of the unlinked entry by travels the parent
+//   or concat the root
+static char* entryUnlinkedFullName(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent,
+                                   char* buf, int size)
+{
+    char pfn[256] = {0};
+    if (!entry->root && parent) {
+        entryFullName(parent, pfn, sizeof(pfn), '.');
+        strcat(pfn, ".");
+    }
+    else if (entry->root) {
+        snprintf(pfn, sizeof(pfn), "%s%c", skipSlash(entry->root),
+                 slashEnds(entry->root) ? 0 : '/');
+        // Convert to a.b.c style
+        xpr_replace_char(pfn, '/', '.');
+    }
+    snprintf(buf, size, "%s%s", pfn, entry->name);
+    return buf;
+}
+
 // Unlink entry from tree and call finalizer
 static void entryUnregister(XPR_UPS_Entry* entry)
 {
@@ -671,8 +691,9 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
             curr->type |= XPR_UPS_ENTRY_FLAG_NOSTOR;
         err = XPR_UPS_RegisterSingle(curr, curr->root ? NULL : prev);
         if (err == XPR_ERR_UPS_EXIST) {
-            DBG(DBG_L2, "XPR_UPS: Register \"%s%s%s\" ignored, alreay exists!",
-                curr->root, slashEnds(curr->root) ? "" : "/", curr->name);
+            entryUnlinkedFullName(curr, prev, fullName, sizeof(fullName));
+            DBG(DBG_L2, "XPR_UPS: Register \"%s\" ignored, alreay exists!",
+                fullName);
             // Save registered entry as current
             if (XPR_UPS_ENTRY_IS_DIR(curr)) {
                 curr = XPR_UPS_FindEntry(
@@ -682,8 +703,9 @@ XPR_API int XPR_UPS_Register(XPR_UPS_Entry ents[], int count)
             ignores++;
         }
         else if (XPR_IS_ERROR(err)) {
-            DBG(DBG_L2, "XPR_UPS: Register \"%s%s%s\" failed, errno: 0x%08X",
-                curr->root, slashEnds(curr->root) ? "" : "/", curr->name, err);
+            entryUnlinkedFullName(curr, prev, fullName, sizeof(fullName));
+            DBG(DBG_L2, "XPR_UPS: Register \"%s\" failed, errno: 0x%08X",
+                fullName, err);
             fails++;
         }
         else {
