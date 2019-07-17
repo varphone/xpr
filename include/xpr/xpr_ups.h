@@ -78,6 +78,7 @@ enum XPR_UPS_EntryFlags
     XPR_UPS_ENTRY_FLAG_INITAR = 1 << 10, ///< 注册后调用 init()，与 INITLA 配合
     XPR_UPS_ENTRY_FLAG_NOSTOR = 1 << 11, ///< 数据不需要存储
     XPR_UPS_ENTRY_FLAG_SHADOW = 1 << 12, ///< 数据缓存至阴影位置
+    XPR_UPS_ENTRY_FLAG_OVRIDE = 1 << 13, ///< 强制覆盖现有项
 };
 typedef enum XPR_UPS_EntryFlags XPR_UPS_EntryFlags;
 #endif // XPR_UPS_ENTRYFLAGS_TYPE_DEFINED

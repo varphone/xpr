@@ -748,10 +748,20 @@ XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
     XPR_UPS_LOCK();
     if (!parent)
         parent = findEntry(entry->root, NULL);
-    // Skip if the entry exists
-    if (parent && findEntry(entry->name, parent)) {
-        err = XPR_ERR_UPS_EXIST;
-        goto done;
+    // Skip or override if the entry exists
+    if (parent) {
+        XPR_UPS_Entry* temp = findEntry(entry->name, parent);
+        if (temp) {
+            if (entry->type & XPR_UPS_ENTRY_FLAG_OVRIDE) {
+                DBG(DBG_L2, "XPR_UPS: Override ['%s'@%p] ==> ['%s'@%p]!",
+                    temp->name, temp, entry->name, entry);
+                entryUnregister(temp);
+            }
+            else {
+                err = XPR_ERR_UPS_EXIST;
+                goto done;
+            }
+        }
     }
     if (!parent) {
         err = XPR_ERR_UPS_SYS_NOTREADY;
