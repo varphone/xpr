@@ -129,10 +129,39 @@ static void test_XPR_UPS_Case1(void)
     XPR_UPS_Fini();
 }
 
+// Callback for init:/system/information/*
+XPR_UPS_DEF_INITER(info_initer)
+{
+    printf("Initer '%s' @ %p\n", entry->name, entry);
+    printf("[PSV] name = '%s'\n", XPR_UPS_PsvString(entry, "name"));
+    printf("[PSV] location = '%s'\n", XPR_UPS_PsvString(entry, "location"));
+    printf("[PSV] manufacturer = '%s'\n", XPR_UPS_PsvString(entry, "manufacturer"));
+    printf("[PSV] model = '%s'\n", XPR_UPS_PsvString(entry, "model"));
+    printf("[PSV] serial_number = '%s'\n", XPR_UPS_PsvString(entry, "serial_number"));
+    return XPR_ERR_OK;
+}
+
+// Define entries: /system/information/@init
+static XPR_UPS_Entry _Psv[] = {
+    XPR_UPS_ENTRY_INIT4_I("@init", "Initialize the /system/information",
+                          "ups/init", "/system/information", info_initer),
+};
+
+static void test_XPR_UPS_PsvXXX(void)
+{
+    printf("### %s\n", __FUNCTION__);
+    if (XPR_UPS_Init("ups-storage.json") != XPR_ERR_OK)
+        abort();
+    XPR_UPS_Register(_Psv, _countof(_Psv));
+    XPR_SYS_WaitKey(60 * XPR_SYS_CTS_UNIT);
+    XPR_UPS_Fini();
+}
+
 int main(int argc, char** argv)
 {
     test_XPR_UPS_Init();
     test_XPR_UPS_Case1();
+    test_XPR_UPS_PsvXXX();
     return 0;
 }
 
