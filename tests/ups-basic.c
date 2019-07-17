@@ -157,11 +157,32 @@ static void test_XPR_UPS_PsvXXX(void)
     XPR_UPS_Fini();
 }
 
+static void test_XPR_UPS_ENTRY_FLAG_OVRIDE(void)
+{
+    // Define entries: /test
+    static XPR_UPS_Entry _Override[] = {
+        XPR_UPS_ENTRY_DIR2("test", "dir irst"),
+        XPR_UPS_ENTRY_PAR_I32("key", "key first"),
+        XPR_UPS_ENTRY_PAR2("key", "key override",
+                           XPR_UPS_ENTRY_TYPE_I32 | XPR_UPS_ENTRY_FLAG_OVRIDE),
+        XPR_UPS_ENTRY_PAR4("test", "dir override", "ups/dir", "/",
+                           XPR_UPS_ENTRY_TYPE_DIR | XPR_UPS_ENTRY_FLAG_OVRIDE),
+        XPR_UPS_ENTRY_PAR_I32("key", "key last"),
+    };
+    printf("### %s\n", __FUNCTION__);
+    if (XPR_UPS_Init("ups-storage.json") != XPR_ERR_OK)
+        abort();
+    XPR_UPS_Register(_Override, _countof(_Override));
+    XPR_UPS_PrintAll();
+    XPR_UPS_Fini();
+}
+
 int main(int argc, char** argv)
 {
     test_XPR_UPS_Init();
     test_XPR_UPS_Case1();
     test_XPR_UPS_PsvXXX();
+    test_XPR_UPS_ENTRY_FLAG_OVRIDE();
     return 0;
 }
 
