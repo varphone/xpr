@@ -12,6 +12,7 @@
 #include <xpr/xpr_ups.h>
 #include <xpr/xpr_utils.h>
 
+static const XPR_UPS_Blob kDummyBlob = {0,0};
 static XPR_Atomic sHasInited = 0;
 static XPR_Atomic sHaveChanges = 0;
 static XPR_RecursiveMutex sLock;
@@ -1322,6 +1323,54 @@ XPR_API int XPR_UPS_PibBlob(void* dst, int* dstSize, XPR_UPS_Blob val)
 {
     // FIXME:
     return XPR_ERR_UPS_NOT_SUPPORT;
+}
+
+XPR_API const char* XPR_UPS_PsvString(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, NULL);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.str : NULL;
+}
+
+XPR_API int XPR_UPS_PsvInteger(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, 0);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.i32 : 0;
+}
+
+XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, 0);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.i64 : 0;
+}
+
+XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, 0.0);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.f64 : 0.0;
+}
+
+XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, XPR_FALSE);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.bl : 0;
+}
+
+XPR_API XPR_UPS_Blob XPR_UPS_PsvBlob(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, kDummyBlob);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.bb : kDummyBlob;
 }
 
 XPR_API int XPR_UPS_Delete(const char* key)

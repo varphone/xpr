@@ -891,6 +891,33 @@ XPR_API int XPR_UPS_PibDouble(void* dst, int* dstSize, double val);
 XPR_API int XPR_UPS_PibBoolean(void* dst, int* dstSize, int val);
 XPR_API int XPR_UPS_PibBlob(void* dst, int* dstSize, XPR_UPS_Blob val);
 
+/// 直接获取同级设定项缓存的字串型值
+/// @param [in] curr        当前设定项指针
+/// @param [in] name        要获取的同级设定项名称
+/// @return 返回其当前值
+/// @warning 切勿缓存返回值，其指针随时可能失效
+XPR_API const char* XPR_UPS_PsvString(XPR_UPS_Entry* curr, const char* name);
+
+/// 直接获取同级设定项缓存的 32 位整数值
+/// @sa #XPR_UPS_PsvString
+XPR_API int XPR_UPS_PsvInteger(XPR_UPS_Entry* curr, const char* name);
+
+/// 直接获取同级设定项缓存的 64 位整数值
+/// @sa #XPR_UPS_PsvString
+XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name);
+
+/// 直接获取同级设定项缓存的 64 位浮点数值
+/// @sa #XPR_UPS_PsvString
+XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name);
+
+/// 直接获取同级设定项缓存的布尔型值
+/// @sa #XPR_UPS_PsvString
+XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name);
+
+/// 直接获取同级设定项缓存的二进制型值
+/// @sa #XPR_UPS_PsvString
+XPR_API XPR_UPS_Blob XPR_UPS_PsvBlob(XPR_UPS_Entry* curr, const char* name);
+
 /// @brief 删除指定设定项
 /// @param [in] key         设定项名称
 /// @retval 见错误码表
