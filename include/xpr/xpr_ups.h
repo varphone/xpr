@@ -49,6 +49,34 @@ extern "C" {
 #define XPR_UPS_ENTRY_IS_INIT(entry)                                           \
     (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_INIT)
 
+// Return true if type == XPR_UPS_ENTRY_TYPE_BOOLEAN
+#define XPR_UPS_ENTRY_IS_BOOL(entry)                                           \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_BOOLEAN)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_BLOB
+#define XPR_UPS_ENTRY_IS_BLOB(entry)                                           \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_BLOB)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_I32
+#define XPR_UPS_ENTRY_IS_I32(entry)                                            \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_I32)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_I64
+#define XPR_UPS_ENTRY_IS_I64(entry)                                            \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_I64)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_F32
+#define XPR_UPS_ENTRY_IS_F32(entry)                                            \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_F32)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_F64
+#define XPR_UPS_ENTRY_IS_F64(entry)                                            \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_F64)
+
+// Return true if type == XPR_UPS_ENTRY_TYPE_STRING
+#define XPR_UPS_ENTRY_IS_STR(entry)                                            \
+    (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_STRING)
+
 /// Return the parent of the entry
 #define XPR_UPS_ENTRY_PARENT(entry) ((XPR_UPS_Entry*)(entry)->node.parent)
 
