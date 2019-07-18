@@ -137,6 +137,48 @@ extern "C" {
 // Return the default value in string format
 #define XPR_UPS_DV_STR(entry) (entry)->curVal.str
 
+// Define a boolean value
+#define XPR_UPS_DEF_BOOL(x)                                                    \
+    {                                                                          \
+        .bl = x                                                                \
+    }
+
+// Define a blob value
+#define XPR_UPS_DEF_BLOB(x)                                                    \
+    {                                                                          \
+        .bb = x                                                                \
+    }
+
+// Define a int value
+#define XPR_UPS_DEF_I32(x)                                                     \
+    {                                                                          \
+        .i32 = x                                                               \
+    }
+
+// Define a int64 value
+#define XPR_UPS_DEF_I64(x)                                                     \
+    {                                                                          \
+        .i64 = x                                                               \
+    }
+
+// Define a float value
+#define XPR_UPS_DEF_F32(x)                                                     \
+    {                                                                          \
+        .f32 = x                                                               \
+    }
+
+// Define a double value
+#define XPR_UPS_DEF_F64(x)                                                     \
+    {                                                                          \
+        .f64 = x                                                               \
+    }
+
+// Define a string value
+#define XPR_UPS_DEF_STR(x)                                                     \
+    {                                                                          \
+        .str = x                                                               \
+    }
+
 #ifndef XPR_UPS_BLOB_TYPE_DEFINED
 #define XPR_UPS_BLOB_TYPE_DEFINED
 /// 二进制型设定项数据
