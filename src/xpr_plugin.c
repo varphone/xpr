@@ -433,9 +433,19 @@ XPR_API int XPR_PluginLoad(const char* name)
     return XPR_ERR_SYS(ENOENT);
 }
 
+// Callback for load each directory
+static void loadEachDir(void* opaque, char* segment)
+{
+    XPR_PluginLoadDir(segment);
+}
+
 XPR_API int XPR_PluginLoadAll(void)
 {
-    return XPR_ERR_GEN_NOT_SUPPORT;
+    XPR_PLUGIN_LOCK();
+    if (sSerachDirs)
+        xpr_foreach_s(sSerachDirs, -1, ";", loadEachDir, NULL);
+    XPR_PLUGIN_UNLOCK();
+    return XPR_ERR_OK;
 }
 
 // Callback for XPR_PluginLoadDir ==> XPR_FileForEach
