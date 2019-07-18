@@ -6,7 +6,7 @@
  * Project       : xpr
  * Author        : Varphone Wong <varphone@qq.com>
  * File Created  : 2014-11-21 12:50:43 Friday, 21 November
- * Last Modified : 2019-07-03 04:11:00 Wednesday, 3 July
+ * Last Modified : 2019-07-18 09:25:32 Thursday, 18 July
  * Modified By   : Varphone Wong <varphone@qq.com>
  * ---------------------------------------------------------------------------
  * Copyright (C) 2012 - 2019 CETC55, Technology Development CO.,LTD.
@@ -14,6 +14,7 @@
  * All rights reserved.
  * ---------------------------------------------------------------------------
  * HISTORY:
+ * 2019-07-18   varphone    更新辅助宏定义
  * 2019-07-03   varphone    更新版权信息
  * 2012-12-20   varphone    初始版本建立
  */
