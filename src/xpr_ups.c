@@ -1,4 +1,5 @@
 ﻿#include <errno.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1505,7 +1506,7 @@ static void fprintEntryValue(FILE* fp, XPR_UPS_Value* val,
         fprintf(fp, "%d", val->i32);
         break;
     case XPR_UPS_ENTRY_TYPE_I64:
-        fprintf(fp, "%ld", val->i64);
+        fprintf(fp, "%" PRId64, val->i64);
         break;
     case XPR_UPS_ENTRY_TYPE_F32:
         fprintf(fp, "%f", val->f32);
@@ -1581,7 +1582,7 @@ static void printValue(XPR_UPS_Value* val, XPR_UPS_EntryType type)
         printf("%d", val->i32);
         break;
     case XPR_UPS_ENTRY_TYPE_I64:
-        printf("%ld", val->i64);
+        printf("%" PRId64, val->i64);
         break;
     case XPR_UPS_ENTRY_TYPE_F32:
         printf("%f", val->f32);
