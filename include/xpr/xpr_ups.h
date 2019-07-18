@@ -49,8 +49,8 @@ extern "C" {
 #define XPR_UPS_ENTRY_IS_INIT(entry)                                           \
     (XPR_UPS_TO_TYPE((entry)->type) == XPR_UPS_ENTRY_TYPE_INIT)
 
-/// Return the parent entry
-#define XPR_UPS_ENTRY_PATERN(entry) ((XPR_UPS_Entry*)(entry)->node.parent)
+/// Return the parent of the entry
+#define XPR_UPS_ENTRY_PARENT(entry) ((XPR_UPS_Entry*)(entry)->node.parent)
 
 // Return the name of the entry
 #define XPR_UPS_ENTRY_NAME(entry) (entry)->name
