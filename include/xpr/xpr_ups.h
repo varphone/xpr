@@ -335,7 +335,7 @@ struct XPR_UPS_Entry
                           set)                                                 \
     {                                                                          \
         {0, 0, 0, 0}, name, desc, category, root, type, init, fini, get, set,  \
-            {0}, {0}, {0},                                                     \
+            XPR_UPS_DEF_I64(0), XPR_UPS_DEF_I64(0), XPR_UPS_DEF_I64(0),        \
     }
 
 // 定义一个设定项（名称、描述、类别、存根、类型、初始、终释、获取、设定、默认值）
@@ -343,7 +343,7 @@ struct XPR_UPS_Entry
                              get, set, defVal)                                 \
     {                                                                          \
         {0, 0, 0, 0}, name, desc, category, root, type, init, fini, get, set,  \
-            {0}, {defVal}, {0},                                                \
+            XPR_UPS_DEF_I64(0), defVal, XPR_UPS_DEF_I64(0),                    \
     }
 
 // 定义一个设定项（名称、类型）
@@ -578,7 +578,8 @@ struct XPR_UPS_Entry
 
 // 定义一个布尔型设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_BOOL_DV(name, desc, defVal)                          \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL,                 \
+                          XPR_UPS_DEF_BOOL(defVal))
 
 // 定义一个布尔型设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_BOOL_G(name, desc, getter)                           \
@@ -586,7 +587,8 @@ struct XPR_UPS_Entry
 
 // 定义一个布尔型设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_BOOL_G_DV(name, desc, getter, defVal)                \
-    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, getter, defVal)
+    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, getter,       \
+                            XPR_UPS_DEF_BOOL(defVal))
 
 // 定义一个布尔型设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_BOOL_G_S(name, desc, getter, setter)                 \
@@ -595,7 +597,7 @@ struct XPR_UPS_Entry
 // 定义一个布尔型设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_BOOL_G_S_DV(name, desc, getter, setter, defVal)      \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, getter,     \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_BOOL(defVal))
 
 // 定义一个布尔型设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_BOOL_S(name, desc, setter)                           \
@@ -603,7 +605,8 @@ struct XPR_UPS_Entry
 
 // 定义一个布尔型设定项（名称、描述、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_BOOL_S_DV(name, desc, setter, defVal)                \
-    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, setter, defVal)
+    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_BOOL, setter,       \
+                            XPR_UPS_DEF_BOOL(defVal))
 
 // 定义一个 32 位整型设定项（名称、描述）
 #define XPR_UPS_ENTRY_PAR_I32(name, desc)                                      \
@@ -611,7 +614,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位整型设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_I32_DV(name, desc, defVal)                           \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32,                  \
+                          XPR_UPS_DEF_I32(defVal))
 
 // 定义一个 32 位整型设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_I32_G(name, desc, getter)                            \
@@ -619,7 +623,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位整型设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_I32_G_DV(name, desc, getter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, getter, defVal)
+    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, getter,        \
+                            XPR_UPS_DEF_I32(defVal))
 
 // 定义一个 32 位整型设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_I32_G_S(name, desc, getter, setter)                  \
@@ -628,7 +633,7 @@ struct XPR_UPS_Entry
 // 定义一个 32 位整型设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_I32_G_S_DV(name, desc, getter, setter, defVal)       \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, getter,      \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_I32(defVal))
 
 // 定义一个 32 位整型设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_I32_S(name, desc, setter)                            \
@@ -636,7 +641,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位整型设定项（名称、描述、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_I32_S_DV(name, desc, setter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, setter, defVal)
+    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I32, setter,        \
+                            XPR_UPS_DEF_I32(defVal))
 
 // 定义一个 64 位整型设定项（名称、描述）
 #define XPR_UPS_ENTRY_PAR_I64(name, desc)                                      \
@@ -644,7 +650,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 64 位整型设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_I64_DV(name, desc, defVal)                           \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64,                  \
+                          XPR_UPS_DEF_I64(defVal))
 
 // 定义一个 64 位整型设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_I64_G(name, desc, getter)                            \
@@ -652,7 +659,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 64 位整型设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_I64_G_DV(name, desc, getter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, getter, defVal)
+    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, getter,        \
+                            XPR_UPS_DEF_I64(defVal))
 
 // 定义一个 64 位整型设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_I64_G_S(name, desc, getter, setter)                  \
@@ -661,7 +669,7 @@ struct XPR_UPS_Entry
 // 定义一个 64 位整型设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_I64_G_S_DV(name, desc, getter, setter, defVal)       \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, getter,      \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_I64(defVal))
 
 // 定义一个 64 位整型设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_I64_S(name, desc, setter)                            \
@@ -669,7 +677,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 64 位整型设定项（名称、描述、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_I64_S_DV(name, desc, setter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, setter, defVal)
+    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_I64, setter,        \
+                            XPR_UPS_DEF_I64(defVal))
 
 // 定义一个 32 位浮点型设定项（名称、描述）
 #define XPR_UPS_ENTRY_PAR_F32(name, desc)                                      \
@@ -677,7 +686,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位浮点型设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_F32_DV(name, desc, defVal)                           \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32,                  \
+                          XPR_UPS_DEF_F32(defVal))
 
 // 定义一个 32 位浮点型设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_F32_G(name, desc, getter)                            \
@@ -685,7 +695,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位浮点型设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_F32_G_DV(name, desc, getter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, setter, defVal)
+    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, setter,        \
+                            XPR_UPS_DEF_F32(defVal))
 
 // 定义一个 32 位浮点型设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_F32_G_S(name, desc, getter, setter)                  \
@@ -694,7 +705,7 @@ struct XPR_UPS_Entry
 // 定义一个 32 位浮点型设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_F32_G_S_DV(name, desc, getter, setter, defVal)       \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, getter,      \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_F32(defVal))
 
 // 定义一个 32 位浮点型设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_F32_S(name, desc, setter)                            \
@@ -702,7 +713,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 32 位浮点型设定项（名称、描述、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_F32_S_DV(name, desc, setter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, setter, defVal)
+    XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_F32, setter,        \
+                            XPR_UPS_DEF_F32(defVal))
 
 // 定义一个 64 位浮点型设定项（名称、描述）
 #define XPR_UPS_ENTRY_PAR_F64(name, desc)                                      \
@@ -710,7 +722,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 64 位浮点型设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_F64_DV(name, desc, defVal)                           \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_F64, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_F64,                  \
+                          XPR_UPS_DEF_F64(defVal))
 
 // 定义一个 64 位浮点型设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_F64_G(name, desc, getter)                            \
@@ -718,7 +731,8 @@ struct XPR_UPS_Entry
 
 // 定义一个 64 位浮点型设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_F64_G_DV(name, desc, getter, defVal)                 \
-    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_F64, getter, defVal)
+    XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_F64, getter,        \
+                            XPR_UPS_DEF_F64(defVal))
 
 // 定义一个 64 位浮点型设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_F64_G_S(name, desc, getter, setter)                  \
@@ -727,7 +741,7 @@ struct XPR_UPS_Entry
 // 定义一个 64 位浮点型设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_F64_G_S_DV(name, desc, getter, setter, defVal)       \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_F64, getter,      \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_F64(defVal))
 
 // 定义一个 64 位浮点型设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_F64_S(name, desc, setter)                            \
@@ -739,7 +753,8 @@ struct XPR_UPS_Entry
 
 // 定义一个字串设定项（名称、描述、默认值）
 #define XPR_UPS_ENTRY_PAR_STR_DV(name, desc, defVal)                           \
-    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_STRING, defVal)
+    XPR_UPS_ENTRY_PAR2_DV(name, desc, XPR_UPS_ENTRY_TYPE_STRING,               \
+                          XPR_UPS_DEF_STR(defVal))
 
 // 定义一个字串设定项（名称、描述、getter）
 #define XPR_UPS_ENTRY_PAR_STR_G(name, desc, getter)                            \
@@ -748,7 +763,7 @@ struct XPR_UPS_Entry
 // 定义一个字串设定项（名称、描述、getter、默认值）
 #define XPR_UPS_ENTRY_PAR_STR_G_DV(name, desc, getter, defVal)                 \
     XPR_UPS_ENTRY_PAR2_G_DV(name, desc, XPR_UPS_ENTRY_TYPE_STRING, getter,     \
-                            defVal)
+                            XPR_UPS_DEF_STR(defVal))
 
 // 定义一个字串设定项（名称、描述、getter、setter）
 #define XPR_UPS_ENTRY_PAR_STR_G_S(name, desc, getter, setter)                  \
@@ -758,7 +773,7 @@ struct XPR_UPS_Entry
 // 定义一个字串设定项（名称、描述、getter、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_STR_G_S_DV(name, desc, getter, defVal)               \
     XPR_UPS_ENTRY_PAR2_G_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_STRING, getter,   \
-                              setter, defVal)
+                              setter, XPR_UPS_DEF_STR(defVal))
 
 // 定义一个字串设定项（名称、描述、setter）
 #define XPR_UPS_ENTRY_PAR_STR_S(name, desc, setter)                            \
@@ -767,13 +782,14 @@ struct XPR_UPS_Entry
 // 定义一个字串设定项（名称、描述、setter、默认值）
 #define XPR_UPS_ENTRY_PAR_STR_S_DV(name, desc, setter, defVal)                 \
     XPR_UPS_ENTRY_PAR2_S_DV(name, desc, XPR_UPS_ENTRY_TYPE_STRING, setter,     \
-                            defVal)
+                            XPR_UPS_DEF_STR(defVal))
 
 // 定义一个设定项结束项
 #define XPR_UPS_ENTRY_END()                                                    \
     {                                                                          \
         {0, 0, 0, 0}, NULL, NULL, NULL, NULL, XPR_UPS_ENTRY_TYPE_UNKNOWN,      \
-            NULL, NULL, NULL, NULL, {0}, {0}, {0},                             \
+            NULL, NULL, NULL, NULL, XPR_UPS_DEF_I64(0), XPR_UPS_DEF_I64(0),    \
+            XPR_UPS_DEF_I64(0),                                                \
     }
 
 /// @brief 打开设定集
