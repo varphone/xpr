@@ -538,7 +538,7 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
     }
     if (XPR_UPS_ENTRY_IS_INIT(entry))
         return XPR_ERR_UPS_NOT_SUPPORT;
-    int err = XPR_ERR_OK;
+    int err = XPR_ERR_ERROR;
     if (entry->get)
         err = entry->get(entry, entry->name, buffer, size);
     if (entry->node.parent) {
