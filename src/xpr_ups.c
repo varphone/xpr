@@ -144,7 +144,7 @@ static const char* entryTypeName(XPR_UPS_EntryType type)
     case XPR_UPS_ENTRY_TYPE_I64:
         return "i64";
     case XPR_UPS_ENTRY_TYPE_F32:
-        return "f64";
+        return "f32";
     case XPR_UPS_ENTRY_TYPE_F64:
         return "f64";
     case XPR_UPS_ENTRY_TYPE_STRING:
