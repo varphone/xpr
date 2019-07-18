@@ -1138,6 +1138,9 @@ static int writeDataToJson(XPR_UPS_Entry* entry, const void* data, int size)
     case XPR_UPS_ENTRY_TYPE_I64:
         err = XPR_JSON_Integer64Set(jx, *(int64_t*)data);
         break;
+    case XPR_UPS_ENTRY_TYPE_F32:
+        err = XPR_JSON_RealSet(jx, *(float*)data);
+        break;
     case XPR_UPS_ENTRY_TYPE_F64:
         err = XPR_JSON_RealSet(jx, *(double*)data);
         break;
