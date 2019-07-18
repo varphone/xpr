@@ -235,7 +235,7 @@ static int loadModule(const char* fileName)
             MODULE_REF(parent);
         MODULE_REF(m);
         XPR_ListAppendNl(sPluginList, m);
-        DBG(DBG_L3, "XPR_PLUGIN: Plugin [%s, %s] loaded!", reg->name,
+        DBG(DBG_L5, "XPR_PLUGIN: Plugin [%s, %s] loaded!", reg->name,
             reg->version);
         // Move to next registry
         loaded++;
