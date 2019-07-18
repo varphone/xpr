@@ -533,20 +533,40 @@ struct XPR_UPS_Entry
     XPR_UPS_ENTRY_PAR(name, "", "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
                       init, NULL, NULL, NULL)
 
+// 定义一个初始化设定项（名称、初始、终释）
+#define XPR_UPS_ENTRY_INIT1_I_F(name, init, fini)                              \
+    XPR_UPS_ENTRY_PAR(name, "", "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, fini, NULL, NULL)
+
 // 定义一个初始化设定项（名称、描述、初始）
 #define XPR_UPS_ENTRY_INIT2_I(name, desc, init)                                \
     XPR_UPS_ENTRY_PAR(name, desc, "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,   \
                       init, NULL, NULL, NULL)
+
+// 定义一个初始化设定项（名称、描述、初始、终释）
+#define XPR_UPS_ENTRY_INIT2_I_F(name, desc, init, fini)                        \
+    XPR_UPS_ENTRY_PAR(name, desc, "ups/init", NULL, XPR_UPS_ENTRY_TYPE_INIT,   \
+                      init, fini, NULL, NULL)
 
 // 定义一个初始化设定项（名称、描述、类别、初始）
 #define XPR_UPS_ENTRY_INIT3_I(name, desc, category, init)                      \
     XPR_UPS_ENTRY_PAR(name, desc, category, NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
                       init, NULL, NULL, NULL)
 
+// 定义一个初始化设定项（名称、描述、类别、初始、终释）
+#define XPR_UPS_ENTRY_INIT3_I_F(name, desc, category, init, fini)              \
+    XPR_UPS_ENTRY_PAR(name, desc, category, NULL, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, fini, NULL, NULL)
+
 // 定义一个初始化设定项（名称、描述、类别、存根、初始）
 #define XPR_UPS_ENTRY_INIT4_I(name, desc, category, root, init)                \
     XPR_UPS_ENTRY_PAR(name, desc, category, root, XPR_UPS_ENTRY_TYPE_INIT,     \
                       init, NULL, NULL, NULL)
+
+// 定义一个初始化设定项（名称、描述、类别、存根、初始、终释）
+#define XPR_UPS_ENTRY_INIT4_I_F(name, desc, category, root, init, fini)        \
+    XPR_UPS_ENTRY_PAR(name, desc, category, root, XPR_UPS_ENTRY_TYPE_INIT,     \
+                      init, fini, NULL, NULL)
 
 // 定义一个设定项目录（名称、描述）
 #define XPR_UPS_ENTRY_DIR1(name)                                               \
