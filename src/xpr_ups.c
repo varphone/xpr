@@ -1343,12 +1343,30 @@ XPR_API const char* XPR_UPS_PsvString(XPR_UPS_Entry* curr, const char* name)
     return entry ? entry->curVal.str : NULL;
 }
 
+XPR_API const char* XPR_UPS_PsvStringDV(XPR_UPS_Entry* curr, const char* name,
+                                        const char* defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.str : defVal;
+}
+
 XPR_API int XPR_UPS_PsvInteger(XPR_UPS_Entry* curr, const char* name)
 {
     XPR_RET_IF(!curr || !name, 0);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
     return entry ? entry->curVal.i32 : 0;
+}
+
+XPR_API int XPR_UPS_PsvIntegerDV(XPR_UPS_Entry* curr, const char* name,
+                                 int defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.i32 : defVal;
 }
 
 XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name)
@@ -1359,12 +1377,30 @@ XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name)
     return entry ? entry->curVal.i64 : 0;
 }
 
+XPR_API int64_t XPR_UPS_PsvInt64DV(XPR_UPS_Entry* curr, const char* name,
+                                   int64_t defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.i64 : defVal;
+}
+
 XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name)
 {
     XPR_RET_IF(!curr || !name, 0.0);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
     return entry ? entry->curVal.f64 : 0.0;
+}
+
+XPR_API double XPR_UPS_PsvDoubleDV(XPR_UPS_Entry* curr, const char* name,
+                                   double defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.f64 : defVal;
 }
 
 XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name)
@@ -1375,12 +1411,30 @@ XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name)
     return entry ? entry->curVal.bl : 0;
 }
 
+XPR_API int XPR_UPS_PsvBooleanDV(XPR_UPS_Entry* curr, const char* name,
+                                 int defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.bl : defVal;
+}
+
 XPR_API XPR_UPS_Blob XPR_UPS_PsvBlob(XPR_UPS_Entry* curr, const char* name)
 {
     XPR_RET_IF(!curr || !name, kDummyBlob);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
     return entry ? entry->curVal.bb : kDummyBlob;
+}
+
+XPR_API XPR_UPS_Blob XPR_UPS_PsvBlobDV(XPR_UPS_Entry* curr, const char* name,
+                                       XPR_UPS_Blob defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    return entry ? entry->curVal.bb : defVal;
 }
 
 XPR_API int XPR_UPS_Delete(const char* key)
