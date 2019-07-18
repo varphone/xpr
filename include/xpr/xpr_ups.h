@@ -52,6 +52,63 @@ extern "C" {
 /// Return the parent entry
 #define XPR_UPS_ENTRY_PATERN(entry) ((XPR_UPS_Entry*)(entry)->node.parent)
 
+// Return the name of the entry
+#define XPR_UPS_ENTRY_NAME(entry) (entry)->name
+
+// Return the description of the entry
+#define XPR_UPS_ENTRY_DESC(entry) (entry)->desc
+
+// Return the category of the entry
+#define XPR_UPS_ENTRY_CATE(entry) (entry)->category
+
+// Return the root of the entry
+#define XPR_UPS_ENTRY_ROOT(entry) (entry)->root
+
+// Return the type of the entry
+#define XPR_UPS_ENTRY_TYPE(entry) ((entry)->type & 0xff)
+
+// Return the current value in boolean format
+#define XPR_UPS_CV_BOOL(entry) (entry)->curVal.bl
+
+// Return the current value in blob format
+#define XPR_UPS_CV_BLOB(entry) (entry)->curVal.bb
+
+// Return the current value in int format
+#define XPR_UPS_CV_I32(entry) (entry)->curVal.i32
+
+// Return the current value in int64 format
+#define XPR_UPS_CV_I64(entry) (entry)->curVal.i64
+
+// Return the current value in float format
+#define XPR_UPS_CV_F32(entry) (entry)->curVal.f32
+
+// Return the current value in double format
+#define XPR_UPS_CV_F64(entry) (entry)->curVal.f64
+
+// Return the current value in string format
+#define XPR_UPS_CV_STR(entry) (entry)->curVal.str
+
+// Return the default value in boolean format
+#define XPR_UPS_DV_BOOL(entry) (entry)->curVal.bl
+
+// Return the default value in blob format
+#define XPR_UPS_DV_BLOB(entry) (entry)->curVal.bb
+
+// Return the default value in int format
+#define XPR_UPS_DV_I32(entry) (entry)->curVal.i32
+
+// Return the default value in int64 format
+#define XPR_UPS_DV_I64(entry) (entry)->curVal.i64
+
+// Return the default value in float format
+#define XPR_UPS_DV_F32(entry) (entry)->curVal.f32
+
+// Return the default value in double format
+#define XPR_UPS_DV_F64(entry) (entry)->curVal.f64
+
+// Return the default value in string format
+#define XPR_UPS_DV_STR(entry) (entry)->curVal.str
+
 #ifndef XPR_UPS_BLOB_TYPE_DEFINED
 #define XPR_UPS_BLOB_TYPE_DEFINED
 /// 二进制型设定项数据
