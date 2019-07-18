@@ -180,6 +180,27 @@ extern "C" {
         .str = x                                                               \
     }
 
+// Cast void* to boolean
+#define XPR_UPS_CAST_BOOL(data) *(int*)(data)
+
+// Cast void* to blob
+#define XPR_UPS_CAST_BLOB(data) (XPR_UPS_Blob*)(data)
+
+// Cast void* to int
+#define XPR_UPS_CAST_I32(data) *(int*)(data)
+
+// Cast void* to int64_t
+#define XPR_UPS_CAST_I64(data) *(int64_t*)(data)
+
+// Cast void* to float
+#define XPR_UPS_CAST_F32(data) *(float*)(data)
+
+// Cast void* to double
+#define XPR_UPS_CAST_F64(data) *(double*)(data)
+
+// Cast void* to string
+#define XPR_UPS_CAST_STR(data) (char*)(data)
+
 #ifndef XPR_UPS_BLOB_TYPE_DEFINED
 #define XPR_UPS_BLOB_TYPE_DEFINED
 /// 二进制型设定项数据
