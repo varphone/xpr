@@ -171,8 +171,8 @@ static int loadModule(const char* fileName)
     }
     void* handle = dlopen(fileName, RTLD_LAZY);
     if (handle == NULL) {
-        DBG(DBG_L1, "XPR_PLUGIN: dlopen(%s) failed, errno: %d", fileName,
-            errno);
+        DBG(DBG_L1, "XPR_PLUGIN: dlopen(%s) failed, errno: %d, reason: %s",
+            fileName, errno, dlerror());
         return XPR_ERR_SYS(errno);
     }
     XPR_PluginRegisterFn registerFn = dlsym(handle, "XPR_PluginRegister");
