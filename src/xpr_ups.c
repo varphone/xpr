@@ -801,6 +801,7 @@ XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
         }
     }
     // Okay
+    entry->type |= XPR_UPS_ENTRY_FLAG_REGIST;
     err = XPR_ERR_OK;
 done:
     XPR_UPS_UNLOCK();
