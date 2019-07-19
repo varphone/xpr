@@ -118,25 +118,25 @@ extern "C" {
 #define XPR_UPS_CV_STR(entry) (entry)->curVal.str
 
 // Return the default value in boolean format
-#define XPR_UPS_DV_BOOL(entry) (entry)->curVal.bl
+#define XPR_UPS_DV_BOOL(entry) (entry)->defVal.bl
 
 // Return the default value in blob format
-#define XPR_UPS_DV_BLOB(entry) (entry)->curVal.bb
+#define XPR_UPS_DV_BLOB(entry) (entry)->defVal.bb
 
 // Return the default value in int format
-#define XPR_UPS_DV_I32(entry) (entry)->curVal.i32
+#define XPR_UPS_DV_I32(entry) (entry)->defVal.i32
 
 // Return the default value in int64 format
-#define XPR_UPS_DV_I64(entry) (entry)->curVal.i64
+#define XPR_UPS_DV_I64(entry) (entry)->defVal.i64
 
 // Return the default value in float format
-#define XPR_UPS_DV_F32(entry) (entry)->curVal.f32
+#define XPR_UPS_DV_F32(entry) (entry)->defVal.f32
 
 // Return the default value in double format
-#define XPR_UPS_DV_F64(entry) (entry)->curVal.f64
+#define XPR_UPS_DV_F64(entry) (entry)->defVal.f64
 
 // Return the default value in string format
-#define XPR_UPS_DV_STR(entry) (entry)->curVal.str
+#define XPR_UPS_DV_STR(entry) (entry)->defVal.str
 
 // Define a boolean value
 #define XPR_UPS_DEF_BOOL(x)                                                    \
