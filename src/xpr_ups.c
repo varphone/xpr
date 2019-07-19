@@ -810,9 +810,9 @@ done:
 XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 {
     XPR_UPS_LOCK();
-    for (int i = 0; i < count; i++) {
+    for (int i = count - 1; i >= 0; i--) {
         if (ents[i].name == NULL)
-            break;
+            continue;
         entryUnregister(&ents[i]);
     }
     XPR_UPS_UNLOCK();
