@@ -223,6 +223,7 @@ typedef struct XPR_UPS_Entry XPR_UPS_Entry;
 /// 设定项额外标志
 enum XPR_UPS_EntryFlags
 {
+    XPR_UPS_ENTRY_FLAG_REGIST = 1 << 8, ///< 设定项已经注册
     XPR_UPS_ENTRY_FLAT_INITLA = 1 << 9, ///< 延后调用 init()，与 INITAR 配合
     XPR_UPS_ENTRY_FLAG_INITAR = 1 << 10, ///< 注册后调用 init()，与 INITLA 配合
     XPR_UPS_ENTRY_FLAG_NOSTOR = 1 << 11, ///< 数据不需要存储
