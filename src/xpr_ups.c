@@ -18,7 +18,8 @@ static XPR_Atomic sHasInited = 0;
 static XPR_Atomic sHaveChanges = 0;
 static XPR_RecursiveMutex sLock;
 static XPR_UPS_Entry sRoot =
-    XPR_UPS_ENTRY_DIR2("/", "The root of the XPR-UPS system");
+    XPR_UPS_ENTRY_PAR4("/", "The root of the XPR-UPS system", "ups/dir", NULL,
+                       XPR_UPS_ENTRY_TYPE_DIR | XPR_UPS_ENTRY_FLAG_REGIST);
 static char* sStorage = NULL;
 static XPR_JSON* sStorageJson = NULL;
 static XPR_Timer* sStorageSyncTimer = NULL;
@@ -127,6 +128,14 @@ static char* entryFullName(XPR_UPS_Entry* entry, char* buf, size_t bufSize,
     return buf;
 }
 
+// Return XPR_TRUE if the entry is registered
+static int entryIsRegistered(XPR_UPS_Entry* entry)
+{
+    if (!entry)
+        return XPR_FALSE;
+    return (entry->type & XPR_UPS_ENTRY_FLAG_REGIST) ? XPR_TRUE : XPR_FALSE;
+}
+
 // Return the name of the type
 static const char* entryTypeName(XPR_UPS_EntryType type)
 {
@@ -174,34 +183,67 @@ static char* entryUnlinkedFullName(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent,
     return buf;
 }
 
+// Forward
+static void entryUnregisterSiblings(XPR_UPS_Entry* entry);
+
 // Unlink entry from tree and call finalizer
 static void entryUnregister(XPR_UPS_Entry* entry)
 {
+    if (!entry)
+        return;
+    // Skip if the entry does not registered
+    if (!entryIsRegistered(entry)) {
+        DBG(DBG_L2, "XPR_UPS: Unregister '%s'@%p ignored, not registered!",
+            entry->name, entry);
+        return;
+    }
+    char fullName[256];
     XPR_UPS_Entry* prev = NULL;
     XPR_UPS_Entry* next = NULL;
-    while (entry) {
-        // Unregister childs first if exists
-        if (entry->node.childs)
-            entryUnregister(XPR_UPS_TO_ENTRY(entry->node.childs));
-        // Save the next entry
-        prev = XPR_UPS_TO_ENTRY(entry->node.prev);
-        next = XPR_UPS_TO_ENTRY(entry->node.next);
-        // Call finalizer if exists
-        if (entry->fini)
-            entry->fini(entry);
-        // Break all links
-        if (prev)
-            prev->node.next = NULL;
-        if (next)
-            next->node.prev = NULL;
-        entry->node.parent = NULL;
-        entry->node.prev = NULL;
-        entry->node.next = NULL;
-        entry->node.childs = NULL;
-        // Release all resources attched to the entry
-        entryCleanup(entry);
-        // Move to next entry
-        entry = next;
+    // Unregister childs first if exists
+    if (entry->node.childs)
+        entryUnregisterSiblings(XPR_UPS_TO_ENTRY(entry->node.childs));
+    // Save the next entry
+    prev = XPR_UPS_TO_ENTRY(entry->node.prev);
+    next = XPR_UPS_TO_ENTRY(entry->node.next);
+    // For debugging
+    entryFullName(entry, fullName, sizeof(fullName), '.');
+    DBG(DBG_L5, "XPR_UPS: Unregister '%s'@%p", fullName, entry);
+    // Call finalizer if exists
+    if (entry->fini)
+        entry->fini(entry);
+    // Unlink current entry
+    if (prev)
+        prev->node.next = XPR_UPS_TO_NODE(next);
+    else if (XPR_UPS_ENTRY_PARENT(entry))
+        XPR_UPS_ENTRY_PARENT(entry)->node.childs = XPR_UPS_TO_NODE(next);
+    if (next)
+        next->node.prev = XPR_UPS_TO_NODE(prev);
+    // Clear links
+    entry->node.parent = NULL;
+    entry->node.prev = NULL;
+    entry->node.next = NULL;
+    entry->node.childs = NULL;
+    // Clear XPR_UPS_ENTRY_FLAG_REGIST if ignored on root
+    if (entry != &sRoot)
+        entry->type &= ~XPR_UPS_ENTRY_FLAG_REGIST;
+    // Release all resources attched to the entry
+    entryCleanup(entry);
+}
+
+// Unlink all sibling entries from the tree
+static void entryUnregisterSiblings(XPR_UPS_Entry* entry)
+{
+    XPR_UPS_Entry* curr = entry;
+    XPR_UPS_Entry* prev = NULL;
+    // Move to last entry
+    while (curr && curr->node.next)
+        curr = XPR_UPS_TO_ENTRY(curr->node.next);
+    // Backward unregister
+    while (curr) {
+        prev = XPR_UPS_TO_ENTRY(curr->node.prev);
+        entryUnregister(curr);
+        curr = prev;
     }
 }
 
@@ -823,7 +865,11 @@ XPR_API int XPR_UPS_UnRegister(XPR_UPS_Entry ents[], int count)
 XPR_API int XPR_UPS_UnRegisterAll(void)
 {
     XPR_UPS_LOCK();
-    entryUnregister(&sRoot);
+    entryUnregisterSiblings(XPR_UPS_TO_ENTRY(sRoot.node.childs));
+    sRoot.node.parent = NULL;
+    sRoot.node.prev = NULL;
+    sRoot.node.next = NULL;
+    sRoot.node.childs = NULL;
     XPR_UPS_UNLOCK();
     return XPR_ERR_SUCCESS;
 }
