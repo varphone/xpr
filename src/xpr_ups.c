@@ -1565,6 +1565,39 @@ XPR_API int64_t XPR_UPS_PsvInt64DV(XPR_UPS_Entry* curr, const char* name,
     return entry->curVal.i64;
 }
 
+XPR_API float XPR_UPS_PsvFloat(XPR_UPS_Entry* curr, const char* name)
+{
+    XPR_RET_IF(!curr || !name, 0.0f);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    if (!entry)
+        return 0.0f;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F32)) {
+        DBG(DBG_L2, "XPR_UPS: PsvFloat('%s') type (%s) not matched (%s)!", name,
+            entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F32));
+        return 0.0f;
+    }
+    return entry->curVal.f32;
+}
+
+XPR_API float XPR_UPS_PsvFloatDV(XPR_UPS_Entry* curr, const char* name,
+                                 float defVal)
+{
+    XPR_RET_IF(!curr || !name, defVal);
+    XPR_UPS_Entry* entry =
+        XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F32)) {
+        DBG(DBG_L2, "XPR_UPS: PsvFloatDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F32));
+        return defVal;
+    }
+    return entry->curVal.f32;
+}
+
 XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name)
 {
     XPR_RET_IF(!curr || !name, 0.0);

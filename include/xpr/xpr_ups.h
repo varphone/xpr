@@ -1099,6 +1099,12 @@ XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name);
 XPR_API int64_t XPR_UPS_PsvInt64DV(XPR_UPS_Entry* curr, const char* name,
                                    int64_t defVal);
 
+/// 直接获取同级设定项缓存的 32 位浮点数值
+/// @sa #XPR_UPS_PsvString
+XPR_API float XPR_UPS_PsvFloat(XPR_UPS_Entry* curr, const char* name);
+XPR_API float XPR_UPS_PsvFloatDV(XPR_UPS_Entry* curr, const char* name,
+                                 float defVal);
+
 /// 直接获取同级设定项缓存的 64 位浮点数值
 /// @sa #XPR_UPS_PsvString
 XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name);
