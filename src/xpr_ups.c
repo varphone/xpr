@@ -145,6 +145,14 @@ static int entryIsRegistered(XPR_UPS_Entry* entry)
     return (entry->type & XPR_UPS_ENTRY_FLAG_REGIST) ? XPR_TRUE : XPR_FALSE;
 }
 
+// Return XPR_TRUE if the type comatible to the entry
+static int entryIsTypeCompatible(XPR_UPS_Entry* entry, XPR_UPS_EntryType type)
+{
+    if (!entry)
+        return XPR_FALSE;
+    return XPR_UPS_TO_TYPE(entry->type) == type ? XPR_TRUE : XPR_FALSE;
+}
+
 // Register the entry to tree with parent
 static int entryRegister(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
 {
@@ -652,6 +660,11 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
     if (XPR_UPS_ENTRY_IS_INIT(entry))
         return XPR_ERR_UPS_NOT_SUPPORT;
     int err = XPR_ERR_ERROR;
+    if (!entryIsTypeCompatible(entry, type)) {
+        DBG(DBG_L2, "XPR_UPS: GetData('%s'), type (%s) not matched (%s)!", key,
+            entryTypeName(type), XPR_UPS_TO_TYPE(entry->type));
+        goto done;
+    }
     if (entry->get)
         err = entry->get(entry, entry->name, buffer, size);
     if (entry->node.parent) {
@@ -663,6 +676,7 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
         err = XPR_UPS_ReadValue(entry, buffer, size);
     if (err != XPR_ERR_OK)
         err = XPR_UPS_ReadData(entry, buffer, size);
+done:
     if (err != XPR_ERR_OK)
         clearDataBuffer(type, buffer, size);
     return err;
@@ -693,6 +707,11 @@ static int XPR_UPS_SetDataNl(const char* key, XPR_UPS_EntryType type,
     }
     if (XPR_UPS_ENTRY_IS_INIT(entry))
         return XPR_ERR_UPS_NOT_SUPPORT;
+    if (!entryIsTypeCompatible(entry, type)) {
+        DBG(DBG_L2, "XPR_UPS: SetData('%s'), type (%s) not matched (%s)!", key,
+            entryTypeName(type), entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
+        return XPR_ERR_UPS_ILLEGAL_PARAM;
+    }
     int err = XPR_ERR_OK;
     if (entry->set)
         err = entry->set(entry, key, data, size);
@@ -918,7 +937,15 @@ XPR_API const char* XPR_UPS_PeekString(const char* key)
 {
     XPR_RET_IF(!key, NULL);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.str : NULL;
+    if (!entry)
+        return NULL;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_STRING)) {
+        DBG(DBG_L2, "XPR_UPS: PeekString('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_STRING));
+        return NULL;
+    }
+    return entry->curVal.str;
 }
 
 XPR_API const char* XPR_UPS_PeekStringVK(const char* vkey, ...)
@@ -958,7 +985,15 @@ XPR_API int XPR_UPS_PeekInteger(const char* key)
 {
     XPR_RET_IF(!key, 0);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.i32 : 0;
+    if (!entry)
+        return 0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I32)) {
+        DBG(DBG_L2, "XPR_UPS: PeekInteger('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I32));
+        return 0;
+    }
+    return entry->curVal.i32;
 }
 
 XPR_API int XPR_UPS_PeekIntegerVK(const char* vkey, ...)
@@ -998,7 +1033,15 @@ XPR_API int64_t XPR_UPS_PeekInt64(const char* key)
 {
     XPR_RET_IF(!key, 0);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.i64 : 0;
+    if (!entry)
+        return 0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I64)) {
+        DBG(DBG_L2, "XPR_UPS: PeekInt64('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I64));
+        return 0;
+    }
+    return entry->curVal.i64;
 }
 
 XPR_API int64_t XPR_UPS_PeekInt64VK(const char* vkey, ...)
@@ -1038,7 +1081,15 @@ XPR_API float XPR_UPS_PeekFloat(const char* key)
 {
     XPR_RET_IF(!key, 0.0);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.f32 : 0.0f;
+    if (!entry)
+        return 0.0f;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F32)) {
+        DBG(DBG_L2, "XPR_UPS: PeekFloat('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F32));
+        return 0.0f;
+    }
+    return entry->curVal.f32;
 }
 
 XPR_API float XPR_UPS_PeekFloatVK(const char* vkey, ...)
@@ -1078,7 +1129,15 @@ XPR_API double XPR_UPS_PeekDouble(const char* key)
 {
     XPR_RET_IF(!key, 0.0);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.f64 : 0;
+    if (!entry)
+        return 0.0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F64)) {
+        DBG(DBG_L2, "XPR_UPS: PeekDouble('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F64));
+        return 0.0;
+    }
+    return entry->curVal.f64;
 }
 
 XPR_API double XPR_UPS_PeekDoubleVK(const char* vkey, ...)
@@ -1118,7 +1177,15 @@ XPR_API int XPR_UPS_PeekBoolean(const char* key)
 {
     XPR_RET_IF(!key, 0);
     XPR_UPS_Entry* entry = XPR_UPS_FindEntry(key, NULL);
-    return entry ? entry->curVal.bl : 0;
+    if (!entry)
+        return 0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_BOOLEAN)) {
+        DBG(DBG_L2, "XPR_UPS: PeekBoolean('%s') type (%s) not matched (%s)!",
+            key, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_BOOLEAN));
+        return 0;
+    }
+    return entry->curVal.bl;
 }
 
 XPR_API int XPR_UPS_PeekBooleanVK(const char* vkey, ...)
@@ -1404,7 +1471,15 @@ XPR_API const char* XPR_UPS_PsvString(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, NULL);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.str : NULL;
+    if (!entry)
+        return NULL;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_STRING)) {
+        DBG(DBG_L2, "XPR_UPS: PsvString('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_STRING));
+        return NULL;
+    }
+    return entry->curVal.str;
 }
 
 XPR_API const char* XPR_UPS_PsvStringDV(XPR_UPS_Entry* curr, const char* name,
@@ -1413,7 +1488,15 @@ XPR_API const char* XPR_UPS_PsvStringDV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.str : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_STRING)) {
+        DBG(DBG_L2, "XPR_UPS: PsvStringDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_STRING));
+        return defVal;
+    }
+    return entry->curVal.str ? entry->curVal.str : defVal;
 }
 
 XPR_API int XPR_UPS_PsvInteger(XPR_UPS_Entry* curr, const char* name)
@@ -1421,7 +1504,15 @@ XPR_API int XPR_UPS_PsvInteger(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, 0);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.i32 : 0;
+    if (!entry)
+        return 0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I32)) {
+        DBG(DBG_L2, "XPR_UPS: PsvInteger('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I32));
+        return 0;
+    }
+    return entry->curVal.i32;
 }
 
 XPR_API int XPR_UPS_PsvIntegerDV(XPR_UPS_Entry* curr, const char* name,
@@ -1430,7 +1521,15 @@ XPR_API int XPR_UPS_PsvIntegerDV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.i32 : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I32)) {
+        DBG(DBG_L2, "XPR_UPS: PsvIntegerDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I32));
+        return defVal;
+    }
+    return entry->curVal.i32;
 }
 
 XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name)
@@ -1438,7 +1537,15 @@ XPR_API int64_t XPR_UPS_PsvInt64(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, 0);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.i64 : 0;
+    if (!entry)
+        return 0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I64)) {
+        DBG(DBG_L2, "XPR_UPS: PsvInt64('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I64));
+        return 0;
+    }
+    return entry->curVal.i64;
 }
 
 XPR_API int64_t XPR_UPS_PsvInt64DV(XPR_UPS_Entry* curr, const char* name,
@@ -1447,7 +1554,15 @@ XPR_API int64_t XPR_UPS_PsvInt64DV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.i64 : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_I64)) {
+        DBG(DBG_L2, "XPR_UPS: PsvInt64DV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_I64));
+        return defVal;
+    }
+    return entry->curVal.i64;
 }
 
 XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name)
@@ -1455,7 +1570,15 @@ XPR_API double XPR_UPS_PsvDouble(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, 0.0);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.f64 : 0.0;
+    if (!entry)
+        return 0.0;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F64)) {
+        DBG(DBG_L2, "XPR_UPS: PsvDouble('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F64));
+        return 0.0;
+    }
+    return entry->curVal.f64;
 }
 
 XPR_API double XPR_UPS_PsvDoubleDV(XPR_UPS_Entry* curr, const char* name,
@@ -1464,7 +1587,15 @@ XPR_API double XPR_UPS_PsvDoubleDV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.f64 : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_F64)) {
+        DBG(DBG_L2, "XPR_UPS: PsvDoubleDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_F64));
+        return defVal;
+    }
+    return entry->curVal.f64;
 }
 
 XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name)
@@ -1472,7 +1603,15 @@ XPR_API int XPR_UPS_PsvBoolean(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, XPR_FALSE);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.bl : 0;
+    if (!entry)
+        return XPR_FALSE;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_BOOLEAN)) {
+        DBG(DBG_L2, "XPR_UPS: PsvBoolean('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_BOOLEAN));
+        return XPR_FALSE;
+    }
+    return entry->curVal.bl;
 }
 
 XPR_API int XPR_UPS_PsvBooleanDV(XPR_UPS_Entry* curr, const char* name,
@@ -1481,7 +1620,15 @@ XPR_API int XPR_UPS_PsvBooleanDV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.bl : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_BOOLEAN)) {
+        DBG(DBG_L2, "XPR_UPS: PsvBooleanDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_BOOLEAN));
+        return defVal;
+    }
+    return entry->curVal.bl;
 }
 
 XPR_API XPR_UPS_Blob XPR_UPS_PsvBlob(XPR_UPS_Entry* curr, const char* name)
@@ -1489,7 +1636,15 @@ XPR_API XPR_UPS_Blob XPR_UPS_PsvBlob(XPR_UPS_Entry* curr, const char* name)
     XPR_RET_IF(!curr || !name, kDummyBlob);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.bb : kDummyBlob;
+    if (!entry)
+        return kDummyBlob;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_BLOB)) {
+        DBG(DBG_L2, "XPR_UPS: PsvBlob('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_BLOB));
+        return kDummyBlob;
+    }
+    return entry->curVal.bb;
 }
 
 XPR_API XPR_UPS_Blob XPR_UPS_PsvBlobDV(XPR_UPS_Entry* curr, const char* name,
@@ -1498,7 +1653,15 @@ XPR_API XPR_UPS_Blob XPR_UPS_PsvBlobDV(XPR_UPS_Entry* curr, const char* name,
     XPR_RET_IF(!curr || !name, defVal);
     XPR_UPS_Entry* entry =
         XPR_UPS_FindEntry(name, XPR_UPS_TO_ENTRY(curr->node.parent));
-    return entry ? entry->curVal.bb : defVal;
+    if (!entry)
+        return defVal;
+    if (!entryIsTypeCompatible(entry, XPR_UPS_ENTRY_TYPE_BLOB)) {
+        DBG(DBG_L2, "XPR_UPS: PsvBlobDV('%s') type (%s) not matched (%s)!",
+            name, entryTypeName(XPR_UPS_TO_TYPE(entry->type)),
+            entryTypeName(XPR_UPS_ENTRY_TYPE_BLOB));
+        return defVal;
+    }
+    return entry->curVal.bb;
 }
 
 XPR_API int XPR_UPS_Delete(const char* key)
