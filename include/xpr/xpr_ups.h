@@ -244,7 +244,7 @@ enum XPR_UPS_EntryType
     XPR_UPS_ENTRY_TYPE_BOOLEAN, ///< 布尔
     XPR_UPS_ENTRY_TYPE_BLOB,    ///< 二进制数据
     XPR_UPS_ENTRY_TYPE_I32,     ///< 32 位整形
-    XPR_UPS_ENTRY_TYPE_I64,     ///< 32 位整形
+    XPR_UPS_ENTRY_TYPE_I64,     ///< 64 位整形
     XPR_UPS_ENTRY_TYPE_F32,     ///< 32 位浮点数
     XPR_UPS_ENTRY_TYPE_F64,     ///< 64 位浮点数
     XPR_UPS_ENTRY_TYPE_STRING,  ///< 字符串
