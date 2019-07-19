@@ -299,13 +299,17 @@ include/xpr/xpr_config.h
 tests/fifo
 tests/file
 tests/fq
+tests/hashtable
 tests/json
 tests/qsort
 tests/realpath
+tests/regex
 tests/rtsp
 tests/struct
 tests/thread
 tests/ups
 tests/ups-basic
+tests/ups-storage.conf
+tests/ups-storage.json.*
 tests/utils
 tests/xml
