@@ -44,6 +44,15 @@ static __thread XPR_UPS_Entry* sGroupEntry = NULL;
     vsnprintf(keyvar, sizeof(keyvar), fmt, ap);                                \
     va_end(ap);
 
+// Forwards
+static int entryRegister(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent);
+static void entryUnregister(XPR_UPS_Entry* entry);
+static void entryUnregisterSiblings(XPR_UPS_Entry* entry);
+static void entryUseDefaultValue(XPR_UPS_Entry* entry);
+static XPR_UPS_Entry* findEntry(const char* key, XPR_UPS_Entry* parent);
+static XPR_UPS_Entry* findSibling(const char* name, XPR_UPS_Entry* head);
+static int storageFetchValue(XPR_UPS_Entry* entry);
+
 // Return XPR_TRUE if str ends with '/'
 static int slashEnds(const char* str)
 {
@@ -136,6 +145,71 @@ static int entryIsRegistered(XPR_UPS_Entry* entry)
     return (entry->type & XPR_UPS_ENTRY_FLAG_REGIST) ? XPR_TRUE : XPR_FALSE;
 }
 
+// Register the entry to tree with parent
+static int entryRegister(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
+{
+    if (!entry)
+        return XPR_ERR_UPS_NULL_PTR;
+    int err = XPR_ERR_ERROR;
+    if (!parent)
+        parent = findEntry(entry->root, NULL);
+    // Skip or override if the entry exists
+    if (parent) {
+        XPR_UPS_Entry* temp = findEntry(entry->name, parent);
+        if (temp) {
+            if (entry->type & XPR_UPS_ENTRY_FLAG_OVRIDE) {
+                DBG(DBG_L2, "XPR_UPS: Override ['%s'@%p] ==> ['%s'@%p]!",
+                    temp->name, temp, entry->name, entry);
+                entryUnregister(temp);
+            }
+            else {
+                err = XPR_ERR_UPS_EXIST;
+                goto done;
+            }
+        }
+    }
+    if (!parent) {
+        err = XPR_ERR_UPS_SYS_NOTREADY;
+        goto done;
+    }
+    // Link to tree
+    XPR_UPS_Node* child = parent->node.childs;
+    if (child == NULL) {
+        parent->node.childs = XPR_UPS_TO_NODE(entry);
+    }
+    else {
+        while (child->next) {
+            child = child->next;
+        }
+        child->next = XPR_UPS_TO_NODE(entry);
+    }
+    // Update link nodes
+    entry->node.parent = XPR_UPS_TO_NODE(parent);
+    entry->node.prev = child;
+    entry->node.next = NULL;
+    entry->node.childs = NULL;
+    // Fetch current value from storage
+    if (!(entry->type & XPR_UPS_ENTRY_FLAG_NOSTOR) &&
+        !(XPR_UPS_ENTRY_IS_DIR(entry) || XPR_UPS_ENTRY_IS_INIT(entry))) {
+        if (storageFetchValue(entry) != XPR_ERR_OK)
+            entryUseDefaultValue(entry);
+    }
+    // Initialize the entry first
+    if (entry->init) {
+        err = entry->init(entry);
+        if (err != XPR_ERR_OK) {
+            DBG(DBG_L2, "XPR_UPS: Entry %s @ %p initialize error: 0x%08X",
+                entry->name, entry, err);
+            goto done;
+        }
+    }
+    // Okay
+    entry->type |= XPR_UPS_ENTRY_FLAG_REGIST;
+    err = XPR_ERR_OK;
+done:
+    return err;
+}
+
 // Return the name of the type
 static const char* entryTypeName(XPR_UPS_EntryType type)
 {
@@ -182,9 +256,6 @@ static char* entryUnlinkedFullName(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent,
     snprintf(buf, size, "%s%s", pfn, entry->name);
     return buf;
 }
-
-// Forward
-static void entryUnregisterSiblings(XPR_UPS_Entry* entry);
 
 // Unlink entry from tree and call finalizer
 static void entryUnregister(XPR_UPS_Entry* entry)
@@ -785,67 +856,9 @@ XPR_API int XPR_UPS_RegisterAt(XPR_UPS_Entry ents[], int count,
 
 XPR_API int XPR_UPS_RegisterSingle(XPR_UPS_Entry* entry, XPR_UPS_Entry* parent)
 {
-    if (!entry)
-        return XPR_ERR_UPS_NULL_PTR;
     int err = XPR_ERR_OK;
     XPR_UPS_LOCK();
-    if (!parent)
-        parent = findEntry(entry->root, NULL);
-    // Skip or override if the entry exists
-    if (parent) {
-        XPR_UPS_Entry* temp = findEntry(entry->name, parent);
-        if (temp) {
-            if (entry->type & XPR_UPS_ENTRY_FLAG_OVRIDE) {
-                DBG(DBG_L2, "XPR_UPS: Override ['%s'@%p] ==> ['%s'@%p]!",
-                    temp->name, temp, entry->name, entry);
-                entryUnregister(temp);
-            }
-            else {
-                err = XPR_ERR_UPS_EXIST;
-                goto done;
-            }
-        }
-    }
-    if (!parent) {
-        err = XPR_ERR_UPS_SYS_NOTREADY;
-        goto done;
-    }
-    // Link to tree
-    XPR_UPS_Node* child = parent->node.childs;
-    if (child == NULL) {
-        parent->node.childs = XPR_UPS_TO_NODE(entry);
-    }
-    else {
-        while (child->next) {
-            child = child->next;
-        }
-        child->next = XPR_UPS_TO_NODE(entry);
-    }
-    // Update link nodes
-    entry->node.parent = XPR_UPS_TO_NODE(parent);
-    entry->node.prev = child;
-    entry->node.next = NULL;
-    entry->node.childs = NULL;
-    // Fetch current value from storage
-    if (!(entry->type & XPR_UPS_ENTRY_FLAG_NOSTOR) &&
-        !(XPR_UPS_ENTRY_IS_DIR(entry) || XPR_UPS_ENTRY_IS_INIT(entry))) {
-        if (storageFetchValue(entry) != XPR_ERR_OK)
-            entryUseDefaultValue(entry);
-    }
-    // Initialize the entry first
-    if (entry->init) {
-        err = entry->init(entry);
-        if (err != XPR_ERR_OK) {
-            DBG(DBG_L2,
-                "XPR_UPS: Entry %s @ %p initialize error: 0x%08X",
-                entry->name, entry, err);
-            goto done;
-        }
-    }
-    // Okay
-    entry->type |= XPR_UPS_ENTRY_FLAG_REGIST;
-    err = XPR_ERR_OK;
-done:
+    err = entryRegister(entry, parent);
     XPR_UPS_UNLOCK();
     return err;
 }
