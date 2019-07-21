@@ -662,7 +662,7 @@ static int XPR_UPS_GetDataNl(const char* key, XPR_UPS_EntryType type,
     int err = XPR_ERR_ERROR;
     if (!entryIsTypeCompatible(entry, type)) {
         DBG(DBG_L2, "XPR_UPS: GetData('%s'), type (%s) not matched (%s)!", key,
-            entryTypeName(type), XPR_UPS_TO_TYPE(entry->type));
+            entryTypeName(type), entryTypeName(XPR_UPS_TO_TYPE(entry->type)));
         goto done;
     }
     if (entry->get)
