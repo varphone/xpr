@@ -1,5 +1,6 @@
 ﻿#include <errno.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1058,27 +1059,31 @@ XPR_API int64_t XPR_UPS_PeekInt64VK(const char* vkey, ...)
 XPR_API int XPR_UPS_SetFloat(const char* key, float value)
 {
     XPR_RET_IF(!key, XPR_ERR_UPS_NULL_PTR);
-    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
+    if (isnan(value))
+        value = 0.0f;
+    return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F32, &value, 0);
 }
 
 XPR_API int XPR_UPS_SetFloatVK(float value, const char* vkey, ...)
 {
     XPR_RET_IF(!vkey, XPR_ERR_UPS_NULL_PTR);
     XPR_UPS_VKEY(newKey, vkey);
-    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
+    if (isnan(value))
+        value = 0.f;
+    return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F32, &value, 0);
 }
 
 XPR_API int XPR_UPS_GetFloat(const char* key, float* value)
 {
     XPR_RET_IF(!key || !value, XPR_ERR_UPS_NULL_PTR);
-    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+    return XPR_UPS_GetData(key, XPR_UPS_ENTRY_TYPE_F32, value, 0);
 }
 
 XPR_API int XPR_UPS_GetFloatVK(float* value, const char* vkey, ...)
 {
     XPR_RET_IF(!value || !vkey, XPR_ERR_UPS_NULL_PTR);
     XPR_UPS_VKEY(newKey, vkey);
-    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F64, value, 0);
+    return XPR_UPS_GetData(newKey, XPR_UPS_ENTRY_TYPE_F32, value, 0);
 }
 
 XPR_API float XPR_UPS_PeekFloat(const char* key)
@@ -1106,6 +1111,8 @@ XPR_API float XPR_UPS_PeekFloatVK(const char* vkey, ...)
 XPR_API int XPR_UPS_SetDouble(const char* key, double value)
 {
     XPR_RET_IF(!key, XPR_ERR_UPS_NULL_PTR);
+    if (isnan(value))
+        value = 0.0;
     return XPR_UPS_SetData(key, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
@@ -1113,6 +1120,8 @@ XPR_API int XPR_UPS_SetDoubleVK(double value, const char* vkey, ...)
 {
     XPR_RET_IF(!vkey, XPR_ERR_UPS_NULL_PTR);
     XPR_UPS_VKEY(newKey, vkey);
+    if (isnan(value))
+        value = 0.0;
     return XPR_UPS_SetData(newKey, XPR_UPS_ENTRY_TYPE_F64, &value, 0);
 }
 
