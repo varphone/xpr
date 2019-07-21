@@ -150,7 +150,11 @@ static int entryIsTypeCompatible(XPR_UPS_Entry* entry, XPR_UPS_EntryType type)
 {
     if (!entry)
         return XPR_FALSE;
-    return XPR_UPS_TO_TYPE(entry->type) == type ? XPR_TRUE : XPR_FALSE;
+    XPR_UPS_EntryType my = XPR_UPS_TO_TYPE(entry->type);
+    if (my == XPR_UPS_ENTRY_TYPE_I32 &&
+        (type == XPR_UPS_ENTRY_TYPE_BOOLEAN || type == XPR_UPS_ENTRY_TYPE_I32))
+        return XPR_TRUE;
+    return my == type ? XPR_TRUE : XPR_FALSE;
 }
 
 // Register the entry to tree with parent
