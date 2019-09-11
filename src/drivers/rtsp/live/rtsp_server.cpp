@@ -378,17 +378,21 @@ void H264VideoFramedSource::fetchFrame()
             fFrameSize = fMaxSize;
         }
         memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
-#if 0
+#if 1
         // Setup PTS with ntb->pts
         if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
             gettimeofday(&fPresentationTime, NULL);
+            fDurationInMicroseconds = 10000;
         }
         else {
             int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
-            fPresentationTime.tv_sec += usecs / 1000000;
-            fPresentationTime.tv_usec += usecs % 1000000;
-            mLastPTS = XPR_StreamBlockPTS(ntb);
+            if (usecs) {
+                usecs += fPresentationTime.tv_usec;
+                fPresentationTime.tv_sec += usecs / 1000000;
+                fPresentationTime.tv_usec = usecs % 1000000;
+            }
         }
+        mLastPTS = XPR_StreamBlockPTS(ntb);
 #else
         // Auto filled by H264VideoSteamFramer
         fPresentationTime.tv_sec = 0;
