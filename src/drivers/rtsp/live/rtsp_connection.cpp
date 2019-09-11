@@ -955,6 +955,10 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         newBuffer = new uint8_t[newMaxFrameSize];
     }
 
+    int64_t dts = static_cast<int64_t>(
+        mSubsession->getNormalPlayTime(presentationTime) * 1000);
+    dts *= 1000;
+
     int64_t pts = presentationTime.tv_sec;
     pts *= 1000000;
     pts += presentationTime.tv_usec;
@@ -982,7 +986,8 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     mStreamBlock.bufferSize = mMaxFrameSize;
     mStreamBlock.data = mBuffer + offset;
     mStreamBlock.dataSize = frameSize;
-    mStreamBlock.dts = mStreamBlock.pts = pts;
+    mStreamBlock.dts = dts;
+    mStreamBlock.pts = pts;
 
     // If H264 data without start code,
     // Rewind the stb.data to head of the buffer.
