@@ -49,6 +49,7 @@ extern "C" {
 #define XPR_STREAMBLOCK_FLAG_AUDIO_FRAME          0x00020000     ///< 音频帧
 #define XPR_STREAMBLOCK_FLAG_VIDEO_FRAME          0x00040000     ///< 视频帧
 #define XPR_STREAMBLOCK_FLAG_REFERABLE            0x00080000     ///< 可引用
+#define XPR_STREAMBLOCK_FLAG_FRAGMENTS            0x00100000
 #define XPR_STREAMBLOCK_MAX_SIZE                  16777216
 
 // 前置声明

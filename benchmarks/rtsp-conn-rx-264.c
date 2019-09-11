@@ -28,15 +28,20 @@
 
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
-    "rtsp://127.0.0.1:8554/example.264" CONN_CFG,
+    "rtsp://127.0.0.1:8554/live/1" CONN_CFG,
 };
 
 const int numUrls = sizeof(urls) / sizeof(urls[0]);
 
+static int64_t sLastPTS[16];
+
 static int data_handler(void* opaque, int port, const XPR_StreamBlock* stb)
 {
-    printf("Port %x, codec %x, flags %x, size %d, pts %ld\n", port, stb->codec,
-           stb->flags, stb->dataSize, stb->pts);
+    int ch = (int)(opaque);
+    int64_t du = stb->dts - sLastPTS[ch];
+    sLastPTS[ch] = stb->dts;
+    printf("Port %x, codec %x, flags %x, size %d, pts %ld, du %ld\n", port, stb->codec,
+           stb->flags, stb->dataSize, stb->dts, du);
     return 0;
 }
 
@@ -80,8 +85,8 @@ void benchmark(void)
     conPorts[1] = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_CLI, 2, 0);
     ret = XPR_RTSP_Open(conPorts[1], urls[1]);
     XPR_ERR_ASSERT(ret);
-    XPR_RTSP_AddDataCallback(conPorts[1], data_handler, (void*)0);
-    XPR_RTSP_AddEventCallback(conPorts[1], event_handler, (void*)0);
+    XPR_RTSP_AddDataCallback(conPorts[1], data_handler, (void*)1);
+    XPR_RTSP_AddEventCallback(conPorts[1], event_handler, (void*)1);
     XPR_RTSP_SetAuth(conPorts[1], "admin", "123456", 0);
     ret = XPR_RTSP_Start(conPorts[1]);
     XPR_ERR_ASSERT(ret);

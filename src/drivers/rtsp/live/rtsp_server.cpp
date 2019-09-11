@@ -366,6 +366,29 @@ unsigned int H264VideoFramedSource::maxFrameSize() const
     return XPR_RTSP_H264_MAX_FRAME_SIZE;
 }
 
+static int copyNalu(uint8_t* src, int srcSize, uint8_t* dst, int dstSize)
+{
+    uint32_t startCode = 0;
+    uint8_t* srcEnd = src + srcSize;
+    uint8_t* dstOrig = dst;
+    while (src < srcEnd) {
+        uint8_t c = *src;
+        if (c == 0x00 || c == 0x01) {
+            startCode <<= 8;
+            startCode  |= c;
+            if (startCode == 0x00000001)
+                break;
+        }
+        *dst = c;
+        src++;
+        dst++;
+    }
+    int n = dst - dstOrig;
+    if (startCode == 0x00000001)
+        n -= 3;
+    return n;
+}
+
 void H264VideoFramedSource::fetchFrame()
 {
     // Check video queue, if empty, delay for next.
@@ -517,8 +540,9 @@ void H264VideoServerMediaSubsession::checkForAuxSDPLine1()
         setDoneFlag();
     }
     else if (!mDoneFlag) {
+        printf("checkForAuxSDPLine for next\n");
         // try again after a brief delay:
-        int uSecsToDelay = 10000; // 10 ms
+        int uSecsToDelay = 5000; // 10 ms
         nextTask() = envir().taskScheduler().scheduleDelayedTask(
             uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
     }
@@ -528,6 +552,7 @@ char const*
 H264VideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink,
                                               FramedSource* inputSource)
 {
+    //mAuxSDPLine = "a=fmtp:96 packetization-mode=1;profile-level-id=64001E;sprop-parameter-sets=Z2QAHqwsaoLASabgICAgQA==,aO48sA==";
     if (mAuxSDPLine) {
         return mAuxSDPLine;
     }
@@ -554,6 +579,7 @@ H264VideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
 {
     estBitrate = 5000;
     H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
+    //return H264VideoStreamDiscreteFramer::createNew(envir(), src, False);
     return H264VideoStreamFramer::createNew(envir(), src, False);
 }
 
@@ -1402,14 +1428,17 @@ int Stream::putVideoFrame(XPR_StreamBlock* stb)
 {
     if (!stb || !mVideoQ)
         return XPR_ERR_GEN_NULL_PTR;
-    if (XPR_FifoIsFull(mVideoQ))
+    if (XPR_FifoIsFull(mVideoQ)) {
         releaseVideoFrame(getVideoFrame());
+        //printf("Frame droped! %d\n", XPR_FifoGetLength(mVideoQ));
+    }
     XPR_StreamBlock* ntb = stb;
     if (!(stb->flags & XPR_STREAMBLOCK_FLAG_REFERABLE))
         ntb = XPR_StreamBlockDuplicate(stb);
     int err = XPR_FifoPutAsAtomic(mVideoQ, (uintptr_t)ntb);
     if (XPR_IS_ERROR(err)) {
         releaseVideoFrame(ntb);
+        //printf("Put error!");
     }
     return err;
 }

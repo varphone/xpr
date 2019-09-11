@@ -945,6 +945,12 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     uint8_t* newBuffer = NULL;
     size_t newMaxFrameSize = 0;
 
+    if (mSubsession->rtpSource() != NULL &&
+        !mSubsession->rtpSource()->hasBeenSynchronizedUsingRTCP()) {
+        DBG(DBG_L2, "XPR_RTSP: DummySink(%p): hasBeenSynchronizedUsingRTCP",
+            this);
+    }
+
     if (numTruncatedBytes) {
         DBG(DBG_L3, "XPR_RTSP: DummySink(%p): %d bytes truncated", this,
             numTruncatedBytes);
