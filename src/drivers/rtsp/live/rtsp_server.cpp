@@ -96,7 +96,7 @@ void ADTSAudioFramedSource::fetchFrame()
             fFrameSize = fMaxSize;
         }
 #endif
-#if 1
+
         unsigned char* cur = XPR_StreamBlockData(ntb);
         unsigned char* headers = cur;
 
@@ -138,19 +138,24 @@ void ADTSAudioFramedSource::fetchFrame()
         fFrameSize = numBytesRead;
         fNumTruncatedBytes += numBytesToRead - numBytesRead;
 
+#if 1
         // Set the 'presentation time':
         if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
             // This is the first frame, so use the current time:
             gettimeofday(&fPresentationTime, NULL);
+            fDurationInMicroseconds = 20000;
         }
         else {
             // Increment by the play time of the previous frame:
-            unsigned uSeconds = fPresentationTime.tv_usec + mUSecsPerFrame;
-            fPresentationTime.tv_sec += uSeconds / 1000000;
-            fPresentationTime.tv_usec = uSeconds % 1000000;
+            int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
+            if (usecs) {
+                usecs += fPresentationTime.tv_usec;
+                fPresentationTime.tv_sec += usecs / 1000000;
+                fPresentationTime.tv_usec = usecs % 1000000;
+            }
         }
 
-        fDurationInMicroseconds = mUSecsPerFrame;
+        mLastPTS = XPR_StreamBlockPTS(ntb);
 #else
         // Auto filled by AudioRTPSink
         fPresentationTime.tv_sec = 0;
