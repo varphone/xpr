@@ -1,6 +1,7 @@
 ﻿#ifndef XPR_RTSP_DRIVER_LIVE_RTSP_HPP
 #define XPR_RTSP_DRIVER_LIVE_RTSP_HPP
 
+#include <cstring>
 #include <string>
 #include <vector>
 #include <xpr/xpr_errno.h>
@@ -139,11 +140,18 @@ public:
         , mParent(parent)
         , mActiveFlags(PortFlags::PORT_FLAG_NULL)
         , mUserFlags(PortFlags::PORT_FLAG_NULL)
+        , mLastActiveTS(0)
+        , mLastLivenessTS(0)
+        , mOutputFourCC(0)
+        , mTrSpec(XPR_RTSP_TRSPEC_RTP_AVP_TCP)
+        , mTotalFrames(0)
         , mUrl()
         , mUsername()
         , mPassword()
+        , mPwdIsMD5(false)
+        , mCallbacks()
     {
-        // Nothing TODO
+        std::memset(mCallbacks, 0, sizeof(mCallbacks));
     }
 
     virtual ~Port(void)
