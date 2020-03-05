@@ -32,11 +32,11 @@ void benchmark(void)
     // Query:
     // - track - Index of the track, must be first param of each track
     // - mime - Track data mime type, like: audio/AAC, video/H264
-    err = XPR_RTSP_Open(streamPort, "uri:///live/1"
-                                    "?track=1&mime=video/H264");
+    err = XPR_RTSP_Open(streamPort, "uri:///example.264"
+                                    "?track=1&mime=video/H264&appendOriginPTS=1");
     XPR_ERR_ASSERT(err);
     fprintf(stderr, "RTSP [%d] URL: %s\n", streamPort,
-            "rtsp://0.0.0.0:8554/live/1");
+            "rtsp://0.0.0.0:8554/example.264");
     err = XPR_RTSP_Start(streamPort);
     XPR_ERR_ASSERT(err);
     // Open example file

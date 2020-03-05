@@ -18,13 +18,15 @@
 // - rxTimeout: Set rtp receive timeout in us
 // - useFrameMerger: Enable frame merger on 264/265 fragments
 // - rtpOverTcp: Enable/Disable RTP transimition over TCP
+// - appendOriginPTS: Enable origin PTS features
 #define CONN_CFG                                                               \
     "??"                                                                       \
     "autoRestart=true&"                                                        \
     "restartDelay=1000000&"                                                    \
     "rxTimeout=2000000&"                                                       \
     "useFrameMerger=true&"                                                     \
-    "rtpOverTcp=true"
+    "rtpOverTcp=true&"                                                         \
+    "appendOriginPTS=1"
 
 const char* urls[] = {
     "rtsp://127.0.0.1:8554/example.264",
