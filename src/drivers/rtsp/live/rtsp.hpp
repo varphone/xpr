@@ -20,6 +20,8 @@
 #define H264_FLAG_ADD_AUD           0x00000001
 #define H264_FLAG_SINGLE_FRAME      0x00000002
 #define H264_FLAG_START_CODE        0x00000004
+#define H264_OPTS_HDR_LEN           11
+#define H264_OPTS_FRM_LEN           (H264_OPTS_HDR_LEN + sizeof(int64_t))
 
 /// 回调函数集
 typedef struct Callback {

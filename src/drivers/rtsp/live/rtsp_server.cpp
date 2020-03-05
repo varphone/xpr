@@ -378,11 +378,24 @@ void H264VideoFramedSource::fetchFrame()
     XPR_StreamBlock* ntb = mStream->getVideoFrame();
     if (ntb) {
         fFrameSize = XPR_StreamBlockLength(ntb);
+        if (mStream->appendOriginPTS() == 1)
+            fFrameSize += H264_OPTS_FRM_LEN;
         if (fFrameSize > fMaxSize) {
             fNumTruncatedBytes = fFrameSize - fMaxSize;
             fFrameSize = fMaxSize;
         }
-        memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
+        if (mStream->appendOriginPTS() == 1) {
+            uint32_t n = fFrameSize - H264_OPTS_FRM_LEN;
+            int64_t usecs = XPR_StreamBlockPTS(ntb);
+            const uint8_t sei[H264_OPTS_HDR_LEN] = {
+                0x00, 0x00, 0x00, 0x01, 0x06, 0x05, 12, 'O', 'P', 'T', 'S'};
+            memcpy(fTo, sei, sizeof(sei));
+            memcpy(fTo + H264_OPTS_HDR_LEN, &usecs, sizeof(int64_t));
+            memcpy(fTo + H264_OPTS_FRM_LEN, XPR_StreamBlockData(ntb), n);
+        }
+        else {
+            memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
+        }
 #if 1
         // Setup PTS with ntb->pts
         if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
@@ -1257,6 +1270,7 @@ Stream::Stream(int id, Port* parent)
     , mAudioProfile(1)
     , mAudioFreqIdx(4)
     , mAudioChannels(2)
+    , mAppendOriginPTS(0)
 {
     DBG(DBG_L5, "XPR_RTSP: Stream::Stream(%d, %p) = %p", id, parent, this);
 }
@@ -1358,6 +1372,11 @@ int Stream::pushData(int port, XPR_StreamBlock* stb)
 ServerMediaSession* Stream::sms(void) const
 {
     return mSMS;
+}
+
+int Stream::appendOriginPTS(void) const
+{
+    return mAppendOriginPTS;
 }
 
 bool Stream::hasAudioFrame(void) const
@@ -1498,6 +1517,9 @@ void Stream::configStream(const char* key, const char* value)
     }
     else if (strcmp(key, "audioChannles") == 0) {
         mAudioChannels = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "appendOriginPTS") == 0) {
+        mAppendOriginPTS = strtol(value, NULL, 10);
     }
     else {
         DBG(DBG_L3, "XPR_RTSP: Stream(%p): configuration: \"%s\" unsupported.",

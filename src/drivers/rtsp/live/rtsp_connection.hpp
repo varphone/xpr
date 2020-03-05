@@ -47,6 +47,7 @@ public:
     void setReceiveTimeout(int rxTimeout);
     void setUseFrameMerger(bool useFrameMerger);
     void setOutputFormats(const std::string& outputFormats);
+    void setAppendOriginPTS(int appendOriginPTS);
 
     Connection* getParent(void);
 
@@ -126,6 +127,7 @@ public:
     int mRxTimeout;
     bool mUseFrameMerger;
     std::string mOutputFormats;
+    int mAppendOriginPTS;
     bool mIsPlaying;
     int64_t mLastActiveTS;
     TaskToken mKeepAliveTask;
@@ -166,8 +168,10 @@ private:
     uint8_t* mBuffer;
     uint32_t mMaxFrameSize;
     uint32_t mFourcc;
+    int mAppendOriginPTS;
     void* mMeta;
     int64_t mPTS;
+    int64_t mOriginPTS;
     int mTrackId;
     XPR_StreamBlock mStreamBlock;
 };
@@ -216,6 +220,7 @@ private:
     bool mAutoRestart; // Auto restart when src stopped or timeouted
     int mRestartDelay; // Auto restart delay in us
     std::string mOutputFormats; // Set output formats: adts or ...
+    int mAppendOriginPTS; // Flags of the origin pts appending by server
 };
 
 } // namespace xpr::rtsp

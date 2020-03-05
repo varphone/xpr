@@ -385,6 +385,7 @@ MyRTSPClient::MyRTSPClient(UsageEnvironment& env, const char* url,
     , mRxTimeout(RX_TMO)
     , mUseFrameMerger(false)
     , mOutputFormats()
+    , mAppendOriginPTS(0)
     , mIsPlaying(false)
     , mLastActiveTS(0)
     , mKeepAliveTask(nullptr)
@@ -448,6 +449,11 @@ void MyRTSPClient::setUseFrameMerger(bool useFrameMerger)
 void MyRTSPClient::setOutputFormats(const std::string& outputFormats)
 {
     mOutputFormats = outputFormats;
+}
+
+void MyRTSPClient::setAppendOriginPTS(int appendOriginPTS)
+{
+    mAppendOriginPTS = appendOriginPTS;
 }
 
 void MyRTSPClient::handleError(int err)
@@ -568,6 +574,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     , mFourcc(0)
     , mMeta(NULL)
     , mPTS(0)
+    , mOriginPTS(0)
     , mTrackId(trackId)
     , mStreamBlock()
 {
@@ -627,6 +634,7 @@ DummySink::DummySink(UsageEnvironment& env, MyRTSPClient* client,
     if (mFourcc == AV_FOURCC_AAC && contains(mClient->mOutputFormats, "adts")) {
         mOutputAdts = true;
     }
+    mAppendOriginPTS = mClient->mAppendOriginPTS;
 }
 
 DummySink::~DummySink()
@@ -937,6 +945,25 @@ static int H264_DetectFrameTypeForHisi(const uint8_t* data, size_t size)
 }
 #endif
 
+static int64_t getOriginPTS(XPR_StreamBlock* stb)
+{
+    if (stb->dataSize < H264_OPTS_FRM_LEN)
+        return 0;
+    int n = stb->dataSize - H264_OPTS_FRM_LEN;
+    if (n < 0)
+        return 0;
+    const uint8_t sei[] = {0x00, 0x00, 0x00, 0x01, 0x06, 0x05,
+                           12,   'O',  'P',  'T',  'S'};
+    int a = memcmp(stb->data + n, sei, H264_OPTS_HDR_LEN);
+    if (a == 0) {
+        stb->dataSize = n;
+        int64_t pts = 0;
+        memcpy(&pts, stb->data + n + 11, sizeof(pts));
+        return pts;
+    }
+    return 0;
+}
+
 void DummySink::afterGettingFrame(unsigned frameSize,
                                   unsigned numTruncatedBytes,
                                   struct timeval presentationTime,
@@ -963,8 +990,6 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     pts *= 1000000;
     pts += presentationTime.tv_usec;
 
-    mPTS = pts;
-
     // Update last active timestamp
     mClient->updateLATS();
 
@@ -981,6 +1006,9 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         break;
     }
 
+    if (mAppendOriginPTS == 1)
+        pts = mPTS;
+
     // Fill stream block
     mStreamBlock.buffer = mBuffer;
     mStreamBlock.bufferSize = mMaxFrameSize;
@@ -988,6 +1016,7 @@ void DummySink::afterGettingFrame(unsigned frameSize,
     mStreamBlock.dataSize = frameSize;
     mStreamBlock.dts = dts;
     mStreamBlock.pts = pts;
+    mPTS = pts;
 
     // If H264 data without start code,
     // Rewind the stb.data to head of the buffer.
@@ -1002,13 +1031,20 @@ void DummySink::afterGettingFrame(unsigned frameSize,
             ~(XPR_STREAMBLOCK_FLAG_TYPE_I | XPR_STREAMBLOCK_FLAG_TYPE_P |
               XPR_STREAMBLOCK_FLAG_TYPE_B);
 #if 0
-        DBG(DBG_L4,
+        DBG(DBG_L2,
             "XPR_RTSP: DummySink(%p): hex dump: [%02X %02X %02X %02X %02X %02X "
             "%02X %02X]",
             this, mStreamBlock.data[0], mStreamBlock.data[1],
             mStreamBlock.data[2], mStreamBlock.data[3], mStreamBlock.data[4],
             mStreamBlock.data[5], mStreamBlock.data[6], mStreamBlock.data[7]);
 #endif
+        if (mAppendOriginPTS == 1) {
+            int64_t opts = getOriginPTS(&mStreamBlock);
+            if (opts != 0) {
+                mPTS = pts = opts;
+                goto next;
+            }
+        }
 #ifndef H264_HISI_FRAME_TYPE
         // Detect frame type (P/I) from NALU
         int slt = H264_DetectSliceType(mStreamBlock.data + 4,
@@ -1046,6 +1082,8 @@ void DummySink::afterGettingFrame(unsigned frameSize,
         Connection* conn = mClient->getParent();
         conn->pushData(id_to_port(conn->id()), &mStreamBlock);
     }
+
+next:
 
     // Replace the new buffer and size
     if (newBuffer && newMaxFrameSize) {
@@ -1110,6 +1148,7 @@ Connection::Connection(int id, Port* parent)
     , mAutoRestart(false)
     , mRestartDelay(5000000)
     , mOutputFormats()
+    , mAppendOriginPTS(0)
 {
     DBG(DBG_L5, "XPR_RTSP: Connection::Connection(%d, %p) = %p", id, parent,
         this);
@@ -1368,6 +1407,9 @@ void Connection::configConnection(const char* key, const char* value)
     else if (strcmp(key, "outputFormats") == 0) {
         mOutputFormats.assign(value);
     }
+    else if (strcmp(key, "appendOriginPTS") == 0) {
+        mAppendOriginPTS = strtol(value, NULL, 10);
+    }
     else {
         DBG(DBG_L4,
             "XPR_RTSP: Connection(%p): configuration: \"%s\" unsupported.",
@@ -1386,6 +1428,7 @@ int Connection::startInTask(int port)
         mClient->setReceiveTimeout(mRxTimeout);
         mClient->setUseFrameMerger(mUseFrameMerger);
         mClient->setOutputFormats(mOutputFormats);
+        mClient->setAppendOriginPTS(mAppendOriginPTS);
         // Prepare the timestamp for timeout detection
         mClient->updateLATS();
         // Send DESCRIBE command first

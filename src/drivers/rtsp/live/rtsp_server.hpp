@@ -369,6 +369,7 @@ public:
     ServerMediaSession* sms(void) const;
     int asrcId(void) const;
     int vsrcId(void) const;
+    int appendOriginPTS(void) const;
 
     bool hasAudioFrame(void) const;
     bool hasVideoFrame(void) const;
@@ -403,6 +404,7 @@ private:
     int                 mAudioProfile;
     int                 mAudioFreqIdx;
     int                 mAudioChannels;
+    int                 mAppendOriginPTS;
 };
 
 } // namespace xpr::rtsp
