@@ -73,6 +73,7 @@ make # 开始编译
 - `BUILD_EXAMPLES` - 配置是否编译演示例程。
 - `BUILD_TESTS` - 配置是否编译功能测试例程。
 - `BUILD_TOOLS` - 配置是否编译辅助工具。
+- `BUILD_SHARED_LIBS` - 配置是否编译动态库。
 
 ### GNU Make 编译
 
