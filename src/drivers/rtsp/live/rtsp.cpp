@@ -145,6 +145,16 @@ int xpr::rtsp::PortManager::stop(int port)
     return p ? p->stop(port) : XPR_ERR_GEN_SYS_NOTREADY;
 }
 
+int xpr::rtsp::PortManager::setAuth(int port, const char* username,
+                                    const char* password, int pwdIsMD5)
+{
+    if (isPortValid(port) == XPR_FALSE)
+        return XPR_ERR_GEN_ILLEGAL_PARAM;
+    Port* p = getPort(port);
+    return p ? p->setAuth(port, username, password, pwdIsMD5)
+             : XPR_ERR_GEN_SYS_NOTREADY;
+}
+
 int xpr::rtsp::PortManager::pushData(int port, XPR_StreamBlock* stb)
 {
     if (isPortValid(port) == XPR_FALSE)

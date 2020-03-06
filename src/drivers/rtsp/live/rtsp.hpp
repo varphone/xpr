@@ -434,6 +434,9 @@ public:
     virtual int start(int port);
     virtual int stop(int port);
 
+    virtual int setAuth(int port, const char* username, const char* password,
+                        int pwdIsMD5);
+
     virtual int pushData(int port, XPR_StreamBlock* stb);
 
     virtual Port* getPort(int port);
