@@ -397,17 +397,25 @@ void H264VideoFramedSource::fetchFrame()
             memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
         }
 #if 1
-        // Setup PTS with ntb->pts
-        if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
-            gettimeofday(&fPresentationTime, NULL);
-            fDurationInMicroseconds = 10000;
+        if (mStream->discreteInput() == 1) {
+            // Force PTS to ntb->pts
+            int64_t usecs = XPR_StreamBlockPTS(ntb);
+            fPresentationTime.tv_sec += usecs / 1000000;
+            fPresentationTime.tv_usec = usecs % 1000000;
         }
         else {
-            int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
-            if (usecs) {
-                usecs += fPresentationTime.tv_usec;
-                fPresentationTime.tv_sec += usecs / 1000000;
-                fPresentationTime.tv_usec = usecs % 1000000;
+            // Setup PTS with ntb->pts
+            if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
+                gettimeofday(&fPresentationTime, NULL);
+                fDurationInMicroseconds = 10000;
+            }
+            else {
+                int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
+                if (usecs) {
+                    usecs += fPresentationTime.tv_usec;
+                    fPresentationTime.tv_sec += usecs / 1000000;
+                    fPresentationTime.tv_usec = usecs % 1000000;
+                }
             }
         }
         mLastPTS = XPR_StreamBlockPTS(ntb);
@@ -567,6 +575,12 @@ H264VideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
 {
     estBitrate = 5000;
     H264VideoFramedSource* src = new H264VideoFramedSource(envir(), mStream);
+    if (mStream->discreteInput()) {
+        DBG(DBG_L4,
+            "XPR_RTSP: H264VideoServerMediaSubsession(%p): Use Discrete Input!",
+            this);
+        return H264VideoStreamDiscreteFramer::createNew(envir(), src, False);
+    }
     return H264VideoStreamFramer::createNew(envir(), src, False);
 }
 
@@ -1271,6 +1285,7 @@ Stream::Stream(int id, Port* parent)
     , mAudioFreqIdx(4)
     , mAudioChannels(2)
     , mAppendOriginPTS(0)
+    , mDiscreteInput(0)
 {
     DBG(DBG_L5, "XPR_RTSP: Stream::Stream(%d, %p) = %p", id, parent, this);
 }
@@ -1377,6 +1392,11 @@ ServerMediaSession* Stream::sms(void) const
 int Stream::appendOriginPTS(void) const
 {
     return mAppendOriginPTS;
+}
+
+int Stream::discreteInput(void) const
+{
+    return mDiscreteInput;
 }
 
 bool Stream::hasAudioFrame(void) const
@@ -1520,6 +1540,9 @@ void Stream::configStream(const char* key, const char* value)
     }
     else if (strcmp(key, "appendOriginPTS") == 0) {
         mAppendOriginPTS = strtol(value, NULL, 10);
+    }
+    else if (strcmp(key, "discreteInput") == 0) {
+        mDiscreteInput = strtol(value, NULL, 10);
     }
     else {
         DBG(DBG_L3, "XPR_RTSP: Stream(%p): configuration: \"%s\" unsupported.",

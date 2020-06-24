@@ -370,6 +370,7 @@ public:
     int asrcId(void) const;
     int vsrcId(void) const;
     int appendOriginPTS(void) const;
+    int discreteInput(void) const;
 
     bool hasAudioFrame(void) const;
     bool hasVideoFrame(void) const;
@@ -405,6 +406,7 @@ private:
     int                 mAudioFreqIdx;
     int                 mAudioChannels;
     int                 mAppendOriginPTS;
+    int                 mDiscreteInput;
 };
 
 } // namespace xpr::rtsp
