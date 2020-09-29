@@ -55,6 +55,11 @@ add_executable(rtsp_client rtsp_client.c)
 target_link_libraries(rtsp_client xpr)
 endif()
 
+if(HAVE_XPR_SHA1)
+add_executable(sha1 sha1.c)
+target_link_libraries(sha1 xpr)
+endif()
+
 if(HAVE_XPR_STRUCT)
 add_executable(struct struct.c)
 target_link_libraries(struct xpr)
