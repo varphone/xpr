@@ -267,7 +267,7 @@ XPR_API char* XPR_SHA1Data(const uint8_t* data, size_t length, char* hashOut)
     XPR_SHA1Init(&ctx);
     while (length > 0) {
         blk = MIN(4096, length);
-        XPR_SHA1Update(&ctx, data + pos, 4096);
+        XPR_SHA1Update(&ctx, data + pos, blk);
         pos += blk;
         length -= blk;
     }
