@@ -317,6 +317,63 @@ int main(void)
         ASSERT(caps[2].ptr[0] == 'z');
     }
 
+    {
+        /* Example for remove xmlns */
+        static const char* str =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<Root>\n"
+            "<lower:Hello>Hello Text</lower:Hello>\n"
+            "<UPPER:World>World Text</UPPER:World>\n"
+            "<!-- Some Comments Here -->\n"
+            "<digital-123:Foo>你好，世界！</digital-123:Foo>\n"
+            "<DIGITAL_123:Foo>こんにちは、世界!</DIGITAL_123:Foo>\n"
+            "</Root>\n"
+            "<Unexpected TAG>\n"
+            "Unexpected Contents\n";
+        static const char* regex = "</?([^:<>]*:)[^>]*>";
+        char buf[1024]; // Buffer for save the result.
+        int i, j = 0, k = 0, str_len = (int)strlen(str);
+        char* dst = buf;
+        // Clear caps
+        caps[0].ptr = 0;
+        caps[0].len = 0;
+        // Loop for match each xml tag
+        while (j < str_len &&
+               (i = XPR_RegexMatch(regex, str + j, str_len - j, caps, 1,
+                                   XPR_REGEX_FLAG_IGNORE_CASE)) > 0) {
+            const char* p = caps[0].ptr;
+            const int n = caps[0].len;
+            if (p && n > 0) {
+                if (p[n - 1] == ':') {
+                    printf("Found XMLNS: [\"%.*s\" @ %p, %d]\n", n, p, p, n);
+                    int l = p - str - j;
+                    int r = i - n - l;
+                    strncpy(buf + k, str + j, l);
+                    k += l;
+                    strncpy(buf + k, str + j + l + n, r);
+                    k += r;
+                }
+                else {
+                    strncpy(buf + k, str + j, i);
+                    k += i;
+                }
+            }
+            // Clear caps for next
+            caps[0].ptr = 0;
+            caps[0].len = 0;
+            // Move to next part
+            j += i;
+        }
+        // Copy tailer part
+        if (j < str_len) {
+            strncpy(buf + k, str + j, str_len - j);
+            k += str_len - j;
+        }
+        buf[k] = 0;
+        printf("NS Prefixed XML:\n```xml\n%s\n```\n", str);
+        printf("NS Removed  XML:\n```xml\n%s\n```\n", buf);
+    }
+
     printf("Unit test %s (total test: %d, failed tests: %d)\n",
            static_failed_tests > 0 ? "FAILED" : "PASSED", static_total_tests,
            static_failed_tests);
