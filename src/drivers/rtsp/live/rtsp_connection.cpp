@@ -1090,6 +1090,7 @@ next:
         delete mBuffer;
         mBuffer = newBuffer;
         mMaxFrameSize = newMaxFrameSize;
+        mFrameMerger->setMaxFrameSize(mMaxFrameSize);
     }
 
     // Then continue, to request the next frame of data:
