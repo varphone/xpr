@@ -1062,6 +1062,11 @@ int Server::startServer(void)
     DBG(DBG_L4, "XPR_RTSP: Server(%p): startServer()", this);
     if (!(activeFlags() & PortFlags::PORT_FLAG_OPEN))
         return XPR_ERR_GEN_SYS_NOTREADY;
+    if (!mUsername.empty()) {
+        if (!mAuthDB->lookupPassword(mUsername.c_str())) {
+            mAuthDB->addUserRecord(mUsername.c_str(), mPassword.c_str());
+        }
+    }
     for (size_t i = 0; i < mMaxWorkers; i++) {
         if (mWorkers[i]) {
             mWorkers[i]->start();
@@ -1134,6 +1139,13 @@ int Server::setupServer(const char* url)
         return XPR_ERR_GEN_ILLEGAL_PARAM;
     //
     mUrl = url;
+    // 设定用户名及密码
+    if (XPR_UrlHaveUsername(u))
+        mUsername = XPR_UrlGetUsername(u);
+    if (XPR_UrlHavePassword(u))
+        mPassword = XPR_UrlGetPassword(u);
+    DBG(DBG_L3, "XPR_RTSP: Server(%p): username=\"%s\", password=\"%s\"", this,
+        mUsername.c_str(), mPassword.c_str());
     //
     const char* host = XPR_UrlGetHost(u);
     uint16_t port = XPR_UrlGetPort(u);
@@ -1231,11 +1243,16 @@ void Server::clearWorkers(void)
 
 void Server::setupRTSPServer(void)
 {
+    UserAuthenticationDatabase* authDB = nullptr;
     mAuthDB = new UserAuthenticationDatabase();
 #if defined(DEBUG) || defined(_DEBUG)
     mAuthDB->addUserRecord("test", "test");
 #endif
-    mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, NULL);
+    if (!mUsername.empty()) {
+        mAuthDB->addUserRecord(mUsername.c_str(), mPassword.c_str());
+        authDB = mAuthDB;
+    }
+    mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, authDB);
     if (mRTSPServer == NULL) {
         DBG(DBG_L1,
             "XPR_RTSP: Server(%p): Failed to create RTSPServer, you "
