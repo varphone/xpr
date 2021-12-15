@@ -948,7 +948,6 @@ int Server::postEvent(int port, const XPR_RTSP_EVD* evd)
     for (int i = 0; i < XPR_RTSP_MAX_CALLBACKS; i++) {
         Callback* ncb = &mCallbacks[i];
         if (ncb->evcb) {
-            printf("posted event %p\n", evd);
             err = ncb->evcb(ncb->evcb_opaque, port, evd);
             if (err != XPR_ERR_OK)
                 break;
