@@ -84,8 +84,8 @@ if(BUILD_WITH_HUNTER)
     include("cmake/HunterGate.cmake")
 
     HunterGate(
-        URL "https://github.com/varphone/hunter/archive/v0.23.204-p1.tar.gz"
-        SHA1 "b6f830dc6cbd1eaae4f83ebf380f3ebc7254e9aa"
+        URL "https://github.com/varphone/hunter/archive/v0.23.204-p2.tar.gz"
+        SHA1 "06ac2cfe2add558ec1cdec8ae7795302f8f21666"
         LOCAL
     )
 endif()
@@ -111,7 +111,7 @@ if(BUILD_WITH_HUNTER)
     hunter_add_package(live)
     find_package(live CONFIG REQUIRED)
     if (NOT LIVE_INCLUDE_DIRS)
-        set(LIVE_INCLUDE_DIRS ${LIVE_ROOT}/include)
+        set(LIVE_INCLUDE_DIRS ${LIVE_ROOT}/include ${LIVE_ROOT}/include/live)
     endif()
 else()
     find_package(live QUIET)
