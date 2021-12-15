@@ -10,6 +10,57 @@
 
 #undef min // avoid from cstdlib
 
+class MyRTSPServer : public RTSPServer {
+public:
+    static RTSPServer*
+    createNew(xpr::rtsp::Server* server, UsageEnvironment& env,
+              Port ourPort = 554,
+              UserAuthenticationDatabase* authDatabase = NULL,
+              unsigned reclamationSeconds = 65)
+    {
+        int ourSocketIPv4 = setUpOurSocket(env, ourPort, AF_INET);
+        int ourSocketIPv6 = setUpOurSocket(env, ourPort, AF_INET6);
+        if (ourSocketIPv4 < 0 && ourSocketIPv6 < 0)
+            return NULL;
+
+        return new MyRTSPServer(server, env, ourSocketIPv4, ourSocketIPv6,
+                                ourPort, authDatabase, reclamationSeconds);
+    }
+
+protected:
+    MyRTSPServer(xpr::rtsp::Server* server, UsageEnvironment& env,
+                 int ourSocketIPv4, int ourSocketIPv6, Port ourPort,
+                 UserAuthenticationDatabase* authDatabase,
+                 unsigned reclamationSeconds)
+        : RTSPServer(env, ourSocketIPv4, ourSocketIPv6, ourPort, authDatabase,
+                     reclamationSeconds)
+        , mServer(server)
+    {
+    }
+
+    virtual ~MyRTSPServer()
+    {
+    }
+
+    virtual Boolean
+    specialClientUserAccessCheck(int clientSocket,
+                                 struct sockaddr_storage const& clientAddr,
+                                 char const* urlSuffix, char const* username)
+    {
+        DBG(DBG_L5,
+            "XPR_RTSP: Server(%p): specialClientUserAccessCheck(%d, %s, %s)",
+            this, clientSocket, urlSuffix, username);
+        XPR_RTSP_EVD_UAC evdUAC = {clientSocket, &clientAddr, urlSuffix,
+                                   username};
+        XPR_RTSP_EVD evd = {XPR_RTSP_EVT_UAC, &evdUAC, sizeof(evdUAC)};
+        int port = XPR_RTSP_PORT(XPR_RTSP_PORT_MAJOR_SVR, 0, 0);
+        return mServer->postEvent(port, &evd) ? XPR_ERR_OK : True;
+    }
+
+private:
+    xpr::rtsp::Server* mServer;
+};
+
 namespace xpr
 {
 
@@ -1270,7 +1321,8 @@ void Server::setupRTSPServer(void)
         mAuthDB->addUserRecord(mUsername.c_str(), mPassword.c_str());
         authDB = mAuthDB;
     }
-    mRTSPServer = RTSPServer::createNew(mWorkers[0]->env(), mBindPort, authDB);
+    mRTSPServer =
+        MyRTSPServer::createNew(this, mWorkers[0]->env(), mBindPort, authDB);
     if (mRTSPServer == NULL) {
         DBG(DBG_L1,
             "XPR_RTSP: Server(%p): Failed to create RTSPServer, you "
