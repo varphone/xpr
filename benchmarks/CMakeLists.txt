@@ -27,6 +27,9 @@ target_link_libraries(rtsp-mgr-open-close xpr)
 add_executable(rtsp-mgr-start-stop benchmark.c rtsp-mgr-start-stop.c)
 target_link_libraries(rtsp-mgr-start-stop xpr)
 
+add_executable(rtsp-svr-tx-264-with-auth benchmark.c rtsp-svr-tx-264-with-auth.c)
+target_link_libraries(rtsp-svr-tx-264-with-auth xpr)
+
 add_executable(rtsp-svr-tx-264-with-log benchmark.c rtsp-svr-tx-264-with-log.c)
 target_link_libraries(rtsp-svr-tx-264-with-log xpr)
 
