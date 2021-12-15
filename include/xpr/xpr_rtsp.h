@@ -121,6 +121,7 @@ typedef enum XPR_RTSP_EVT {
     XPR_RTSP_EVT_STOPPED,         ///< RTSP 对象已经停止
     XPR_RTSP_EVT_TIMEOUT,         ///< 数据传输超时
     XPR_RTSP_EVT_UNREACHABLE,     ///< 传输目标不可达
+    XPR_RTSP_EVT_UAC,             ///< 用户访问检查
 } XPR_RTSP_EVT;
 #endif // XPR_RTSP_EVT_TYPE_DEFINED
 
@@ -184,6 +185,19 @@ typedef struct XPR_RTSP_EVD {
     int data_size;      ///< 事件数据长度 [可选]
 } XPR_RTSP_EVD;
 #endif // XPR_RTSP_EVD_TYPE_DEFINED
+
+#ifndef XPR_RTSP_EVD_UAC_TYPE_DEFINED
+#define XPR_RTSP_EVD_UAC_TYPE_DEFINED
+///
+/// 用户访问检查事件数据定义
+///
+typedef struct XPR_RTSP_EVD_UAC {
+    int client_socket;                            ///< 客户端套接字
+    struct sockaddr_storage const* client_addr;   ///< 客户端地址
+    char const* url_suffix;                       ///< 客户端请求路径
+    char const* username;                         ///< 客户端请求用户名
+} XPR_RTSP_EVD_UAC;
+#endif // XPR_RTSP_EVD_UAC_TYPE_DEFINED
 
 ///
 /// 流数据数据回调函数定义
