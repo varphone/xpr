@@ -84,8 +84,8 @@ if(BUILD_WITH_HUNTER)
     include("cmake/HunterGate.cmake")
 
     HunterGate(
-        URL "https://github.com/varphone/hunter/archive/v0.23.204-p2.tar.gz"
-        SHA1 "06ac2cfe2add558ec1cdec8ae7795302f8f21666"
+        URL "https://github.com/varphone/hunter/archive/v0.23.59-p5.tar.gz"
+        SHA1 "e3235d9ffa6d5f4db4e6b416018133574dec45fb"
         LOCAL
     )
 endif()
