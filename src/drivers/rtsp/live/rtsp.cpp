@@ -260,11 +260,11 @@ XPR_API int XPR_RTSP_Init(void)
     // Set live555 ReceivingInterfaceAddr & SendingInterfaceAddr from ENV
     env = getenv("XPR_RTSP_RX_IF_ADDR");
     if (env && *env) {
-        ReceivingInterfaceAddr = our_inet_addr(env);
+        ReceivingInterfaceAddr = inet_addr(env);
     }
     env = getenv("XPR_RTSP_TX_IF_ADDR");
     if (env && *env) {
-        SendingInterfaceAddr = our_inet_addr(env);
+        SendingInterfaceAddr = inet_addr(env);
     }
     //
     rtsp = new xpr::rtsp::PortManager();
