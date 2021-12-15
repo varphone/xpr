@@ -938,6 +938,25 @@ int Server::pushData(int port, XPR_StreamBlock* stb)
     return mStreams[minor]->pushData(port, stb);
 }
 
+int Server::postEvent(int port, const XPR_RTSP_EVD* evd)
+{
+    int err = XPR_ERR_OK;
+    if (isPortValid(port) == XPR_FALSE) {
+        printf("PORT %d invalid\n", port);
+        return XPR_ERR_GEN_ILLEGAL_PARAM;
+    }
+    for (int i = 0; i < XPR_RTSP_MAX_CALLBACKS; i++) {
+        Callback* ncb = &mCallbacks[i];
+        if (ncb->evcb) {
+            printf("posted event %p\n", evd);
+            err = ncb->evcb(ncb->evcb_opaque, port, evd);
+            if (err != XPR_ERR_OK)
+                break;
+        }
+    }
+    return err;
+}
+
 RTSPServer* Server::rtspServer(void)
 {
     return mRTSPServer;

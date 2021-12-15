@@ -283,6 +283,7 @@ public:
     virtual int start(int port);
     virtual int stop(int port);
     virtual int pushData(int port, XPR_StreamBlock* stb);
+    virtual int postEvent(int port, const XPR_RTSP_EVD* evd);
 
     // Properties
     RTSPServer* rtspServer(void);
