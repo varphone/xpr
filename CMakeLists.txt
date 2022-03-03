@@ -67,6 +67,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 # Enable -fPIC on all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Enable C++11
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # Convert to upper case
 string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE)
 
