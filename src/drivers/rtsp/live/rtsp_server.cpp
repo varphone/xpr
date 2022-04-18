@@ -651,6 +651,271 @@ H264VideoServerMediaSubsession::createNew(UsageEnvironment& env,
     return new H264VideoServerMediaSubsession(env, source, stream);
 }
 
+// H265VideoFramedSource
+//============================================================================
+H265VideoFramedSource::H265VideoFramedSource(UsageEnvironment& env,
+                                             Stream* stream)
+    : FramedSource(env), mStream(stream), mLastPTS(0)
+{
+    DBG(DBG_L5, "XPR_RTSP: H265VideoFramedSource::H265VideoFramedSource(%p) = %p", &env,
+        this);
+}
+
+H265VideoFramedSource::H265VideoFramedSource(const H265VideoFramedSource& rhs)
+    : FramedSource(rhs.envir()), mStream(rhs.stream()), mLastPTS(rhs.mLastPTS)
+{
+}
+
+H265VideoFramedSource::~H265VideoFramedSource(void)
+{
+    DBG(DBG_L5, "XPR_RTSP: H265VideoFramedSource::~H265VideoFramedSource() = %p", this);
+    envir().taskScheduler().unscheduleDelayedTask(mCurrentTask);
+}
+
+void H265VideoFramedSource::doGetNextFrame()
+{
+    fetchFrame();
+}
+
+unsigned int H265VideoFramedSource::maxFrameSize() const
+{
+    return XPR_RTSP_H264_MAX_FRAME_SIZE;
+}
+
+void H265VideoFramedSource::fetchFrame()
+{
+    // Check video queue, if empty, delay for next.
+    if (!mStream->hasVideoFrame()) {
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            5000, getNextFrame, this);
+        return;
+    }
+    // Fetch one block from video queue.
+    XPR_StreamBlock* ntb = mStream->getVideoFrame();
+    if (ntb) {
+        fFrameSize = XPR_StreamBlockLength(ntb);
+        if (mStream->appendOriginPTS() == 1)
+            fFrameSize += H264_OPTS_FRM_LEN;
+        if (fFrameSize > fMaxSize) {
+            fNumTruncatedBytes = fFrameSize - fMaxSize;
+            fFrameSize = fMaxSize;
+        }
+        if (mStream->appendOriginPTS() == 1) {
+            uint32_t n = fFrameSize - H264_OPTS_FRM_LEN;
+            int64_t usecs = XPR_StreamBlockPTS(ntb);
+            const uint8_t sei[H264_OPTS_HDR_LEN] = {
+                0x00, 0x00, 0x00, 0x01, 0x06, 0x05, 12, 'O', 'P', 'T', 'S'};
+            memcpy(fTo, sei, sizeof(sei));
+            memcpy(fTo + H264_OPTS_HDR_LEN, &usecs, sizeof(int64_t));
+            memcpy(fTo + H264_OPTS_FRM_LEN, XPR_StreamBlockData(ntb), n);
+        }
+        else {
+            memcpy(fTo, XPR_StreamBlockData(ntb), fFrameSize);
+        }
+#if 1
+        if (mStream->discreteInput() == 1) {
+            // Force PTS to ntb->pts
+            int64_t usecs = XPR_StreamBlockPTS(ntb);
+            fPresentationTime.tv_sec += usecs / 1000000;
+            fPresentationTime.tv_usec = usecs % 1000000;
+        }
+        else {
+            // Setup PTS with ntb->pts
+            if (fPresentationTime.tv_sec == 0 && fPresentationTime.tv_usec == 0) {
+                gettimeofday(&fPresentationTime, NULL);
+                fDurationInMicroseconds = 10000;
+            }
+            else {
+                int64_t usecs = XPR_StreamBlockPTS(ntb) - mLastPTS;
+                if (usecs) {
+                    usecs += fPresentationTime.tv_usec;
+                    fPresentationTime.tv_sec += usecs / 1000000;
+                    fPresentationTime.tv_usec = usecs % 1000000;
+                }
+            }
+        }
+        mLastPTS = XPR_StreamBlockPTS(ntb);
+#else
+        // Auto filled by H264VideoSteamFramer
+        fPresentationTime.tv_sec = 0;
+        fPresentationTime.tv_usec = 0;
+#endif
+        mStream->releaseVideoFrame(ntb);
+        if (fNumTruncatedBytes > 0) {
+            DBG(DBG_L2,
+                "XPR_RTSP: H265VideoFramedSource(%p): %u bytes truncated.",
+                this, fNumTruncatedBytes);
+        }
+    }
+    else {
+        // Should never run here
+        DBG(DBG_L1, "XPR_RTSP: H265VideoFramedSource(%p): BUG: %s:%d\n", this,
+            __FILE__, __LINE__);
+        // Clear
+        fFrameSize = 0;
+        fNumTruncatedBytes = 0;
+    }
+    afterGetting(this);
+}
+
+Stream* H265VideoFramedSource::stream(void) const
+{
+    return mStream;
+}
+
+void H265VideoFramedSource::getNextFrame(void* ptr)
+{
+    if (ptr) {
+        ((H265VideoFramedSource*)ptr)->fetchFrame();
+    }
+}
+
+Boolean H265VideoFramedSource::isH265VideoStreamFramer() const
+{
+    return True;
+}
+
+// H265VideoServerMediaSubsession
+//============================================================================
+H265VideoServerMediaSubsession::H265VideoServerMediaSubsession(
+    UsageEnvironment& env, FramedSource* source, Stream* stream)
+    : OnDemandServerMediaSubsession(env, True)
+    , mSource(source)
+    , mSink(NULL)
+    , mStream(stream)
+    , mDoneFlag(0)
+    , mAuxSDPLine(NULL)
+{
+    DBG(DBG_L5,
+        "XPR_RTSP: "
+        "H265VideoServerMediaSubsession::H265VideoServerMediaSubsession(%p, "
+        "%p) = %p",
+        &env, source, this);
+}
+
+H265VideoServerMediaSubsession::~H265VideoServerMediaSubsession(void)
+{
+    DBG(DBG_L5,
+        "XPR_RTSP: "
+        "H265VideoServerMediaSubsession::~H265VideoServerMediaSubsession() = "
+        "%p",
+        this);
+    if (mAuxSDPLine) {
+        free(mAuxSDPLine);
+        mAuxSDPLine = NULL;
+    }
+    mSource = NULL;
+    mSink = NULL;
+    mDoneFlag = 0;
+}
+
+void H265VideoServerMediaSubsession::afterPlayingDummy(void* clientData)
+{
+    H265VideoServerMediaSubsession* subsess =
+        (H265VideoServerMediaSubsession*)clientData;
+    subsess->afterPlayingDummy1();
+}
+
+void H265VideoServerMediaSubsession::afterPlayingDummy1()
+{
+    // Unschedule any pending 'checking' task:
+    envir().taskScheduler().unscheduleDelayedTask(nextTask());
+    // Signal the event loop that we're done:
+    setDoneFlag();
+}
+
+void H265VideoServerMediaSubsession::setDoneFlag()
+{
+    mDoneFlag = ~0x00;
+}
+
+void H265VideoServerMediaSubsession::checkForAuxSDPLine(void* clientData)
+{
+    H265VideoServerMediaSubsession* subsess =
+        (H265VideoServerMediaSubsession*)clientData;
+    subsess->checkForAuxSDPLine1();
+}
+
+void H265VideoServerMediaSubsession::checkForAuxSDPLine1()
+{
+    const char* dasl = NULL;
+    nextTask() = NULL;
+    if (mAuxSDPLine != NULL) {
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (mSink != NULL && (dasl = mSink->auxSDPLine()) != NULL) {
+        mAuxSDPLine = strDup(dasl);
+        mSink = NULL;
+        DBG(DBG_L4,
+            "XPR_RTSP: H265VideoServerMediaSubsession(%p): AuxSDPLine [%s]",
+            this, mAuxSDPLine);
+        // Signal the event loop that we're done:
+        setDoneFlag();
+    }
+    else if (!mDoneFlag) {
+        // try again after a brief delay:
+        int uSecsToDelay = 10000; // 10 ms
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(
+            uSecsToDelay, (TaskFunc*)checkForAuxSDPLine, this);
+    }
+}
+
+char const*
+H265VideoServerMediaSubsession::getAuxSDPLine(RTPSink* rtpSink,
+                                              FramedSource* inputSource)
+{
+    if (mAuxSDPLine) {
+        return mAuxSDPLine;
+    }
+    if (mSink == NULL) {
+        // we're not already setting it up for another, concurrent stream
+        // Note: For H264 video files, the 'config' information
+        // ("profile-level-id" and "sprop-parameter-sets") isn't known until we
+        // start reading the file.  This means that "rtpSink"s "auxSDPLine()"
+        // will be NULL initially, and we need to start reading data from our
+        // file until this changes.
+        mSink = rtpSink;
+        // Start reading the file:
+        mSink->startPlaying(*inputSource, afterPlayingDummy, this);
+        // Check whether the sink's 'auxSDPLine()' is ready:
+        checkForAuxSDPLine(this);
+    }
+    envir().taskScheduler().doEventLoop(&mDoneFlag);
+    return mAuxSDPLine;
+}
+
+FramedSource*
+H265VideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
+                                                      unsigned& estBitrate)
+{
+    estBitrate = 5000;
+    H265VideoFramedSource* src = new H265VideoFramedSource(envir(), mStream);
+    if (mStream->discreteInput()) {
+        DBG(DBG_L4,
+            "XPR_RTSP: H265VideoServerMediaSubsession(%p): Use Discrete Input!",
+            this);
+        return H264VideoStreamDiscreteFramer::createNew(envir(), src, False);
+    }
+    return H264VideoStreamFramer::createNew(envir(), src, False);
+}
+
+RTPSink* H265VideoServerMediaSubsession::createNewRTPSink(
+    Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
+    FramedSource* inputSource)
+{
+    OutPacketBuffer::maxSize = 320000;
+    return H264VideoRTPSink::createNew(envir(), rtpGroupsock,
+                                       rtpPayloadTypeIfDynamic);
+}
+
+H265VideoServerMediaSubsession*
+H265VideoServerMediaSubsession::createNew(UsageEnvironment& env,
+                                          FramedSource* source, Stream* stream)
+{
+    return new H265VideoServerMediaSubsession(env, source, stream);
+}
+
 // JPEGVideoFramedSource
 //============================================================================
 JPEGVideoFramedSource::JPEGVideoFramedSource(UsageEnvironment& env,
@@ -1594,6 +1859,13 @@ void Stream::configStream(const char* key, const char* value)
                 UsageEnvironment& env = server->workers()[0]->env();
                 mSMS->addSubsession(
                     H264VideoServerMediaSubsession::createNew(env, NULL, this));
+            }
+        }
+        if (strcmp(value, "video/H265") == 0) {
+            if (mSourceType == "stb") {
+                UsageEnvironment& env = server->workers()[0]->env();
+                mSMS->addSubsession(
+                    H265VideoServerMediaSubsession::createNew(env, NULL, this));
             }
         }
         else if (strcmp(value, "video/JPEG") == 0) {

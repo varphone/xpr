@@ -28,6 +28,8 @@ namespace rtsp
 class ADTSAudioFramedSource;
 class H264VideoFramedSource;
 class H264VideoServerMediaSubsession;
+class H265VideoFramedSource;
+class H265VideoServerMediaSubsession;
 class JPEGVideoFramedSource;
 class JPEGVideoServerMediaSubsession;
 class Server;
@@ -186,6 +188,76 @@ public:
 
 protected:
     H264VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
+                                   Stream* stream);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual char const* getAuxSDPLine(RTPSink* rtpSink, FramedSource* inputSource);
+
+private:
+    FramedSource*       mSource;
+    RTPSink*            mSink;
+    Stream*             mStream;
+    char                mDoneFlag;
+    char*               mAuxSDPLine;
+};
+
+/// 基于帧的 H265 视频源
+class H265VideoFramedSource : public FramedSource
+{
+public:
+    H265VideoFramedSource(UsageEnvironment& env, Stream* stream);
+    H265VideoFramedSource(const H265VideoFramedSource& rhs);
+    virtual ~H265VideoFramedSource(void);
+
+public:
+    // FramedSource interfaces
+    virtual void doGetNextFrame();
+    virtual unsigned int maxFrameSize() const;
+
+    // Methods
+    void fetchFrame();
+
+    // Properties
+    Stream* stream(void) const;
+
+    //
+    static void getNextFrame(void* ptr);
+
+private:
+    virtual Boolean isH265VideoStreamFramer() const;
+
+private:
+    TaskToken   mCurrentTask;
+    Stream*     mStream;
+    int64_t     mLastPTS;
+};
+
+/// H265 视频服务媒体会话
+class H265VideoServerMediaSubsession : public OnDemandServerMediaSubsession
+{
+public:
+    virtual ~H265VideoServerMediaSubsession(void);
+
+    // Override OnDemandServerMediaSubsession interfaces
+    virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
+                                                unsigned& estBitrate); // "estBitrate" is the stream's estimated bitrate, in kbps
+    virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
+                                      unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
+
+    // Used to implement "getAuxSDPLine()":
+    void checkForAuxSDPLine1();
+    void afterPlayingDummy1();
+    void setDoneFlag();
+
+    // Static Methods
+    static H265VideoServerMediaSubsession* createNew(UsageEnvironment& env,
+                                                     FramedSource* source, Stream* stream);
+
+    static void afterPlayingDummy(void* ptr);
+    static void checkForAuxSDPLine(void* ptr);
+
+protected:
+    H265VideoServerMediaSubsession(UsageEnvironment& env, FramedSource* source,
                                    Stream* stream);
 
     // Override OnDemandServerMediaSubsession interfaces
