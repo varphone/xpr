@@ -75,6 +75,13 @@ make # 开始编译
 - `BUILD_TOOLS` - 配置是否编译辅助工具。
 - `BUILD_SHARED_LIBS` - 配置是否编译动态库。
 
+当需要使用手工编译的 live 库时，你可以指定 LIVE_ROOT_FORCE 参数来实现，例如：
+
+```sh
+# 指定 live 的头文件及库的根目录
+cmake -DLIVE_ROOT_FORCE=/../live/install/usr/local ..
+```
+
 ### GNU Make 编译
 
 ```sh

@@ -338,6 +338,13 @@ if(BUILD_WITH_HUNTER)
     target_link_libraries(${PROJECT_NAME}
         PUBLIC ${LIVE_LIBRARIES}
     )
+else()
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC ${LIVE_INCLUDE_DIRS}
+    )
+    target_link_libraries(${PROJECT_NAME}
+        PUBLIC ${LIVE_LIBRARIES}
+    )
 endif()
 
 # Installation
