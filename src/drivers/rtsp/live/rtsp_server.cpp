@@ -704,7 +704,7 @@ void H265VideoFramedSource::fetchFrame()
             uint32_t n = fFrameSize - H264_OPTS_FRM_LEN;
             int64_t usecs = XPR_StreamBlockPTS(ntb);
             const uint8_t sei[H264_OPTS_HDR_LEN] = {
-                0x00, 0x00, 0x00, 0x01, 0x06, 0x05, 12, 'O', 'P', 'T', 'S'};
+                0x00, 0x00, 0x00, 0x01, 0x4E, 0x05, 12, 'O', 'P', 'T', 'S'};
             memcpy(fTo, sei, sizeof(sei));
             memcpy(fTo + H264_OPTS_HDR_LEN, &usecs, sizeof(int64_t));
             memcpy(fTo + H264_OPTS_FRM_LEN, XPR_StreamBlockData(ntb), n);
@@ -895,9 +895,9 @@ H265VideoServerMediaSubsession::createNewStreamSource(unsigned clientSessionId,
         DBG(DBG_L4,
             "XPR_RTSP: H265VideoServerMediaSubsession(%p): Use Discrete Input!",
             this);
-        return H264VideoStreamDiscreteFramer::createNew(envir(), src, False);
+        return H265VideoStreamDiscreteFramer::createNew(envir(), src);
     }
-    return H264VideoStreamFramer::createNew(envir(), src, False);
+    return H265VideoStreamFramer::createNew(envir(), src);
 }
 
 RTPSink* H265VideoServerMediaSubsession::createNewRTPSink(
@@ -905,7 +905,7 @@ RTPSink* H265VideoServerMediaSubsession::createNewRTPSink(
     FramedSource* inputSource)
 {
     OutPacketBuffer::maxSize = 320000;
-    return H264VideoRTPSink::createNew(envir(), rtpGroupsock,
+    return H265VideoRTPSink::createNew(envir(), rtpGroupsock,
                                        rtpPayloadTypeIfDynamic);
 }
 
