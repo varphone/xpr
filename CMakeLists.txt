@@ -92,7 +92,7 @@ endif()
 
 # Setup project informations
 project(xpr
-    VERSION 2.3.9
+    VERSION 2.3.10
     LANGUAGES C CXX
 )
 
