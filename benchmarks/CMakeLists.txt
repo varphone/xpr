@@ -36,6 +36,9 @@ target_link_libraries(rtsp-svr-tx-264-with-log xpr)
 add_executable(rtsp-svr-tx-264 benchmark.c rtsp-svr-tx-264.c)
 target_link_libraries(rtsp-svr-tx-264 xpr)
 
+add_executable(rtsp-svr-tx-265 benchmark.c rtsp-svr-tx-265.c)
+target_link_libraries(rtsp-svr-tx-265 xpr)
+
 add_executable(rtsp-svr-tx-aac benchmark.c rtsp-svr-tx-aac.c)
 target_link_libraries(rtsp-svr-tx-aac xpr)
 endif()
